@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-loop-func */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 
@@ -26,7 +25,7 @@ const logTypes: LogTypes[] = [
   'table',
   'group',
   'groupCollapsed',
-  'groupEnd',
+  'groupEnd'
 ];
 
 const ignorePrefixTypes = ['group', 'groupCollapsed', 'groupEnd', 'table'];

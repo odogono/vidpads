@@ -10,3 +10,8 @@
 - the video player should have a button to play/pause the video
 - the video player should have a button to download the video
 
+
+
+https://ffmpegwasm.netlify.app/docs/overview
+
+https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/apps/react-vite-app

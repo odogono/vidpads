@@ -1,19 +1,19 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 
 import { defineConfig } from 'vite';
+
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
   },
   server: {
     headers: {
       'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
+      'Cross-Origin-Opener-Policy': 'same-origin'
+    }
   },
   resolve: {
     alias: {
@@ -21,7 +21,7 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@config': path.resolve(__dirname, './src/config'),
       '@helpers': path.resolve(__dirname, './src/helpers'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-    },
-  },
+      '@hooks': path.resolve(__dirname, './src/hooks')
+    }
+  }
 });

@@ -1,7 +1,8 @@
+import { useCallback, useRef, useState } from 'react';
+
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { createLogger } from './log';
-import { useRef, useState, useCallback } from 'react';
 
 const log = createLogger('FFmpeg');
 
@@ -39,7 +40,7 @@ export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
       setVideoUrl(processedUrl);
       return processedUrl;
     } catch (error) {
-      console.error('Error processing video:', error);
+      log.error('Error processing video:', error);
       alert('Error processing video');
     } finally {
       setIsProcessing(false);
@@ -52,7 +53,7 @@ export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
     processVideo,
     isLoaded,
     isProcessing,
-    videoUrl,
+    videoUrl
   };
 };
 
@@ -84,7 +85,7 @@ const loadFFmpeg = async () => {
     workerURL: await toBlobURL(
       `${baseURL}/ffmpeg-core.worker.js`,
       'text/javascript'
-    ),
+    )
   });
 
   return ffmpeg;
