@@ -1,55 +1,61 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
+
 import { createLogger } from '@helpers/log';
 import { useFFmpeg } from './helpers/ffmpeg';
 
 const log = createLogger('App');
 
-function App() {
-  // const [loaded, setLoaded] = useState(false);
-  // const [videoUrl, setVideoUrl] = useState<string | null>(null);
+interface VideoMetadata {
+  duration: number;
+  width: number;
+  height: number;
+  type: string;
+  size: number;
+}
+
+const App = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  // const ffmpegRef = useRef<FFmpeg>(new FFmpeg());
-  // const messageRef = useRef<HTMLParagraphElement | null>(null);
-  // const [isProcessing, setIsProcessing] = useState(false);
+  const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
 
   const { processVideo, isProcessing, videoUrl } = useFFmpeg({
-    loadOnMount: true,
+    loadOnMount: true
   });
+
+  const getVideoMetadata = (file: File): Promise<VideoMetadata> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src); // Clean up
+        resolve({
+          duration: video.duration,
+          width: video.videoWidth,
+          height: video.videoHeight,
+          type: file.type,
+          size: file.size
+        });
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
 
     if (file && file.type.startsWith('video/')) {
-      await processVideo(file);
-      // setVideoUrl(processedUrl);
+      try {
+        const videoMetadata = await getVideoMetadata(file);
+        setMetadata(videoMetadata);
+        log.info('Video metadata:', videoMetadata);
+        await processVideo(file);
+      } catch (error) {
+        log.error('Error reading video metadata:', error);
+      }
     }
-    //   await ffmpegRef.current.writeFile('input.mp4', await fetchFile(file));
-
-    //   await ffmpegRef.current.exec([
-    //     '-i',
-    //     'input.mp4',
-    //     '-t',
-    //     '5',
-    //     '-c',
-    //     'copy',
-    //     'output.mp4',
-    //   ]);
-
-    //   const data = await ffmpegRef.current.readFile('output.mp4');
-    //   const processedUrl = URL.createObjectURL(
-    //     new Blob([data], { type: 'video/mp4' })
-    //   );
-
-    //   setVideoUrl(processedUrl);
-    // } catch (error) {
-    //   console.error('Error processing video:', error);
-    //   alert('Error processing video');
-    // } finally {
-    //   setIsProcessing(false);
-    // }
-    // }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -79,44 +85,78 @@ function App() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Vid-Wiz</h1>
+    <div className='min-h-screen bg-gray-900 text-white'>
+      <div className='max-w-6xl mx-auto p-8'>
+        <h1 className='text-3xl font-bold mb-8'>Vid-Wiz</h1>
 
-      {!videoUrl ? (
         <div
-          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-600 transition-colors"
+          className={`w-[800px] h-[400px] mx-auto ${
+            !videoUrl
+              ? 'border-2 border-dashed border-gray-500 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400'
+              : ''
+          } transition-colors`}
           onDrop={handleDrop}
-          onDragOver={handleDragOver}>
-          {isProcessing ? (
-            <div className="text-gray-600">Processing video...</div>
+          onDragOver={handleDragOver}
+        >
+          {!videoUrl ? (
+            isProcessing ? (
+              <div className='text-gray-400'>Processing video...</div>
+            ) : (
+              'Drop your video file here'
+            )
           ) : (
-            'Drop your video file here'
+            <div className='h-full'>
+              <div
+                className='relative h-full'
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              >
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className='w-[800px] h-[400px] object-contain'
+                  controls={false}
+                />
+                {isProcessing && (
+                  <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50'>
+                    <div className='text-gray-200'>Processing new video...</div>
+                  </div>
+                )}
+              </div>
+              <div className='flex gap-4 justify-center mt-4'>
+                <button
+                  onClick={togglePlay}
+                  className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
+                >
+                  {isPlaying ? 'Pause' : 'Play'}
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
+                >
+                  Download
+                </button>
+              </div>
+            </div>
           )}
         </div>
-      ) : (
-        <div className="mt-8">
-          <video
-            ref={videoRef}
-            src={videoUrl}
-            className="w-full max-w-3xl mx-auto block"
-            controls={false}
-          />
-          <div className="flex gap-4 justify-center mt-4">
-            <button
-              onClick={togglePlay}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-              {isPlaying ? 'Pause' : 'Play'}
-            </button>
-            <button
-              onClick={handleDownload}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-              Download
-            </button>
+
+        {metadata && (
+          <div className='mt-4 p-4 bg-gray-800 rounded-lg w-[800px] mx-auto'>
+            <h2 className='text-xl font-semibold mb-2'>Video Information</h2>
+            <div className='grid grid-cols-2 gap-2 text-sm'>
+              <div>Duration: {metadata.duration.toFixed(2)}s</div>
+              <div>
+                Resolution: {metadata.width}x{metadata.height}
+              </div>
+              <div>Format: {metadata.type}</div>
+              <div>Size: {(metadata.size / (1024 * 1024)).toFixed(2)} MB</div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
