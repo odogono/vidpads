@@ -2,9 +2,9 @@ import { useCallback, useRef, useState } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { createLogger } from './log';
+import { createLog } from './log';
 
-const log = createLogger('FFmpeg');
+const log = createLog('FFmpeg');
 
 export interface UseFFmpegProps {
   loadOnMount?: boolean;

@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 
-import { createLogger } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import { useFFmpeg } from './helpers/ffmpeg';
 
-const log = createLogger('App');
+const log = createLog('App');
 
 interface VideoMetadata {
   duration: number;
