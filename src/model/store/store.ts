@@ -1,7 +1,7 @@
 // import { createLog } from '@helpers/log';
 import { createStore as createXstateStore } from '@xstate/store';
 import { createPad } from '../pad';
-import { actions } from './actions';
+import * as actions from './actions';
 import type {
   EmittedEvents,
   Events,
@@ -12,6 +12,7 @@ import type {
 // const log = createLog('state');
 
 const initialContext: StoreContextType = {
+  startTime: new Date().toISOString(),
   pads: [
     createPad('a1'),
     createPad('a2'),
@@ -38,10 +39,9 @@ const types = {
   emitted: {} as EmittedEvents
 };
 
-export const createStore = (context?: StoreContextType): StoreType => {
-  return createXstateStore({
+export const createStore = (initialState?: StoreContextType): StoreType =>
+  createXstateStore({
     types,
-    context: context ?? initialContext,
+    context: initialState ?? initialContext,
     on: actions
   });
-};

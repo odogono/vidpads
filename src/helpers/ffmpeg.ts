@@ -53,7 +53,8 @@ export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
     processVideo,
     isLoaded,
     isProcessing,
-    videoUrl
+    videoUrl,
+    setVideoUrl
   };
 };
 
