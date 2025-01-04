@@ -24,7 +24,7 @@ const useFFmpegLoader = (isEnabled: boolean) => {
   });
 };
 
-export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
+export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps = {}) => {
   const ffmpegRef = useRef<FFmpeg | null>(null);
 
   const { data: ffmpeg, isSuccess: isLoaded } = useFFmpegLoader(loadOnMount);
@@ -58,6 +58,15 @@ export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
   };
 };
 
+export const useThumbnail = (file: File) => {
+  const { ffmpeg } = useFFmpeg();
+
+  return useSuspenseQuery({
+    queryKey: ['thumbnail', file],
+    queryFn: () => extractVideoThumbnail(ffmpeg, file)
+  });
+};
+
 const processVideoInternal = async (ffmpeg: FFmpeg, file: File) => {
   await ffmpeg.writeFile('input.mp4', await fetchFile(file));
 
@@ -69,6 +78,53 @@ const processVideoInternal = async (ffmpeg: FFmpeg, file: File) => {
   );
 
   return processedUrl;
+};
+
+export const extractVideoThumbnail = async (
+  ffmpeg: FFmpeg | null,
+  file: File,
+  frameTime = '00:00:01',
+  size = 384
+) => {
+  if (!ffmpeg) {
+    throw new Error('FFmpeg is not loaded');
+  }
+
+  try {
+    await ffmpeg.writeFile('input.mp4', await fetchFile(file));
+
+    // Extract a frame as JPG
+    // -ss: seek to specified time
+    // -frames:v 1: extract only one frame
+    // -q:v 2: high quality (lower number = higher quality, range 2-31)
+    await ffmpeg.exec([
+      '-ss',
+      frameTime,
+      '-i',
+      'input.mp4',
+      '-frames:v',
+      '1',
+      '-vf',
+      `scale=${size}:${size}:force_original_aspect_ratio=decrease,pad=${size}:${size}:(ow-iw)/2:(oh-ih)/2`,
+      '-q:v',
+      '2',
+      'poster.jpg'
+    ]);
+
+    const thumbnail = await ffmpeg.readFile('poster.jpg');
+    const thumbnailUrl = URL.createObjectURL(
+      new Blob([thumbnail], { type: 'image/jpeg' })
+    );
+
+    return thumbnailUrl;
+  } finally {
+    try {
+      await ffmpeg.deleteFile('input.mp4');
+      await ffmpeg.deleteFile('poster.jpg');
+    } catch (error) {
+      log.error('Error deleting files:', error);
+    }
+  }
 };
 
 const loadFFmpeg = async () => {

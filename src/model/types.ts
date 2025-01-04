@@ -44,4 +44,5 @@ export interface MediaImage extends Media {
 export interface MediaVideo extends Media {
   mimeType: 'video/mp4' | 'video/webm';
   duration: number;
+  videoTotalChunks?: number;
 }

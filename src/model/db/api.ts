@@ -1,6 +1,6 @@
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
-import { MediaImage } from '@model/types';
+import { MediaImage, MediaVideo } from '@model/types';
 import {
   useMutation,
   useQueryClient,
@@ -102,6 +102,150 @@ export const saveStateToIndexedDB = async (
 
     transaction.oncomplete = () => {
       log.debug('state saved to IndexedDB');
+      db.close();
+    };
+  });
+};
+
+export interface SaveVideoDataProps {
+  file: File;
+  metadata: MediaVideo;
+  thumbnail: string;
+  chunkSize?: number;
+}
+
+export const saveVideoData = async ({
+  file,
+  metadata,
+  thumbnail,
+  chunkSize = 1024 * 1024 * 10 // 10MB
+}: SaveVideoDataProps): Promise<void> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      ['videoChunks', 'metadata', 'thumbnails'],
+      'readwrite'
+    );
+
+    const { id, sizeInBytes } = metadata;
+    const videoTotalChunks = Math.ceil(sizeInBytes / chunkSize);
+
+    // Save the metadata
+    const metadataStore = transaction.objectStore('metadata');
+    metadataStore.put(metadata);
+
+    // Save the thumbnail
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    thumbnailStore.put({ id, thumbnail });
+
+    // Save the video chunks
+    const videoChunksStore = transaction.objectStore('videoChunks');
+
+    for (let ii = 0; ii < videoTotalChunks; ii++) {
+      const start = ii * chunkSize;
+      const end = Math.min(start + chunkSize, sizeInBytes);
+      const chunk = file.slice(start, end);
+
+      const data = {
+        id,
+        videoChunkIndex: ii,
+        videoTotalChunks,
+        data: chunk,
+        timestamp: Date.now()
+      };
+
+      videoChunksStore.put(data);
+    }
+
+    transaction.onerror = () => {
+      log.error('Error saving video data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      log.debug('Video data saved successfully');
+      db.close();
+      resolve();
+    };
+  });
+};
+
+interface LoadVideoDataResult {
+  file: Blob;
+  metadata: MediaVideo;
+  thumbnail: string;
+}
+
+export const loadVideoData = async (
+  id: string
+): Promise<LoadVideoDataResult> => {
+  const db = await openDB();
+
+  // retrieve the metadata and thumbnail first
+  const { metadata, thumbnail } = await new Promise<{
+    metadata: MediaVideo;
+    thumbnail: string;
+  }>((resolve, reject) => {
+    const transaction = db.transaction(['metadata', 'thumbnails'], 'readonly');
+
+    const metadataStore = transaction.objectStore('metadata');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+
+    const metadataRequest = metadataStore.get(id);
+    const thumbnailRequest = thumbnailStore.get(id);
+
+    transaction.onerror = () => {
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      const metadata = metadataRequest.result;
+      const thumbnailData = thumbnailRequest.result;
+      resolve({ metadata, thumbnail: thumbnailData.thumbnail });
+    };
+  });
+
+  return new Promise((resolve, reject) => {
+    const { videoTotalChunks, mimeType } = metadata;
+
+    const transaction = db.transaction('videoChunks', 'readonly');
+    const store = transaction.objectStore('videoChunks');
+
+    const videoChunksRequest = store.getAll(
+      IDBKeyRange.bound([id, 0], [id, videoTotalChunks! - 1])
+    );
+
+    transaction.onerror = () => {
+      log.error('Error loading video chunks:', videoChunksRequest.error);
+      reject(videoChunksRequest.error);
+    };
+
+    transaction.oncomplete = () => {
+      const { result } = videoChunksRequest;
+
+      if (result.length !== videoTotalChunks) {
+        reject(new Error('Incomplete video data'));
+        return;
+      }
+
+      // sort chunks by videoChunkIndex
+      const sortedChunks = result.sort(
+        (a, b) => a.videoChunkIndex - b.videoChunkIndex
+      );
+
+      // join chunks into a single file
+      const file = new Blob(
+        sortedChunks.map((chunk) => chunk.data),
+        { type: mimeType }
+      );
+
+      resolve({
+        file,
+        metadata,
+        thumbnail
+      });
+      log.debug('video data loaded from IndexedDB');
       db.close();
     };
   });

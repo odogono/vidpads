@@ -1,10 +1,11 @@
 import React, { Suspense, useRef, useState } from 'react';
 
+import { extractVideoThumbnail, useFFmpeg } from '@helpers/ffmpeg';
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
-import { saveImageData } from '@model/db/api';
+import { saveImageData, saveVideoData } from '@model/db/api';
 import { usePads } from '@model/store/selectors';
-import { MediaImage } from '@model/types';
+import { MediaImage, MediaVideo } from '@model/types';
 import { PadComponent } from './PadComponent';
 import { PadLoadingComponent } from './PadLoadingComponent';
 
@@ -59,6 +60,7 @@ const createImageThumbnail = (
 };
 
 export const TileContainer = () => {
+  const { ffmpeg } = useFFmpeg();
   const { pads, store } = usePads();
 
   const [dragOverIndex, setDragOverIndex] = useState<string | null>(null);
@@ -89,7 +91,25 @@ export const TileContainer = () => {
 
       if (isVideo) {
         log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
-        // Handle video saving separately
+
+        try {
+          const thumbnail = await extractVideoThumbnail(ffmpeg, file);
+
+          await saveVideoData({
+            file,
+            metadata: metadata as MediaVideo,
+            thumbnail
+          });
+
+          // Update the store with the tile's video ID
+          store.send({
+            type: 'setPadMedia',
+            padId,
+            media: metadata
+          });
+        } catch (error) {
+          log.error('Failed to generate video thumbnail:', error);
+        }
       } else {
         // Generate thumbnail for images
         try {
