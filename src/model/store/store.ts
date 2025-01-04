@@ -3,15 +3,16 @@ import { createStore as createXstateStore } from '@xstate/store';
 import { createPad } from '../pad';
 import * as actions from './actions';
 import type {
+  Actions,
   EmittedEvents,
-  Events,
   StoreContextType,
   StoreType
 } from './types';
 
 // const log = createLog('state');
 
-const initialContext: StoreContextType = {
+export const initialContext: StoreContextType = {
+  isInitial: true,
   startTime: new Date().toISOString(),
   pads: [
     createPad('a1'),
@@ -33,15 +34,16 @@ const initialContext: StoreContextType = {
   ]
 };
 
-const types = {
-  context: {} as StoreContextType,
-  events: {} as Events,
-  emitted: {} as EmittedEvents
-};
-
-export const createStore = (initialState?: StoreContextType): StoreType =>
-  createXstateStore({
-    types,
+export const createStore = (initialState?: StoreContextType): StoreType => {
+  const content = {
+    types: {
+      context: {} as StoreContextType,
+      events: {} as Actions,
+      emitted: {} as EmittedEvents
+    },
     context: initialState ?? initialContext,
     on: actions
-  });
+  };
+
+  return createXstateStore(content);
+};

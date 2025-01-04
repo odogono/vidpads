@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
@@ -16,6 +17,7 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.13",
     "@ffmpeg/util": "^0.12.1",
+    "@tanstack/react-query": "^5.62.14",
     "@xstate/store": "^2.6.2",
     "mitt": "^3.0.1",
     "react": "^18.3.1",

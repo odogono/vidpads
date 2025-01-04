@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
+import { useStore } from '@model/store/useStore';
 
 const log = createLog('TileContainer');
 
@@ -13,6 +14,7 @@ const ACCEPTED_FILE_TYPES = [
 ];
 
 export const TileContainer = () => {
+  const store = useStore();
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Create a ref for the hidden file input
@@ -41,6 +43,12 @@ export const TileContainer = () => {
       if (isVideoMetadata(metadata)) {
         log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
       }
+
+      store.send({
+        type: 'updatePadSource',
+        padId: `a${index + 1}`,
+        url: file.name
+      });
 
       return metadata;
     } catch (error) {

@@ -1,16 +1,37 @@
+import { createLog } from '@helpers/log';
 import { OperationType, type Pad } from '../types';
 import type {
   Emit,
+  InitialiseStoreAction,
   StoreContextType,
-  UpdatePadSourceEvent,
-  UpdateStartTimeEvent
+  UpdatePadSourceAction,
+  UpdateStartTimeAction
 } from './types';
 
-export const updatePadSource = (
-  context: NoInfer<StoreContextType>,
-  event: UpdatePadSourceEvent,
+type Context = NoInfer<StoreContextType>;
+
+const log = createLog('store/actions');
+
+export const initialiseStore = (
+  context: Context,
+  event: InitialiseStoreAction,
   { emit }: Emit
-) => {
+): Context => {
+  log.debug('setStoreInitialised', event);
+
+  emit({ type: 'storeInitialised' });
+
+  return {
+    ...context,
+    isInitial: false
+  };
+};
+
+export const updatePadSource = (
+  context: Context,
+  event: UpdatePadSourceAction,
+  { emit }: Emit
+): Context => {
   const pad = context.pads.find((pad) => pad.id === event.padId);
   if (!pad) {
     return context;
@@ -36,10 +57,10 @@ export const updatePadSource = (
 };
 
 export const updateStartTime = (
-  context: NoInfer<StoreContextType>,
-  event: UpdateStartTimeEvent,
+  context: Context,
+  event: UpdateStartTimeAction,
   { emit }: Emit
-) => {
+): Context => {
   const startTime = new Date().toISOString();
   emit({ type: 'startTimeUpdated', startTime });
 

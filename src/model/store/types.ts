@@ -1,35 +1,54 @@
 import type { Store } from '@xstate/store';
 import type { Pad } from '../types';
 
-export type StoreContextType = {
+export interface StoreContextType {
+  isInitial: boolean;
   startTime: string;
   pads: Pad[];
-};
+}
 
-export type UpdatePadSourceEvent = {
+export type UpdatePadSourceAction = {
   type: 'updatePadSource';
   padId: string;
   url: string;
 };
 
-export type UpdateStartTimeEvent = {
+export type UpdateStartTimeAction = {
   type: 'updateStartTime';
 };
 
-type PadUpdatedEvent = {
+export type InitialiseStoreAction = {
+  type: 'initialiseStore';
+};
+
+export type Actions =
+  | InitialiseStoreAction
+  | UpdateStartTimeAction
+  | UpdatePadSourceAction;
+
+export type PadUpdatedEvent = {
   type: 'padUpdated';
   pad: Pad;
 };
 
-type StartTimeUpdatedEvent = {
+export type StartTimeUpdatedEvent = {
   type: 'startTimeUpdated';
   startTime: string;
 };
 
-export type Events = UpdatePadSourceEvent | UpdateStartTimeEvent;
-export type EmittedEvents = PadUpdatedEvent | StartTimeUpdatedEvent;
+export type StoreInitialisedEvent = {
+  type: 'storeInitialised';
+};
+
+export type EmittedEvents =
+  | PadUpdatedEvent
+  | StartTimeUpdatedEvent
+  | StoreInitialisedEvent;
+
 export type Emit = { emit: (event: EmittedEvents) => void };
 
-export type StoreType = Store<StoreContextType, Events, EmittedEvents>;
+export type StoreType = Store<StoreContextType, Actions, EmittedEvents>;
 
 export type StoreSnapshot = ReturnType<StoreType['subscribe']>;
+
+// export const myAction: Actions = { type: 'someOtherAction' };
