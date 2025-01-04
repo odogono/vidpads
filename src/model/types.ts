@@ -26,3 +26,22 @@ export interface Pad {
   id: string;
   recipe: Recipe;
 }
+
+export interface Media {
+  id: string;
+  url: string;
+  name: string;
+  sizeInBytes: number;
+  mimeType: string;
+  width: number;
+  height: number;
+}
+
+export interface Image extends Media {
+  mimeType: 'image/png' | 'image/jpeg' | 'image/jpg' | 'image/webp';
+}
+
+export interface Video extends Media {
+  mimeType: 'video/mp4' | 'video/webm';
+  duration: number;
+}

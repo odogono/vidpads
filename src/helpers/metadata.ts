@@ -1,29 +1,32 @@
 import { createLog } from '@helpers/log';
-
-export interface ImageMetadata {
-  width: number;
-  height: number;
-  sizeInBytes: number;
-  type: string;
-  name: string;
-}
-
-export interface VideoMetadata extends ImageMetadata {
-  duration: number; // in seconds
-}
-
-export type MediaMetadata = ImageMetadata | VideoMetadata;
+import type { Image, Media, Video } from '@model/types';
 
 const log = createLog('metadata');
 
-export const isVideoMetadata = (
-  metadata: MediaMetadata
-): metadata is VideoMetadata => {
+export const isVideoMetadata = (metadata: Media): metadata is Video => {
   return 'duration' in metadata;
 };
 
-export const getMediaMetadata = (file: File): Promise<MediaMetadata> => {
+// Add this new function to generate a unique ID
+const generateFileId = (file: File): string => {
+  // Combine unique properties of the file
+  const uniqueString = `${file.name}-${file.size}-${file.lastModified}`;
+
+  // Simple hash function
+  let hash = 0;
+  for (let i = 0; i < uniqueString.length; i++) {
+    const char = uniqueString.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+
+  // Convert to hex string and ensure positive number
+  return Math.abs(hash).toString(16);
+};
+
+export const getMediaMetadata = (file: File): Promise<Media> => {
   const isVideo = file.type.startsWith('video/');
+  const fileId = generateFileId(file);
 
   if (isVideo) {
     return new Promise((resolve, reject) => {
@@ -50,12 +53,14 @@ export const getMediaMetadata = (file: File): Promise<MediaMetadata> => {
       };
       video.onloadedmetadata = () => {
         clearTimeout(timeoutId);
-        const metadata = {
+        const metadata: Video = {
+          id: fileId,
+          url: 'vidpads://media/' + fileId,
           width: video.videoWidth,
           height: video.videoHeight,
           duration: video.duration,
           sizeInBytes: file.size,
-          type: file.type,
+          mimeType: file.type as Video['mimeType'],
           name: file.name
         };
         cleanup();
@@ -84,11 +89,13 @@ export const getMediaMetadata = (file: File): Promise<MediaMetadata> => {
 
     img.onload = () => {
       clearTimeout(timeoutId);
-      const metadata = {
+      const metadata: Image = {
+        id: fileId,
+        url: 'vidpads://media/' + fileId,
         width: img.width,
         height: img.height,
         sizeInBytes: file.size,
-        type: file.type,
+        mimeType: file.type as Image['mimeType'],
         name: file.name
       };
       cleanup();

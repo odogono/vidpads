@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
+import { useDBStore, useDBStoreUpdate } from '@model/db/api';
 import { StoreContext } from './context';
-import { useDBStore, useDBStoreUpdate } from './storage';
 import { createStore } from './store';
 import type { StoreType } from './types';
 
