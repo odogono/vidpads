@@ -1,5 +1,6 @@
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
+import { MediaImage } from '@model/types';
 import {
   useMutation,
   useQueryClient,
@@ -94,6 +95,108 @@ export const saveStateToIndexedDB = async (
 
     transaction.oncomplete = () => {
       log.debug('state saved to IndexedDB');
+      db.close();
+    };
+  });
+};
+
+export const saveImageData = async (
+  file: File,
+  metadata: MediaImage,
+  thumbnail: string
+): Promise<void> => {
+  const db = await openDB();
+
+  // Convert File to ArrayBuffer for storage
+  const arrayBuffer = await file.arrayBuffer();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      ['images', 'metadata', 'thumbnails'],
+      'readwrite'
+    );
+
+    const { id } = metadata;
+
+    // Save the image as ArrayBuffer
+    const imageStore = transaction.objectStore('images');
+    imageStore.put({
+      id,
+      data: arrayBuffer,
+      type: file.type // Store the mime type for later reconstruction
+    });
+
+    // Save the metadata
+    const metadataStore = transaction.objectStore('metadata');
+    metadataStore.put(metadata);
+
+    // Save the thumbnail
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    thumbnailStore.put({ id, thumbnail });
+
+    // Handle errors
+    transaction.onerror = () => {
+      log.error('Error saving image data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    // Handle success
+    transaction.oncomplete = () => {
+      log.debug('Image data saved successfully');
+      db.close();
+      resolve();
+    };
+  });
+};
+
+// Add a function to load the image data
+export const loadImageData = async (
+  id: string
+): Promise<{
+  blob: Blob;
+  metadata: MediaImage;
+  thumbnail: string;
+}> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      ['images', 'metadata', 'thumbnails'],
+      'readonly'
+    );
+
+    const imageStore = transaction.objectStore('images');
+    const metadataStore = transaction.objectStore('metadata');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+
+    const imageRequest = imageStore.get(id);
+    const metadataRequest = metadataStore.get(id);
+    const thumbnailRequest = thumbnailStore.get(id);
+
+    transaction.onerror = () => {
+      log.error('Error loading image data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      const imageData = imageRequest.result;
+      const metadata = metadataRequest.result;
+      const thumbnailData = thumbnailRequest.result;
+
+      if (!imageData || !metadata || !thumbnailData) {
+        reject(new Error('Failed to load image data'));
+        return;
+      }
+
+      // Convert ArrayBuffer back to Blob
+      const blob = new Blob([imageData.data], { type: imageData.type });
+
+      resolve({
+        blob,
+        metadata,
+        thumbnail: thumbnailData.thumbnail
+      });
+
       db.close();
     };
   });

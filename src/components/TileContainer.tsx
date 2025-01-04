@@ -2,7 +2,9 @@ import React, { useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
+import { saveImageData } from '@model/db/api';
 import { useStore } from '@model/store/useStore';
+import { MediaImage } from '@model/types';
 
 const log = createLog('TileContainer');
 
@@ -84,13 +86,28 @@ export const TileContainer = () => {
 
       if (isVideo) {
         log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
+        // Handle video saving separately
       } else {
         // Generate thumbnail for images
         try {
           const thumbnail = await createImageThumbnail(file);
           log.info(`Generated thumbnail for image at tile ${index}`);
-          // You can store or use the thumbnail here
-          // The thumbnail is a base64 encoded JPEG string
+
+          // Generate a unique ID for the image
+          // const imageId = uuidv4();
+
+          // Save image data to IndexedDB
+          await saveImageData(file, metadata as MediaImage, thumbnail);
+
+          // Update the store with the tile's image ID
+          // store.dispatch({
+          //   type: 'SET_TILE_MEDIA',
+          //   payload: {
+          //     index,
+          //     mediaId: imageId,
+          //     mediaType: 'image'
+          //   }
+          // });
         } catch (error) {
           log.error('Failed to generate thumbnail:', error);
         }

@@ -37,11 +37,11 @@ export interface Media {
   height: number;
 }
 
-export interface Image extends Media {
+export interface MediaImage extends Media {
   mimeType: 'image/png' | 'image/jpeg' | 'image/jpg' | 'image/webp';
 }
 
-export interface Video extends Media {
+export interface MediaVideo extends Media {
   mimeType: 'video/mp4' | 'video/webm';
   duration: number;
 }
