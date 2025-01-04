@@ -1,5 +1,5 @@
+import type { Media, Pad } from '@model/types';
 import type { Store } from '@xstate/store';
-import type { Pad } from '../types';
 
 export interface StoreContextType {
   isInitial: boolean;
@@ -21,10 +21,17 @@ export type InitialiseStoreAction = {
   type: 'initialiseStore';
 };
 
+export type SetPadMediaAction = {
+  type: 'setPadMedia';
+  padId: string;
+  media: Media;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
-  | UpdatePadSourceAction;
+  | UpdatePadSourceAction
+  | SetPadMediaAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

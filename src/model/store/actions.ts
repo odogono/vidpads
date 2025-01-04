@@ -3,6 +3,7 @@ import { OperationType, type Pad } from '../types';
 import type {
   Emit,
   InitialiseStoreAction,
+  SetPadMediaAction,
   StoreContextType,
   UpdatePadSourceAction,
   UpdateStartTimeAction
@@ -58,7 +59,7 @@ export const updatePadSource = (
 
 export const updateStartTime = (
   context: Context,
-  event: UpdateStartTimeAction,
+  _event: UpdateStartTimeAction,
   { emit }: Emit
 ): Context => {
   const startTime = new Date().toISOString();
@@ -67,5 +68,34 @@ export const updateStartTime = (
   return {
     ...context,
     startTime
+  };
+};
+
+export const setPadMedia = (
+  context: Context,
+  event: SetPadMediaAction
+): Context => {
+  const { padId, media } = event;
+  const pad = context.pads.find((pad) => pad.id === padId);
+  if (!pad) {
+    return context;
+  }
+
+  const { url } = media;
+
+  const newPad: Pad = {
+    ...pad,
+    recipe: {
+      ...pad.recipe,
+      source: {
+        type: OperationType.Source,
+        url
+      }
+    }
+  };
+
+  return {
+    ...context,
+    pads: [...context.pads.filter((p) => p.id !== pad.id), newPad]
   };
 };

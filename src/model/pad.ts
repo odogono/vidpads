@@ -9,3 +9,7 @@ export const createPad = (id: string): Pad => {
     }
   };
 };
+
+export const getPadSourceUrl = (pad: Pad): string | undefined => {
+  return pad.recipe.source?.url;
+};

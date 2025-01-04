@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { createLog } from './log';
 
 const log = createLog('FFmpeg');
@@ -10,51 +11,50 @@ export interface UseFFmpegProps {
   loadOnMount?: boolean;
 }
 
-export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
-  const [isLoaded, setLoaded] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  // const [isPlaying, setIsPlaying] = useState(false);
-  // const videoRef = useRef<HTMLVideoElement | null>(null);
-  const ffmpegRef = useRef<FFmpeg | null>(null);
-  // const messageRef = useRef<HTMLParagraphElement | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+const useFFmpegLoader = (isEnabled: boolean) => {
+  return useSuspenseQuery({
+    queryKey: ['ffmpeg', isEnabled],
+    queryFn: () => {
+      if (!isEnabled) {
+        return null;
+      }
+      return loadFFmpeg();
+    },
+    gcTime: Infinity
+  });
+};
 
-  if (loadOnMount && ffmpegRef.current === null) {
-    (async () => {
-      ffmpegRef.current = await loadFFmpeg();
-      setLoaded(true);
-    })();
+export const useFFmpeg = ({ loadOnMount = true }: UseFFmpegProps) => {
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+
+  const { data: ffmpeg, isSuccess: isLoaded } = useFFmpegLoader(loadOnMount);
+
+  if (!ffmpegRef.current) {
+    ffmpegRef.current = ffmpeg;
+    log.debug('FFmpeg loaded', !!ffmpeg);
   }
 
-  const processVideo = useCallback(async (file: File) => {
-    if (!ffmpegRef.current) {
-      ffmpegRef.current = await loadFFmpeg();
-    }
-
-    try {
-      setIsProcessing(true);
-
-      const processedUrl = await processVideoInternal(ffmpegRef.current, file);
-
-      setIsProcessing(false);
-      setVideoUrl(processedUrl);
-      return processedUrl;
-    } catch (error) {
+  const processVideoMutation = useMutation({
+    mutationFn: async (file: File) => {
+      if (!ffmpegRef.current) {
+        ffmpegRef.current = await loadFFmpeg();
+      }
+      return processVideoInternal(ffmpegRef.current, file);
+    },
+    onError: (error) => {
       log.error('Error processing video:', error);
       alert('Error processing video');
-    } finally {
-      setIsProcessing(false);
     }
-    return null;
-  }, []);
+  });
 
   return {
     ffmpeg: ffmpegRef.current,
-    processVideo,
+    processVideo: processVideoMutation.mutate,
     isLoaded,
-    isProcessing,
-    videoUrl,
-    setVideoUrl
+    isProcessing: processVideoMutation.isPending,
+    videoUrl: processVideoMutation.data ?? null,
+    error: processVideoMutation.error,
+    reset: processVideoMutation.reset
   };
 };
 

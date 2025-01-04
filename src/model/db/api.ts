@@ -19,6 +19,13 @@ export const useDBStore = () => {
   });
 };
 
+export const useThumbnail = (url?: string | undefined) => {
+  return useSuspenseQuery({
+    queryKey: ['thumbnail', url],
+    queryFn: () => getThumbnailFromUrl(url)
+  });
+};
+
 export const useDBStoreUpdate = () => {
   const queryClient = useQueryClient();
 
@@ -198,6 +205,46 @@ export const loadImageData = async (
       });
 
       db.close();
+    };
+  });
+};
+
+// Add this helper function to parse media URLs
+const getMediaIdFromUrl = (url: string): string | null => {
+  const match = url.match(/^vidpads:\/\/media\/(.+)$/);
+  return match ? match[1] : null;
+};
+
+// Add this new function to get thumbnail by URL
+export const getThumbnailFromUrl = async (
+  url?: string | undefined
+): Promise<string | null> => {
+  if (!url) {
+    return null;
+  }
+
+  const mediaId = getMediaIdFromUrl(url);
+  if (!mediaId) {
+    log.error('Invalid media URL format:', url);
+    return null;
+  }
+
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['thumbnails'], 'readonly');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    const request = thumbnailStore.get(mediaId);
+
+    request.onerror = () => {
+      log.error('Error loading thumbnail:', request.error);
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      const result = request.result;
+      db.close();
+      resolve(result ? result.thumbnail : null);
     };
   });
 };

@@ -1,10 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { Suspense, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import { saveImageData } from '@model/db/api';
-import { useStore } from '@model/store/useStore';
+import { usePads } from '@model/store/selectors';
 import { MediaImage } from '@model/types';
+import { PadComponent } from './PadComponent';
+import { PadLoadingComponent } from './PadLoadingComponent';
 
 const log = createLog('TileContainer');
 
@@ -57,19 +59,20 @@ const createImageThumbnail = (
 };
 
 export const TileContainer = () => {
-  const store = useStore();
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const { pads, store } = usePads();
+
+  const [dragOverIndex, setDragOverIndex] = useState<string | null>(null);
 
   // Create a ref for the hidden file input
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState<string | null>(null);
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, padId: string) => {
     e.preventDefault();
     // Only show drop indicator if the dragged file is valid
     const types = Array.from(e.dataTransfer.items).map((item) => item.type);
     if (types.some((type) => ACCEPTED_FILE_TYPES.includes(type))) {
-      setDragOverIndex(index);
+      setDragOverIndex(padId);
     }
   };
 
@@ -77,12 +80,12 @@ export const TileContainer = () => {
     setDragOverIndex(null);
   };
 
-  const processMediaFile = async (file: File, index: number) => {
+  const processMediaFile = async (file: File, padId: string) => {
     try {
       const metadata = await getMediaMetadata(file);
       const isVideo = isVideoMetadata(metadata);
       const mediaType = isVideo ? 'video' : 'image';
-      log.info(`${mediaType} metadata for tile ${index}:`, metadata);
+      log.info(`${mediaType} metadata for pad ${padId}:`, metadata);
 
       if (isVideo) {
         log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
@@ -91,23 +94,17 @@ export const TileContainer = () => {
         // Generate thumbnail for images
         try {
           const thumbnail = await createImageThumbnail(file);
-          log.info(`Generated thumbnail for image at tile ${index}`);
-
-          // Generate a unique ID for the image
-          // const imageId = uuidv4();
+          log.info(`Generated thumbnail for image at pad ${padId}`);
 
           // Save image data to IndexedDB
           await saveImageData(file, metadata as MediaImage, thumbnail);
 
           // Update the store with the tile's image ID
-          // store.dispatch({
-          //   type: 'SET_TILE_MEDIA',
-          //   payload: {
-          //     index,
-          //     mediaId: imageId,
-          //     mediaType: 'image'
-          //   }
-          // });
+          store.send({
+            type: 'setPadMedia',
+            padId,
+            media: metadata
+          });
         } catch (error) {
           log.error('Failed to generate thumbnail:', error);
         }
@@ -120,7 +117,7 @@ export const TileContainer = () => {
     }
   };
 
-  const handleDrop = async (e: React.DragEvent, tileIndex: number) => {
+  const handleDrop = async (e: React.DragEvent, padId: string) => {
     e.preventDefault();
     setDragOverIndex(null);
 
@@ -131,13 +128,13 @@ export const TileContainer = () => {
         log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
         return;
       }
-      await processMediaFile(file, tileIndex);
-      log.info(`Processed file ${file.name} for tile ${tileIndex}`);
+      await processMediaFile(file, padId);
+      log.info(`Processed file ${file.name} for pad ${padId}`);
     }
   };
 
-  const handleClick = (index: number) => {
-    setActiveIndex(index);
+  const handleClick = (padId: string) => {
+    setActiveIndex(padId);
     fileInputRef.current?.click();
   };
 
@@ -164,22 +161,17 @@ export const TileContainer = () => {
         onChange={handleFileSelect}
       />
       <div className='grid grid-cols-4 gap-8'>
-        {Array.from({ length: 16 }).map((_, index) => (
-          <div
-            key={index}
-            className={`
-              aspect-square rounded-lg cursor-pointer transition-all
-              ${
-                dragOverIndex === index
-                  ? 'bg-gray-600 scale-105'
-                  : 'bg-gray-800 hover:bg-gray-700'
-              }
-            `}
-            onClick={() => handleClick(index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, index)}
-          />
+        {pads.map((pad) => (
+          <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
+            <PadComponent
+              pad={pad}
+              isDraggedOver={dragOverIndex === pad.id}
+              onTap={handleClick}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            />
+          </Suspense>
         ))}
       </div>
     </div>
