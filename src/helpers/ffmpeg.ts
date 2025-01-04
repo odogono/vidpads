@@ -5,6 +5,11 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { createLog } from './log';
 
+const useMultiThreadedFFmpeg = false;
+const CORE_VERSION = '0.12.6';
+const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/esm`;
+const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/esm`;
+
 const log = createLog('FFmpeg');
 
 export interface UseFFmpegProps {
@@ -90,60 +95,164 @@ export const extractVideoThumbnail = async (
     throw new Error('FFmpeg is not loaded');
   }
 
-  try {
-    await ffmpeg.writeFile('input.mp4', await fetchFile(file));
+  const outputFile = 'poster.jpg';
+  const inputDir = '/mounted';
+  const inputFile = `${inputDir}/${file.name}`;
+  // const inputFile = 'input.mp4';
 
+  try {
+    log.debug('[extractVideoThumbnail] getting file data');
+    // const fileData = file;
+    // const fileData = await fetchFile(file);
+    // log.debug('[extractVideoThumbnail] writing file', fileData);
+    // await ffmpeg.writeFile('input.mp4', fileData);
+
+    const dirRoot = await ffmpeg.listDir('/');
+    dirRoot.forEach((item) => {
+      log.debug('[extractVideoThumbnail] root', item.name);
+    });
+    // log.debug('[extractVideoThumbnail] directory mounted', dirRoot);
+
+    if (!dirRoot.find((item) => item.name === 'mounted')) {
+      await ffmpeg.createDir(inputDir);
+    }
+
+    const dirMounted = await ffmpeg.listDir(inputDir);
+    // dirMounted.forEach((item) => {
+    //   log.debug(`[extractVideoThumbnail] ${inputDir}`, item.name);
+    // });
+
+    if (!dirMounted.find((item) => item.name === file.name)) {
+      log.debug('[extractVideoThumbnail] mounting file at', inputFile, file);
+      await ffmpeg.mount(
+        // @ts-expect-error FFSTypes are not yet exported from ffmpeg.wasm
+        'WORKERFS',
+        {
+          files: [file]
+        },
+        inputDir
+      );
+    }
+
+    // const directoryMounted = await ffmpeg.listDir(inputDir);
+    // log.debug('[extractVideoThumbnail] directory mounted', directoryMounted);
     // Extract a frame as JPG
     // -ss: seek to specified time
     // -frames:v 1: extract only one frame
     // -q:v 2: high quality (lower number = higher quality, range 2-31)
-    await ffmpeg.exec([
+    log.debug('[extractVideoThumbnail] executing ffmpeg op');
+    const err = await ffmpeg.exec([
+      '-v',
+      'error',
       '-ss',
       frameTime,
       '-i',
-      'input.mp4',
+      inputFile,
       '-frames:v',
       '1',
       '-vf',
       `scale=${size}:${size}:force_original_aspect_ratio=decrease,pad=${size}:${size}:(ow-iw)/2:(oh-ih)/2`,
       '-q:v',
       '2',
-      'poster.jpg'
+      outputFile
     ]);
 
-    const thumbnail = await ffmpeg.readFile('poster.jpg');
-    const thumbnailUrl = URL.createObjectURL(
-      new Blob([thumbnail], { type: 'image/jpeg' })
-    );
+    // log.debug('[extractVideoThumbnail] ffmpeg exec completed', err);
 
-    return thumbnailUrl;
+    if (err !== 0) {
+      log.error('[extractVideoThumbnail] ffmpeg exec failed', err);
+      return null;
+    }
+
+    log.debug('[extractVideoThumbnail] reading thumbnail');
+
+    const data = await ffmpeg.readFile(outputFile);
+    log.debug('[extractVideoThumbnail] thumbnail jpg read', data);
+
+    const result = await ffmpegOutputToDataUrl(data, 'image/jpeg');
+    // const blob = URL.createObjectURL(new Blob([data], { type: 'image/jpeg' }));
+    // const blob = URL.createObjectURL(
+    //   new Blob([data], {
+    //     type: 'application/octet-stream'
+    //   })
+    // );
+
+    log.debug('[extractVideoThumbnail] thumbnail url created', result);
+
+    return result;
+  } catch (error) {
+    log.error(
+      '[extractVideoThumbnail] Error extracting video thumbnail:',
+      error
+    );
+    throw error;
   } finally {
     try {
-      await ffmpeg.deleteFile('input.mp4');
-      await ffmpeg.deleteFile('poster.jpg');
+      // log.debug('[extractVideoThumbnail] delete', inputFile);
+      // await ffmpeg.deleteFile(inputFile);
+      log.debug('[extractVideoThumbnail] delete', outputFile);
+      await ffmpeg.deleteFile(outputFile);
+      log.debug('[extractVideoThumbnail] unmount', inputDir);
+      await ffmpeg.unmount(inputDir);
     } catch (error) {
-      log.error('Error deleting files:', error);
+      log.error('[extractVideoThumbnail] Error deleting files:', error);
     }
   }
 };
 
+const ffmpegOutputToDataUrl = async (
+  outputData: any,
+  mimeType: string
+): Promise<string> => {
+  // Convert Uint8Array to regular Array Buffer first
+  // const arrayBuffer = outputData.buffer.slice(0);
+  const blob = new Blob([outputData], { type: mimeType });
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
 const loadFFmpeg = async () => {
-  const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
   const ffmpeg = new FFmpeg();
   ffmpeg.on('log', ({ message }) => {
-    log.info(message);
-    // if (messageRef.current) messageRef.current.innerHTML = message;
+    log.debug('[core]', message);
   });
-  // toBlobURL is used to bypass CORS issue, urls with the same
-  // domain can be used directly.
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-    workerURL: await toBlobURL(
-      `${baseURL}/ffmpeg-core.worker.js`,
-      'text/javascript'
-    )
-  });
+
+  if (useMultiThreadedFFmpeg && window.crossOriginIsolated) {
+    log.debug('multi-threaded');
+    // toBlobURL is used to bypass CORS issue, urls with the same
+    // domain can be used directly.
+    await ffmpeg.load({
+      coreURL: await toBlobURL(
+        `${baseURLCoreMT}/ffmpeg-core.js`,
+        'text/javascript'
+      ),
+      wasmURL: await toBlobURL(
+        `${baseURLCoreMT}/ffmpeg-core.wasm`,
+        'application/wasm'
+      ),
+      workerURL: await toBlobURL(
+        `${baseURLCoreMT}/ffmpeg-core.worker.js`,
+        'text/javascript'
+      )
+    });
+  } else {
+    log.debug('single-threaded');
+    await ffmpeg.load({
+      coreURL: await toBlobURL(
+        `${baseURLCore}/ffmpeg-core.js`,
+        'text/javascript'
+      ),
+      wasmURL: await toBlobURL(
+        `${baseURLCore}/ffmpeg-core.wasm`,
+        'application/wasm'
+      )
+    });
+  }
 
   return ffmpeg;
 };

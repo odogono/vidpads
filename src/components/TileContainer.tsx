@@ -93,8 +93,10 @@ export const TileContainer = () => {
         log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
 
         try {
+          log.debug('extracting video thumbnail');
           const thumbnail = await extractVideoThumbnail(ffmpeg, file);
 
+          log.debug('saving video data');
           await saveVideoData({
             file,
             metadata: metadata as MediaVideo,
