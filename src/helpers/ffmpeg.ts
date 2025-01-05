@@ -5,7 +5,7 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { createLog } from './log';
 
-const useMultiThreadedFFmpeg = false;
+const useMultiThreadedFFmpeg = true;
 const CORE_VERSION = '0.12.6';
 const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/esm`;
 const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/esm`;
@@ -102,8 +102,12 @@ export const extractVideoThumbnail = async (
 
   try {
     log.debug('[extractVideoThumbnail] getting file data');
-    // const fileData = file;
+
     // const fileData = await fetchFile(file);
+    // // https://github.com/ffmpegwasm/ffmpeg.wasm/issues/470#issuecomment-1423886323
+    // const isValidData = ArrayBuffer.isView(fileData) === true;
+    // log.debug('[extractVideoThumbnail] file data is valid', isValidData);
+
     // log.debug('[extractVideoThumbnail] writing file', fileData);
     // await ffmpeg.writeFile('input.mp4', fileData);
 
@@ -166,7 +170,7 @@ export const extractVideoThumbnail = async (
 
     log.debug('[extractVideoThumbnail] reading thumbnail');
 
-    const data = await ffmpeg.readFile(outputFile);
+    const data: Uint8Array | string = await ffmpeg.readFile(outputFile);
     log.debug('[extractVideoThumbnail] thumbnail jpg read', data);
 
     const result = await ffmpegOutputToDataUrl(data, 'image/jpeg');
@@ -201,7 +205,7 @@ export const extractVideoThumbnail = async (
 };
 
 const ffmpegOutputToDataUrl = async (
-  outputData: any,
+  outputData: Uint8Array | string,
   mimeType: string
 ): Promise<string> => {
   // Convert Uint8Array to regular Array Buffer first

@@ -1,11 +1,12 @@
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
-import { MediaImage, MediaVideo } from '@model/types';
+import { Media, MediaImage, MediaType, MediaVideo } from '@model/types';
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery
 } from '@tanstack/react-query';
+import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
 
@@ -349,6 +350,79 @@ export const loadImageData = async (
       });
 
       db.close();
+    };
+  });
+};
+
+export const getMediaData = async (url: string): Promise<Media | null> => {
+  const mediaId = getMediaIdFromUrl(url);
+  if (!mediaId) {
+    log.error('Invalid media URL format:', url);
+    return null;
+  }
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('metadata', 'readonly');
+    const metadataStore = transaction.objectStore('metadata');
+    const request = metadataStore.get(mediaId);
+
+    request.onerror = () => {
+      log.error('Error loading metadata:', request.error);
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      const result = request.result;
+      db.close();
+      resolve(result);
+    };
+  });
+};
+
+export const deleteMediaData = async (url: string): Promise<void> => {
+  const mediaData = await getMediaData(url);
+  if (!mediaData) {
+    log.error('[deleteMediaData] Media data not found:', url);
+    return;
+  }
+
+  const mediaType = getMediaType(mediaData);
+  const { id } = mediaData;
+
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      ['images', 'metadata', 'thumbnails', 'videoChunks'],
+      'readwrite'
+    );
+    const imageStore = transaction.objectStore('images');
+    const metadataStore = transaction.objectStore('metadata');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    const videoChunksStore = transaction.objectStore('videoChunks');
+
+    metadataStore.delete(id);
+    thumbnailStore.delete(id);
+
+    if (mediaType === MediaType.Image) {
+      imageStore.delete(id);
+    } else if (mediaType === MediaType.Video) {
+      videoChunksStore.delete(id);
+
+      videoChunksStore.delete(
+        IDBKeyRange.bound([id, 0], [id, Number.MAX_SAFE_INTEGER])
+      );
+    }
+
+    transaction.onerror = () => {
+      log.error('Error deleting media data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      log.debug('Media data deleted successfully');
+      db.close();
+      resolve();
     };
   });
 };

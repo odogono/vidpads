@@ -1,3 +1,10 @@
+export const MediaType = {
+  Image: 'image',
+  Video: 'video'
+} as const;
+
+export type MediaType = (typeof MediaType)[keyof typeof MediaType];
+
 export const OperationType = {
   Source: 'source',
   Resize: 'resize',

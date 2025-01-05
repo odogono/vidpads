@@ -1,27 +1,11 @@
 import { createLog } from '@helpers/log';
-import type { Image, Media, Video } from '@model/types';
+import type { Media, MediaImage, MediaVideo } from '@model/types';
+import { generateFileId } from './file';
 
 const log = createLog('metadata');
 
-export const isVideoMetadata = (metadata: Media): metadata is Video => {
+export const isVideoMetadata = (metadata: Media): boolean => {
   return 'duration' in metadata;
-};
-
-// Add this new function to generate a unique ID
-const generateFileId = (file: File): string => {
-  // Combine unique properties of the file
-  const uniqueString = `${file.name}-${file.size}-${file.lastModified}`;
-
-  // Simple hash function
-  let hash = 0;
-  for (let i = 0; i < uniqueString.length; i++) {
-    const char = uniqueString.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-
-  // Convert to hex string and ensure positive number
-  return Math.abs(hash).toString(16);
 };
 
 export const getMediaMetadata = (file: File): Promise<Media> => {
@@ -53,14 +37,14 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
       };
       video.onloadedmetadata = () => {
         clearTimeout(timeoutId);
-        const metadata: Video = {
+        const metadata: MediaVideo = {
           id: fileId,
           url: 'vidpads://media/' + fileId,
           width: video.videoWidth,
           height: video.videoHeight,
           duration: video.duration,
           sizeInBytes: file.size,
-          mimeType: file.type as Video['mimeType'],
+          mimeType: file.type as MediaVideo['mimeType'],
           name: file.name
         };
         cleanup();
@@ -89,13 +73,13 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
 
     img.onload = () => {
       clearTimeout(timeoutId);
-      const metadata: Image = {
+      const metadata: MediaImage = {
         id: fileId,
         url: 'vidpads://media/' + fileId,
         width: img.width,
         height: img.height,
         sizeInBytes: file.size,
-        mimeType: file.type as Image['mimeType'],
+        mimeType: file.type as MediaImage['mimeType'],
         name: file.name
       };
       cleanup();
