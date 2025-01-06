@@ -5,6 +5,7 @@ import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
+import { extractVideoThumbnail as extractVideoThumbnailWebcodecs } from '@helpers/webcodecs';
 import { saveImageData, saveVideoData } from '@model/db/api';
 import { usePads } from '@model/store/selectors';
 import { MediaImage, MediaVideo } from '@model/types';
@@ -55,7 +56,11 @@ export const TileContainer = () => {
 
         try {
           log.debug('extracting video thumbnail');
-          const thumbnail = await extractVideoThumbnail(ffmpeg, file);
+          // const thumbnail = await extractVideoThumbnail(ffmpeg, file);
+          const thumbnail = await extractVideoThumbnailWebcodecs(
+            file,
+            metadata as MediaVideo
+          );
 
           log.debug('saving video data');
           await saveVideoData({
