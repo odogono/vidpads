@@ -18,6 +18,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "*": [
+        "./src/mp4box.d.ts"
+      ],
       "@/*": [
         "./src/*"
       ],
@@ -40,5 +43,8 @@
   },
   "include": [
     "vite.config.ts"
+  ],
+  "exclude": [
+    "./src/mp4box.d.ts"
   ]
 }

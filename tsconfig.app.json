@@ -22,6 +22,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "*": [
+        "./src/mp4box.d.ts"
+      ],
       "@/*": [
         "./src/*"
       ],
@@ -44,5 +47,8 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "./src/mp4box.d.ts"
   ]
 }
