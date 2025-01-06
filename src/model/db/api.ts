@@ -60,30 +60,31 @@ export const openDB = (): Promise<IDBDatabase> => {
   });
 };
 
-export const loadStateFromIndexedDB = async (): Promise<StoreContextType> => {
-  const db = await openDB();
+export const loadStateFromIndexedDB =
+  async (): Promise<StoreContextType | null> => {
+    const db = await openDB();
 
-  return new Promise((resolve, reject) => {
-    log.debug('loading state from IndexedDB');
-    const transaction = db.transaction('store', 'readonly');
-    const store = transaction.objectStore('store');
-    const getRequest = store.get('state');
+    return new Promise((resolve, reject) => {
+      log.debug('loading state from IndexedDB');
+      const transaction = db.transaction('store', 'readonly');
+      const store = transaction.objectStore('store');
+      const getRequest = store.get('state');
 
-    getRequest.onerror = () => {
-      log.error('Error loading state from IndexedDB:', getRequest.error);
-      reject(getRequest.error);
-    };
-    getRequest.onsuccess = () => {
-      const result = (getRequest.result as StoreContextType) ?? null;
-      resolve(result);
-    };
+      getRequest.onerror = () => {
+        log.error('Error loading state from IndexedDB:', getRequest.error);
+        reject(getRequest.error);
+      };
+      getRequest.onsuccess = () => {
+        const result = (getRequest.result as StoreContextType) ?? null;
+        resolve(result);
+      };
 
-    transaction.oncomplete = () => {
-      log.debug('state loaded from IndexedDB');
-      db.close();
-    };
-  });
-};
+      transaction.oncomplete = () => {
+        log.debug('state loaded from IndexedDB');
+        db.close();
+      };
+    });
+  };
 
 export const saveStateToIndexedDB = async (
   state: StoreContextType
@@ -111,7 +112,7 @@ export const saveStateToIndexedDB = async (
 export interface SaveVideoDataProps {
   file: File;
   metadata: MediaVideo;
-  thumbnail: string;
+  thumbnail: string | null;
   chunkSize?: number;
 }
 
@@ -121,6 +122,10 @@ export const saveVideoData = async ({
   thumbnail,
   chunkSize = 1024 * 1024 * 10 // 10MB
 }: SaveVideoDataProps): Promise<void> => {
+  if (!thumbnail) {
+    throw new Error('Thumbnail is required');
+  }
+
   const db = await openDB();
 
   return new Promise((resolve, reject) => {

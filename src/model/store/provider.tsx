@@ -1,48 +1,50 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import { createLog } from '@helpers/log';
-import { useDBStore, useDBStoreUpdate } from '@model/db/api';
+import { loadStateFromIndexedDB, saveStateToIndexedDB } from '@model/db/api';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { StoreContext } from './context';
 import { createStore } from './store';
-import type { StoreType } from './types';
 
 const log = createLog('StoreProvider');
 
 export const StoreProvider: React.FC<React.PropsWithChildren> = ({
   children
 }) => {
-  const storeRef = useRef<StoreType | null>(null);
+  const { data: store } = useSuspenseQuery({
+    queryKey: ['store-initialise'],
+    queryFn: async () => {
+      const storeState = await loadStateFromIndexedDB();
+      const isInitial = storeState?.isInitial ?? true;
+      const store = createStore(storeState ?? undefined);
 
-  const { data: storeState } = useDBStore();
-  const { mutate: saveState } = useDBStoreUpdate();
+      if (isInitial) {
+        log.debug('initialising store');
+        store.send({ type: 'initialiseStore' });
+        const snapshot = store.getSnapshot();
+        await saveStateToIndexedDB(snapshot.context);
+      }
 
-  if (!storeRef.current) {
-    const isInitial = storeState?.isInitial ?? true;
-    const store = createStore(storeState);
-    storeRef.current = store;
-    if (isInitial) {
-      log.debug('initialising store');
-      store.send({ type: 'initialiseStore' });
+      return store;
     }
-  }
+  });
 
   // persist the store when it changes
   useEffect(() => {
-    if (storeRef.current) {
-      const sub = storeRef.current.subscribe((snapshot) => {
+    if (store) {
+      log.debug('subscribing to store updates');
+      const sub = store.subscribe((snapshot) => {
         log.info('store updated: saving state to IndexedDB:', snapshot);
-        saveState(snapshot.context);
+        saveStateToIndexedDB(snapshot.context);
       });
 
       return () => {
         sub.unsubscribe();
       };
     }
-  }, [saveState]);
+  }, [store]);
 
   return (
-    <StoreContext.Provider value={storeRef.current}>
-      {children}
-    </StoreContext.Provider>
+    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
   );
 };

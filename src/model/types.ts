@@ -24,14 +24,14 @@ export interface SourceOperation extends Operation {
   type: typeof OperationType.Source;
 }
 
-export interface Recipe {
+export interface Pipeline {
   source?: SourceOperation | undefined;
   operations: Operation[];
 }
 
 export interface Pad {
   id: string;
-  recipe: Recipe;
+  pipeline: Pipeline;
 }
 
 export interface Media {

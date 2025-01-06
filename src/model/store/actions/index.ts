@@ -1,23 +1,23 @@
 import { createLog } from '@helpers/log';
-import { OperationType, type Pad } from '../types';
+import { OperationType, Pad } from '@model/types';
 import type {
   Emit,
   InitialiseStoreAction,
   SetPadMediaAction,
-  StoreContextType,
+  StoreContext,
   UpdatePadSourceAction,
   UpdateStartTimeAction
-} from './types';
-
-type Context = NoInfer<StoreContextType>;
+} from '../types';
 
 const log = createLog('store/actions');
 
+export { applyFileToPad } from './applyFileToPad';
+
 export const initialiseStore = (
-  context: Context,
+  context: StoreContext,
   event: InitialiseStoreAction,
   { emit }: Emit
-): Context => {
+): StoreContext => {
   log.debug('setStoreInitialised', event);
 
   emit({ type: 'storeInitialised' });
@@ -29,10 +29,10 @@ export const initialiseStore = (
 };
 
 export const updatePadSource = (
-  context: Context,
+  context: StoreContext,
   event: UpdatePadSourceAction,
   { emit }: Emit
-): Context => {
+): StoreContext => {
   const pad = context.pads.find((pad) => pad.id === event.padId);
   if (!pad) {
     return context;
@@ -40,8 +40,8 @@ export const updatePadSource = (
 
   const newPad: Pad = {
     ...pad,
-    recipe: {
-      ...pad.recipe,
+    pipeline: {
+      ...pad.pipeline,
       source: {
         type: OperationType.Source,
         url: event.url
@@ -58,10 +58,10 @@ export const updatePadSource = (
 };
 
 export const updateStartTime = (
-  context: Context,
+  context: StoreContext,
   _event: UpdateStartTimeAction,
   { emit }: Emit
-): Context => {
+): StoreContext => {
   const startTime = new Date().toISOString();
   emit({ type: 'startTimeUpdated', startTime });
 
@@ -72,9 +72,9 @@ export const updateStartTime = (
 };
 
 export const setPadMedia = (
-  context: Context,
+  context: StoreContext,
   event: SetPadMediaAction
-): Context => {
+): StoreContext => {
   const { padId, media } = event;
   const pad = context.pads.find((pad) => pad.id === padId);
   if (!pad) {
@@ -85,8 +85,8 @@ export const setPadMedia = (
 
   const newPad: Pad = {
     ...pad,
-    recipe: {
-      ...pad.recipe,
+    pipeline: {
+      ...pad.pipeline,
       source: {
         type: OperationType.Source,
         url

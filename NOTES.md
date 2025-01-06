@@ -26,7 +26,7 @@ set a duration
 set a video size (defaults to the original image size)
 
 when an image is dropped onto a tile, it creates a new sequence of operations, with the the image as the first operation
-a sequence of operation could also be called a "recipe"
+
 
 
 https://ffmpegwasm.netlify.app/docs/overview
@@ -34,6 +34,8 @@ https://ffmpegwasm.netlify.app/docs/overview
 https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/apps/react-vite-app
 
 
+FFmpeg explorer - node based construction of ffmpeg pipelines
+https://ffmpeg.lav.io
 
 
 ## Create a video from an image

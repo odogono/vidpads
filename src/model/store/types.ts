@@ -27,11 +27,18 @@ export type SetPadMediaAction = {
   media: Media;
 };
 
+export type ApplyFileToPadAction = {
+  type: 'applyFileToPad';
+  padId: string;
+  file: File;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
   | UpdatePadSourceAction
-  | SetPadMediaAction;
+  | SetPadMediaAction
+  | ApplyFileToPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -58,4 +65,4 @@ export type StoreType = Store<StoreContextType, Actions, EmittedEvents>;
 
 export type StoreSnapshot = ReturnType<StoreType['subscribe']>;
 
-// export const myAction: Actions = { type: 'someOtherAction' };
+export type StoreContext = NoInfer<StoreContextType>;

@@ -17,7 +17,7 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.13",
     "@ffmpeg/util": "^0.12.1",
-    "@tanstack/react-query": "^5.62.14",
+    "@tanstack/react-query": "^5.62.15",
     "@xstate/store": "^2.6.2",
     "glazejs": "^2.0.1",
     "gsap": "^3.12.5",

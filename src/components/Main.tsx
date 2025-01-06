@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { TileContainer } from '@components/TileContainer';
-import { useFFmpeg } from '@helpers/ffmpeg';
+import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createLog } from '@helpers/log';
 import { checkStorageQuota } from '@model/mediaDb';
 import { Container } from './Container';
@@ -21,13 +21,8 @@ export const Main = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
 
-  // useEffect(() => {
-  //   checkStorageQuota();
-  // }, []);
-
-  const { processVideo, isProcessing, videoUrl } = useFFmpeg({
-    loadOnMount: true
-  });
+  const isProcessing = false;
+  const videoUrl = null;
 
   const getVideoMetadata = (file: File): Promise<VideoMetadata> => {
     return new Promise((resolve) => {
@@ -59,7 +54,7 @@ export const Main = () => {
         setMetadata(videoMetadata);
         log.info('Video file:', file);
         log.info('Video metadata:', videoMetadata);
-        await processVideo(file);
+        // await processVideo(file);
       } catch (error) {
         log.error('Error reading video metadata:', error);
       }

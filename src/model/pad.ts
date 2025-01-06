@@ -3,7 +3,7 @@ import { Pad } from './types';
 export const createPad = (id: string): Pad => {
   return {
     id,
-    recipe: {
+    pipeline: {
       source: undefined,
       operations: []
     }
@@ -11,5 +11,5 @@ export const createPad = (id: string): Pad => {
 };
 
 export const getPadSourceUrl = (pad: Pad): string | undefined => {
-  return pad.recipe.source?.url;
+  return pad.pipeline.source?.url;
 };

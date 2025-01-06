@@ -1,6 +1,7 @@
 import React, { Suspense, useRef, useState } from 'react';
 
-import { extractVideoThumbnail, useFFmpeg } from '@helpers/ffmpeg';
+import { extractVideoThumbnail } from '@helpers/ffmpeg';
+import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
@@ -115,9 +116,11 @@ export const TileContainer = () => {
     }
   };
 
-  const handleClick = (padId: string) => {
-    setActiveIndex(padId);
-    fileInputRef.current?.click();
+  const handleClick = (padId: string, hasMedia: boolean) => {
+    if (!hasMedia) {
+      setActiveIndex(padId);
+      fileInputRef.current?.click();
+    }
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

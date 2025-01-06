@@ -7,7 +7,7 @@ import { getPadSourceUrl } from '../model/pad';
 export interface PadComponentProps {
   pad: Pad;
   isDraggedOver: boolean;
-  onTap: (padId: string) => void;
+  onTap: (padId: string, hasMedia: boolean) => void;
   onDragOver: (e: React.DragEvent<HTMLDivElement>, padId: string) => void;
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>, padId: string) => void;
@@ -34,7 +34,7 @@ export const PadComponent = ({
                   : 'bg-gray-800 hover:bg-gray-700'
               }
             `}
-      onClick={() => onTap(pad.id)}
+      onClick={() => onTap(pad.id, !!thumbnail)}
       onDragOver={(e) => onDragOver(e, pad.id)}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop(e, pad.id)}
