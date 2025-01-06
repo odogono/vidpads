@@ -230,12 +230,74 @@ const getDescription = (file: File): Promise<Uint8Array> => {
   });
 };
 
-const extractFrame = async (
+const extractFrameAlt = async (
   file: File,
   frameTime: string
 ): Promise<EncodedVideoChunk[]> =>
   new Promise(async (resolve, reject) => {
     const timestamp = timeStringToSeconds(frameTime);
+    const mp4boxfile = MP4Box.createFile();
+    const videoArrayBuffer = await readFile(file);
+
+    mp4boxfile.onReady = async (info) => {
+      const videoTrack = info.videoTracks[0];
+      const timescale = videoTrack.timescale;
+      const timeMapping = timestamp * timescale;
+
+      mp4boxfile.start();
+      const samples = mp4boxfile.getTrackSamplesInfo(videoTrack.id);
+
+      let start = 0;
+      let end = 0;
+      for (let i = 0; i < samples.length; i += 1) {
+        const si = samples[i];
+        if (si.cts <= timeMapping && si.timeEnd >= timeMapping) {
+          end = i;
+
+          if (!si.is_sync) {
+            for (let j = i - 1; j >= 0; j -= 1) {
+              const sj = samples[j];
+              if (sj.is_sync) {
+                start = j;
+                break;
+              }
+            }
+          }
+          break;
+        }
+      }
+
+      const chunks = await Promise.all(
+        samples.slice(start, end + 1).map(
+          async (sample) =>
+            new EncodedVideoChunk({
+              type: sample.is_sync ? 'key' : 'delta',
+              timestamp: (sample.cts * 1000000) / timescale,
+              duration: (sample.duration * 1000000) / timescale,
+              data: sample.data
+            })
+        )
+      );
+      if (chunks.length === 0) return resolve([]);
+      resolve(chunks);
+    };
+
+    //
+
+    mp4boxfile.onError = (error) => {
+      reject(error);
+    };
+
+    mp4boxfile.appendBuffer(videoArrayBuffer);
+    mp4boxfile.flush();
+  });
+
+const extractFrame = async (
+  file: File,
+  frameTime: string
+): Promise<EncodedVideoChunk[]> =>
+  new Promise(async (resolve, reject) => {
+    const timestamp = timeStringToSeconds(frameTime) + 1;
     const mp4boxfile = MP4Box.createFile();
     const videoArrayBuffer = await readFile(file);
 
@@ -248,6 +310,34 @@ const extractFrame = async (
 
       // Get samples info - this is still needed but we'll search through it efficiently
       const samples = mp4boxfile.getTrackSamplesInfo(videoTrack.id);
+
+      let start = 0;
+      let end = 0;
+      for (let i = 0; i < samples.length; i += 1) {
+        const si = samples[i];
+        log.debug('sample', i, targetTime, si.cts, si.timeEnd);
+        if (si.cts <= targetTime && si.timeEnd >= targetTime) {
+          end = i;
+
+          if (!si.is_sync) {
+            for (let j = i - 1; j >= 0; j -= 1) {
+              const sj = samples[j];
+              if (sj.is_sync) {
+                start = j;
+                break;
+              }
+            }
+          }
+          break;
+        }
+      }
+
+      log.debug('foundSamples', start, end, samples.length);
+
+      const foundSamples = samples.slice(start, end + 1).map((sample) => {
+        log.debug('neededSample', sample.cts);
+        return sample;
+      });
 
       // Binary search to find the closest sample
       let left = 0;
@@ -310,7 +400,10 @@ const extractFrame = async (
                 data: sample.data
               })
             );
-            log.debug(`sample: ${sample.cts / timescale}s ${timestamp}s`);
+            log.debug(
+              `sample: ${sample.cts / timescale}s ${timestamp}s`,
+              sample
+            );
             if (sample.cts > timestamp) {
               endFound = true;
               break;

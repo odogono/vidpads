@@ -29,6 +29,18 @@ when an image is dropped onto a tile, it creates a new sequence of operations, w
 
 
 
+## Extracting a video thumbnail
+
+there are three methods for extracting a video thumbnail:
+
+1. ffmpeg.wasm
+2. canvas
+3. webcodecs
+
+
+
+
+
 https://ffmpegwasm.netlify.app/docs/overview
 
 https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/apps/react-vite-app
@@ -37,6 +49,29 @@ https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/apps/react-vite-app
 FFmpeg explorer - node based construction of ffmpeg pipelines
 https://ffmpeg.lav.io
 
+mp4 explorer
+https://alfg.dev/mp4-inspector/
+
+webcodecs samples
+https://github.com/w3c/webcodecs/tree/main/samples
+
+mp4box.js
+https://github.com/gpac/mp4box.js
+
+vidmix app
+https://vidmix.app
+
+Javascript: frame precise video stop
+https://stackoverflow.com/questions/70613008/javascript-frame-precise-video-stop/70895468#70895468
+
+Frame accurate seeking of HTML5 MediaElement
+https://github.com/w3c/media-and-entertainment/issues/4
+
+The requestVideoFrameCallback() method of the HTMLVideoElement interface registers a callback function that runs when a new video frame is sent to the compositor. This enables developers to perform efficient operations on each video frame.
+https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback
+
+Stupid way of using requestVideoFrameCallback for accurate seek to specific HTML5 video frame
+https://github.com/angrycoding/requestVideoFrameCallback-prev-next
 
 ## Create a video from an image
 

@@ -1,6 +1,9 @@
 import React, { Suspense, useRef, useState } from 'react';
 
-import { extractVideoThumbnail } from '@helpers/ffmpeg';
+import {
+  extractVideoThumbnail,
+  extractVideoThumbnail as extractVideoThumbnailCanvas
+} from '@helpers/canvas';
 import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
@@ -61,6 +64,7 @@ export const TileContainer = () => {
             file,
             metadata as MediaVideo
           );
+          // const thumbnail = await extractVideoThumbnailCanvas( file );
 
           log.debug('saving video data');
           await saveVideoData({
