@@ -31,7 +31,7 @@ const getSupportedCodec = async (): Promise<string> => {
 export const extractVideoThumbnail = async (
   file: File,
   metadata: MediaVideo,
-  frameTime = '00:00:01',
+  frameTime = '00:00:02',
   size = 384
 ): Promise<string> => {
   log.debug('getting codecs');
@@ -43,9 +43,13 @@ export const extractVideoThumbnail = async (
   const description = await getDescription(file);
   log.info('Got AVC configuration', description.length);
 
+  const targetTimeMicros = timeStringToMicroSeconds(frameTime); // Convert to microseconds
+  let closestFrame: VideoFrame | null = null;
+  let closestDelta = Number.MAX_VALUE;
+
   // Extract a keyframe from the video
-  const keyframe = await extractKeyframe(file, frameTime);
-  log.info('Got keyframe data', keyframe.byteLength);
+  // const keyframe = await extractKeyframe(file, frameTime);
+  // log.info('Got keyframe data', keyframe.byteLength);
 
   return new Promise(async (resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -56,50 +60,31 @@ export const extractVideoThumbnail = async (
       return;
     }
 
-    let outputReceived = false;
-
     const decoder = new VideoDecoder({
       output: (frame) => {
-        log.debug('decoder/output', frame);
-        outputReceived = true;
+        const delta = Math.abs(frame.timestamp - targetTimeMicros);
 
-        const { displayWidth: width, displayHeight: height } = frame;
-
-        // Calculate the dimensions to maintain aspect ratio while filling a square
-        const scale = Math.max(size / width, size / height);
-        const scaledWidth = width * scale;
-        const scaledHeight = height * scale;
-        const offsetX = (size - scaledWidth) / 2;
-        const offsetY = (size - scaledHeight) / 2;
-
-        canvas.width = size;
-        canvas.height = size;
-
-        // Fill with black background
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, size, size);
-
-        ctx.drawImage(frame, offsetX, offsetY, scaledWidth, scaledHeight);
-
-        const imageData = canvas.toDataURL('image/jpeg', 0.85);
-
-        frame.close();
-        resolve(imageData);
+        if (delta < closestDelta) {
+          // If we already had a frame, close it
+          if (closestFrame) {
+            closestFrame.close();
+          }
+          closestFrame = frame;
+          closestDelta = delta;
+          log.debug('decoder/output closest', frame.timestamp);
+        } else {
+          // Not the closest frame, we can close it
+          frame.close();
+        }
+        // frame.close();
       },
       error: (error) => {
-        log.error('Error decoding video:', error);
+        log.error('decoder/error decoding video:', error);
         reject(error);
       }
     });
 
     const { width: codedWidth, height: codedHeight } = metadata;
-
-    log.debug('Configuring decoder', {
-      codec,
-      codedWidth,
-      codedHeight,
-      descriptionLength: description.length
-    });
 
     const config: VideoDecoderConfig = {
       codec,
@@ -109,39 +94,79 @@ export const extractVideoThumbnail = async (
       hardwareAcceleration: 'prefer-hardware'
     };
 
-    const supported = await VideoDecoder.isConfigSupported(config);
-    log.info('config supported', supported);
+    const { supported } = await VideoDecoder.isConfigSupported(config);
+    if (!supported) {
+      reject(new Error('Config not supported'));
+      return;
+    }
 
     decoder.configure(config);
-
-    log.debug('decoder state post configure', decoder.state);
+    if (decoder.state !== 'configured') {
+      reject(new Error('Decoder not configured'));
+      return;
+    }
 
     // Create and decode the chunk
-    const chunk = new EncodedVideoChunk({
-      type: 'key',
-      data: keyframe,
-      timestamp: timeStringToMicroSeconds(frameTime),
-      duration: metadata.duration * 1000 // Convert to microseconds
-    });
+    const chunks = await extractFrame(file, frameTime);
+    log.info('Got keyframe data', chunks.length);
 
-    log.debug('Decoding chunk', {
-      type: chunk.type,
-      timestamp: chunk.timestamp,
-      duration: chunk.duration,
-      byteLength: chunk.byteLength
-    });
+    // Decode all chunks from keyframe to target frame
+    // decoder.decode(chunks[0]);
+    for (const chunk of chunks) {
+      decoder.decode(chunk);
+    }
 
-    decoder.decode(chunk);
-    decoder.flush();
+    // const chunk = new EncodedVideoChunk({
+    //   type: 'key',
+    //   data: keyframe,
+    //   timestamp: timeStringToMicroSeconds(frameTime),
+    //   duration: metadata.duration * 1000 // Convert to microseconds
+    // });
 
-    // Add a timeout to detect if the decoder is not producing output
-    setTimeout(() => {
-      if (!outputReceived) {
-        log.error('Decoder timeout - no output received');
-        reject(new Error('Decoder timeout - no output received'));
-      }
-    }, 5000); // 5 second timeout
+    // decoder.decode(chunk);
+
+    // this was key - without it nothing happens
+    await decoder.flush();
+
+    if (closestFrame) {
+      log.debug('toImageData closestFrame', closestFrame.timestamp);
+      const imageData = frameToImageData(closestFrame, canvas, ctx, size);
+
+      closestFrame.close();
+      resolve(imageData);
+    } else {
+      reject(new Error('No frame found at specified timestamp'));
+    }
   });
+};
+
+const frameToImageData = (
+  frame: VideoFrame,
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  size: number
+) => {
+  const { displayWidth: width, displayHeight: height } = frame;
+
+  // Calculate the dimensions to maintain aspect ratio while filling a square
+  const scale = Math.max(size / width, size / height);
+  const scaledWidth = width * scale;
+  const scaledHeight = height * scale;
+  const offsetX = (size - scaledWidth) / 2;
+  const offsetY = (size - scaledHeight) / 2;
+
+  canvas.width = size;
+  canvas.height = size;
+
+  // Fill with black background
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.drawImage(frame, offsetX, offsetY, scaledWidth, scaledHeight);
+
+  const imageData = canvas.toDataURL('image/jpeg', 0.85);
+
+  return imageData;
 };
 
 const getDescription = (file: File): Promise<Uint8Array> => {
@@ -205,12 +230,118 @@ const getDescription = (file: File): Promise<Uint8Array> => {
   });
 };
 
+const extractFrame = async (
+  file: File,
+  frameTime: string
+): Promise<EncodedVideoChunk[]> =>
+  new Promise(async (resolve, reject) => {
+    const timestamp = timeStringToSeconds(frameTime);
+    const mp4boxfile = MP4Box.createFile();
+    const videoArrayBuffer = await readFile(file);
+
+    mp4boxfile.onReady = async (info) => {
+      const videoTrack = info.videoTracks[0];
+      const timescale = videoTrack.timescale;
+      const targetTime = timestamp * timescale;
+
+      log.debug(`targetTime: ${targetTime / timescale}s`);
+
+      // Get samples info - this is still needed but we'll search through it efficiently
+      const samples = mp4boxfile.getTrackSamplesInfo(videoTrack.id);
+
+      // Binary search to find the closest sample
+      let left = 0;
+      let right = samples.length - 1;
+      let targetIndex = 0;
+
+      while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        const midTime = samples[mid].cts;
+
+        if (midTime === targetTime) {
+          targetIndex = mid;
+          break;
+        } else if (midTime < targetTime) {
+          left = mid + 1;
+          targetIndex = mid; // Keep track of last sample before target
+        } else {
+          right = mid - 1;
+        }
+      }
+
+      // Find the nearest previous keyframe
+      let keyframeIndex = targetIndex;
+      while (keyframeIndex >= 0 && !samples[keyframeIndex].is_sync) {
+        keyframeIndex--;
+      }
+      if (keyframeIndex < 0) {
+        reject(new Error('No keyframe found'));
+        return;
+      }
+
+      const CHUNK_SIZE = 100;
+      const startChunk = Math.floor(keyframeIndex / CHUNK_SIZE);
+      let currentChunk = startChunk;
+      const neededSamples: EncodedVideoChunk[] = [];
+
+      mp4boxfile.setExtractionOptions(videoTrack.id, null, {
+        nbSamples: CHUNK_SIZE
+      });
+
+      let endFound = false;
+
+      mp4boxfile.onSamples = (track_id, ref, chunkSamples) => {
+        if (currentChunk === startChunk && !endFound) {
+          // Collect all samples from keyframe to target
+          const startOffset = keyframeIndex % CHUNK_SIZE;
+          const endOffset = Math.min(
+            startOffset + (targetIndex - keyframeIndex) + 1,
+            chunkSamples.length
+          );
+
+          for (let i = startOffset; i < endOffset; i++) {
+            const sample = chunkSamples[i];
+
+            neededSamples.push(
+              new EncodedVideoChunk({
+                type: sample.is_sync ? 'key' : 'delta',
+                timestamp: (sample.cts * 1000000) / timescale,
+                duration: (sample.duration * 1000000) / timescale,
+                data: sample.data
+              })
+            );
+            log.debug(`sample: ${sample.cts / timescale}s ${timestamp}s`);
+            if (sample.cts > timestamp) {
+              endFound = true;
+              break;
+            }
+          }
+          resolve(neededSamples);
+        } else {
+          currentChunk++;
+        }
+      };
+
+      mp4boxfile.start();
+    };
+
+    mp4boxfile.onError = (error) => {
+      reject(error);
+    };
+
+    mp4boxfile.appendBuffer(videoArrayBuffer);
+    mp4boxfile.flush();
+  });
+
 const extractKeyframe = async (
   file: File,
   frameTime: string
 ): Promise<ArrayBuffer> => {
   return new Promise((resolve, reject) => {
     const mp4boxfile = MP4Box.createFile() as MP4File;
+    const targetTimeSeconds = timeStringToSeconds(frameTime);
+    let bestSample: any = null;
+    let bestTimeDiff = Infinity;
 
     mp4boxfile.onError = (error) => reject(error);
 
@@ -221,39 +352,79 @@ const extractKeyframe = async (
         return;
       }
 
-      // Set up sample extraction
-      mp4boxfile.setExtractionOptions(videoTrack.id, null, {
-        nbSamples: 1,
-        rapAlignment: true // Request key frame alignment
+      const timescale = videoTrack.timescale;
+      const targetTime = Math.floor(targetTimeSeconds * timescale);
+
+      // Request a segment around our target time
+      // Look at samples from 2 seconds before to 2 seconds after our target
+      const segmentStart = Math.max(0, targetTime - 2 * timescale);
+      const segmentDuration = 4 * timescale;
+
+      log.debug('Extracting segment', {
+        targetTime,
+        targetSeconds: targetTimeSeconds,
+        segmentStart,
+        segmentDuration,
+        timescale
       });
 
-      // Extract samples
-      mp4boxfile.start();
+      mp4boxfile.setSegmentOptions(videoTrack.id, null, {
+        nbSamples: 0, // Get all samples in range
+        rapAlignement: true, // Align to keyframes
+        duration: segmentDuration
+      });
+
+      mp4boxfile.initializeSegmentation();
+
+      mp4boxfile.onSegment = (id, user, buffer, sampleNum, isLast) => {
+        log.debug('Got segment', { id, sampleNum, isLast });
+
+        // Extract samples from the segment
+        mp4boxfile.setExtractionOptions(videoTrack.id, null, {
+          nbSamples: 0 // Get all samples
+        });
+        mp4boxfile.start();
+      };
 
       mp4boxfile.onSamples = (trackId, user, samples) => {
-        if (samples.length === 0) {
-          reject(new Error('No samples found'));
-          return;
+        log.debug('Got samples', samples.length);
+
+        // Find the keyframe closest to our target time
+        for (const sample of samples) {
+          if (!sample.is_sync) continue;
+
+          const sampleTimeSeconds = sample.cts / timescale;
+          const timeDiff = Math.abs(sampleTimeSeconds - targetTimeSeconds);
+
+          log.debug('Found keyframe', {
+            time: sampleTimeSeconds,
+            diff: timeDiff,
+            cts: sample.cts,
+            is_sync: sample.is_sync
+          });
+
+          if (timeDiff < bestTimeDiff) {
+            bestTimeDiff = timeDiff;
+            bestSample = sample;
+          }
         }
 
-        const sample = samples[0];
-        if (!sample.is_sync) {
-          reject(new Error('Sample is not a key frame'));
-          return;
+        if (bestSample) {
+          log.debug('Selected keyframe', {
+            time: bestSample.cts / timescale,
+            targetTime: targetTimeSeconds,
+            diff: bestTimeDiff,
+            size: bestSample.data.byteLength
+          });
+
+          resolve(bestSample.data);
+          mp4boxfile.stop();
         }
-
-        log.debug('Got keyframe sample', {
-          size: sample.data.byteLength,
-          is_sync: sample.is_sync,
-          description_index: sample.description_index,
-          has_redundancy: sample.has_redundancy,
-          is_depended_on: sample.is_depended_on,
-          is_leading: sample.is_leading,
-          depends_on: sample.depends_on
-        });
-
-        resolve(sample.data);
       };
+
+      // Start segmentation from our desired point
+      mp4boxfile.seek(segmentStart, true);
+      mp4boxfile.start();
     };
 
     // Read the file
@@ -271,6 +442,25 @@ const extractKeyframe = async (
 
       mp4boxfile.appendBuffer(buffer);
       mp4boxfile.flush();
+    };
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+const readFile = async (file: File): Promise<MP4ArrayBuffer> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (!e.target?.result) {
+        reject(new Error('Failed to read file'));
+        return;
+      }
+      const arrayBuffer = e.target.result as ArrayBuffer;
+
+      // Create a proper MP4ArrayBuffer
+      const buffer = arrayBuffer as MP4ArrayBuffer;
+      buffer.fileStart = 0;
+      resolve(buffer);
     };
     reader.readAsArrayBuffer(file);
   });
