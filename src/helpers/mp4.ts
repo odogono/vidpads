@@ -37,7 +37,8 @@ const convertToMetadata = (
     metadata.width = videoTrack.track_width;
     metadata.height = videoTrack.track_height;
     metadata.codec = videoTrack.codec;
-    metadata.frameRate = videoTrack.timescale / videoTrack.duration;
+    metadata.frameRate =
+      (videoTrack.samples_duration * videoTrack.timescale) / info.duration;
     metadata.videoTrackId = videoTrack.id;
   }
 
