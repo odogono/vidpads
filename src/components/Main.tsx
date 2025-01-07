@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { TileContainer } from '@components/TileContainer';
 import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createLog } from '@helpers/log';
 import { checkStorageQuota } from '@model/mediaDb';
+import { BinComponent } from './Bin';
 import { Container } from './Container';
+import { DragProvider } from './DragContext';
 
 const log = createLog('App');
 
@@ -88,76 +90,86 @@ export const Main = () => {
   };
 
   return (
-    <Container>
-      <h1 className='text-3xl font-bold mb-8'>Vid-Wiz</h1>
+    <DragProvider>
+      <Container>
+        <h1 className='text-3xl font-bold mb-8'>Vid-Wiz</h1>
 
-      <div
-        className={`w-[800px] h-[400px] mx-auto ${
-          !videoUrl
-            ? 'border-2 border-dashed border-gray-500 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400'
-            : ''
-        } transition-colors`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        {!videoUrl ? (
-          isProcessing ? (
-            <div className='text-gray-400'>Processing video...</div>
-          ) : (
-            'Drop your video file here'
-          )
-        ) : (
-          <div className='h-full'>
-            <div
-              className='relative h-full'
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-            >
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                className='w-[800px] h-[400px] object-contain'
-                controls={false}
-              />
-              {isProcessing && (
-                <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50'>
-                  <div className='text-gray-200'>Processing new video...</div>
+        <div className='relative w-[800px] mx-auto'>
+          <div
+            className={`w-[800px] h-[400px] ${
+              !videoUrl
+                ? 'border-2 border-dashed border-gray-500 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400'
+                : ''
+            } transition-colors`}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            {!videoUrl ? (
+              isProcessing ? (
+                <div className='text-gray-400'>Processing video...</div>
+              ) : (
+                'Drop your video file here'
+              )
+            ) : (
+              <div className='h-full'>
+                <div
+                  className='relative h-full'
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                >
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    className='w-[800px] h-[400px] object-contain'
+                    controls={false}
+                  />
+                  {isProcessing && (
+                    <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50'>
+                      <div className='text-gray-200'>
+                        Processing new video...
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className='flex gap-4 justify-center mt-4'>
-              <button
-                onClick={togglePlay}
-                className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
-              >
-                {isPlaying ? 'Pause' : 'Play'}
-              </button>
-              <button
-                onClick={handleDownload}
-                className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
-              >
-                Download
-              </button>
+                <div className='flex gap-4 justify-center mt-4'>
+                  <button
+                    onClick={togglePlay}
+                    className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
+                  >
+                    {isPlaying ? 'Pause' : 'Play'}
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors'
+                  >
+                    Download
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {metadata && (
+          <div className='mt-4 p-4 bg-gray-800 rounded-lg w-[800px] mx-auto'>
+            <h2 className='text-xl font-semibold mb-2'>Video Information</h2>
+            <div className='grid grid-cols-2 gap-2 text-sm'>
+              <div>Duration: {metadata.duration.toFixed(2)}s</div>
+              <div>
+                Resolution: {metadata.width}x{metadata.height}
+              </div>
+              <div>Format: {metadata.type}</div>
+              <div>Size: {(metadata.size / (1024 * 1024)).toFixed(2)} MB</div>
             </div>
           </div>
         )}
-      </div>
 
-      {metadata && (
-        <div className='mt-4 p-4 bg-gray-800 rounded-lg w-[800px] mx-auto'>
-          <h2 className='text-xl font-semibold mb-2'>Video Information</h2>
-          <div className='grid grid-cols-2 gap-2 text-sm'>
-            <div>Duration: {metadata.duration.toFixed(2)}s</div>
-            <div>
-              Resolution: {metadata.width}x{metadata.height}
-            </div>
-            <div>Format: {metadata.type}</div>
-            <div>Size: {(metadata.size / (1024 * 1024)).toFixed(2)} MB</div>
-          </div>
+        <div className='absolute left-1/2 -translate-x-1/2 top-[300px] z-10'>
+          <BinComponent />
         </div>
-      )}
 
-      <TileContainer />
-    </Container>
+        <TileContainer />
+      </Container>
+    </DragProvider>
   );
 };

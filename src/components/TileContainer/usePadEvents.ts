@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { createLog } from '@helpers/log';
-import { Store } from '@model/store/types';
+import { StoreType } from '@model/store/types';
+import { useDragContext } from '../DragContext';
 import { processMediaFile } from './helpers';
 
 const log = createLog('usePadEvents');
@@ -16,14 +17,14 @@ const ACCEPTED_FILE_TYPES = [
 
 export interface UsePadEventsProps {
   ffmpeg: FFmpeg | null;
-  store: Store;
+  store: StoreType;
 }
 
 export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
   const [dragOverIndex, setDragOverIndex] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
-  const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
+  const { draggingPadId, setDraggingPadId } = useDragContext();
 
   // Clear dragging state when drag ends
   // useEffect(() => {
@@ -38,6 +39,11 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
   const handlePadDragStart = (padId: string) => {
     setDraggingPadId(padId);
     log.debug('handlePadDragStart', padId);
+  };
+
+  const handlePadDragEnd = () => {
+    setDraggingPadId(null);
+    log.debug('handlePadDragEnd');
   };
 
   const handleDragOver = (e: React.DragEvent, padId: string) => {
@@ -134,6 +140,7 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
     handleClick,
     handleFileSelect,
     handlePadDragStart,
+    handlePadDragEnd,
     ACCEPTED_FILE_TYPES
   };
 };

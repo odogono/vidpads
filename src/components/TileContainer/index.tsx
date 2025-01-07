@@ -18,6 +18,7 @@ export const TileContainer = () => {
     handleClick,
     handleFileSelect,
     handlePadDragStart,
+    handlePadDragEnd,
     ACCEPTED_FILE_TYPES
   } = usePadEvents({ ffmpeg, store });
 
@@ -41,6 +42,7 @@ export const TileContainer = () => {
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onPadDragStart={handlePadDragStart}
+              onPadDragEnd={handlePadDragEnd}
             />
           </Suspense>
         ))}

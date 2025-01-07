@@ -33,6 +33,9 @@
       "@hooks/*": [
         "./src/hooks/*"
       ],
+      "@model": [
+        "./src/model/index.ts"
+      ],
       "@model/*": [
         "./src/model/*"
       ]

@@ -1,6 +1,7 @@
 import { createLog } from '@helpers/log';
 import { OperationType, Pad } from '@model/types';
 import type {
+  ApplyPadDropAction,
   Emit,
   InitialiseStoreAction,
   SetPadMediaAction,
@@ -12,6 +13,7 @@ import type {
 const log = createLog('store/actions');
 
 export { applyFileToPad } from './applyFileToPad';
+export { clearPad } from './clearPad';
 
 export const initialiseStore = (
   context: StoreContext,
@@ -98,4 +100,11 @@ export const setPadMedia = (
     ...context,
     pads: [...context.pads.filter((p) => p.id !== pad.id), newPad]
   };
+};
+
+export const applyPadDrop = (
+  context: StoreContext,
+  _event: ApplyPadDropAction
+): StoreContext => {
+  return context;
 };

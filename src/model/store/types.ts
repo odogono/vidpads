@@ -33,12 +33,25 @@ export type ApplyFileToPadAction = {
   file: File;
 };
 
+export type ApplyPadDropAction = {
+  type: 'applyPadDrop';
+  sourcePadId: string;
+  targetPadId: string;
+};
+
+export type ClearPadAction = {
+  type: 'clearPad';
+  padId: string;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
   | UpdatePadSourceAction
   | SetPadMediaAction
-  | ApplyFileToPadAction;
+  | ApplyFileToPadAction
+  | ApplyPadDropAction
+  | ClearPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

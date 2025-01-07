@@ -13,6 +13,7 @@ type DragHandlers = {
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>, padId: string) => void;
   onPadDragStart: (padId: string) => void;
+  onPadDragEnd: () => void;
 };
 
 export interface PadComponentProps extends DragHandlers {
@@ -36,6 +37,7 @@ export const PadComponent = ({
   onDragLeave,
   onDrop,
   onPadDragStart,
+  onPadDragEnd,
   onTap
 }: PadComponentProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
@@ -134,7 +136,8 @@ export const PadComponent = ({
     removeGhost();
     setIsDragging(false);
     log.debug('handleDragEnd', isDragging);
-  }, [removeGhost, setIsDragging, isDragging]);
+    onPadDragEnd();
+  }, [removeGhost, setIsDragging, isDragging, onPadDragEnd]);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -169,38 +172,36 @@ export const PadComponent = ({
   }, [isDragging, handleTouchEnd, handleTouchMove, handleDragOver]);
 
   return (
-    <>
-      <div
-        ref={elementRef}
-        key={pad.id}
-        className={`
+    <div
+      ref={elementRef}
+      key={pad.id}
+      className={`
           aspect-square rounded-lg cursor-pointer transition-all relative
           ${isDraggedOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
         `}
-        onClick={handleClick}
-        // Only attach touch handlers for touch devices
-        onTouchStart={thumbnail ? handleTouchStart : undefined}
-        onTouchMove={thumbnail ? handleTouchMove : undefined}
-        onTouchEnd={thumbnail ? (e) => e.preventDefault() : undefined}
-        // Native drag and drop handlers
-        draggable={!!thumbnail}
-        onDragStart={thumbnail ? handleDragStart : undefined}
-        onDragEnd={thumbnail ? handleDragEnd : undefined}
-        onDragOver={(e) => onDragOver(e, pad.id)}
-        onDragLeave={onDragLeave}
-        onDrop={handleDrop}
-      >
-        {thumbnail && (
-          <img
-            src={thumbnail}
-            alt={`Thumbnail for pad ${pad.id}`}
-            className='w-full h-full object-cover rounded-lg'
-          />
-        )}
-        <span className='absolute bottom-2 right-2 text-xs text-gray-400 select-none'>
-          {pad.id}
-        </span>
-      </div>
-    </>
+      onClick={handleClick}
+      // Only attach touch handlers for touch devices
+      onTouchStart={thumbnail ? handleTouchStart : undefined}
+      onTouchMove={thumbnail ? handleTouchMove : undefined}
+      onTouchEnd={thumbnail ? (e) => e.preventDefault() : undefined}
+      // Native drag and drop handlers
+      draggable={!!thumbnail}
+      onDragStart={thumbnail ? handleDragStart : undefined}
+      onDragEnd={thumbnail ? handleDragEnd : undefined}
+      onDragOver={(e) => onDragOver(e, pad.id)}
+      onDragLeave={onDragLeave}
+      onDrop={handleDrop}
+    >
+      {thumbnail && (
+        <img
+          src={thumbnail}
+          alt={`Thumbnail for pad ${pad.id}`}
+          className='w-full h-full object-cover rounded-lg'
+        />
+      )}
+      <span className='absolute bottom-2 right-2 text-xs text-gray-400 select-none'>
+        {pad.id}
+      </span>
+    </div>
   );
 };
