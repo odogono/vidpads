@@ -19,6 +19,7 @@
     "@ffmpeg/util": "^0.12.1",
     "@tanstack/react-query": "^5.62.16",
     "@xstate/store": "^2.6.2",
+    "deep-object-diff": "^1.1.9",
     "glazejs": "^2.0.1",
     "gsap": "^3.12.5",
     "mitt": "^3.0.1",
