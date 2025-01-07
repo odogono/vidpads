@@ -50,6 +50,11 @@ export type CopyPadAction = {
   targetPadId: string;
 };
 
+export type PlayPadAction = {
+  type: 'playPad';
+  padId: string;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -58,7 +63,8 @@ export type Actions =
   | ApplyFileToPadAction
   | ApplyPadDropAction
   | ClearPadAction
-  | CopyPadAction;
+  | CopyPadAction
+  | PlayPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -74,10 +80,16 @@ export type StoreInitialisedEvent = {
   type: 'storeInitialised';
 };
 
+export type PlayPadEvent = {
+  type: 'playPad';
+  pad: Pad;
+};
+
 export type EmittedEvents =
   | PadUpdatedEvent
   | StartTimeUpdatedEvent
-  | StoreInitialisedEvent;
+  | StoreInitialisedEvent
+  | PlayPadEvent;
 
 export type Emit = { emit: (event: EmittedEvents) => void };
 

@@ -23,6 +23,7 @@
     "deep-object-diff": "^1.1.9",
     "glazejs": "^2.0.1",
     "gsap": "^3.12.5",
+    "lucide-react": "^0.469.0",
     "mitt": "^3.0.1",
     "mp4box": "^0.5.3",
     "react": "^18.3.1",

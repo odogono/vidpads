@@ -11,3 +11,7 @@ export const getMediaIdFromUrl = (url: string): string | null => {
   const match = url.match(/^vidpads:\/\/media\/(.+)$/);
   return match ? match[1] : null;
 };
+
+export const isVidpadUrl = (url: string): boolean => {
+  return url.startsWith('vidpads://');
+};

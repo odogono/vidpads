@@ -105,9 +105,14 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
 
   const handleClick = (padId: string, hasMedia: boolean) => {
     if (!hasMedia) {
+      // open file input
       setActiveIndex(padId);
       fileInputRef.current?.click();
+      return;
     }
+
+    // if has media, play it
+    store.send({ type: 'playPad', padId });
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

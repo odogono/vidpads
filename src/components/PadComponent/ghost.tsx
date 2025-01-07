@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+
+import { GeneralTouchEvent } from './types';
 
 // this variable indicates whether this browser is safari
 const isSafari =
@@ -9,7 +11,7 @@ export const useGhostDrag = () => {
   const ghostRef = useRef<HTMLDivElement | null>(null);
 
   const createGhost = useCallback(
-    (e: TouchEvent | MouseEvent, ref: HTMLDivElement) => {
+    (e: GeneralTouchEvent, ref: HTMLDivElement) => {
       const dragGhost = createDragGhost(e, ref);
       ghostRef.current = dragGhost;
       return dragGhost;
@@ -42,10 +44,7 @@ export const useGhostDrag = () => {
   return { ghostRef, createGhost, removeGhost, updateGhost };
 };
 
-export const createDragGhost = (
-  e: TouchEvent | MouseEvent,
-  ref: HTMLDivElement
-) => {
+export const createDragGhost = (e: GeneralTouchEvent, ref: HTMLDivElement) => {
   const rect = ref.getBoundingClientRect();
   const dragGhost = document.createElement('div');
 

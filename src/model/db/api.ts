@@ -137,6 +137,8 @@ export const saveVideoData = async ({
     const { id, sizeInBytes } = metadata;
     const videoTotalChunks = Math.ceil(sizeInBytes / chunkSize);
 
+    metadata.videoTotalChunks = videoTotalChunks;
+
     // Save the metadata
     const metadataStore = transaction.objectStore('metadata');
     metadataStore.put(metadata);
@@ -218,6 +220,13 @@ export const loadVideoData = async (
     const transaction = db.transaction('videoChunks', 'readonly');
     const store = transaction.objectStore('videoChunks');
 
+    // log.debug(
+    //   'loading video chunks',
+    //   [id, 0],
+    //   [id, videoTotalChunks! - 1],
+    //   metadata
+    // );
+
     const videoChunksRequest = store.getAll(
       IDBKeyRange.bound([id, 0], [id, videoTotalChunks! - 1])
     );
@@ -251,7 +260,7 @@ export const loadVideoData = async (
         metadata,
         thumbnail
       });
-      log.debug('video data loaded from IndexedDB');
+      // log.debug('video data loaded from IndexedDB');
       db.close();
     };
   });

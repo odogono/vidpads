@@ -15,6 +15,7 @@ const log = createLog('store/actions');
 export { applyFileToPad } from './applyFileToPad';
 export { clearPad } from './clearPad';
 export { copyPad } from './copyPad';
+export { playPad } from './playPad';
 
 export const initialiseStore = (
   context: StoreContext,

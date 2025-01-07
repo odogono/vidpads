@@ -5,6 +5,7 @@ import { useThumbnail } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import type { Pad } from '@model/types';
 import { useGhostDrag } from './ghost';
+import { GeneralTouchEvent } from './types';
 import { useNullImage } from './useNullImage';
 
 // Create proper event types
@@ -23,12 +24,6 @@ export interface PadComponentProps extends DragHandlers {
 }
 
 const log = createLog('PadComponent');
-
-type GeneralTouchEvent =
-  | React.TouchEvent<HTMLDivElement>
-  | React.MouseEvent<HTMLDivElement>
-  | MouseEvent
-  | TouchEvent;
 
 export const PadComponent = ({
   pad,
@@ -79,18 +74,15 @@ export const PadComponent = ({
     [updateGhost]
   );
 
-  const handleTouchEnd = useCallback(
-    (e: GeneralTouchEvent) => {
-      removeGhost();
-      setIsDragging(false);
+  const handleTouchEnd = useCallback(() => {
+    removeGhost();
+    setIsDragging(false);
 
-      // Only trigger tap if we didn't drag
-      if (!isDragging) {
-        onTap(pad.id, !!thumbnail);
-      }
-    },
-    [isDragging, onTap, pad.id, thumbnail, removeGhost]
-  );
+    // Only trigger tap if we didn't drag
+    if (!isDragging) {
+      onTap(pad.id, !!thumbnail);
+    }
+  }, [isDragging, onTap, pad.id, thumbnail, removeGhost]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
