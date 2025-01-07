@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
-import { PadLoadingComponent } from '../PadLoadingComponent';
+import { PadLoadingComponent } from '../PadComponent/Loading';
 import { usePadEvents } from './usePadEvents';
 
 export const TileContainer = () => {
