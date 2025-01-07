@@ -59,6 +59,8 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
     if (types.some((type) => ACCEPTED_FILE_TYPES.includes(type))) {
       setDragOverIndex(padId);
     }
+
+    log.debug('handleDragOver', padId, types);
   };
 
   const handleDragLeave = () => {
@@ -71,6 +73,10 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
 
     // Check if this is a pad being dropped
     const sourcePadId = e.dataTransfer.getData('application/pad-id');
+    const text = e.dataTransfer.getData('text/plain');
+
+    log.debug('handleDrop', sourcePadId, targetPadId, text);
+
     if (sourcePadId) {
       if (sourcePadId !== targetPadId) {
         // Swap the contents of the two pads
