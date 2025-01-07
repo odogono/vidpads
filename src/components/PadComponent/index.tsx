@@ -75,8 +75,6 @@ export const PadComponent = ({
       requestAnimationFrame(() => {
         updateGhost(clientX, clientY);
       });
-
-      log.debug('handleTouchMove', clientX, clientY);
     },
     [updateGhost]
   );

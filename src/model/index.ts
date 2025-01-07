@@ -1,12 +1,12 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
+import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
+import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import { deleteMediaData, saveImageData, saveVideoData } from '@model/db/api';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
-import { createImageThumbnail } from '../helpers/image';
-import { getMediaMetadata, isVideoMetadata } from '../helpers/metadata';
-import { MediaImage, MediaVideo } from './types';
+import { MediaImage, MediaVideo, Pad } from '@model/types';
 
 const log = createLog('model/api');
 
@@ -91,6 +91,29 @@ export const addFileToPad = async ({
   }
 };
 
+export const copyPadToPad = async (
+  store: StoreType,
+  sourcePadId: string,
+  targetPadId: string
+) => {
+  const targetPad = getPadById(store, targetPadId);
+  if (!targetPad) {
+    log.warn('[copyPad] Pad not found:', targetPadId);
+    return false;
+  }
+
+  // clear the target pad
+  await deletePadMedia(store, targetPad);
+
+  store.send({
+    type: 'copyPad',
+    sourcePadId,
+    targetPadId
+  });
+
+  return true;
+};
+
 /**
  * Clears the pad and deletes the source data if it is the only pad using it
  *
@@ -109,11 +132,22 @@ export const clearPad = async (
     return false;
   }
 
+  await deletePadMedia(store, pad);
+
+  store.send({
+    type: 'clearPad',
+    padId
+  });
+
+  return true;
+};
+
+const deletePadMedia = async (store: StoreType, pad: Pad) => {
   const sourceUrl = pad.pipeline.source?.url;
 
   // nothing to clear
   if (!sourceUrl) {
-    log.warn('[clearPad] No source URL found:', padId);
+    log.warn('[deletePadMedia] No source URL found:', pad.id);
     return false;
   }
 
@@ -122,16 +156,14 @@ export const clearPad = async (
   // if there is only one pad using this source, then its
   // safe to delete the source data
   if (pads.length === 1) {
-    log.debug('[clearPad] Deleting source data:', sourceUrl);
+    log.debug('[deletePadMedia] Deleting source data:', sourceUrl);
     await deleteMediaData(sourceUrl);
   } else {
-    log.warn('[clearPad] More than one pad using this source:', sourceUrl);
+    log.warn(
+      '[deletePadMedia] More than one pad using this source:',
+      sourceUrl
+    );
   }
-
-  store.send({
-    type: 'clearPad',
-    padId
-  });
 
   return true;
 };

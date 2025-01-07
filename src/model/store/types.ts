@@ -44,6 +44,12 @@ export type ClearPadAction = {
   padId: string;
 };
 
+export type CopyPadAction = {
+  type: 'copyPad';
+  sourcePadId: string;
+  targetPadId: string;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -51,7 +57,8 @@ export type Actions =
   | SetPadMediaAction
   | ApplyFileToPadAction
   | ApplyPadDropAction
-  | ClearPadAction;
+  | ClearPadAction
+  | CopyPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

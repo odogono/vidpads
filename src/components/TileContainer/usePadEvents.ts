@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { createLog } from '@helpers/log';
-import { addFileToPad } from '@model';
+import { addFileToPad, copyPadToPad } from '@model';
 import { StoreType } from '@model/store/types';
 import { useDragContext } from '../DragContext';
 
@@ -85,15 +85,7 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
 
     if (sourcePadId) {
       if (sourcePadId !== targetPadId) {
-        // Swap the contents of the two pads
-        await store.send({
-          type: 'applyPadDrop',
-          sourcePadId,
-          targetPadId
-        });
-        log.info(
-          `Swapped contents between pads ${sourcePadId} and ${targetPadId}`
-        );
+        await copyPadToPad(store, sourcePadId, targetPadId);
       }
       return;
     }
