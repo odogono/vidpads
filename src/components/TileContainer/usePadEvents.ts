@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { createLog } from '@helpers/log';
+import { addFileToPad } from '@model';
 import { StoreType } from '@model/store/types';
 import { useDragContext } from '../DragContext';
-import { processMediaFile } from './helpers';
 
 const log = createLog('usePadEvents');
 
@@ -106,7 +106,7 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
         log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
         return;
       }
-      await processMediaFile({ file, padId: targetPadId, store, ffmpeg });
+      await addFileToPad({ file, padId: targetPadId, store, ffmpeg });
       log.info(`Processed file ${file.name} for pad ${targetPadId}`);
     }
   };
@@ -126,7 +126,7 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
         log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
         return;
       }
-      await processMediaFile({ file, padId: activeIndex, store, ffmpeg });
+      await addFileToPad({ file, padId: activeIndex, store, ffmpeg });
     }
     e.target.value = '';
   };
