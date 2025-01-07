@@ -60,7 +60,7 @@ export const TileContainer = () => {
         try {
           log.debug('extracting video thumbnail');
           // const thumbnail = await extractVideoThumbnail(ffmpeg, file);
-          const thumbnail = await extractVideoThumbnailWebcodecs(
+          const thumbnail = await extractVideoThumbnailCanvas(
             file,
             metadata as MediaVideo
           );

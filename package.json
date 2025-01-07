@@ -15,9 +15,9 @@
     "outdated": "bunx npm-check-updates --interactive --format group"
   },
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.13",
+    "@ffmpeg/ffmpeg": "^0.12.14",
     "@ffmpeg/util": "^0.12.1",
-    "@tanstack/react-query": "^5.62.15",
+    "@tanstack/react-query": "^5.62.16",
     "@xstate/store": "^2.6.2",
     "glazejs": "^2.0.1",
     "gsap": "^3.12.5",
@@ -31,7 +31,7 @@
     "@eslint/js": "^9.17.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@statelyai/inspect": "^0.4.0",
-    "@types/bun": "^1.1.14",
+    "@types/bun": "^1.1.15",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
@@ -41,7 +41,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prefer-arrow-functions": "^3.4.1",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react-compiler": "^19.0.0-beta-55955c9-20241229",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-63e3235-20250105",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
@@ -50,7 +50,7 @@
     "tailwindcss": "^3.4.17",
     "tailwindcss-motion": "^1.0.1",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.19.0",
+    "typescript-eslint": "^8.19.1",
     "vite": "^6.0.7"
   }
 }

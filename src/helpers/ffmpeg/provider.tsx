@@ -7,7 +7,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { FFmpegContext } from './context';
 
 const useMultiThreadedFFmpeg = true;
-const CORE_VERSION = '0.12.6';
+const CORE_VERSION = '0.12.9';
 const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/esm`;
 const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/esm`;
 
