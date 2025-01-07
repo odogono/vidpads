@@ -31,32 +31,29 @@ export const PadComponent = ({
   const { data: thumbnail } = useThumbnail(getPadSourceUrl(pad));
   const elementRef = useRef<HTMLDivElement>(null);
   const ghostRef = useRef<HTMLDivElement | null>(null);
-  const initialPosRef = useRef<Position>({ x: 0, y: 0 });
-  // const dragPositionRef = useRef<Position>({ x: 0, y: 0 });
 
   const [isDragging, setIsDragging] = useState(false);
 
   const handleTouchStart = (e: TouchEvent | MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    const { dragGhost, initialPos } = createDragGhost(e, elementRef.current!);
+    const dragGhost = createDragGhost(e, elementRef.current!);
     ghostRef.current = dragGhost;
-    initialPosRef.current = initialPos;
-    // dragPositionRef.current = position;
     log.debug('handleTouchStart', isDragging);
   };
 
   const handleTouchMove = (e: TouchEvent | MouseEvent) => {
     const isMouseEvent = e.type.includes('mouse');
-    const mouseEvent = e as MouseEvent;
-    const touchEvent = e as TouchEvent;
     const clientX = isMouseEvent
-      ? mouseEvent.clientX
-      : touchEvent.touches[0].clientX;
+      ? (e as MouseEvent).clientX
+      : (e as TouchEvent).touches[0].clientX;
     const clientY = isMouseEvent
-      ? mouseEvent.clientY
-      : touchEvent.touches[0].clientY;
-    updateGhostPosition(clientX, clientY);
+      ? (e as MouseEvent).clientY
+      : (e as TouchEvent).touches[0].clientY;
+
+    requestAnimationFrame(() => {
+      updateGhostPosition(clientX, clientY);
+    });
   };
 
   const handleTouchEnd = (e: TouchEvent | MouseEvent) => {
@@ -71,29 +68,19 @@ export const PadComponent = ({
 
   const updateGhostPosition = (x: number, y: number) => {
     if (!ghostRef.current) return;
+    const ghost = ghostRef.current;
 
-    // Instead of calculating deltas, directly set the position relative to the cursor
-    const ghostWidth = ghostRef.current.offsetWidth;
-    const ghostHeight = ghostRef.current.offsetHeight;
+    const ghostWidth = ghost.offsetWidth;
+    const ghostHeight = ghost.offsetHeight;
 
-    // Center the ghost element on the cursor
+    // Use translate3d for hardware acceleration
     const newX = x - ghostWidth / 2;
     const newY = y - ghostHeight / 2;
 
-    ghostRef.current.style.transform = 'scale(0.8)';
-    ghostRef.current.style.left = `${newX}px`;
-    ghostRef.current.style.top = `${newY}px`;
+    ghost.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(0.8)`;
 
-    // const deltaX = x - initialPosRef.current.x;
-    // const deltaY = y - initialPosRef.current.y;
-
-    // const newX = dragPositionRef.current.x + deltaX;
-    // const newY = dragPositionRef.current.y + deltaY;
-
-    // ghostRef.current.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.8)`;
-
-    // dragPositionRef.current = { x: newX, y: newY };
-    // log.debug('updateGhostPosition', ghostRef.current.style.transform);
+    // log.debug('updateGhostPosition', ghost.style.left, ghost.style.top);
+    // log.debug('updateGhostPosition', ghost.style.transform);
   };
 
   useEffect(() => {
@@ -101,16 +88,16 @@ export const PadComponent = ({
       document.addEventListener('mouseup', handleTouchEnd);
       document.addEventListener('touchend', handleTouchEnd);
       document.addEventListener('mousemove', handleTouchMove);
-      document.addEventListener('touchmove', handleTouchMove, {
-        passive: false
-      });
+      // document.addEventListener('touchmove', handleTouchMove, {
+      // passive: false
+      // });
     }
 
     return () => {
       document.removeEventListener('mouseup', handleTouchEnd);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('mousemove', handleTouchMove);
-      document.removeEventListener('touchmove', handleTouchMove);
+      // document.removeEventListener('touchmove', handleTouchMove);
     };
   }, [isDragging]);
 
@@ -173,41 +160,52 @@ export const PadComponent = ({
 
 const createDragGhost = (e: TouchEvent | MouseEvent, ref: HTMLDivElement) => {
   const rect = ref.getBoundingClientRect();
-  const dragGhost = ref.cloneNode(true) as HTMLDivElement;
-  dragGhost.style.opacity = '1';
-  dragGhost.style.transform = 'scale(0.8)';
-  dragGhost.style.position = 'fixed';
-  dragGhost.style.pointerEvents = 'none';
-  dragGhost.style.left = `${rect.left}px`;
-  dragGhost.style.top = `${rect.top}px`;
-  dragGhost.style.width = `${rect.width}px`;
-  dragGhost.style.height = `${rect.height}px`;
-  dragGhost.style.zIndex = '1000';
-  dragGhost.style.margin = '0';
+  const dragGhost = document.createElement('div');
+
+  // Get cursor/touch position
+  const isMouseEvent = e.type.includes('mouse');
+  const clientX = isMouseEvent
+    ? (e as MouseEvent).clientX
+    : (e as TouchEvent).touches[0].clientX;
+  const clientY = isMouseEvent
+    ? (e as MouseEvent).clientY
+    : (e as TouchEvent).touches[0].clientY;
+
+  // Calculate initial position
+  const initialX = clientX - rect.width / 2;
+  const initialY = clientY - rect.height / 2;
+
+  const computedStyle = window.getComputedStyle(ref);
+
+  // Create a lightweight version that looks similar
+  Object.assign(dragGhost.style, {
+    position: 'fixed',
+    pointerEvents: 'none',
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    zIndex: '1000',
+    margin: '0',
+    left: '0',
+    top: '0',
+    willChange: 'transform',
+    opacity: '0.8',
+    transform: `translate3d(${initialX}px, ${initialY}px, 0) scale(0.8)`,
+    background: computedStyle.background,
+    borderRadius: computedStyle.borderRadius
+  });
+
+  // If there's a thumbnail, create a simplified version
+  const thumbnail = ref.querySelector('img');
+  if (thumbnail) {
+    const img = document.createElement('img');
+    img.src = (thumbnail as HTMLImageElement).src;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    img.style.borderRadius = computedStyle.borderRadius;
+    dragGhost.appendChild(img);
+  }
 
   document.body.appendChild(dragGhost);
-  // e.dataTransfer.setDragImage(dragGhost, 0, 0);
-  // requestAnimationFrame(() => {
-  //   document.body.removeChild(dragGhost);
-  // });
-  const isMouseEvent = e.type.includes('mouse');
-  const mouseEvent = e as MouseEvent;
-  const touchEvent = e as TouchEvent;
-
-  const clientX = isMouseEvent
-    ? mouseEvent.clientX
-    : touchEvent.touches[0].clientX;
-  const clientY = isMouseEvent
-    ? mouseEvent.clientY
-    : touchEvent.touches[0].clientY;
-  // setInitialMousePos({ x: clientX, y: clientY });
-  // setPosition({ x: rect.left, y: rect.top });
-
-  dragGhost.style.left = `${clientX - rect.width / 2}px`;
-  dragGhost.style.top = `${clientY - rect.height / 2}px`;
-
-  const initialPos = { x: clientX, y: clientY };
-  const position = { x: rect.left, y: rect.top };
-
-  return { dragGhost, initialPos, position };
+  return dragGhost;
 };
