@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { createLog } from '@helpers/log';
@@ -23,9 +23,38 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
   const [dragOverIndex, setDragOverIndex] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
+  const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
+
+  // Clear dragging state when drag ends
+  // useEffect(() => {
+  //   const handleDragEnd = () => {
+  //     setDraggingPadId(null);
+  //   };
+
+  //   document.addEventListener('dragend', handleDragEnd);
+  //   return () => document.removeEventListener('dragend', handleDragEnd);
+  // }, []);
+
+  const handlePadDragStart = (padId: string) => {
+    setDraggingPadId(padId);
+    log.debug('handlePadDragStart', padId);
+  };
 
   const handleDragOver = (e: React.DragEvent, padId: string) => {
     e.preventDefault();
+
+    // Check if this is a pad being dragged
+    const isPadDrag = e.dataTransfer.types.includes('application/pad-id');
+
+    if (isPadDrag) {
+      // Only show drop indicator if dragging onto a different pad
+      if (draggingPadId !== padId) {
+        setDragOverIndex(padId);
+      }
+      return;
+    }
+
+    // Handle file drag (existing code)
     const types = Array.from(e.dataTransfer.items).map((item) => item.type);
     if (types.some((type) => ACCEPTED_FILE_TYPES.includes(type))) {
       setDragOverIndex(padId);
@@ -36,10 +65,28 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
     setDragOverIndex(null);
   };
 
-  const handleDrop = async (e: React.DragEvent, padId: string) => {
+  const handleDrop = async (e: React.DragEvent, targetPadId: string) => {
     e.preventDefault();
     setDragOverIndex(null);
 
+    // Check if this is a pad being dropped
+    const sourcePadId = e.dataTransfer.getData('application/pad-id');
+    if (sourcePadId) {
+      if (sourcePadId !== targetPadId) {
+        // Swap the contents of the two pads
+        await store.send({
+          type: 'applyPadDrop',
+          sourcePadId,
+          targetPadId
+        });
+        log.info(
+          `Swapped contents between pads ${sourcePadId} and ${targetPadId}`
+        );
+      }
+      return;
+    }
+
+    // Handle file drop (existing code)
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       const file = files[0];
@@ -47,8 +94,8 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
         log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
         return;
       }
-      await processMediaFile({ file, padId, store, ffmpeg });
-      log.info(`Processed file ${file.name} for pad ${padId}`);
+      await processMediaFile({ file, padId: targetPadId, store, ffmpeg });
+      log.info(`Processed file ${file.name} for pad ${targetPadId}`);
     }
   };
 
@@ -80,6 +127,7 @@ export const usePadEvents = ({ ffmpeg, store }: UsePadEventsProps) => {
     handleDrop,
     handleClick,
     handleFileSelect,
+    handlePadDragStart,
     ACCEPTED_FILE_TYPES
   };
 };
