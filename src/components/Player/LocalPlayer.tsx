@@ -65,7 +65,7 @@ export const LocalPlayer = ({
 
         // Set the video source and play
         if (videoRef.current) {
-          log.debug('setting video src', videoRef.current, videoUrl);
+          log.debug(url, 'setting video src', videoRef.current, videoUrl);
           videoRef.current.src = videoUrl;
           videoRef.current.currentTime = currentTime;
 
@@ -94,15 +94,23 @@ export const LocalPlayer = ({
   }, [url]);
 
   useEffect(() => {
+    const video = videoRef.current;
     log.debug('useEffect', isVisible);
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = currentTimeProp;
-    if (isVisible) {
-      videoRef.current.play();
+    if (!video) return;
+    video.currentTime = currentTimeProp;
+
+    const isPlaying =
+      video.currentTime > 0 &&
+      !video.paused &&
+      !video.ended &&
+      video.readyState > video.HAVE_CURRENT_DATA;
+
+    if (isVisible && !isPlaying) {
+      video.play();
     } else {
-      videoRef.current.pause();
+      video.pause();
     }
-  }, [isVisible]);
+  }, [isVisible, currentTimeProp]);
 
   return (
     <video

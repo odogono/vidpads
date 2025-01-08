@@ -1,19 +1,12 @@
-import { useRef, useState } from 'react';
-
 import { TileContainer } from '@components/TileContainer';
-import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
-import { createLog } from '@helpers/log';
-import { checkStorageQuota } from '@model/mediaDb';
+import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { BinComponent } from './Bin';
 import { Container } from './Container';
-import { DragProvider } from './DragContext';
 import { PlayerContainer } from './Player/Container';
-
-const log = createLog('App');
 
 export const Main = () => {
   return (
-    <DragProvider>
+    <PadDnDProvider>
       <Container>
         <h1 className='text-3xl font-bold mb-8'>Vid-Wiz</h1>
 
@@ -25,6 +18,6 @@ export const Main = () => {
 
         <TileContainer />
       </Container>
-    </DragProvider>
+    </PadDnDProvider>
   );
 };

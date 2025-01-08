@@ -147,7 +147,7 @@ const deletePadMedia = async (store: StoreType, pad: Pad) => {
 
   // nothing to clear
   if (!sourceUrl) {
-    log.warn('[deletePadMedia] No source URL found:', pad.id);
+    // log.warn('[deletePadMedia] No source URL found:', pad.id);
     return false;
   }
 
@@ -158,11 +158,6 @@ const deletePadMedia = async (store: StoreType, pad: Pad) => {
   if (pads.length === 1) {
     log.debug('[deletePadMedia] Deleting source data:', sourceUrl);
     await deleteMediaData(sourceUrl);
-  } else {
-    log.warn(
-      '[deletePadMedia] More than one pad using this source:',
-      sourceUrl
-    );
   }
 
   return true;

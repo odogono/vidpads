@@ -2,15 +2,15 @@ import { useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { clearPad } from '@model';
 import { useStore } from '@model/store/useStore';
-import { useDragContext } from './DragContext';
 
 const log = createLog('BinComponent');
 
 export const BinComponent = () => {
   const [isDraggedOver, setIsDraggedOver] = useState(false);
-  const { isDragging } = useDragContext();
+  const { isDragging } = usePadDnD();
   const store = useStore();
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -22,7 +22,7 @@ export const BinComponent = () => {
     setIsDraggedOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDraggedOver(false);
 
@@ -30,7 +30,9 @@ export const BinComponent = () => {
     log.debug('handleDrop', padId);
 
     if (padId) {
-      clearPad(store, padId);
+      requestAnimationFrame(() => {
+        clearPad(store, padId);
+      });
     }
   };
 

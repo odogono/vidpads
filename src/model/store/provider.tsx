@@ -55,6 +55,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
       });
 
       return () => {
+        log.debug('unsubscribing from store updates');
         sub.unsubscribe();
       };
     }
