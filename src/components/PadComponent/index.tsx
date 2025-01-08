@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { useThumbnail } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import type { Pad } from '@model/types';
@@ -9,42 +10,39 @@ import { useGhostDrag } from './ghost';
 import { GeneralTouchEvent } from './types';
 import { useNullImage } from './useNullImage';
 
-// Create proper event types
-type DragHandlers = {
-  onDragOver: (e: React.DragEvent<HTMLDivElement>, padId: string) => void;
-  onDragLeave: () => void;
-  onDrop: (e: React.DragEvent<HTMLDivElement>, padId: string) => void;
-  onPadDragStart: (padId: string) => void;
-  onPadDragEnd: () => void;
-};
-
-export interface PadComponentProps extends DragHandlers {
+export interface PadComponentProps {
   pad: Pad;
-  isDraggedOver: boolean;
-  onTap: (padId: string, hasMedia: boolean) => void;
+  onEmptyPadTouch: (padId: string) => void;
 }
 
-const isTouchEvent = (e: GeneralTouchEvent) => e.type.includes('touch');
+// const isTouchEvent = (e: GeneralTouchEvent) => e.type.includes('touch');
 const isMouseEvent = (e: GeneralTouchEvent) => e.type.includes('mouse');
 
 const log = createLog('PadComponent');
 
-export const PadComponent = ({
-  pad,
-  isDraggedOver,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  onPadDragStart,
-  onPadDragEnd,
-  onTap
-}: PadComponentProps) => {
+export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
   const { data: thumbnail } = useThumbnail(getPadSourceUrl(pad));
   const dragImage = useNullImage();
   const { createGhost, removeGhost, updateGhost } = useGhostDrag();
-  const [isDragging, setIsDragging] = useState(false);
+  const {
+    isDragging,
+    setDraggingPadId,
+    dragOverId,
+    onDragStart,
+    onDragLeave,
+    onDragOver,
+    onDragEnd,
+    onDrop
+  } = usePadDnD();
+  const isDraggingOver = dragOverId === pad.id;
   const events = useEvents();
+
+  useEffect(() => {
+    if (!isDragging) {
+      removeGhost();
+    }
+  }, [isDragging, removeGhost]);
 
   const handleTouchStart = useCallback(
     (e: GeneralTouchEvent) => {
@@ -75,13 +73,24 @@ export const PadComponent = ({
 
     // Only trigger tap if we didn't drag
     if (!isDragging) {
-      events.emit('pad:touchup', { padId: pad.id });
-      onTap(pad.id, !!thumbnail);
+      if (!thumbnail) {
+        onEmptyPadTouch(pad.id);
+      } else {
+        events.emit('pad:touchup', { padId: pad.id });
+      }
     } else {
       removeGhost();
-      setIsDragging(false);
+      setDraggingPadId(null);
     }
-  }, [isDragging, onTap, pad.id, thumbnail, removeGhost]);
+  }, [
+    isDragging,
+    thumbnail,
+    onEmptyPadTouch,
+    pad.id,
+    events,
+    removeGhost,
+    setDraggingPadId
+  ]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
@@ -94,21 +103,17 @@ export const PadComponent = ({
 
       createGhost(e, elementRef.current!);
 
-      setIsDragging(true);
-      onPadDragStart(pad.id);
+      onDragStart(pad.id);
       log.debug('handleDragStart');
     },
-    [pad.id, onPadDragStart, createGhost, elementRef, dragImage]
+    [pad.id, dragImage, createGhost, onDragStart]
   );
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
-      log.debug('handleDrop', pad.id, isDragging);
-      // removeGhost();
-      // setIsDragging(false);
       onDrop(e, pad.id);
     },
-    [pad.id, onDrop, isDragging]
+    [pad.id, onDrop]
   );
 
   const handleDragOver = useCallback(
@@ -128,22 +133,9 @@ export const PadComponent = ({
     // Ensure we clean up even if the component is about to unmount
     requestAnimationFrame(() => {
       removeGhost();
-      setIsDragging(false);
-      onPadDragEnd();
+      onDragEnd(pad.id);
     });
-  }, [removeGhost, setIsDragging, isDragging, onPadDragEnd]);
-
-  // const handleClick = useCallback(
-  //   (e: React.MouseEvent<HTMLDivElement>) => {
-  //     e.preventDefault();
-
-  //     // Prevent click when ending drag
-  //     if (isDragging) return;
-
-  //     onTap(pad.id, !!thumbnail);
-  //   },
-  //   [isDragging, onTap, pad.id, thumbnail]
-  // );
+  }, [isDragging, removeGhost, onDragEnd, pad.id]);
 
   useEffect(() => {
     if (isDragging) {
@@ -170,8 +162,8 @@ export const PadComponent = ({
     draggable: !!thumbnail,
     onDragStart: thumbnail ? handleDragStart : undefined,
     onDragEnd: thumbnail ? handleDragEnd : undefined,
-    onDragOver: (e) => onDragOver(e, pad.id),
-    onDragLeave: onDragLeave,
+    onDragOver: (e: React.DragEvent<HTMLDivElement>) => onDragOver(e, pad.id),
+    onDragLeave: () => onDragLeave(pad.id),
     onDrop: handleDrop
   };
 
@@ -181,7 +173,7 @@ export const PadComponent = ({
       key={pad.id}
       className={`
           aspect-square rounded-lg cursor-pointer transition-all relative
-          ${isDraggedOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
+          ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
         `}
       // onClick={handleClick}
       // Only attach touch handlers for touch devices

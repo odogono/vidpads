@@ -9,32 +9,9 @@ import { useStore } from '@model/store/useStore';
 const log = createLog('BinComponent');
 
 export const BinComponent = () => {
-  const [isDraggedOver, setIsDraggedOver] = useState(false);
-  const { isDragging } = usePadDnD();
-  const store = useStore();
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDraggedOver(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDraggedOver(false);
-  };
-
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDraggedOver(false);
-
-    const padId = e.dataTransfer.getData('application/pad-id');
-    log.debug('handleDrop', padId);
-
-    if (padId) {
-      requestAnimationFrame(() => {
-        clearPad(store, padId);
-      });
-    }
-  };
+  const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
+    usePadDnD();
+  const isDraggingOver = dragOverId === 'bin';
 
   return (
     <div
@@ -48,16 +25,16 @@ export const BinComponent = () => {
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 translate-y-10 pointer-events-none'
         }
-        ${isDraggedOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
+        ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
       `}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      onDragOver={(e) => onDragOver(e, 'bin')}
+      onDragLeave={() => onDragLeave('bin')}
+      onDrop={(e) => onDrop(e, 'bin')}
     >
       <TrashIcon
         className={`
           w-24 h-24 transition-all duration-300
-          ${isDraggedOver ? 'text-red-500 scale-110' : 'text-gray-400'}
+          ${isDraggingOver ? 'text-red-500 scale-110' : 'text-gray-400'}
         `}
       />
     </div>

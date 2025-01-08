@@ -1,26 +1,16 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 
-import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
+import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
-import { usePadEvents } from './usePadEvents';
+import { useFileSelector } from './useFileSelector';
 
 export const TileContainer = () => {
-  const { ffmpeg } = useFFmpeg();
-  const { pads, store } = usePads();
-  const {
-    dragOverIndex,
-    fileInputRef,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-    handleClick,
-    handleFileSelect,
-    handlePadDragStart,
-    handlePadDragEnd,
-    ACCEPTED_FILE_TYPES
-  } = usePadEvents({ ffmpeg, store });
+  const { pads } = usePads();
+  const { ACCEPTED_FILE_TYPES } = usePadDnD();
+  const { fileInputRef, handleEmptyPadTouch, handleFileSelect } =
+    useFileSelector();
 
   return (
     <div className='mt-4 w-[800px] mx-auto'>
@@ -34,16 +24,7 @@ export const TileContainer = () => {
       <div className='grid grid-cols-4 gap-8'>
         {pads.map((pad) => (
           <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
-            <PadComponent
-              pad={pad}
-              isDraggedOver={dragOverIndex === pad.id}
-              onTap={handleClick}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onPadDragStart={handlePadDragStart}
-              onPadDragEnd={handlePadDragEnd}
-            />
+            <PadComponent pad={pad} onEmptyPadTouch={handleEmptyPadTouch} />
           </Suspense>
         ))}
       </div>
