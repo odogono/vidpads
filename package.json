@@ -20,6 +20,7 @@
     "@heroicons/react": "^2.2.0",
     "@tanstack/react-query": "^5.62.16",
     "@xstate/store": "^2.6.2",
+    "classnames": "^2.5.1",
     "deep-object-diff": "^1.1.9",
     "glazejs": "^2.0.1",
     "gsap": "^3.12.5",
