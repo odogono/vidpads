@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import { Container } from '@components/Container';
 import { Main } from '@components/Main';
+import { EventsProvider } from '@helpers/events';
 import { FFmpegProvider } from '@helpers/ffmpeg/provider';
 import { createLog } from '@helpers/log';
 import { StoreProvider } from '@model/store/provider';
@@ -26,15 +27,17 @@ const LoadingContainer = () => {
 
 export const App = () => {
   return (
-    <Suspense fallback={<LoadingContainer />}>
-      <QueryClientProvider client={queryClient}>
-        <FFmpegProvider>
-          <StoreProvider>
-            <Main />
-          </StoreProvider>
-        </FFmpegProvider>
-      </QueryClientProvider>
-    </Suspense>
+    <EventsProvider>
+      <Suspense fallback={<LoadingContainer />}>
+        <QueryClientProvider client={queryClient}>
+          <FFmpegProvider>
+            <StoreProvider>
+              <Main />
+            </StoreProvider>
+          </FFmpegProvider>
+        </QueryClientProvider>
+      </Suspense>
+    </EventsProvider>
   );
 };
 
