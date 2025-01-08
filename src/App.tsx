@@ -6,6 +6,7 @@ import { EventsProvider } from '@helpers/events';
 import { FFmpegProvider } from '@helpers/ffmpeg/provider';
 import { createLog } from '@helpers/log';
 import { StoreProvider } from '@model/store/provider';
+import { NextUIProvider } from '@nextui-org/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const log = createLog('App');
@@ -27,17 +28,19 @@ const LoadingContainer = () => {
 
 export const App = () => {
   return (
-    <Suspense fallback={<LoadingContainer />}>
-      <QueryClientProvider client={queryClient}>
-        <FFmpegProvider>
-          <EventsProvider>
-            <StoreProvider>
-              <Main />
-            </StoreProvider>
-          </EventsProvider>
-        </FFmpegProvider>
-      </QueryClientProvider>
-    </Suspense>
+    <NextUIProvider>
+      <Suspense fallback={<LoadingContainer />}>
+        <QueryClientProvider client={queryClient}>
+          <FFmpegProvider>
+            <EventsProvider>
+              <StoreProvider>
+                <Main />
+              </StoreProvider>
+            </EventsProvider>
+          </FFmpegProvider>
+        </QueryClientProvider>
+      </Suspense>
+    </NextUIProvider>
   );
 };
 
