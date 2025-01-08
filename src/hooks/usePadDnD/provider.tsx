@@ -18,6 +18,7 @@ const ACCEPTED_FILE_TYPES = [
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [selectedPadId, setSelectedPadId] = useState<string | null>(null);
 
   const { ffmpeg } = useFFmpeg();
   const { store } = useStore();
@@ -116,7 +117,9 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
         onDragLeave,
         onDragOver,
         onDragEnd,
-        onDrop
+        onDrop,
+        selectedPadId,
+        setSelectedPadId
       }}
     >
       {children}

@@ -6,7 +6,7 @@ import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 import { useFileSelector } from './useFileSelector';
 
-export const TileContainer = () => {
+export const PadContainer = () => {
   const { pads } = usePads();
   const { ACCEPTED_FILE_TYPES } = usePadDnD();
   const { fileInputRef, handleEmptyPadTouch, handleFileSelect } =

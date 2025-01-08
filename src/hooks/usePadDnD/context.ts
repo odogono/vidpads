@@ -5,6 +5,8 @@ export interface PadDnDContextType {
   dragOverId: string | null;
   isDragging: boolean;
   draggingPadId: string | null;
+  selectedPadId: string | null;
+  setSelectedPadId: (padId: string | null) => void;
   setDraggingPadId: (padId: string | null) => void;
   setDragOverId: (id: string | null) => void;
   onDragLeave: (id: string) => void;

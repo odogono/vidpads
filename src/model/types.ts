@@ -7,6 +7,7 @@ export type MediaType = (typeof MediaType)[keyof typeof MediaType];
 
 export const OperationType = {
   Source: 'source',
+  Duration: 'duration',
   Resize: 'resize',
   Trim: 'trim',
   AddEffect: 'addEffect',
@@ -24,6 +25,12 @@ export interface SourceOperation extends Operation {
   type: typeof OperationType.Source;
 }
 
+export interface DurationOperation extends Operation {
+  type: typeof OperationType.Duration;
+  start: number;
+  duration: number;
+}
+
 export interface Pipeline {
   source?: SourceOperation | undefined;
   operations: Operation[];
@@ -31,6 +38,11 @@ export interface Pipeline {
 
 export interface Pad {
   id: string;
+  isSelected?: boolean;
+  isOneShot?: boolean;
+  isLooped?: boolean;
+  volume?: number;
+
   pipeline: Pipeline;
 }
 

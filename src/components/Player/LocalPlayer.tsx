@@ -61,7 +61,7 @@ export const LocalPlayer = ({
     video.currentTime = currentTimeProp;
 
     const handleTimeUpdate = () => {
-      log.debug('timeupdate', media.url, video.currentTime);
+      // log.debug('timeupdate', media.url, video.currentTime);
       // setCurrentTime(video.currentTime);
       // if (loopEnd > 0 && video.currentTime >= loopEnd) {
       //   video.currentTime = loopStart;

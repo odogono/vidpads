@@ -33,7 +33,9 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     onDragLeave,
     onDragOver,
     onDragEnd,
-    onDrop
+    onDrop,
+    selectedPadId,
+    setSelectedPadId
   } = usePadDnD();
   const isDraggingOver = dragOverId === pad.id;
   const events = useEvents();
@@ -48,8 +50,9 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     (e: GeneralTouchEvent) => {
       // log.debug('handleTouchStart');
       events.emit('pad:touchdown', { padId: pad.id });
+      setSelectedPadId(pad.id);
     },
-    [events, pad]
+    [events, pad, setSelectedPadId]
   );
 
   const handleTouchMove = useCallback(
@@ -174,6 +177,7 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
       className={`
           aspect-square rounded-lg cursor-pointer transition-all relative
           ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
+          ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
         `}
       // onClick={handleClick}
       // Only attach touch handlers for touch devices
