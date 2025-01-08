@@ -4,7 +4,7 @@ import { StoreType } from './types';
 import { useStore } from './useStore';
 
 export const usePads = () => {
-  const store = useStore();
+  const { store } = useStore();
   const pads = useSelector(store, (state) => state.context.pads) ?? [];
 
   // Sort pads using natural sort to handle numbers correctly
@@ -30,4 +30,14 @@ export const getPadsBySourceUrl = (
   const { pads } = store.getSnapshot().context;
 
   return pads.filter((pad) => pad.pipeline.source?.url === sourceUrl);
+};
+
+export const getPadsWithMedia = (store: StoreType) => {
+  const { pads } = store.getSnapshot().context;
+  return pads.filter((pad) => pad.pipeline.source?.url);
+};
+
+export const getAllMedia = (store: StoreType) => {
+  const padsWithMedia = getPadsWithMedia(store);
+  return padsWithMedia.map((pad) => pad.pipeline.source?.url);
 };

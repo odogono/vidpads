@@ -69,7 +69,7 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   );
 
   const handleTouchEnd = useCallback(() => {
-    log.debug('handleTouchEnd');
+    // log.debug('handleTouchEnd');
 
     // Only trigger tap if we didn't drag
     if (!isDragging) {

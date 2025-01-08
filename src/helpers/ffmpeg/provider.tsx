@@ -27,7 +27,7 @@ export const FFmpegProvider: React.FC<FFmpegProviderProps> = ({
 
   if (!ffmpegRef.current && isLoaded) {
     ffmpegRef.current = ffmpeg;
-    log.debug('FFmpeg loaded', !!ffmpeg);
+    // log.debug('FFmpeg loaded', !!ffmpeg);
   }
 
   return (

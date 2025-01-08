@@ -9,6 +9,12 @@ type Events = {
   'pad:touchup': {
     padId: string;
   };
+  'video:start': {
+    url: string;
+  };
+  'video:stop': {
+    url: string;
+  };
 };
 
 export type EventEmitter = Emitter<Events>;

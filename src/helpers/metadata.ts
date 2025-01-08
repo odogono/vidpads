@@ -5,7 +5,11 @@ import { generateFileId } from './file';
 const log = createLog('metadata');
 
 export const isVideoMetadata = (metadata: Media): boolean => {
-  return 'duration' in metadata;
+  return metadata.mimeType.startsWith('video/');
+};
+
+export const isImageMetadata = (metadata: Media): boolean => {
+  return metadata.mimeType.startsWith('image/');
 };
 
 export const getMediaMetadata = (file: File): Promise<Media> => {

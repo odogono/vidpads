@@ -104,9 +104,6 @@ export const setPadMedia = (
   };
 };
 
-export const applyPadDrop = (
-  context: StoreContext,
-  _event: ApplyPadDropAction
-): StoreContext => {
+export const applyPadDrop = (context: StoreContext): StoreContext => {
   return context;
 };

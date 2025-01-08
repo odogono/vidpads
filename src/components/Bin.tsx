@@ -1,12 +1,5 @@
-import { useState } from 'react';
-
-import { createLog } from '@helpers/log';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { clearPad } from '@model';
-import { useStore } from '@model/store/useStore';
-
-const log = createLog('BinComponent');
 
 export const BinComponent = () => {
   const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =

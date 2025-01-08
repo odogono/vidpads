@@ -21,7 +21,7 @@ export const TileContainer = () => {
         accept={ACCEPTED_FILE_TYPES.join(',')}
         onChange={handleFileSelect}
       />
-      <div className='grid grid-cols-4 gap-8'>
+      <div className='grid grid-cols-4 gap-4'>
         {pads.map((pad) => (
           <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
             <PadComponent pad={pad} onEmptyPadTouch={handleEmptyPadTouch} />

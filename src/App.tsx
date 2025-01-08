@@ -27,17 +27,17 @@ const LoadingContainer = () => {
 
 export const App = () => {
   return (
-    <EventsProvider>
-      <Suspense fallback={<LoadingContainer />}>
-        <QueryClientProvider client={queryClient}>
-          <FFmpegProvider>
+    <Suspense fallback={<LoadingContainer />}>
+      <QueryClientProvider client={queryClient}>
+        <FFmpegProvider>
+          <EventsProvider>
             <StoreProvider>
               <Main />
             </StoreProvider>
-          </FFmpegProvider>
-        </QueryClientProvider>
-      </Suspense>
-    </EventsProvider>
+          </EventsProvider>
+        </FFmpegProvider>
+      </QueryClientProvider>
+    </Suspense>
   );
 };
 

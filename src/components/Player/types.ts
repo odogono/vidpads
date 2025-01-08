@@ -1,5 +1,8 @@
+import { Media } from '@model/types';
+
 export interface PlayerProps {
-  url: string;
   isVisible?: boolean;
   currentTime: number;
+  media: Media;
+  isOneShot?: boolean;
 }

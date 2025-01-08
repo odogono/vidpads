@@ -10,7 +10,7 @@ const log = createLog('usePadEvents');
 
 export const useFileSelector = () => {
   const { ffmpeg } = useFFmpeg();
-  const store = useStore();
+  const { store } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
   const { ACCEPTED_FILE_TYPES } = usePadDnD();

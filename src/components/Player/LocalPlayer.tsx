@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Pause, Play, RotateCcw } from 'lucide-react';
+// import { Pause, Play, RotateCcw } from 'lucide-react';
 
 import { createLog } from '@helpers/log';
 import { loadVideoData } from '@model/db/api';
-import { getMediaIdFromUrl, isVidpadUrl } from '@model/helpers';
+import { useEvents } from '../../helpers/events';
+import { useRenderingTrace } from '../../hooks/useRenderingTrace';
+import { MediaVideo } from '../../model/types';
 import { PlayerProps } from './types';
 
 type LocalPlayerProps = PlayerProps;
@@ -12,10 +14,11 @@ type LocalPlayerProps = PlayerProps;
 const log = createLog('player/local');
 
 export const LocalPlayer = ({
-  url,
   isVisible,
-  currentTime: currentTimeProp
+  currentTime: currentTimeProp,
+  media
 }: LocalPlayerProps) => {
+  const events = useEvents();
   const videoRef = useRef<HTMLVideoElement>(null);
   const blobUrlRef = useRef<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -23,21 +26,42 @@ export const LocalPlayer = ({
   const [loopEnd, setLoopEnd] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  useEffect(() => {
-    if (!isVidpadUrl(url)) return;
+  useVideoLoader(media as MediaVideo, videoRef);
 
+  const handleVideoStart = ({ url }: { url: string }) => {
+    if (url !== media.url) return;
+    // log.debug('handleVideoStart', media.url);
     const video = videoRef.current;
     if (!video) return;
+    video.currentTime = 0;
+    video.play();
+  };
 
-    log.debug('render', url, isVisible, currentTime);
+  const handleVideoStop = ({ url }: { url: string }) => {
+    if (url !== media.url) return;
+    // log.debug('handleVideoStop', media.url);
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+  };
 
-    // if we already a player then return
-    if (blobUrlRef.current) {
-      return;
-    }
+  useEffect(() => {
+    events.on('video:start', handleVideoStart);
+    events.on('video:stop', handleVideoStop);
+
+    return () => {
+      events.off('video:start', handleVideoStart);
+      events.off('video:stop', handleVideoStop);
+    };
+  }, [events]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = currentTimeProp;
 
     const handleTimeUpdate = () => {
-      // log.debug('timeupdate', url, video.currentTime);
+      log.debug('timeupdate', media.url, video.currentTime);
       // setCurrentTime(video.currentTime);
       // if (loopEnd > 0 && video.currentTime >= loopEnd) {
       //   video.currentTime = loopStart;
@@ -45,59 +69,13 @@ export const LocalPlayer = ({
     };
 
     const handleLoadedMetadata = () => {
-      setDuration(video.duration);
-      setLoopEnd(video.duration);
+      // log.debug('loadedmetadata', media.url, video.duration, media.duration);
+      // setDuration(video.duration);
+      // setLoopEnd(video.duration);
     };
 
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-    (async () => {
-      const id = getMediaIdFromUrl(url);
-      if (!id) return;
-
-      try {
-        const { file } = await loadVideoData(id);
-
-        // Create a blob URL from the video file
-        const videoUrl = URL.createObjectURL(file);
-        blobUrlRef.current = videoUrl;
-
-        // Set the video source and play
-        if (videoRef.current) {
-          log.debug(url, 'setting video src', videoRef.current, videoUrl);
-          videoRef.current.src = videoUrl;
-          videoRef.current.currentTime = currentTime;
-
-          // try {
-          //   await videoRef.current.play();
-          // } catch (error) {
-          //   log.error('Error playing video:', error);
-          // }
-        }
-      } catch (error) {
-        log.error('Error loading video:', error);
-      }
-    })();
-
-    return () => {
-      log.debug('unmounting', url);
-      // Clean up blob URL when component unmounts
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current);
-        blobUrlRef.current = null;
-      }
-
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-    };
-  }, [url]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    log.debug('useEffect', isVisible);
-    if (!video) return;
-    video.currentTime = currentTimeProp;
 
     const isPlaying =
       video.currentTime > 0 &&
@@ -110,12 +88,72 @@ export const LocalPlayer = ({
     } else {
       video.pause();
     }
-  }, [isVisible, currentTimeProp]);
+
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, []);
+
+  // log.debug('render', media.url, isVisible, currentTime);
+
+  // useRenderingTrace('LocalPlayer', { media, isVisible, currentTime });
 
   return (
     <video
       ref={videoRef}
-      className={`h-full w-full ${isVisible ? 'block' : 'hidden'}`}
+      className={`absolute top-0 left-0 h-full w-full ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     />
   );
+};
+
+const useVideoLoader = (
+  media: MediaVideo,
+  videoRef: React.RefObject<HTMLVideoElement>
+) => {
+  const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // if (!isVidpadUrl(url)) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    // if we already a player then return
+    if (blobUrlRef.current) {
+      return;
+    }
+
+    // log.debug('mounting', media.url, isVisible, currentTime);
+
+    (async () => {
+      const { id, url } = media;
+
+      try {
+        const { file } = await loadVideoData(id);
+
+        // Create a blob URL from the video file
+        const videoUrl = URL.createObjectURL(file);
+        blobUrlRef.current = videoUrl;
+
+        // Set the video source and play
+        if (videoRef.current) {
+          log.debug(url, 'setting video src', videoRef.current, videoUrl);
+          videoRef.current.src = videoUrl;
+          // videoRef.current.currentTime = currentTime;
+        }
+      } catch (error) {
+        log.error('Error loading video:', error);
+      }
+    })();
+
+    return () => {
+      log.debug('unmounting', media.url);
+      // Clean up blob URL when component unmounts
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+    };
+  }, [media]);
 };

@@ -3,7 +3,12 @@ import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/c
 import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
-import { deleteMediaData, saveImageData, saveVideoData } from '@model/db/api';
+import {
+  getAllMediaMetaData as dbGetAllMediaMetaData,
+  deleteMediaData,
+  saveImageData,
+  saveVideoData
+} from '@model/db/api';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
 import { MediaImage, MediaVideo, Pad } from '@model/types';
@@ -16,6 +21,10 @@ export interface AddFileToPadProps {
   store: StoreType;
   ffmpeg?: FFmpeg | null;
 }
+
+export const getAllMediaMetaData = async () => {
+  return dbGetAllMediaMetaData();
+};
 
 /**
  * Adds a file to a pad and generates a thumbnail

@@ -15,7 +15,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const snapshotRef = useRef<StoreContextType | null>(null);
 
-  const { data: store } = useSuspenseQuery({
+  const { data: store, isSuccess } = useSuspenseQuery({
     queryKey: ['store-initialise'],
     queryFn: async () => {
       const storeState = await loadStateFromIndexedDB();
@@ -62,6 +62,8 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
   }, [store]);
 
   return (
-    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
+    <StoreContext.Provider value={{ store, isReady: isSuccess }}>
+      {children}
+    </StoreContext.Provider>
   );
 };

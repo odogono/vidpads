@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { loadVideoData } from '@model/db/api';
+import { isImageMetadata, isVideoMetadata } from '@helpers/metadata';
+import { getAllMediaMetaData, loadVideoData } from '@model/db/api';
 import { getMediaIdFromUrl } from '@model/helpers';
 import { getPadSourceUrl } from '@model/pad';
 import { PlayPadEvent } from '@model/store/types';
 import { useStore } from '@model/store/useStore';
+import { useRenderingTrace } from '../../hooks/useRenderingTrace';
+import { getPadsWithMedia } from '../../model/store/selectors';
+import { ImagePlayer } from './ImagePlayer';
 import { LocalPlayer } from './LocalPlayer';
 import { PlayerProps } from './types';
 
@@ -14,75 +19,112 @@ const log = createLog('player/container');
 type PlayerMap = { [key: string]: PlayerProps };
 
 export const PlayerContainer = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const store = useStore();
-  const blobUrlRef = useRef<string | null>(null);
+  const events = useEvents();
+  const { store, isReady } = useStore();
 
   const [players, setPlayers] = useState<PlayerMap>({});
+  const [visiblePlayerId, setVisiblePlayerId] = useState<string | null>(null);
 
-  // const players = useRef<{ [key: string]: PlayerDetails }>({});
+  // a map of padId to media url
+  const padToMediaRef = useRef<{ [key: string]: string }>({});
+
+  const handlePadTouchdown = ({ padId }: { padId: string }) => {
+    log.debug('handlePadTouchdown', padId);
+
+    const mediaUrl = padToMediaRef.current[padId];
+    if (!mediaUrl) {
+      log.debug('no media url for pad', padId, padToMediaRef.current);
+      return;
+    }
+
+    setVisiblePlayerId(mediaUrl);
+    events.emit('video:start', { url: mediaUrl });
+  };
+
+  const handlePadTouchup = ({ padId }: { padId: string }) => {
+    log.debug('handlePadTouchup', padId);
+    setVisiblePlayerId(null);
+    events.emit('video:stop', { url: padToMediaRef.current[padId] });
+  };
 
   useEffect(() => {
-    const sub = store.on('playPad', async (event: PlayPadEvent) => {
-      log.debug('playPad', event);
-      const { pad } = event;
+    events.on('pad:touchdown', handlePadTouchdown);
+    events.on('pad:touchup', handlePadTouchup);
 
-      const url = getPadSourceUrl(pad);
-      if (!url) return;
+    if (!isReady) return;
 
-      const id = getMediaIdFromUrl(url);
-      if (!id) return;
+    // retrieve all the pads with media
+    const padsWithMedia = getPadsWithMedia(store);
+    log.debug('padsWithMedia', padsWithMedia);
 
-      // set all the players to invisible
-      const newPlayers = Object.values(players).reduce((acc, player) => {
-        acc[player.url] = { ...player, isVisible: false };
+    (async () => {
+      const media = await getAllMediaMetaData();
+
+      // create a player for each media
+      const newPlayers = media.reduce((acc, media) => {
+        acc[media.url] = {
+          isVisible: false,
+          currentTime: 0,
+          media
+        };
         return acc;
       }, {} as PlayerMap);
 
-      // set the new player to visible
-      newPlayers[url] = { url, isVisible: true, currentTime: 0 };
-
-      log.debug('setting new players', Object.values(newPlayers).length);
       setPlayers(newPlayers);
+      // log.debug('newPlayers', Object.values(newPlayers));
 
-      // setPlayers((prev) => ({ ...prev, [id]: { url, isVisible: true } }));
+      const newPadToMedia = padsWithMedia.reduce(
+        (acc, pad) => {
+          const url = getPadSourceUrl(pad);
+          if (!url) return acc;
+          acc[pad.id] = url;
+          return acc;
+        },
+        {} as { [key: string]: string }
+      );
 
-      // try {
-      //   const { file } = await loadVideoData(id);
+      padToMediaRef.current = newPadToMedia;
 
-      //   // Create a blob URL from the video file
-      //   const videoUrl = URL.createObjectURL(file);
-      //   blobUrlRef.current = videoUrl;
-
-      //   // Set the video source and play
-      //   if (videoRef.current) {
-      //     videoRef.current.src = videoUrl;
-      //     videoRef.current.play();
-      //   }
-      // } catch (error) {
-      //   log.error('Error loading video:', error);
-      // }
-    });
+      // log.debug('padToMedia', newPadToMedia);
+    })();
 
     return () => {
-      // Clean up blob URL when component unmounts
-      // if (blobUrlRef.current) {
-      //   URL.revokeObjectURL(blobUrlRef.current);
-      //   blobUrlRef.current = null;
-      // }
-      sub.unsubscribe();
+      events.off('pad:touchdown', handlePadTouchdown);
+      events.off('pad:touchup', handlePadTouchup);
     };
-  }, [players, store]);
+  }, [events, store, isReady]);
 
-  log.debug('render', Object.values(players).length);
+  // if (isReady) log.debug('render', Object.values(players).length);
+
+  // useRenderingTrace('PlayerContainer', {
+  //   players,
+  //   isReady,
+  //   visiblePlayerId,
+  //   store,
+  //   events
+  // });
 
   return (
     <div className='relative w-[800px] mx-auto'>
-      <div className={`w-[800px] h-[400px] transition-colors`}>
+      <div className='relative w-[800px] h-[400px] transition-colors overflow-hidden'>
         {Object.values(players).map((player) => (
-          <LocalPlayer key={player.url} {...player} />
+          <Player
+            key={player.media.url}
+            {...player}
+            isVisible={player.media.url === visiblePlayerId}
+          />
         ))}
       </div>
     </div>
   );
+};
+
+const Player = (props: PlayerProps) => {
+  if (isVideoMetadata(props.media)) {
+    return <LocalPlayer {...props} />;
+  } else if (isImageMetadata(props.media)) {
+    return <ImagePlayer {...props} />;
+  }
+
+  return null;
 };

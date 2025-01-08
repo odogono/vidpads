@@ -34,22 +34,26 @@ export interface Pad {
   pipeline: Pipeline;
 }
 
+type ImageMimeType = 'image/png' | 'image/jpeg' | 'image/jpg' | 'image/webp';
+type VideoMimeType = 'video/mp4' | 'video/webm';
+type MimeType = ImageMimeType | VideoMimeType;
+
 export interface Media {
   id: string;
   url: string;
   name: string;
   sizeInBytes: number;
-  mimeType: string;
+  mimeType: MimeType;
   width: number;
   height: number;
 }
 
 export interface MediaImage extends Media {
-  mimeType: 'image/png' | 'image/jpeg' | 'image/jpg' | 'image/webp';
+  mimeType: ImageMimeType;
 }
 
 export interface MediaVideo extends Media {
-  mimeType: 'video/mp4' | 'video/webm';
+  mimeType: VideoMimeType;
   duration: number;
   videoTotalChunks?: number;
 }

@@ -368,6 +368,24 @@ export const loadImageData = async (
   });
 };
 
+export const getAllMediaMetaData = async (): Promise<Media[]> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('metadata', 'readonly');
+    const metadataStore = transaction.objectStore('metadata');
+    const request = metadataStore.getAll();
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+  });
+};
+
 export const getMediaData = async (url: string): Promise<Media | null> => {
   const mediaId = getMediaIdFromUrl(url);
   if (!mediaId) {

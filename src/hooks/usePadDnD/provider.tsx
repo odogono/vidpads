@@ -20,7 +20,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const { ffmpeg } = useFFmpeg();
-  const store = useStore();
+  const { store } = useStore();
 
   const onDragStart = useCallback((id: string) => {
     setDraggingPadId(id);
