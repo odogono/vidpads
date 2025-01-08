@@ -4,6 +4,8 @@ import type { Store } from '@xstate/store';
 export interface StoreContextType {
   isInitial: boolean;
   startTime: string;
+  isEditActive?: boolean;
+  selectedPadId?: string | null;
   pads: Pad[];
 }
 
@@ -55,6 +57,22 @@ export type PlayPadAction = {
   padId: string;
 };
 
+export type SetEditActiveAction = {
+  type: 'setEditActive';
+  isEditActive: boolean;
+};
+
+export type SetSelectedPadIdAction = {
+  type: 'setSelectedPadId';
+  padId: string | null;
+};
+
+export type SetPadIsOneShotAction = {
+  type: 'setPadIsOneShot';
+  padId: string;
+  isOneShot: boolean;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -64,7 +82,10 @@ export type Actions =
   | ApplyPadDropAction
   | ClearPadAction
   | CopyPadAction
-  | PlayPadAction;
+  | PlayPadAction
+  | SetEditActiveAction
+  | SetSelectedPadIdAction
+  | SetPadIsOneShotAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -85,11 +106,17 @@ export type PlayPadEvent = {
   pad: Pad;
 };
 
+export type IsEditActiveEvent = {
+  type: 'isEditActive';
+  isEditActive: boolean;
+};
+
 export type EmittedEvents =
   | PadUpdatedEvent
   | StartTimeUpdatedEvent
   | StoreInitialisedEvent
-  | PlayPadEvent;
+  | PlayPadEvent
+  | IsEditActiveEvent;
 
 export type Emit = { emit: (event: EmittedEvents) => void };
 

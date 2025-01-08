@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { EventEmitterEvents, useEvents } from '@helpers/events';
 // import { Pause, Play, RotateCcw } from 'lucide-react';
 
 import { createLog } from '@helpers/log';
+import { useRenderingTrace } from '@hooks/useRenderingTrace';
 import { loadVideoData } from '@model/db/api';
-import { useEvents } from '../../helpers/events';
-import { useRenderingTrace } from '../../hooks/useRenderingTrace';
-import { MediaVideo } from '../../model/types';
+import { MediaVideo } from '@model/types';
 import { PlayerProps } from './types';
 
 type LocalPlayerProps = PlayerProps;
-
+type handleVideoStartProps = EventEmitterEvents['video:start'];
+type handleVideoStopProps = EventEmitterEvents['video:stop'];
 const log = createLog('player/local');
 
 export const LocalPlayer = ({
@@ -28,7 +29,7 @@ export const LocalPlayer = ({
 
   useVideoLoader(media as MediaVideo, videoRef);
 
-  const handleVideoStart = ({ url }: { url: string }) => {
+  const handleVideoStart = ({ url, isOneShot }: handleVideoStartProps) => {
     if (url !== media.url) return;
     // log.debug('handleVideoStart', media.url);
     const video = videoRef.current;

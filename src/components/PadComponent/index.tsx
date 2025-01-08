@@ -5,6 +5,7 @@ import { createLog } from '@helpers/log';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { useThumbnail } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
+import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
 import { useGhostDrag } from './ghost';
 import { GeneralTouchEvent } from './types';
@@ -33,12 +34,11 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     onDragLeave,
     onDragOver,
     onDragEnd,
-    onDrop,
-    selectedPadId,
-    setSelectedPadId
+    onDrop
   } = usePadDnD();
   const isDraggingOver = dragOverId === pad.id;
   const events = useEvents();
+  const { selectedPadId, setSelectedPadId } = useSelectedPadId();
 
   useEffect(() => {
     if (!isDragging) {

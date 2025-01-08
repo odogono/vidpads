@@ -1,8 +1,11 @@
-import { Button } from '@components/ui/button';
-import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { useCallback } from 'react';
+
+import { createLog } from '@helpers/log';
 import { clearPad } from '@model';
+import { useEditActive, useSelectedPadId } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import {
+  Button,
   Modal,
   ModalBody,
   ModalContent,
@@ -11,16 +14,23 @@ import {
   useDisclosure
 } from '@nextui-org/react';
 
+const log = createLog('Controls');
+
 export const Controls = () => {
-  const { selectedPadId } = usePadDnD();
+  const { selectedPadId } = useSelectedPadId();
+  const { isEditActive, setEditActive } = useEditActive();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { store } = useStore();
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!selectedPadId) return;
     await clearPad(store, selectedPadId);
     onClose();
-  };
+  }, [selectedPadId, store, onClose]);
+
+  const handleEdit = useCallback(() => {
+    setEditActive(!isEditActive);
+  }, [isEditActive, setEditActive]);
 
   return (
     <div className='mt-4 w-[800px] h-[100px] mx-auto'>
@@ -29,8 +39,13 @@ export const Controls = () => {
           <>
             <div className='text-2xl font-bold'>{selectedPadId}</div>
             <div className='flex gap-2'>
-              <Button>Edit</Button>
-              <Button onClick={onOpen}>Delete</Button>
+              <Button
+                onPress={handleEdit}
+                color={isEditActive ? 'primary' : 'default'}
+              >
+                Edit
+              </Button>
+              <Button onPress={onOpen}>Delete</Button>
             </div>
           </>
         ) : (
@@ -52,11 +67,11 @@ export const Controls = () => {
                 </p>
               </ModalBody>
               <ModalFooter>
-                <Button variant='ghost' onClick={onClose}>
+                <Button variant='ghost' onPress={onClose}>
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleDelete}
+                  onPress={handleDelete}
                   className='bg-red-500 text-white'
                 >
                   Delete

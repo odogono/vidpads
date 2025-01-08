@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import mitt, { Emitter } from 'mitt';
 
-type Events = {
+export type EventEmitterEvents = {
   'pad:touchdown': {
     padId: string;
   };
@@ -11,13 +11,14 @@ type Events = {
   };
   'video:start': {
     url: string;
+    isOneShot: boolean;
   };
   'video:stop': {
     url: string;
   };
 };
 
-export type EventEmitter = Emitter<Events>;
+export type EventEmitter = Emitter<EventEmitterEvents>;
 
 const EventsContext = createContext<EventEmitter | null>(null);
 
@@ -27,7 +28,7 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
   const [emitter, setEmitter] = useState<EventEmitter | null>(null);
 
   if (emitter === null) {
-    const mittEvents = mitt<Events>();
+    const mittEvents = mitt<EventEmitterEvents>();
     setEmitter(mittEvents);
   }
 

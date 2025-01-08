@@ -46,7 +46,7 @@ export const addFileToPad = async ({
     log.info(`${mediaType} metadata for pad ${padId}:`, metadata);
 
     if (isVideo) {
-      log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
+      // log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
 
       try {
         log.debug('extracting video thumbnail');

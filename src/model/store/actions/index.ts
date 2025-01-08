@@ -1,10 +1,12 @@
 import { createLog } from '@helpers/log';
 import { OperationType, Pad } from '@model/types';
 import type {
-  ApplyPadDropAction,
   Emit,
   InitialiseStoreAction,
+  SetEditActiveAction,
+  SetPadIsOneShotAction,
   SetPadMediaAction,
+  SetSelectedPadIdAction,
   StoreContext,
   UpdatePadSourceAction,
   UpdateStartTimeAction
@@ -29,6 +31,53 @@ export const initialiseStore = (
   return {
     ...context,
     isInitial: false
+  };
+};
+
+export const setEditActive = (
+  context: StoreContext,
+  event: SetEditActiveAction,
+  { emit }: Emit
+): StoreContext => {
+  const { isEditActive } = event;
+  emit({ type: 'isEditActive', isEditActive });
+
+  return {
+    ...context,
+    isEditActive
+  };
+};
+
+export const setSelectedPadId = (
+  context: StoreContext,
+  event: SetSelectedPadIdAction
+): StoreContext => {
+  const { padId } = event;
+  const isEditActive = !padId ? false : context.isEditActive;
+
+  return {
+    ...context,
+    isEditActive,
+    selectedPadId: padId
+  };
+};
+
+export const setPadIsOneShot = (
+  context: StoreContext,
+  event: SetPadIsOneShotAction
+): StoreContext => {
+  const { padId, isOneShot } = event;
+  const pad = context.pads.find((pad) => pad.id === padId);
+  if (!pad) {
+    return context;
+  }
+
+  return {
+    ...context,
+    pads: [
+      ...context.pads.filter((p) => p.id !== pad.id),
+      { ...pad, isOneShot }
+    ]
   };
 };
 

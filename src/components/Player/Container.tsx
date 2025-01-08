@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { isImageMetadata, isVideoMetadata } from '@helpers/metadata';
+import { useEditActive } from '@model/store/selectors';
 import { ImagePlayer } from './ImagePlayer';
 import { LocalPlayer } from './LocalPlayer';
 import { PlayerProps } from './types';
@@ -12,32 +13,52 @@ const log = createLog('player/container');
 
 export const PlayerContainer = () => {
   const events = useEvents();
-  const { getMediaFromPadId, players, visiblePlayerId, setVisiblePlayerId } =
-    usePlayers();
+  const { isEditActive } = useEditActive();
+
+  const {
+    getMediaUrlFromPadId,
+    pads,
+    players,
+    visiblePlayerId,
+    setVisiblePlayerId
+  } = usePlayers();
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
+      if (isEditActive) return;
       log.debug('handlePadTouchdown', padId);
 
-      const mediaUrl = getMediaFromPadId(padId);
+      const mediaUrl = getMediaUrlFromPadId(padId);
       if (!mediaUrl) {
         log.debug('no media url for pad', padId);
         return;
       }
 
+      const pad = pads.find((pad) => pad.id === padId);
+      if (!pad) return;
+      const isOneShot = pad.isOneShot ?? false;
       setVisiblePlayerId(mediaUrl);
-      events.emit('video:start', { url: mediaUrl });
+      events.emit('video:start', { url: mediaUrl, isOneShot });
     },
-    [events, getMediaFromPadId, setVisiblePlayerId]
+    [events, getMediaUrlFromPadId, setVisiblePlayerId, isEditActive, pads]
   );
 
   const handlePadTouchup = useCallback(
     ({ padId }: { padId: string }) => {
+      if (isEditActive) return;
       log.debug('handlePadTouchup', padId);
-      // setVisiblePlayerId(null);
-      events.emit('video:stop', { url: getMediaFromPadId(padId) });
+      const url = getMediaUrlFromPadId(padId);
+      if (!url) return;
+
+      const pad = pads.find((pad) => pad.id === padId);
+      if (!pad) return;
+      const isOneShot = pad.isOneShot ?? false;
+
+      if (!isOneShot) {
+        events.emit('video:stop', { url });
+      }
     },
-    [events, getMediaFromPadId]
+    [events, getMediaUrlFromPadId, isEditActive, pads]
   );
 
   useEffect(() => {
@@ -50,6 +71,12 @@ export const PlayerContainer = () => {
     };
   }, [events, handlePadTouchdown, handlePadTouchup]);
 
+  useEffect(() => {
+    if (isEditActive) {
+      setVisiblePlayerId(null);
+    }
+  }, [isEditActive, setVisiblePlayerId]);
+
   // if (isReady) log.debug('render', Object.values(players).length);
 
   // useRenderingTrace('PlayerContainer', {
@@ -61,17 +88,15 @@ export const PlayerContainer = () => {
   // });
 
   return (
-    <div className='relative w-[800px] mx-auto'>
-      <div className='relative w-[800px] h-[400px] transition-colors overflow-hidden'>
-        {Object.values(players).map((player) => (
-          <Player
-            key={player.media.url}
-            {...player}
-            isVisible={player.media.url === visiblePlayerId}
-          />
-        ))}
-      </div>
-    </div>
+    <>
+      {Object.values(players).map((player) => (
+        <Player
+          key={player.media.url}
+          {...player}
+          isVisible={player.media.url === visiblePlayerId}
+        />
+      ))}
+    </>
   );
 };
 
