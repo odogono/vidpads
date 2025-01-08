@@ -6,6 +6,7 @@ import { isImageMetadata, isVideoMetadata } from '@helpers/metadata';
 import { useEditActive } from '@model/store/selectors';
 import { ImagePlayer } from './ImagePlayer';
 import { LocalPlayer } from './LocalPlayer';
+import { Player } from './Player';
 import { PlayerProps } from './types';
 import { usePlayers } from './usePlayers';
 
@@ -98,14 +99,4 @@ export const PlayerContainer = () => {
       ))}
     </>
   );
-};
-
-const Player = (props: PlayerProps) => {
-  if (isVideoMetadata(props.media)) {
-    return <LocalPlayer {...props} />;
-  } else if (isImageMetadata(props.media)) {
-    return <ImagePlayer {...props} />;
-  }
-
-  return null;
 };

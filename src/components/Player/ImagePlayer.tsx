@@ -45,11 +45,11 @@ export const ImagePlayer = ({ isVisible, media }: ImagePlayerProps) => {
   // log.debug('render', media.url, isVisible);
 
   return (
-    <div className='absolute top-0 left-0 w-full h-full'>
+    <div className={`w-full h-full`}>
       <img
         src={imageUrl}
         alt={media.name}
-        className={`max-w-full max-h-full ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`w-full h-full object-contain`}
       />
     </div>
   );

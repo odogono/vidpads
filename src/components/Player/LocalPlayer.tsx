@@ -100,12 +100,7 @@ export const LocalPlayer = ({
 
   // useRenderingTrace('LocalPlayer', { media, isVisible, currentTime });
 
-  return (
-    <video
-      ref={videoRef}
-      className={`absolute top-0 left-0 h-full w-full ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-    />
-  );
+  return <video ref={videoRef} className='w-full h-full' />;
 };
 
 const useVideoLoader = (
