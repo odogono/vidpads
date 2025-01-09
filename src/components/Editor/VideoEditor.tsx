@@ -95,7 +95,7 @@ export const VideoEditor = () => {
 
     video.onReady(() => {
       // setDuration(metadata?.duration ?? 1000);
-      log.debug('[onReady] duration', metadata?.duration);
+      // log.debug('[onReady] duration', metadata?.duration);
       video.setCurrentTime(slideValue[0]);
     });
   }, [metadata, slideValue]);
@@ -115,8 +115,6 @@ export const VideoEditor = () => {
             <Player
               ref={videoRef}
               media={metadata}
-              isOneShot={true}
-              currentTime={slideValue[0]}
               isVisible={true}
               showControls={true}
             />

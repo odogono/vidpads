@@ -43,13 +43,19 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
           return;
         }
 
-        startTimeRef.current = start ?? 0;
-        endTimeRef.current = end ?? Number.MAX_SAFE_INTEGER;
+        const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
+        const endTime =
+          (end ?? Number.MAX_SAFE_INTEGER) === -1
+            ? Number.MAX_SAFE_INTEGER
+            : (end ?? Number.MAX_SAFE_INTEGER);
+
+        startTimeRef.current = startTime;
+        endTimeRef.current = endTime;
         isLoopedRef.current = isLoop ?? false;
-        videoRef.current.currentTime = startTimeRef.current;
+        videoRef.current.currentTime = startTime;
         isPlayingRef.current = true;
         videoRef.current.play();
-        // log.debug('play', { start, end, isLoop, url });
+        log.debug('play', { start, end, isLoop, url });
       },
       [videoRef, media.url]
     );

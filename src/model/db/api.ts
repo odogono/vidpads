@@ -55,6 +55,7 @@ export const openDB = (): Promise<IDBDatabase> => {
 
       db.createObjectStore('images', { keyPath: 'id' });
 
+      // thumbnails are used for the videos, and the pads
       db.createObjectStore('thumbnails', { keyPath: 'id' });
     };
   });

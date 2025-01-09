@@ -69,18 +69,14 @@ export const setPadIsOneShot = (
   event: SetPadIsOneShotAction
 ): StoreContext => {
   const { padId, isOneShot } = event;
-  const pad = context.pads.find((pad) => pad.id === padId);
+  const pad = findPadById(context, padId);
   if (!pad) {
     return context;
   }
 
-  return {
-    ...context,
-    pads: [
-      ...context.pads.filter((p) => p.id !== pad.id),
-      { ...pad, isOneShot }
-    ]
-  };
+  const newPad = { ...pad, isOneShot };
+
+  return addOrReplacePad(context, newPad);
 };
 
 export const setPadIsLooped = (
@@ -88,15 +84,14 @@ export const setPadIsLooped = (
   event: SetPadIsLoopedAction
 ): StoreContext => {
   const { padId, isLooped } = event;
-  const pad = context.pads.find((pad) => pad.id === padId);
+  const pad = findPadById(context, padId);
   if (!pad) {
     return context;
   }
 
-  return {
-    ...context,
-    pads: [...context.pads.filter((p) => p.id !== pad.id), { ...pad, isLooped }]
-  };
+  const newPad = { ...pad, isLooped };
+
+  return addOrReplacePad(context, newPad);
 };
 
 export const updatePadSource = (
@@ -104,7 +99,7 @@ export const updatePadSource = (
   event: UpdatePadSourceAction,
   { emit }: Emit
 ): StoreContext => {
-  const pad = context.pads.find((pad) => pad.id === event.padId);
+  const pad = findPadById(context, event.padId);
   if (!pad) {
     return context;
   }
@@ -122,10 +117,7 @@ export const updatePadSource = (
 
   emit({ type: 'padUpdated', pad: newPad });
 
-  return {
-    ...context,
-    pads: [...context.pads.filter((p) => p.id !== pad.id), newPad]
-  };
+  return addOrReplacePad(context, newPad);
 };
 
 export const updateStartTime = (
@@ -147,7 +139,7 @@ export const setPadMedia = (
   event: SetPadMediaAction
 ): StoreContext => {
   const { padId, media } = event;
-  const pad = context.pads.find((pad) => pad.id === padId);
+  const pad = findPadById(context, padId);
   if (!pad) {
     return context;
   }
@@ -165,12 +157,30 @@ export const setPadMedia = (
     }
   };
 
-  return {
-    ...context,
-    pads: [...context.pads.filter((p) => p.id !== pad.id), newPad]
-  };
+  return addOrReplacePad(context, newPad);
 };
 
 export const applyPadDrop = (context: StoreContext): StoreContext => {
   return context;
+};
+
+const findPadById = (context: StoreContext, padId: string): Pad | undefined =>
+  context.pads.find((pad) => pad.id === padId);
+
+const addOrReplacePad = (context: StoreContext, pad: Pad): StoreContext => {
+  const padIndex = context.pads.findIndex((p) => p.id === pad.id);
+  const pads = [...context.pads];
+
+  if (padIndex === -1) {
+    // Pad not found, add it to the end
+    pads.push(pad);
+  } else {
+    // Replace existing pad at same position
+    pads[padIndex] = pad;
+  }
+
+  return {
+    ...context,
+    pads
+  };
 };
