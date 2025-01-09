@@ -17,13 +17,22 @@ import {
   Image,
   Slider
 } from '@nextui-org/react';
+import { Pad } from '../../model/types';
+import { usePadTouches } from './usePadTouches';
 import { useStartAndEndTime } from './useStartAndEndTime';
 
 const log = createLog('VideoEditor');
 
 export const VideoEditor = () => {
   const { isEditActive } = useEditActive();
-  const { isPadOneShot, pad, setPadIsOneShot, store } = usePad();
+  const {
+    isLooped,
+    isPadOneShot,
+    pad,
+    setPadIsLooped,
+    setPadIsOneShot,
+    store
+  } = usePad();
   const { data: metadata } = useMetadataFromPad(pad);
   const videoRef = useRef<PlayerRef>(null);
 
@@ -35,10 +44,17 @@ export const VideoEditor = () => {
     setPadIsOneShot(pad.id, !isPadOneShot);
   }, [pad, isPadOneShot, setPadIsOneShot]);
 
-  useEffect(() => {
-    if (!pad || !isEditActive) return;
-    log.debug('selectedPadId', pad, metadata);
-  }, [pad, metadata, isEditActive]);
+  const handleLooped = useCallback(() => {
+    log.debug('handleLooped', pad);
+    if (!pad) return;
+    setPadIsLooped(pad.id, !isLooped);
+  }, [pad, isLooped, setPadIsLooped]);
+
+  usePadTouches({
+    isActive: isEditActive,
+    pad,
+    videoRef: videoRef.current
+  });
 
   const handleStartAndEndTimeChange = useCallback(
     async (start: number, end: number) => {
@@ -66,7 +82,7 @@ export const VideoEditor = () => {
     handleDurationBack,
     handleDurationForward
   } = useStartAndEndTime({
-    isActive: isEditActive,
+    isActive: isEditActive ?? false,
     pad,
     videoRef: videoRef.current,
     duration: videoDuration,
@@ -142,6 +158,11 @@ export const VideoEditor = () => {
         >
           One Shot
         </Button>
+        <PadStateButton
+          label='Loop'
+          onPress={handleLooped}
+          isActive={pad?.isLooped ?? false}
+        />
       </CardFooter>
     </Card>
   );
@@ -157,6 +178,32 @@ const DurationButton = ({
   return (
     <Button isIconOnly radius='full' variant='light' onPress={onPress}>
       {children}
+    </Button>
+  );
+};
+
+const PadStateButton = ({
+  label,
+  onPress,
+  isActive
+}: {
+  label: string;
+  onPress: () => void;
+  isActive: boolean;
+}) => {
+  return (
+    <Button
+      className={
+        isActive
+          ? 'bg-primary border-default-200'
+          : 'text-foreground border-default-200'
+      }
+      onPress={onPress}
+      color='primary'
+      variant={isActive ? 'solid' : 'flat'}
+      radius='full'
+    >
+      {label}
     </Button>
   );
 };

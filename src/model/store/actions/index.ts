@@ -4,6 +4,7 @@ import type {
   Emit,
   InitialiseStoreAction,
   SetEditActiveAction,
+  SetPadIsLoopedAction,
   SetPadIsOneShotAction,
   SetPadMediaAction,
   SetSelectedPadIdAction,
@@ -79,6 +80,22 @@ export const setPadIsOneShot = (
       ...context.pads.filter((p) => p.id !== pad.id),
       { ...pad, isOneShot }
     ]
+  };
+};
+
+export const setPadIsLooped = (
+  context: StoreContext,
+  event: SetPadIsLoopedAction
+): StoreContext => {
+  const { padId, isLooped } = event;
+  const pad = context.pads.find((pad) => pad.id === padId);
+  if (!pad) {
+    return context;
+  }
+
+  return {
+    ...context,
+    pads: [...context.pads.filter((p) => p.id !== pad.id), { ...pad, isLooped }]
   };
 };
 

@@ -73,6 +73,12 @@ export type SetPadIsOneShotAction = {
   isOneShot: boolean;
 };
 
+export type SetPadIsLoopedAction = {
+  type: 'setPadIsLooped';
+  padId: string;
+  isLooped: boolean;
+};
+
 export type ApplyTrimToPadAction = {
   type: 'applyTrimToPad';
   padId: string;
@@ -93,7 +99,8 @@ export type Actions =
   | SetEditActiveAction
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
-  | ApplyTrimToPadAction;
+  | ApplyTrimToPadAction
+  | SetPadIsLoopedAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

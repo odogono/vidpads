@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import mitt, { Emitter } from 'mitt';
 
+import { PlayerPlay, PlayerStop } from '@components/Player/types';
+
 export type EventEmitterEvents = {
   'pad:touchdown': {
     padId: string;
@@ -9,14 +11,8 @@ export type EventEmitterEvents = {
   'pad:touchup': {
     padId: string;
   };
-  'video:start': {
-    url: string;
-    isOneShot: boolean;
-    time: number;
-  };
-  'video:stop': {
-    url: string;
-  };
+  'video:start': PlayerPlay;
+  'video:stop': PlayerStop;
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;

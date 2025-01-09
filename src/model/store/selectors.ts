@@ -117,31 +117,25 @@ export const usePad = (padId?: string) => {
     [pad, store]
   );
 
+  const setPadIsLooped = useCallback(
+    (padId: string, isLooped: boolean) => {
+      if (pad) {
+        store.send({ type: 'setPadIsLooped', padId, isLooped });
+      }
+    },
+    [pad, store]
+  );
+
+  const isLooped = pad?.isLooped;
   const isPadOneShot = pad?.isOneShot;
 
-  return { isPadOneShot, pad, selectedPadId, setPadIsOneShot, store };
+  return {
+    isLooped,
+    isPadOneShot,
+    pad,
+    selectedPadId,
+    setPadIsOneShot,
+    setPadIsLooped,
+    store
+  };
 };
-
-// export const useSelectedPad = () => {
-//   const { store } = useStore();
-//   const pads = useSelector(store, (state) => state.context.pads) ?? [];
-//   const selectedPadId = useSelector(
-//     store,
-//     (state) => state.context.selectedPadId
-//   );
-//   const isPadOneShot = useSelector(
-//     store,
-//     (state) =>
-//       state.context.pads.find((pad) => pad.id === selectedPadId)?.isOneShot
-//   );
-
-//   const setPadIsOneShot = useCallback(
-//     (padId: string, isOneShot: boolean) => {
-//       store.send({ type: 'setPadIsOneShot', padId, isOneShot });
-//     },
-//     [store]
-//   );
-
-//   const pad = pads.find((pad) => pad.id === selectedPadId);
-//   return { isPadOneShot, pad, setPadIsOneShot };
-// };

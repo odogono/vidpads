@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 import { PlayerRef } from '../Player/types';
 
@@ -9,7 +10,7 @@ const log = createLog('usePadTouches');
 
 export interface UsePadTouchesProps {
   isActive?: boolean;
-  pad: Pad;
+  pad?: Pad | undefined;
   videoRef: PlayerRef | null;
 }
 
@@ -22,42 +23,27 @@ export const usePadTouches = ({
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
-      if (isActive) return;
-      if (pad?.id !== padId) return;
-      log.debug('handlePadTouchdown', padId);
-
-      // const mediaUrl = getMediaUrlFromPadId(padId);
-      // if (!mediaUrl) {
-      //   log.debug('no media url for pad', padId);
-      //   return;
-      // }
-
-      // const pad = pads.find((pad) => pad.id === padId);
-      // if (!pad) return;
-      // const isOneShot = pad.isOneShot ?? false;
-      // setVisiblePlayerId(mediaUrl);
-      // events.emit('video:start', { url: mediaUrl, isOneShot });
+      // log.debug('handlePadTouchdown', { isActive, padId });
+      if (!isActive || pad?.id !== padId) return;
+      const url = getPadSourceUrl(pad);
+      if (!url) return;
+      const { start, end } = getPadStartAndEndTime(pad);
+      videoRef?.play({ start, end, isLoop: pad.isLooped ?? false, url });
     },
-    [events, isActive, pad]
+    [isActive, pad, videoRef]
   );
 
   const handlePadTouchup = useCallback(
     ({ padId }: { padId: string }) => {
-      if (isActive) return;
-      if (pad?.id !== padId) return;
+      if (!isActive || pad?.id !== padId) return;
+      const url = getPadSourceUrl(pad);
+      if (!url) return;
       // log.debug('handlePadTouchup', padId);
-      // const url = getMediaUrlFromPadId(padId);
-      // if (!url) return;
-
-      // const pad = pads.find((pad) => pad.id === padId);
-      // if (!pad) return;
-      // const isOneShot = pad.isOneShot ?? false;
-
-      // if (!isOneShot) {
-      //   events.emit('video:stop', { url });
-      // }
+      if (!pad.isOneShot) {
+        videoRef?.stop({ url });
+      }
     },
-    [events, isActive, pad]
+    [isActive, pad, videoRef]
   );
 
   useEffect(() => {

@@ -9,7 +9,7 @@ const log = createLog('useStartAndEndTime');
 
 export interface UseStartAndEndTimeProps {
   isActive: boolean;
-  pad: Pad | null;
+  pad?: Pad | undefined;
   videoRef: PlayerRef | null;
   duration: number;
   onStartAndEndTimeChange: (start: number, end: number) => void;
@@ -118,7 +118,7 @@ export const useStartAndEndTime = ({
       // update the pad
       existingValueRef.current = [startTime, endTime];
     },
-    [duration, pad, isActive]
+    [onStartAndEndTimeChange]
   );
 
   useEffect(() => {
@@ -126,8 +126,6 @@ export const useStartAndEndTime = ({
     const { start, end } = getPadStartAndEndTime(pad);
     const startTime = start === -1 ? 0 : start;
     const endTime = end === -1 ? duration : end;
-
-    log.debug('[useEffect]', { start, end }, { startTime, endTime });
 
     setSlideValue([startTime, endTime]);
     lastValueRef.current = [startTime, endTime];

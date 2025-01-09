@@ -24,7 +24,7 @@ export const PlayerContainer = () => {
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
       if (isEditActive) return;
-      log.debug('handlePadTouchdown', padId);
+      // log.debug('handlePadTouchdown', padId);
 
       const mediaUrl = getMediaUrlFromPadId(padId);
       if (!mediaUrl) {
@@ -35,9 +35,16 @@ export const PlayerContainer = () => {
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
       const isOneShot = pad.isOneShot ?? false;
+      const isLoop = pad.isLooped ?? false;
       const { start, end } = getPadStartAndEndTime(pad);
       setVisiblePlayerId(mediaUrl);
-      events.emit('video:start', { url: mediaUrl, isOneShot, time: start });
+      events.emit('video:start', {
+        url: mediaUrl,
+        isOneShot,
+        isLoop,
+        start,
+        end
+      });
     },
     [events, getMediaUrlFromPadId, setVisiblePlayerId, isEditActive, pads]
   );
@@ -45,7 +52,7 @@ export const PlayerContainer = () => {
   const handlePadTouchup = useCallback(
     ({ padId }: { padId: string }) => {
       if (isEditActive) return;
-      log.debug('handlePadTouchup', padId);
+      // log.debug('handlePadTouchup', padId);
       const url = getMediaUrlFromPadId(padId);
       if (!url) return;
 
