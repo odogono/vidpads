@@ -18,6 +18,7 @@ export { applyFileToPad } from './applyFileToPad';
 export { clearPad } from './clearPad';
 export { copyPad } from './copyPad';
 export { playPad } from './playPad';
+export { applyTrimToPad } from './applyTrimToPad';
 
 export const initialiseStore = (
   context: StoreContext,

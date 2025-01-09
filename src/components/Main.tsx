@@ -19,7 +19,7 @@ export const Main = () => {
           </div>
         </div>
 
-        <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-10'>
+        <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-60'>
           <BinComponent />
         </div>
 

@@ -204,3 +204,40 @@ const deletePadMedia = async (store: StoreType, pad: Pad) => {
 
   return true;
 };
+
+export interface ApplyPadTrimOperationProps {
+  store: StoreType;
+  pad: Pad;
+  start: number;
+  end: number;
+  thumbnail?: string;
+}
+
+export const applyPadTrimOperation = ({
+  store,
+  pad,
+  start,
+  end,
+  thumbnail
+}: ApplyPadTrimOperationProps) => {
+  store.send({
+    type: 'applyTrimToPad',
+    padId: pad.id,
+    start,
+    end
+  });
+  // const newPad = applyPadTrimOperation(pad, start, end);
+  // const newPad = applyPadTrimOperation(pad, start, end);
+  // return newPad;
+
+  log.debug(
+    '[applyPadTrimOperation] pad:',
+    pad.id,
+    'start:',
+    start,
+    'end:',
+    end
+  );
+
+  return pad;
+};

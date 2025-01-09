@@ -5,7 +5,7 @@ import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Player } from '@components/Player/Player';
 import { PlayerRef } from '@components/Player/types';
 import { createLog } from '@helpers/log';
-import { useMetadataFromPad } from '@model';
+import { applyPadTrimOperation, useMetadataFromPad } from '@model';
 import { useEditActive, usePad } from '@model/store/selectors';
 import {
   Button,
@@ -23,10 +23,9 @@ const log = createLog('VideoEditor');
 
 export const VideoEditor = () => {
   const { isEditActive } = useEditActive();
-  const { isPadOneShot, pad, setPadIsOneShot } = usePad();
+  const { isPadOneShot, pad, setPadIsOneShot, store } = usePad();
   const { data: metadata } = useMetadataFromPad(pad);
   const videoRef = useRef<PlayerRef>(null);
-  const [duration, setDuration] = useState(metadata?.duration ?? 100);
 
   const videoDuration = metadata?.duration ?? 100;
 
@@ -37,9 +36,28 @@ export const VideoEditor = () => {
   }, [pad, isPadOneShot, setPadIsOneShot]);
 
   useEffect(() => {
-    if (!pad) return;
+    if (!pad || !isEditActive) return;
     log.debug('selectedPadId', pad, metadata);
-  }, [pad, metadata]);
+  }, [pad, metadata, isEditActive]);
+
+  const handleStartAndEndTimeChange = useCallback(
+    async (start: number, end: number) => {
+      if (!pad) return;
+
+      // grab a new thumbnail with the new start time
+      const thumbnail = await videoRef.current?.getThumbnail(start);
+
+      // applyPadTrimOperation(pad, start, end);
+      applyPadTrimOperation({
+        store,
+        pad,
+        start,
+        end,
+        thumbnail
+      });
+    },
+    [pad, store]
+  );
 
   const {
     handleSlideChange,
@@ -47,15 +65,13 @@ export const VideoEditor = () => {
     slideValue,
     handleDurationBack,
     handleDurationForward
-  } = useStartAndEndTime(videoRef.current, videoDuration);
-
-  // const handleSlideChange = useCallback((value: number | number[]) => {
-  //   if (!videoRef.current) return;
-  //   const [startTime, endTime] = Array.isArray(value) ? value : [value, value];
-  //   videoRef.current.setCurrentTime(startTime);
-  //   log.debug('[handleSlideChange]', value);
-  //   // setDuration(endTime - startTime);
-  // }, []);
+  } = useStartAndEndTime({
+    isActive: isEditActive,
+    pad,
+    videoRef: videoRef.current,
+    duration: videoDuration,
+    onStartAndEndTimeChange: handleStartAndEndTimeChange
+  });
 
   useEffect(() => {
     const video = videoRef.current;
@@ -64,8 +80,9 @@ export const VideoEditor = () => {
     video.onReady(() => {
       // setDuration(metadata?.duration ?? 1000);
       log.debug('[onReady] duration', metadata?.duration);
+      video.setCurrentTime(slideValue[0]);
     });
-  }, [metadata]);
+  }, [metadata, slideValue]);
 
   if (!isEditActive) return null;
 
@@ -83,7 +100,7 @@ export const VideoEditor = () => {
               ref={videoRef}
               media={metadata}
               isOneShot={true}
-              currentTime={0}
+              currentTime={slideValue[0]}
               isVisible={true}
               showControls={true}
             />

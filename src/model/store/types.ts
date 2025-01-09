@@ -73,6 +73,13 @@ export type SetPadIsOneShotAction = {
   isOneShot: boolean;
 };
 
+export type ApplyTrimToPadAction = {
+  type: 'applyTrimToPad';
+  padId: string;
+  start: number;
+  end: number;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -85,7 +92,8 @@ export type Actions =
   | PlayPadAction
   | SetEditActiveAction
   | SetSelectedPadIdAction
-  | SetPadIsOneShotAction;
+  | SetPadIsOneShotAction
+  | ApplyTrimToPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

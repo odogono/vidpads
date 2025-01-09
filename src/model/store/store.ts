@@ -1,4 +1,3 @@
-// import { createLog } from '@helpers/log';
 import { createStore as createXstateStore } from '@xstate/store';
 import { createPad } from '../pad';
 import * as actions from './actions';
@@ -8,8 +7,6 @@ import type {
   StoreContextType,
   StoreType
 } from './types';
-
-// const log = createLog('state');
 
 export const initialContext: StoreContextType = {
   isInitial: true,

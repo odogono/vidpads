@@ -6,6 +6,7 @@ import {
   useRef
 } from 'react';
 
+import { extractVideoThumbnailFromVideo } from '@helpers/canvas';
 import { EventEmitterEvents, useEvents } from '@helpers/events';
 // import { Pause, Play, RotateCcw } from 'lucide-react';
 
@@ -21,7 +22,7 @@ type handleVideoStartProps = EventEmitterEvents['video:start'];
 const log = createLog('player/local');
 
 export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
-  ({ isVisible, showControls, media }, forwardedRef) => {
+  ({ isVisible, showControls, media, currentTime }, forwardedRef) => {
     const events = useEvents();
     const videoRef = useRef<HTMLVideoElement>(null);
     const readyCallbackRef = useRef<(() => void) | null>(null);
@@ -50,15 +51,23 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
         if ((videoRef.current?.readyState ?? 0) >= 4) {
           callback();
         }
+      },
+      getThumbnail: async (frameTime: number) => {
+        if (!videoRef.current) return;
+        return extractVideoThumbnailFromVideo({
+          video: videoRef.current,
+          frameTime
+        });
       }
     }));
 
     const handleVideoStart = useCallback(
-      ({ url, isOneShot }: handleVideoStartProps) => {
+      ({ url, isOneShot, time }: handleVideoStartProps) => {
         if (url !== media.url) return;
         const video = videoRef.current;
         if (!video) return;
-        video.currentTime = 0;
+        log.debug('[handleVideoStart] time', time);
+        video.currentTime = time;
         video.play();
       },
       [media.url, videoRef]
@@ -107,9 +116,9 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
       if (!video) return;
 
       const handleLoadedMetadata = () => {
-        log.debug('[handleLoadedMetadata] showControls', showControls);
         if (showControls) {
           video.controls = true;
+          // video.currentTime = currentTime;
         }
         readyCallbackRef.current?.();
       };

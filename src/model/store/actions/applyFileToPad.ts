@@ -6,7 +6,7 @@ import { ApplyFileToPadAction, StoreContext } from '../types';
 
 const log = createLog('store/actions/applyFileToPad');
 
-// NOTE - xstate doesn't support async actions, so we need to use a promise
+// NOTE - NOT USED - xstate doesn't support async actions, so we need to use a promise
 // to get the metadata and then return the context
 
 export const applyFileToPad = (

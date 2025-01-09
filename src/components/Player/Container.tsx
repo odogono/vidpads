@@ -2,12 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { isImageMetadata, isVideoMetadata } from '@helpers/metadata';
+import { getPadStartAndEndTime } from '@model/pad';
 import { useEditActive } from '@model/store/selectors';
-import { ImagePlayer } from './ImagePlayer';
-import { LocalPlayer } from './LocalPlayer';
 import { Player } from './Player';
-import { PlayerProps } from './types';
 import { usePlayers } from './usePlayers';
 
 const log = createLog('player/container');
@@ -38,8 +35,9 @@ export const PlayerContainer = () => {
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
       const isOneShot = pad.isOneShot ?? false;
+      const { start, end } = getPadStartAndEndTime(pad);
       setVisiblePlayerId(mediaUrl);
-      events.emit('video:start', { url: mediaUrl, isOneShot });
+      events.emit('video:start', { url: mediaUrl, isOneShot, time: start });
     },
     [events, getMediaUrlFromPadId, setVisiblePlayerId, isEditActive, pads]
   );

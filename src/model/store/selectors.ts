@@ -119,7 +119,7 @@ export const usePad = (padId?: string) => {
 
   const isPadOneShot = pad?.isOneShot;
 
-  return { isPadOneShot, pad, selectedPadId, setPadIsOneShot };
+  return { isPadOneShot, pad, selectedPadId, setPadIsOneShot, store };
 };
 
 // export const useSelectedPad = () => {

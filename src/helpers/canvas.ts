@@ -23,11 +23,17 @@ export const extractVideoThumbnail = async (
   });
 };
 
-export const extractVideoThumbnailFromVideo = async (
-  video: HTMLVideoElement,
+export interface ExtractVideoThumbnailFromVideoProps {
+  video: HTMLVideoElement;
+  frameTime: number;
+  size?: number;
+}
+
+export const extractVideoThumbnailFromVideo = async ({
+  video,
   frameTime = 0,
   size = 384
-) => {
+}: ExtractVideoThumbnailFromVideoProps): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -36,13 +42,6 @@ export const extractVideoThumbnailFromVideo = async (
       onVideoSeek({ video, canvas, ctx, size, resolve, reject });
 
     video.currentTime = frameTime;
-
-    video.onseeked = () => {
-      if (!ctx) {
-        reject(new Error('Could not get canvas context'));
-        return;
-      }
-    };
   });
 };
 

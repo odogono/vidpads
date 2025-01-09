@@ -18,17 +18,17 @@ export type OperationType = (typeof OperationType)[keyof typeof OperationType];
 
 export interface Operation {
   type: OperationType;
-  url: string;
 }
 
 export interface SourceOperation extends Operation {
   type: typeof OperationType.Source;
+  url: string;
 }
 
-export interface DurationOperation extends Operation {
-  type: typeof OperationType.Duration;
+export interface TrimOperation extends Operation {
+  type: typeof OperationType.Trim;
   start: number;
-  duration: number;
+  end: number;
 }
 
 export interface Pipeline {

@@ -14,4 +14,5 @@ export interface PlayerRef {
   play: () => void;
   pause: () => void;
   onReady: (callback: () => void) => void;
+  getThumbnail: (frameTime: number) => Promise<string | undefined>;
 }

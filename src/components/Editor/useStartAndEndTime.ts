@@ -2,13 +2,26 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { PlayerRef } from '@components/Player/types';
 import { createLog } from '@helpers/log';
+import { getPadStartAndEndTime } from '@model/pad';
+import { Pad } from '@model/types';
 
 const log = createLog('useStartAndEndTime');
 
-export const useStartAndEndTime = (
-  videoRef: PlayerRef | null,
-  duration: number
-) => {
+export interface UseStartAndEndTimeProps {
+  isActive: boolean;
+  pad: Pad | null;
+  videoRef: PlayerRef | null;
+  duration: number;
+  onStartAndEndTimeChange: (start: number, end: number) => void;
+}
+
+export const useStartAndEndTime = ({
+  isActive,
+  pad,
+  videoRef,
+  duration,
+  onStartAndEndTimeChange
+}: UseStartAndEndTimeProps) => {
   const [slideValue, setSlideValue] = useState<number[]>([0, duration]);
   const lastValueRef = useRef<number[]>([0, duration]);
   const existingValueRef = useRef<number[]>([0, duration]);
@@ -28,7 +41,8 @@ export const useStartAndEndTime = (
     setSlideValue([startTime, endTime]);
     lastValueRef.current = [startTime, endTime];
     existingValueRef.current = [startTime, endTime];
-  }, [slideValue, videoRef]);
+    onStartAndEndTimeChange(startTime, endTime);
+  }, [slideValue, videoRef, onStartAndEndTimeChange]);
 
   const handleDurationForward = useCallback(() => {
     let [startTime, endTime] = slideValue;
@@ -44,7 +58,8 @@ export const useStartAndEndTime = (
     setSlideValue([startTime, endTime]);
     lastValueRef.current = [startTime, endTime];
     existingValueRef.current = [startTime, endTime];
-  }, [slideValue, videoRef]);
+    onStartAndEndTimeChange(startTime, endTime);
+  }, [slideValue, videoRef, onStartAndEndTimeChange]);
 
   const handleSlideChange = useCallback(
     (value: number | number[]) => {
@@ -69,39 +84,55 @@ export const useStartAndEndTime = (
     [videoRef]
   );
 
-  const handleSlideChangeEnd = useCallback((value: number | number[]) => {
-    const [startTime, endTime] = Array.isArray(value) ? value : [value, value];
-    const [lastStartTime, lastEndTime] = existingValueRef.current;
+  const handleSlideChangeEnd = useCallback(
+    (value: number | number[]) => {
+      const [startTime, endTime] = Array.isArray(value)
+        ? value
+        : [value, value];
+      const [lastStartTime, lastEndTime] = existingValueRef.current;
 
-    if (startTime !== lastStartTime) {
-      log.debug(
-        '[handleSlideChangeEnd] startTime has changed from',
-        lastStartTime,
-        'to',
-        startTime
-      );
-    }
+      if (startTime !== lastStartTime) {
+        log.debug(
+          '[handleSlideChangeEnd] startTime has changed from',
+          lastStartTime,
+          'to',
+          startTime
+        );
+      }
 
-    if (endTime !== lastEndTime) {
-      log.debug(
-        '[handleSlideChangeEnd] endTime has changed from',
-        lastEndTime,
-        'to',
-        endTime
-      );
-    }
+      if (endTime !== lastEndTime) {
+        log.debug(
+          '[handleSlideChangeEnd] endTime has changed from',
+          lastEndTime,
+          'to',
+          endTime
+        );
+      }
 
-    log.debug('[handleSlideChangeEnd]', value);
+      if (startTime !== lastStartTime || endTime !== lastEndTime) {
+        onStartAndEndTimeChange(startTime, endTime);
+      }
 
-    // update the pad
-    existingValueRef.current = [startTime, endTime];
-  }, []);
+      log.debug('[handleSlideChangeEnd]', value);
+
+      // update the pad
+      existingValueRef.current = [startTime, endTime];
+    },
+    [duration, pad, isActive]
+  );
 
   useEffect(() => {
-    setSlideValue([0, duration]);
-    lastValueRef.current = [0, duration];
-    existingValueRef.current = [0, duration];
-  }, [duration]);
+    if (!pad || !isActive) return;
+    const { start, end } = getPadStartAndEndTime(pad);
+    const startTime = start === -1 ? 0 : start;
+    const endTime = end === -1 ? duration : end;
+
+    log.debug('[useEffect]', { start, end }, { startTime, endTime });
+
+    setSlideValue([startTime, endTime]);
+    lastValueRef.current = [startTime, endTime];
+    existingValueRef.current = [startTime, endTime];
+  }, [duration, pad, isActive]);
 
   return {
     handleSlideChange,

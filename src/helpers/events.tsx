@@ -12,6 +12,7 @@ export type EventEmitterEvents = {
   'video:start': {
     url: string;
     isOneShot: boolean;
+    time: number;
   };
   'video:stop': {
     url: string;
