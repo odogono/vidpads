@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { useSelector } from '@xstate/store/react';
+import { getPadSourceUrl } from '../pad';
 import { Pad } from '../types';
 import { StoreType } from './types';
 import { useStore } from './useStore';
@@ -31,17 +32,17 @@ export const getPadsBySourceUrl = (
 ): Pad[] => {
   const { pads } = store.getSnapshot().context;
 
-  return pads.filter((pad) => pad.pipeline.source?.url === sourceUrl);
+  return pads.filter((pad) => getPadSourceUrl(pad) === sourceUrl);
 };
 
 export const getPadsWithMedia = (store: StoreType) => {
   const { pads } = store.getSnapshot().context;
-  return pads.filter((pad) => pad.pipeline.source?.url);
+  return pads.filter((pad) => getPadSourceUrl(pad));
 };
 
 export const getAllMedia = (store: StoreType) => {
   const padsWithMedia = getPadsWithMedia(store);
-  return padsWithMedia.map((pad) => pad.pipeline.source?.url);
+  return padsWithMedia.map((pad) => getPadSourceUrl(pad));
 };
 
 export const useEditActive = () => {
@@ -62,6 +63,10 @@ export const useEditActive = () => {
   return { isEditActive, setEditActive };
 };
 
+/**
+ * A hook that returns the selected pad id and a function to set the selected pad id
+ * @returns
+ */
 export const useSelectedPadId = () => {
   const { store } = useStore();
 
@@ -80,26 +85,63 @@ export const useSelectedPadId = () => {
   return { selectedPadId, setSelectedPadId };
 };
 
-export const useSelectedPad = () => {
+/**
+ * A hook that returns either the pad specified by the
+ * padId or the currently selected pad
+ *
+ * @param padId
+ * @returns
+ */
+export const usePad = (padId?: string) => {
   const { store } = useStore();
-  const pads = useSelector(store, (state) => state.context.pads) ?? [];
+
   const selectedPadId = useSelector(
     store,
     (state) => state.context.selectedPadId
   );
-  const isPadOneShot = useSelector(
-    store,
-    (state) =>
-      state.context.pads.find((pad) => pad.id === selectedPadId)?.isOneShot
+
+  if (!padId && selectedPadId) {
+    padId = selectedPadId;
+  }
+
+  const pad = useSelector(store, (state) =>
+    state.context.pads.find((pad) => pad.id === padId)
   );
 
   const setPadIsOneShot = useCallback(
     (padId: string, isOneShot: boolean) => {
-      store.send({ type: 'setPadIsOneShot', padId, isOneShot });
+      if (pad) {
+        store.send({ type: 'setPadIsOneShot', padId, isOneShot });
+      }
     },
-    [store]
+    [pad, store]
   );
 
-  const pad = pads.find((pad) => pad.id === selectedPadId);
-  return { isPadOneShot, pad, setPadIsOneShot };
+  const isPadOneShot = pad?.isOneShot;
+
+  return { isPadOneShot, pad, selectedPadId, setPadIsOneShot };
 };
+
+// export const useSelectedPad = () => {
+//   const { store } = useStore();
+//   const pads = useSelector(store, (state) => state.context.pads) ?? [];
+//   const selectedPadId = useSelector(
+//     store,
+//     (state) => state.context.selectedPadId
+//   );
+//   const isPadOneShot = useSelector(
+//     store,
+//     (state) =>
+//       state.context.pads.find((pad) => pad.id === selectedPadId)?.isOneShot
+//   );
+
+//   const setPadIsOneShot = useCallback(
+//     (padId: string, isOneShot: boolean) => {
+//       store.send({ type: 'setPadIsOneShot', padId, isOneShot });
+//     },
+//     [store]
+//   );
+
+//   const pad = pads.find((pad) => pad.id === selectedPadId);
+//   return { isPadOneShot, pad, setPadIsOneShot };
+// };

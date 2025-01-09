@@ -1,107 +1,132 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef
+} from 'react';
 
 import { EventEmitterEvents, useEvents } from '@helpers/events';
 // import { Pause, Play, RotateCcw } from 'lucide-react';
 
 import { createLog } from '@helpers/log';
-import { useRenderingTrace } from '@hooks/useRenderingTrace';
 import { loadVideoData } from '@model/db/api';
 import { MediaVideo } from '@model/types';
-import { PlayerProps } from './types';
+import { PlayerProps, PlayerRef } from './types';
 
 type LocalPlayerProps = PlayerProps;
 type handleVideoStartProps = EventEmitterEvents['video:start'];
-type handleVideoStopProps = EventEmitterEvents['video:stop'];
+// type handleVideoStopProps = EventEmitterEvents['video:stop'];
+
 const log = createLog('player/local');
 
-export const LocalPlayer = ({
-  isVisible,
-  currentTime: currentTimeProp,
-  media
-}: LocalPlayerProps) => {
-  const events = useEvents();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const blobUrlRef = useRef<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [loopStart, setLoopStart] = useState(0);
-  const [loopEnd, setLoopEnd] = useState(0);
-  const [duration, setDuration] = useState(0);
+export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
+  ({ isVisible, showControls, media }, forwardedRef) => {
+    const events = useEvents();
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const readyCallbackRef = useRef<(() => void) | null>(null);
 
-  useVideoLoader(media as MediaVideo, videoRef);
+    useVideoLoader(media as MediaVideo, videoRef);
 
-  const handleVideoStart = ({ url, isOneShot }: handleVideoStartProps) => {
-    if (url !== media.url) return;
-    // log.debug('handleVideoStart', media.url);
-    const video = videoRef.current;
-    if (!video) return;
-    video.currentTime = 0;
-    video.play();
-  };
+    useImperativeHandle(forwardedRef, () => ({
+      setCurrentTime: (time: number) => {
+        if (!videoRef.current) return;
+        // log.debug('[forwardRef] setCurrentTime', time);
+        videoRef.current.currentTime = time;
+      },
+      play: () => {
+        if (!videoRef.current) return;
+        log.debug('[forwardRef] play');
+        // videoRef.current.play();
+      },
+      pause: () => {
+        if (!videoRef.current) return;
+        log.debug('[forwardRef] pause');
+        // videoRef.current.pause();
+      },
+      onReady: (callback: () => void) => {
+        readyCallbackRef.current = callback;
+        // If video is already loaded, call callback immediately
+        if ((videoRef.current?.readyState ?? 0) >= 4) {
+          callback();
+        }
+      }
+    }));
 
-  const handleVideoStop = ({ url }: { url: string }) => {
-    if (url !== media.url) return;
-    // log.debug('handleVideoStop', media.url);
-    const video = videoRef.current;
-    if (!video) return;
-    video.pause();
-  };
+    const handleVideoStart = useCallback(
+      ({ url, isOneShot }: handleVideoStartProps) => {
+        if (url !== media.url) return;
+        const video = videoRef.current;
+        if (!video) return;
+        video.currentTime = 0;
+        video.play();
+      },
+      [media.url, videoRef]
+    );
 
-  useEffect(() => {
-    events.on('video:start', handleVideoStart);
-    events.on('video:stop', handleVideoStop);
+    const handleVideoStop = useCallback(
+      ({ url }: { url: string }) => {
+        if (url !== media.url) return;
+        const video = videoRef.current;
+        if (!video) return;
+        video.pause();
+      },
+      [media.url, videoRef]
+    );
 
-    return () => {
-      events.off('video:start', handleVideoStart);
-      events.off('video:stop', handleVideoStop);
-    };
-  }, [events]);
+    useEffect(() => {
+      events.on('video:start', handleVideoStart);
+      events.on('video:stop', handleVideoStop);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.currentTime = currentTimeProp;
+      return () => {
+        events.off('video:start', handleVideoStart);
+        events.off('video:stop', handleVideoStop);
+      };
+    }, [events, handleVideoStart, handleVideoStop]);
 
-    const handleTimeUpdate = () => {
-      // log.debug('timeupdate', media.url, video.currentTime);
-      // setCurrentTime(video.currentTime);
-      // if (loopEnd > 0 && video.currentTime >= loopEnd) {
-      //   video.currentTime = loopStart;
-      // }
-    };
+    useEffect(() => {
+      const video = videoRef.current;
+      if (!video) return;
 
-    const handleLoadedMetadata = () => {
-      // log.debug('loadedmetadata', media.url, video.duration, media.duration);
-      // setDuration(video.duration);
-      // setLoopEnd(video.duration);
-    };
+      const isPlaying =
+        video.currentTime > 0 &&
+        !video.paused &&
+        !video.ended &&
+        video.readyState > video.HAVE_CURRENT_DATA;
 
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      if (isVisible && !isPlaying) {
+        // video.play();
+      } else {
+        // video.pause();
+      }
+    }, [isVisible, videoRef]);
 
-    const isPlaying =
-      video.currentTime > 0 &&
-      !video.paused &&
-      !video.ended &&
-      video.readyState > video.HAVE_CURRENT_DATA;
+    // Add loadedmetadata event listener
+    useEffect(() => {
+      const video = videoRef.current;
+      if (!video) return;
 
-    if (isVisible && !isPlaying) {
-      video.play();
-    } else {
-      video.pause();
-    }
+      const handleLoadedMetadata = () => {
+        log.debug('[handleLoadedMetadata] showControls', showControls);
+        if (showControls) {
+          video.controls = true;
+        }
+        readyCallbackRef.current?.();
+      };
 
-    return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-    };
-  }, []);
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      return () => {
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
+    }, []);
 
-  // log.debug('render', media.url, isVisible, currentTime);
+    // log.debug('rendering', media.url, isVisible, currentTimeProp);
 
-  // useRenderingTrace('LocalPlayer', { media, isVisible, currentTime });
+    return <video ref={videoRef} className='w-full h-full' />;
+  }
+);
 
-  return <video ref={videoRef} className='w-full h-full' />;
-};
+LocalPlayer.displayName = 'LocalPlayer';
 
 const useVideoLoader = (
   media: MediaVideo,
@@ -134,7 +159,7 @@ const useVideoLoader = (
 
         // Set the video source and play
         if (videoRef.current) {
-          log.debug(url, 'setting video src', videoRef.current, videoUrl);
+          // log.debug(url, 'setting video src', videoRef.current, videoUrl);
           videoRef.current.src = videoUrl;
           // videoRef.current.currentTime = currentTime;
         }
@@ -144,7 +169,7 @@ const useVideoLoader = (
     })();
 
     return () => {
-      log.debug('unmounting', media.url);
+      // log.debug('unmounting', media.url);
       // Clean up blob URL when component unmounts
       if (blobUrlRef.current) {
         URL.revokeObjectURL(blobUrlRef.current);

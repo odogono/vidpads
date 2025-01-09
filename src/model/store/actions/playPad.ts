@@ -1,3 +1,4 @@
+import { getPadSourceUrl } from '@model/pad';
 import { Emit, PlayPadAction, StoreContext } from '@model/store/types';
 
 export const playPad = (
@@ -12,7 +13,7 @@ export const playPad = (
     return context;
   }
 
-  const url = pad.pipeline.source?.url ?? '';
+  const url = getPadSourceUrl(pad) ?? '';
 
   emit({ type: 'playPad', pad });
 

@@ -23,7 +23,7 @@ export const ImagePlayer = ({ isVisible, media }: ImagePlayerProps) => {
           const url = URL.createObjectURL(blob);
           setImageUrl(url);
 
-          log.debug('Image loaded successfully');
+          // log.debug('Image loaded successfully');
         } catch (error) {
           log.error('Failed to load image:', error);
         }

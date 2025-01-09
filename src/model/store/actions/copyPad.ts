@@ -1,3 +1,4 @@
+import { getPadSourceUrl } from '@model/pad';
 import { CopyPadAction, StoreContext } from '@model/store/types';
 import { OperationType, Pad } from '@model/types';
 
@@ -23,7 +24,7 @@ export const copyPad = (
       ...targetPad.pipeline,
       source: {
         type: OperationType.Source,
-        url: sourcePad.pipeline.source?.url ?? ''
+        url: getPadSourceUrl(sourcePad) ?? ''
       }
     }
   };

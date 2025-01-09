@@ -43,9 +43,6 @@ export const usePlayers = () => {
 
       // create a player for each media
       const newPlayers = media.reduce((acc, media) => {
-        // const pad = padsWithMedia.find((pad) => pad.pipeline.source?.url === media.url);
-        // if (!pad) return acc;
-
         acc[media.url] = {
           isVisible: false,
           currentTime: 0,

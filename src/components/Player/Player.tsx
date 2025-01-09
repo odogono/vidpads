@@ -1,3 +1,5 @@
+import { forwardRef } from 'react';
+
 import {
   isImageMetadata,
   isVideoMetadata,
@@ -6,22 +8,24 @@ import {
 import { ImagePlayer } from './ImagePlayer';
 import { LocalPlayer } from './LocalPlayer';
 import { YTPlayer } from './YTPlayer';
-import { PlayerProps } from './types';
+import { PlayerProps, PlayerRef } from './types';
 
-export const Player = (props: PlayerProps) => {
-  const isVideo = isVideoMetadata(props.media);
-  const isYouTube = isYouTubeMetadata(props.media);
-  const isImage = isImageMetadata(props.media);
+export const Player = forwardRef<PlayerRef, PlayerProps>(
+  (props: PlayerProps, forwardedRef) => {
+    const isVideo = isVideoMetadata(props.media);
+    const isYouTube = isYouTubeMetadata(props.media);
+    const isImage = isImageMetadata(props.media);
 
-  return (
-    <div
-      className={`absolute top-0 left-0 w-full h-full ${
-        props.isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      {isVideo && <LocalPlayer {...props} />}
-      {isYouTube && <YTPlayer {...props} />}
-      {isImage && <ImagePlayer {...props} />}
-    </div>
-  );
-};
+    return (
+      <div
+        className={`absolute top-0 left-0 w-full h-full ${
+          props.isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {isVideo && <LocalPlayer {...props} ref={forwardedRef} />}
+        {isYouTube && <YTPlayer {...props} />}
+        {isImage && <ImagePlayer {...props} />}
+      </div>
+    );
+  }
+);

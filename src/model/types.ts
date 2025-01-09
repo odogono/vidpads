@@ -58,6 +58,7 @@ export interface Media {
   mimeType: MimeType;
   width: number;
   height: number;
+  duration: number;
 }
 
 export interface MediaImage extends Media {
@@ -66,6 +67,5 @@ export interface MediaImage extends Media {
 
 export interface MediaVideo extends Media {
   mimeType: VideoMimeType;
-  duration: number;
   videoTotalChunks?: number;
 }

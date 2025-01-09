@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
 import { createImageThumbnail } from '@helpers/image';
@@ -5,6 +7,7 @@ import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
+  getMediaData as dbGetMediaData,
   deleteMediaData,
   saveImageData,
   saveVideoData
@@ -12,6 +15,8 @@ import {
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
 import { MediaImage, MediaVideo, Pad } from '@model/types';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { getPadSourceUrl } from './pad';
 
 const log = createLog('model/api');
 
@@ -24,6 +29,34 @@ export interface AddFileToPadProps {
 
 export const getAllMediaMetaData = async () => {
   return dbGetAllMediaMetaData();
+};
+
+export const useMetadataFromPad = (pad?: Pad) => {
+  const queryClient = useQueryClient();
+
+  // Invalidate the cache when pad changes
+  // TODO: not sure about this yet
+  useEffect(() => {
+    if (pad) {
+      queryClient.invalidateQueries({
+        queryKey: ['metadata/pad', pad.id]
+      });
+    }
+  }, [pad, queryClient]);
+
+  return useSuspenseQuery({
+    queryKey: ['metadata/pad', pad?.id],
+    queryFn: async () => {
+      if (!pad) return null;
+
+      const sourceUrl = getPadSourceUrl(pad);
+      if (!sourceUrl) return null;
+
+      const media = await dbGetMediaData(sourceUrl);
+
+      return media;
+    }
+  });
 };
 
 /**
@@ -152,7 +185,7 @@ export const clearPad = async (
 };
 
 const deletePadMedia = async (store: StoreType, pad: Pad) => {
-  const sourceUrl = pad.pipeline.source?.url;
+  const sourceUrl = getPadSourceUrl(pad);
 
   // nothing to clear
   if (!sourceUrl) {
