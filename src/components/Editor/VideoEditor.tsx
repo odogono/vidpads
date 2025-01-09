@@ -5,19 +5,9 @@ import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Player } from '@components/Player/Player';
 import { PlayerRef } from '@components/Player/types';
 import { createLog } from '@helpers/log';
-import { applyPadTrimOperation, useMetadataFromPad } from '@model';
+import { useMetadataFromPad, usePadTrimOperation } from '@model';
 import { useEditActive, usePad } from '@model/store/selectors';
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Divider,
-  Image,
-  Slider
-} from '@nextui-org/react';
-import { Pad } from '../../model/types';
+import { Button, Card, CardBody, CardFooter, Slider } from '@nextui-org/react';
 import { usePadTouches } from './usePadTouches';
 import { useStartAndEndTime } from './useStartAndEndTime';
 
@@ -25,14 +15,11 @@ const log = createLog('VideoEditor');
 
 export const VideoEditor = () => {
   const { isEditActive } = useEditActive();
-  const {
-    isLooped,
-    isPadOneShot,
-    pad,
-    setPadIsLooped,
-    setPadIsOneShot,
-    store
-  } = usePad();
+  const { isLooped, isPadOneShot, pad, setPadIsLooped, setPadIsOneShot } =
+    usePad();
+
+  const applyPadTrimOperation = usePadTrimOperation();
+
   const { data: metadata } = useMetadataFromPad(pad);
   const videoRef = useRef<PlayerRef>(null);
 
@@ -63,16 +50,14 @@ export const VideoEditor = () => {
       // grab a new thumbnail with the new start time
       const thumbnail = await videoRef.current?.getThumbnail(start);
 
-      // applyPadTrimOperation(pad, start, end);
-      applyPadTrimOperation({
-        store,
+      await applyPadTrimOperation({
         pad,
         start,
         end,
         thumbnail
       });
     },
-    [pad, store]
+    [pad]
   );
 
   const {

@@ -1,16 +1,13 @@
 import { useRef, useState } from 'react';
 
-import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createLog } from '@helpers/log';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { addFileToPad } from '@model';
-import { useStore } from '@model/store/useStore';
+import { usePadOperations } from '@model';
 
 const log = createLog('usePadEvents');
 
 export const useFileSelector = () => {
-  const { ffmpeg } = useFFmpeg();
-  const { store } = useStore();
+  const { addFileToPad } = usePadOperations();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
   const { ACCEPTED_FILE_TYPES } = usePadDnD();
@@ -30,7 +27,7 @@ export const useFileSelector = () => {
         log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
         return;
       }
-      await addFileToPad({ file, padId: activeIndex, store, ffmpeg });
+      await addFileToPad({ file, padId: activeIndex });
     }
     e.target.value = '';
   };

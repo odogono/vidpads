@@ -3,8 +3,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useRef,
-  useState
+  useRef
 } from 'react';
 
 import { extractVideoThumbnailFromVideo } from '@helpers/canvas';

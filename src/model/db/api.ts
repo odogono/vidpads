@@ -20,13 +20,6 @@ export const useDBStore = () => {
   });
 };
 
-export const useThumbnail = (url?: string | undefined) => {
-  return useSuspenseQuery({
-    queryKey: ['thumbnail', url],
-    queryFn: () => getThumbnailFromUrl(url)
-  });
-};
-
 export const useDBStoreUpdate = () => {
   const queryClient = useQueryClient();
 
@@ -456,6 +449,86 @@ export const deleteMediaData = async (url: string): Promise<void> => {
       log.debug('Media data deleted successfully');
       db.close();
       resolve();
+    };
+  });
+};
+
+export const setPadThumbnail = async (
+  padId: string,
+  thumbnail: string
+): Promise<string> => {
+  const thumbnailId = `pad-${padId}-thumbnail`;
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('thumbnails', 'readwrite');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    const request = thumbnailStore.put({ id: thumbnailId, thumbnail });
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+      resolve(padId);
+    };
+  });
+};
+
+export const getPadThumbnail = async (
+  padId: string
+): Promise<string | null> => {
+  const thumbnailId = `pad-${padId}-thumbnail`;
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('thumbnails', 'readonly');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    const request = thumbnailStore.get(thumbnailId);
+
+    request.onerror = () => {
+      log.error('Error loading pad thumbnail:', request.error);
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      const result = request.result;
+      db.close();
+      resolve(result ? result.thumbnail : null);
+    };
+  });
+};
+
+export const copyPadThumbnail = async (
+  sourcePadId: string,
+  targetPadId: string
+): Promise<string | null> => {
+  const sourceThumbnail = await getPadThumbnail(sourcePadId);
+  if (!sourceThumbnail) {
+    log.error('Source pad thumbnail not found:', sourcePadId);
+    return null;
+  }
+  return setPadThumbnail(targetPadId, sourceThumbnail);
+};
+
+export const deletePadThumbnail = async (padId: string): Promise<string> => {
+  const thumbnailId = `pad-${padId}-thumbnail`;
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('thumbnails', 'readwrite');
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    const request = thumbnailStore.delete(thumbnailId);
+
+    request.onerror = () => {
+      log.error('Error deleting pad thumbnail:', request.error);
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+      resolve(padId);
     };
   });
 };

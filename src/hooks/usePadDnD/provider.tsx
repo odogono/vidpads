@@ -1,9 +1,8 @@
 import { ReactNode, useCallback, useState } from 'react';
 
-import { useFFmpeg } from '@helpers/ffmpeg/useFFmpeg';
 import { createLog } from '@helpers/log';
-import { addFileToPad, clearPad, copyPadToPad } from '@model';
-import { useStore } from '@model/store/useStore';
+import { usePadOperations } from '@model';
+// import { addFileToPad, clearPad, copyPadToPad } from '@model';
 import { PadDnDContext } from './context';
 
 const log = createLog('PadDnDProvider');
@@ -19,9 +18,9 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
-  const { ffmpeg } = useFFmpeg();
-  const { store } = useStore();
-
+  // const { ffmpeg } = useFFmpeg();
+  // const { store } = useStore();
+  const { addFileToPad, clearPad, copyPadToPad } = usePadOperations();
   const onDragStart = useCallback((id: string) => {
     setDraggingPadId(id);
   }, []);
@@ -78,12 +77,12 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
 
       if (sourcePadId) {
         if (targetId === 'bin') {
-          await clearPad(store, sourcePadId);
+          await clearPad(sourcePadId);
           return;
         }
 
         if (sourcePadId !== targetId) {
-          await copyPadToPad(store, sourcePadId, targetId);
+          await copyPadToPad({ sourcePadId, targetPadId: targetId });
         }
         return;
       }
@@ -96,11 +95,11 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
           log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
           return;
         }
-        await addFileToPad({ file, padId: targetId, store, ffmpeg });
+        await addFileToPad({ file, padId: targetId });
         log.info(`Processed file ${file.name} for pad ${targetId}`);
       }
     },
-    [store, ffmpeg]
+    [addFileToPad, clearPad, copyPadToPad]
   );
 
   return (

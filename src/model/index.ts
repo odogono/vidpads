@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
@@ -6,25 +6,36 @@ import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import {
+  copyPadThumbnail as dbCopyPadThumbnail,
+  deletePadThumbnail as dbDeletePadThumbnail,
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
+  setPadThumbnail as dbSetPadThumbnail,
   deleteMediaData,
+  getPadThumbnail,
+  getThumbnailFromUrl,
   saveImageData,
   saveVideoData
 } from '@model/db/api';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
 import { MediaImage, MediaVideo, Pad } from '@model/types';
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery
+} from '@tanstack/react-query';
 import { getPadSourceUrl } from './pad';
+import { useStore } from './store/useStore';
 
 const log = createLog('model/api');
+
+const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
 
 export interface AddFileToPadProps {
   file: File;
   padId: string;
-  store: StoreType;
-  ffmpeg?: FFmpeg | null;
+  store?: StoreType;
 }
 
 export const getAllMediaMetaData = async () => {
@@ -59,6 +70,129 @@ export const useMetadataFromPad = (pad?: Pad) => {
   });
 };
 
+export const usePadThumbnail = (pad: Pad) => {
+  return useSuspenseQuery({
+    queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id],
+    queryFn: () => getPadThumbnail(pad.id)
+  });
+};
+
+export interface UsePadTrimOperationProps {
+  pad: Pad;
+  start: number;
+  end: number;
+  thumbnail?: string;
+}
+
+export const usePadTrimOperation = () => {
+  const { store } = useStore();
+  const queryClient = useQueryClient();
+
+  return async ({ pad, start, end, thumbnail }: UsePadTrimOperationProps) => {
+    store.send({
+      type: 'applyTrimToPad',
+      padId: pad.id,
+      start,
+      end
+    });
+
+    if (thumbnail) {
+      await dbSetPadThumbnail(pad.id, thumbnail);
+
+      // Invalidate the pad-thumbnail query to trigger a refetch
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id]
+      });
+    }
+
+    return pad;
+  };
+};
+
+export interface CopyPadToPadProps {
+  sourcePadId: string;
+  targetPadId: string;
+}
+
+export const usePadOperations = () => {
+  const { store } = useStore();
+  const queryClient = useQueryClient();
+
+  const addFileToPadOp = useCallback(
+    async (props: AddFileToPadProps) => {
+      const metadata = await addFileToPad({ ...props, store });
+
+      // Invalidate the pad-thumbnail query to trigger a refetch
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL, props.padId]
+      });
+
+      return metadata;
+    },
+    [queryClient, store]
+  );
+
+  const copyPadToPadOp = useCallback(
+    async ({ sourcePadId, targetPadId }: CopyPadToPadProps) => {
+      const targetPad = getPadById(store, targetPadId);
+      if (!targetPad) {
+        log.warn('[copyPad] Pad not found:', targetPadId);
+        return false;
+      }
+
+      // clear the target pad
+      await deletePadMedia(store, targetPad);
+
+      await dbCopyPadThumbnail(sourcePadId, targetPadId);
+
+      store.send({
+        type: 'copyPad',
+        sourcePadId,
+        targetPadId
+      });
+
+      // Invalidate the pad-thumbnail query to trigger a refetch
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL, sourcePadId]
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL, targetPadId]
+      });
+      return true;
+    },
+    [store, queryClient]
+  );
+
+  const clearPadOp = useCallback(
+    async (padId: string) => {
+      const pad = getPadById(store, padId);
+      if (!pad) {
+        log.warn('[clearPad] Pad not found:', padId);
+        return false;
+      }
+
+      await deletePadMedia(store, pad);
+
+      store.send({
+        type: 'clearPad',
+        padId
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL, padId]
+      });
+      return true;
+    },
+    [store, queryClient]
+  );
+
+  return {
+    addFileToPad: addFileToPadOp,
+    copyPadToPad: copyPadToPadOp,
+    clearPad: clearPadOp
+  };
+};
+
 /**
  * Adds a file to a pad and generates a thumbnail
  *
@@ -78,6 +212,11 @@ export const addFileToPad = async ({
     const mediaType = isVideo ? 'video' : 'image';
     log.info(`${mediaType} metadata for pad ${padId}:`, metadata);
 
+    if (!store) {
+      log.warn('Store not found');
+      return null;
+    }
+
     if (isVideo) {
       // log.info(`Video duration: ${metadata.duration.toFixed(2)} seconds`);
 
@@ -88,7 +227,6 @@ export const addFileToPad = async ({
           file,
           metadata as MediaVideo
         );
-        // const thumbnail = await extractVideoThumbnailCanvas( file );
 
         log.debug('saving video data');
         await saveVideoData({
@@ -96,6 +234,8 @@ export const addFileToPad = async ({
           metadata: metadata as MediaVideo,
           thumbnail
         });
+
+        await dbSetPadThumbnail(padId, thumbnail);
 
         // Update the store with the tile's video ID
         store.send({
@@ -146,6 +286,8 @@ export const copyPadToPad = async (
 
   // clear the target pad
   await deletePadMedia(store, targetPad);
+
+  await dbCopyPadThumbnail(sourcePadId, targetPadId);
 
   store.send({
     type: 'copyPad',
@@ -202,42 +344,7 @@ const deletePadMedia = async (store: StoreType, pad: Pad) => {
     await deleteMediaData(sourceUrl);
   }
 
+  await dbDeletePadThumbnail(pad.id);
+
   return true;
-};
-
-export interface ApplyPadTrimOperationProps {
-  store: StoreType;
-  pad: Pad;
-  start: number;
-  end: number;
-  thumbnail?: string;
-}
-
-export const applyPadTrimOperation = ({
-  store,
-  pad,
-  start,
-  end,
-  thumbnail
-}: ApplyPadTrimOperationProps) => {
-  store.send({
-    type: 'applyTrimToPad',
-    padId: pad.id,
-    start,
-    end
-  });
-  // const newPad = applyPadTrimOperation(pad, start, end);
-  // const newPad = applyPadTrimOperation(pad, start, end);
-  // return newPad;
-
-  log.debug(
-    '[applyPadTrimOperation] pad:',
-    pad.id,
-    'start:',
-    start,
-    'end:',
-    end
-  );
-
-  return pad;
 };

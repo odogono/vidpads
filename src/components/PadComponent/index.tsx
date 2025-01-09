@@ -3,8 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { useThumbnail } from '@model/db/api';
-import { getPadSourceUrl } from '@model/pad';
+import { usePadThumbnail } from '@model';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
 import { useGhostDrag } from './ghost';
@@ -23,7 +22,7 @@ const log = createLog('PadComponent');
 
 export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
-  const { data: thumbnail } = useThumbnail(getPadSourceUrl(pad));
+  const { data: thumbnail } = usePadThumbnail(pad);
   const dragImage = useNullImage();
   const { createGhost, removeGhost, updateGhost } = useGhostDrag();
   const {
