@@ -12,6 +12,12 @@ export const isImageMetadata = (metadata: Media): boolean => {
   return metadata.mimeType.startsWith('image/');
 };
 
+export const isYouTubeMetadata = (metadata: Media): boolean => {
+  return (
+    metadata.url.includes('youtube.com') || metadata.url.includes('youtu.be')
+  );
+};
+
 export const getMediaMetadata = (file: File): Promise<Media> => {
   const isVideo = file.type.startsWith('video/');
   const fileId = generateFileId(file);
