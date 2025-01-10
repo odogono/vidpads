@@ -15,6 +15,15 @@ export const extractVideoThumbnail = async (
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
+    const cleanup = () => {
+      video.onseeked = null;
+      video.src = '';
+      video.currentTime = 0;
+      video.pause();
+      video.remove();
+      canvas.remove();
+    };
+
     // safari seems to better cope with a FileReader
     // rather than using URL.createObjectURL - despite
     // the fact the former uses more memory
@@ -25,12 +34,21 @@ export const extractVideoThumbnail = async (
 
     reader.onerror = (e) => {
       log.error('[extractVideoThumbnail] reader.error', e);
+      cleanup();
       reject(e);
     };
     reader.readAsDataURL(file);
 
-    video.onseeked = () =>
-      onVideoSeek({ video, canvas, ctx, size, resolve, reject });
+    video.onseeked = () => {
+      const { imageData, error } = onVideoSeek({ video, canvas, ctx, size });
+      if (error) {
+        cleanup();
+        reject(error);
+      } else {
+        cleanup();
+        resolve(imageData);
+      }
+    };
 
     // Convert frameTime string to seconds
     const seconds = timeStringToSeconds(frameTime);
@@ -64,22 +82,21 @@ const onVideoSeek = ({
   video,
   canvas,
   ctx,
-  size,
-  resolve,
-  reject
+  size
+  // resolve,
+  // reject
 }: {
   video: HTMLVideoElement;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D | null;
   size: number;
-  resolve: (value: string) => void;
-  reject: (reason?: unknown) => void;
+  // resolve: (value: string) => void;
+  // reject: (reason?: unknown) => void;
 }) => {
   log.debug('onVideoSeek');
 
   if (!ctx) {
-    reject(new Error('Could not get canvas context'));
-    return;
+    return { error: new Error('Could not get canvas context') };
   }
 
   // Calculate the dimensions to maintain aspect ratio while filling a square
@@ -100,5 +117,5 @@ const onVideoSeek = ({
 
   const imageData = canvas.toDataURL('image/jpeg', 0.85);
   log.debug('[onVideoSeek] imageData', imageData);
-  resolve(imageData);
+  return { imageData };
 };
