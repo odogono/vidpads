@@ -11,7 +11,16 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { MediaVideo } from '@model/types';
-import { PlayerPlay, PlayerProps, PlayerRef, PlayerStop } from './types';
+import {
+  PlayerExtractThumbnail,
+  PlayerPlay,
+  PlayerProps,
+  PlayerReadyState,
+  PlayerReadyStateKeys,
+  PlayerRef,
+  PlayerSeek,
+  PlayerStop
+} from './types';
 
 type LocalPlayerProps = PlayerProps;
 // type handleVideoStartProps = EventEmitterEvents['video:start'];
@@ -69,6 +78,36 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
       [videoRef, media.url]
     );
 
+    const seekVideo = useCallback(
+      ({ time, url }: PlayerSeek) => {
+        // log.debug('[seekVideo] time', { time, url, mediaUrl: media.url });
+        if (!videoRef.current) return;
+        if (url !== media.url) return;
+        videoRef.current.currentTime = time;
+      },
+      [videoRef, media.url]
+    );
+
+    const extractThumbnail = useCallback(
+      ({ time, url, additional }: PlayerExtractThumbnail) => {
+        if (!videoRef.current) return;
+        if (url !== media.url) return;
+        videoRef.current.currentTime = time;
+        extractVideoThumbnailFromVideo({
+          video: videoRef.current,
+          frameTime: time
+        }).then((thumbnail) => {
+          events.emit('video:thumbnail-extracted', {
+            url,
+            time,
+            thumbnail,
+            additional
+          });
+        });
+      },
+      [media.url, events]
+    );
+
     useImperativeHandle(forwardedRef, () => ({
       setCurrentTime: (time: number) => {
         if (!videoRef.current) return;
@@ -106,15 +145,32 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
       }
     }, [stopVideo, media.url]);
 
+    const handleIsReady = useCallback(() => {
+      events.emit('video:ready', {
+        url: media.url,
+        duration: videoRef.current?.duration ?? 0,
+        readyState: PlayerReadyStateKeys[
+          videoRef.current?.readyState ?? 0
+        ] as PlayerReadyState,
+        dimensions: {
+          width: videoRef.current?.videoWidth ?? 0,
+          height: videoRef.current?.videoHeight ?? 0
+        }
+      });
+    }, [events, media.url]);
+
     useEffect(() => {
       events.on('video:start', playVideo);
       events.on('video:stop', stopVideo);
-
+      events.on('video:seek', seekVideo);
+      events.on('video:extract-thumbnail', extractThumbnail);
       return () => {
         events.off('video:start', playVideo);
         events.off('video:stop', stopVideo);
+        events.off('video:seek', seekVideo);
+        events.off('video:extract-thumbnail', extractThumbnail);
       };
-    }, [events, playVideo, stopVideo]);
+    }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
 
     useEffect(() => {
       const video = videoRef.current;
@@ -141,9 +197,11 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
 
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
       video.addEventListener('timeupdate', handleTimeUpdate);
+      video.addEventListener('canplay', handleIsReady);
       return () => {
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
         video.removeEventListener('timeupdate', handleTimeUpdate);
+        video.removeEventListener('canplay', handleIsReady);
       };
     }, []);
 
@@ -175,7 +233,7 @@ const useVideoLoader = (
     // log.debug('mounting', media.url, isVisible, currentTime);
 
     (async () => {
-      const { id, url } = media;
+      const { id } = media;
 
       try {
         const { blob } = await dbLoadVideoData(id);

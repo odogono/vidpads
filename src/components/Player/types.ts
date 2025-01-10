@@ -1,5 +1,19 @@
 import { Media } from '@model/types';
 
+export const PlayerReadyState = {
+  HAVE_NOTHING: 0,
+  HAVE_METADATA: 1,
+  HAVE_CURRENT_DATA: 2,
+  HAVE_FUTURE_DATA: 3,
+  HAVE_ENOUGH_DATA: 4
+} as const;
+
+export const PlayerReadyStateKeys = Object.keys(
+  PlayerReadyState
+) as (keyof typeof PlayerReadyState)[];
+
+export type PlayerReadyState = keyof typeof PlayerReadyState;
+
 export interface PlayerProps {
   ref?: React.RefObject<PlayerRef>;
   isVisible?: boolean;
@@ -15,8 +29,43 @@ export interface PlayerPlay {
   isOneShot?: boolean;
 }
 
+export interface PlayerReady {
+  url: string;
+  readyState: PlayerReadyState;
+  duration: number;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+}
+
 export interface PlayerStop {
   url: string;
+}
+
+export interface PlayerSeek {
+  url: string;
+  time: number;
+}
+
+interface PlayerAdditional {
+  start?: number;
+  end?: number;
+  isLoop?: boolean;
+  isOneShot?: boolean;
+}
+
+export interface PlayerExtractThumbnail {
+  url: string;
+  time: number;
+  additional?: PlayerAdditional;
+}
+
+export interface PlayerThumbnailExtracted {
+  url: string;
+  time: number;
+  thumbnail: string;
+  additional?: PlayerAdditional;
 }
 
 export interface PlayerRef {

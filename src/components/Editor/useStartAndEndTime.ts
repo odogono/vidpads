@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { PlayerRef } from '@components/Player/types';
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { getPadStartAndEndTime } from '@model/pad';
+import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 
 const log = createLog('useStartAndEndTime');
@@ -10,7 +10,6 @@ const log = createLog('useStartAndEndTime');
 export interface UseStartAndEndTimeProps {
   isActive: boolean;
   pad?: Pad | undefined;
-  videoRef: PlayerRef | null;
   duration: number;
   onStartAndEndTimeChange: (start: number, end: number) => void;
 }
@@ -18,48 +17,58 @@ export interface UseStartAndEndTimeProps {
 export const useStartAndEndTime = ({
   isActive,
   pad,
-  videoRef,
   duration,
   onStartAndEndTimeChange
 }: UseStartAndEndTimeProps) => {
+  const events = useEvents();
   const [slideValue, setSlideValue] = useState<number[]>([0, duration]);
+  const [isSeeking, setIsSeeking] = useState(false);
   const lastValueRef = useRef<number[]>([0, duration]);
   const existingValueRef = useRef<number[]>([0, duration]);
   const wasStartPressedLast = useRef(true);
+  const padSourceUrl = getPadSourceUrl(pad);
+
+  const setVideoTime = useCallback(
+    (time: number) => {
+      if (!padSourceUrl) return;
+      events.emit('video:seek', { url: padSourceUrl, time });
+    },
+    [events, padSourceUrl]
+  );
 
   const handleDurationBack = useCallback(() => {
     let [startTime, endTime] = slideValue;
 
     if (wasStartPressedLast.current) {
       startTime = startTime - 0.1;
-      videoRef?.setCurrentTime(startTime);
+      setVideoTime(startTime);
     } else {
       endTime = endTime - 0.1;
-      videoRef?.setCurrentTime(endTime);
+      setVideoTime(endTime);
     }
 
     setSlideValue([startTime, endTime]);
     lastValueRef.current = [startTime, endTime];
     existingValueRef.current = [startTime, endTime];
     onStartAndEndTimeChange(startTime, endTime);
-  }, [slideValue, videoRef, onStartAndEndTimeChange]);
+  }, [slideValue, setVideoTime, onStartAndEndTimeChange]);
 
   const handleDurationForward = useCallback(() => {
     let [startTime, endTime] = slideValue;
 
     if (wasStartPressedLast.current) {
       startTime = startTime + 0.1;
-      videoRef?.setCurrentTime(startTime);
+      setVideoTime(startTime);
     } else {
       endTime = endTime + 0.1;
-      videoRef?.setCurrentTime(endTime);
+      setVideoTime(endTime);
     }
 
     setSlideValue([startTime, endTime]);
     lastValueRef.current = [startTime, endTime];
     existingValueRef.current = [startTime, endTime];
     onStartAndEndTimeChange(startTime, endTime);
-  }, [slideValue, videoRef, onStartAndEndTimeChange]);
+  }, [slideValue, setVideoTime, onStartAndEndTimeChange]);
 
   const handleSlideChange = useCallback(
     (value: number | number[]) => {
@@ -70,18 +79,21 @@ export const useStartAndEndTime = ({
 
       if (startTime !== lastStartTime) {
         wasStartPressedLast.current = true;
-        videoRef?.setCurrentTime(startTime);
+        // log.debug('[handleSlideChange] startTime', { startTime, endTime });
+        setVideoTime(startTime);
       }
 
       if (endTime !== lastEndTime) {
         wasStartPressedLast.current = false;
-        videoRef?.setCurrentTime(endTime);
+        // log.debug('[handleSlideChange] endTime', { startTime, endTime });
+        setVideoTime(endTime);
       }
 
       lastValueRef.current = [startTime, endTime];
+      setIsSeeking(true);
       setSlideValue([startTime, endTime]);
     },
-    [videoRef]
+    [setVideoTime]
   );
 
   const handleSlideChangeEnd = useCallback(
@@ -117,6 +129,7 @@ export const useStartAndEndTime = ({
 
       // update the pad
       existingValueRef.current = [startTime, endTime];
+      setIsSeeking(false);
     },
     [onStartAndEndTimeChange]
   );
@@ -133,6 +146,7 @@ export const useStartAndEndTime = ({
   }, [duration, pad, isActive]);
 
   return {
+    isSeeking,
     handleSlideChange,
     handleSlideChangeEnd,
     slideValue,

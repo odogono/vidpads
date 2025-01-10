@@ -10,8 +10,8 @@ export const createPad = (id: string): Pad => {
   };
 };
 
-export const getPadSourceUrl = (pad: Pad): string | undefined => {
-  return pad.pipeline.source?.url;
+export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
+  return pad?.pipeline.source?.url;
 };
 
 export const getPadStartAndEndTime = (pad: Pad) => {

@@ -4,21 +4,15 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
-import { PlayerRef } from '../Player/types';
 
 const log = createLog('usePadTouches');
 
 export interface UsePadTouchesProps {
   isActive?: boolean;
   pad?: Pad | undefined;
-  videoRef: PlayerRef | null;
 }
 
-export const usePadTouches = ({
-  isActive,
-  pad,
-  videoRef
-}: UsePadTouchesProps) => {
+export const usePadTouches = ({ isActive, pad }: UsePadTouchesProps) => {
   const events = useEvents();
 
   const handlePadTouchdown = useCallback(
@@ -28,9 +22,15 @@ export const usePadTouches = ({
       const url = getPadSourceUrl(pad);
       if (!url) return;
       const { start, end } = getPadStartAndEndTime(pad);
-      videoRef?.play({ start, end, isLoop: pad.isLooped ?? false, url });
+      events.emit('video:start', {
+        start,
+        end,
+        isLoop: pad.isLooped ?? false,
+        url
+      });
+      // videoRef?.play({ start, end, isLoop: pad.isLooped ?? false, url });
     },
-    [isActive, pad, videoRef]
+    [events, isActive, pad]
   );
 
   const handlePadTouchup = useCallback(
@@ -40,10 +40,11 @@ export const usePadTouches = ({
       if (!url) return;
       // log.debug('handlePadTouchup', padId);
       if (!pad.isOneShot) {
-        videoRef?.stop({ url });
+        // videoRef?.stop({ url });
+        events.emit('video:stop', { url });
       }
     },
-    [isActive, pad, videoRef]
+    [events, isActive, pad]
   );
 
   useEffect(() => {

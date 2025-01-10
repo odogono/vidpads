@@ -3,9 +3,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 import { Player } from '@components/Player/Player';
-import { PlayerRef } from '@components/Player/types';
+import {
+  PlayerReady,
+  PlayerRef,
+  PlayerThumbnailExtracted
+} from '@components/Player/types';
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useMetadataFromPad, usePadTrimOperation } from '@model';
+import { getPadSourceUrl } from '@model/pad';
 import { useEditActive, usePad } from '@model/store/selectors';
 import { Button, Card, CardBody, CardFooter, Slider } from '@nextui-org/react';
 import { usePadTouches } from './usePadTouches';
@@ -14,42 +20,55 @@ import { useStartAndEndTime } from './useStartAndEndTime';
 const log = createLog('VideoEditor');
 
 export const VideoEditor = () => {
+  const events = useEvents();
   const { isEditActive } = useEditActive();
   const { isLooped, isPadOneShot, pad, setPadIsLooped, setPadIsOneShot } =
     usePad();
+  const padSourceUrl = getPadSourceUrl(pad);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   const applyPadTrimOperation = usePadTrimOperation();
 
   const { data: metadata } = useMetadataFromPad(pad);
-  const videoRef = useRef<PlayerRef>(null);
 
   const videoDuration = metadata?.duration ?? 100;
 
   const handleOneShot = useCallback(() => {
-    log.debug('handleOneShot', pad);
     if (!pad) return;
     setPadIsOneShot(pad.id, !isPadOneShot);
   }, [pad, isPadOneShot, setPadIsOneShot]);
 
   const handleLooped = useCallback(() => {
-    log.debug('handleLooped', pad);
     if (!pad) return;
     setPadIsLooped(pad.id, !isLooped);
   }, [pad, isLooped, setPadIsLooped]);
 
   usePadTouches({
     isActive: isEditActive,
-    pad,
-    videoRef: videoRef.current
+    pad
   });
 
   const handleStartAndEndTimeChange = useCallback(
     async (start: number, end: number) => {
-      if (!pad) return;
+      if (!pad || !padSourceUrl) return;
 
       // grab a new thumbnail with the new start time
-      const thumbnail = await videoRef.current?.getThumbnail(start);
+      events.emit('video:extract-thumbnail', {
+        url: padSourceUrl,
+        time: start,
+        additional: {
+          start,
+          end
+        }
+      });
+    },
+    [events, pad, padSourceUrl]
+  );
 
+  const handleThumbnailExtracted = useCallback(
+    async ({ url, thumbnail, additional }: PlayerThumbnailExtracted) => {
+      if (!pad || url !== padSourceUrl) return;
+      const { start, end } = { start: 0, end: 100, ...additional };
       await applyPadTrimOperation({
         pad,
         start,
@@ -57,10 +76,30 @@ export const VideoEditor = () => {
         thumbnail
       });
     },
-    [pad]
+    [applyPadTrimOperation, pad, padSourceUrl]
   );
 
+  const handleVideoReady = useCallback(
+    ({ url, duration, readyState, dimensions }: PlayerReady) => {
+      if (url !== padSourceUrl) return;
+      // setVideoDuration(duration);
+      log.debug('[handleVideoReady]', { duration, readyState, dimensions });
+      setIsPlayerReady(true);
+    },
+    [padSourceUrl]
+  );
+
+  useEffect(() => {
+    events.on('video:thumbnail-extracted', handleThumbnailExtracted);
+    events.on('video:ready', handleVideoReady);
+    return () => {
+      events.off('video:thumbnail-extracted', handleThumbnailExtracted);
+      events.off('video:ready', handleVideoReady);
+    };
+  }, [events, handleThumbnailExtracted, handleVideoReady]);
+
   const {
+    isSeeking,
     handleSlideChange,
     handleSlideChangeEnd,
     slideValue,
@@ -69,25 +108,18 @@ export const VideoEditor = () => {
   } = useStartAndEndTime({
     isActive: isEditActive ?? false,
     pad,
-    videoRef: videoRef.current,
     duration: videoDuration,
     onStartAndEndTimeChange: handleStartAndEndTimeChange
   });
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.onReady(() => {
-      // setDuration(metadata?.duration ?? 1000);
-      // log.debug('[onReady] duration', metadata?.duration);
-      video.setCurrentTime(slideValue[0]);
-    });
-  }, [metadata, slideValue]);
+    if (!isPlayerReady) return;
+    if (!isSeeking && padSourceUrl) {
+      events.emit('video:seek', { url: padSourceUrl, time: slideValue[0] });
+    }
+  }, [slideValue, isSeeking, padSourceUrl, events, isPlayerReady]);
 
   if (!isEditActive) return null;
-
-  // log.debug('rendering', pad?.id, metadata);
 
   return (
     <Card className='absolute top-0 left-0 h-full w-full bg-gray-800 z-50'>
@@ -97,12 +129,7 @@ export const VideoEditor = () => {
         </h3>
         <div className='relative w-full h-full'>
           {metadata && (
-            <Player
-              ref={videoRef}
-              media={metadata}
-              isVisible={true}
-              showControls={true}
-            />
+            <Player media={metadata} isVisible={true} showControls={true} />
           )}
         </div>
         <Slider

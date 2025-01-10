@@ -2,7 +2,14 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import mitt, { Emitter } from 'mitt';
 
-import { PlayerPlay, PlayerStop } from '@components/Player/types';
+import {
+  PlayerExtractThumbnail,
+  PlayerPlay,
+  PlayerReady,
+  PlayerSeek,
+  PlayerStop,
+  PlayerThumbnailExtracted
+} from '@components/Player/types';
 
 export type EventEmitterEvents = {
   'pad:touchdown': {
@@ -13,6 +20,10 @@ export type EventEmitterEvents = {
   };
   'video:start': PlayerPlay;
   'video:stop': PlayerStop;
+  'video:seek': PlayerSeek;
+  'video:extract-thumbnail': PlayerExtractThumbnail;
+  'video:thumbnail-extracted': PlayerThumbnailExtracted;
+  'video:ready': PlayerReady;
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;
@@ -34,6 +45,10 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       if (emitter) {
         emitter.off('pad:touchdown');
         emitter.off('pad:touchup');
+        emitter.off('video:start');
+        emitter.off('video:stop');
+        emitter.off('video:seek');
+        emitter.off('video:extract-thumbnail');
       }
     };
   }, [emitter]);
