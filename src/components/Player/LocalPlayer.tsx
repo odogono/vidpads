@@ -9,7 +9,7 @@ import {
 import { extractVideoThumbnailFromVideo } from '@helpers/canvas';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { loadVideoData } from '@model/db/api';
+import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { MediaVideo } from '@model/types';
 import { PlayerPlay, PlayerProps, PlayerRef, PlayerStop } from './types';
 
@@ -178,10 +178,10 @@ const useVideoLoader = (
       const { id, url } = media;
 
       try {
-        const { file } = await loadVideoData(id);
+        const { blob } = await dbLoadVideoData(id);
 
         // Create a blob URL from the video file
-        const videoUrl = URL.createObjectURL(file);
+        const videoUrl = URL.createObjectURL(blob);
         blobUrlRef.current = videoUrl;
 
         // Set the video source and play
@@ -203,5 +203,5 @@ const useVideoLoader = (
         blobUrlRef.current = null;
       }
     };
-  }, [media]);
+  }, [media, videoRef]);
 };

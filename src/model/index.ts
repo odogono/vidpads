@@ -7,24 +7,19 @@ import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
+  deleteMediaData as dbDeleteMediaData,
   deletePadThumbnail as dbDeletePadThumbnail,
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
-  setPadThumbnail as dbSetPadThumbnail,
-  deleteMediaData,
-  getPadThumbnail,
-  getThumbnailFromUrl,
-  saveImageData,
-  saveVideoData
+  getPadThumbnail as dbGetPadThumbnail,
+  saveImageData as dbSaveImageData,
+  saveVideoData as dbSaveVideoData,
+  setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
 import { MediaImage, MediaVideo, Pad } from '@model/types';
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery
-} from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { getPadSourceUrl } from './pad';
 import { useStore } from './store/useStore';
 
@@ -65,7 +60,7 @@ export const useMetadataFromPad = (pad?: Pad) => {
 
       const media = await dbGetMediaData(sourceUrl);
 
-      return media;
+      return media ?? null;
     }
   });
 };
@@ -73,7 +68,7 @@ export const useMetadataFromPad = (pad?: Pad) => {
 export const usePadThumbnail = (pad: Pad) => {
   return useSuspenseQuery({
     queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id],
-    queryFn: () => getPadThumbnail(pad.id)
+    queryFn: () => dbGetPadThumbnail(pad.id)
   });
 };
 
@@ -229,7 +224,7 @@ export const addFileToPad = async ({
         );
 
         log.debug('saving video data');
-        await saveVideoData({
+        await dbSaveVideoData({
           file,
           metadata: metadata as MediaVideo,
           thumbnail
@@ -253,7 +248,7 @@ export const addFileToPad = async ({
         log.info(`Generated thumbnail for image at pad ${padId}`);
 
         // Save image data to IndexedDB
-        await saveImageData(file, metadata as MediaImage, thumbnail);
+        await dbSaveImageData(file, metadata as MediaImage, thumbnail);
 
         // Update the store with the tile's image ID
         store.send({
@@ -341,7 +336,7 @@ const deletePadMedia = async (store: StoreType, pad: Pad) => {
   // safe to delete the source data
   if (pads.length === 1) {
     log.debug('[deletePadMedia] Deleting source data:', sourceUrl);
-    await deleteMediaData(sourceUrl);
+    await dbDeleteMediaData(sourceUrl);
   }
 
   await dbDeletePadThumbnail(pad.id);

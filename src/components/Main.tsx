@@ -1,4 +1,5 @@
 import { PadContainer } from '@components/PadContainer';
+import { useKeyboardControls } from '@helpers/keyboard';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { BinComponent } from './Bin';
 import { Container } from './Container';
@@ -7,6 +8,9 @@ import { VideoEditor } from './Editor/VideoEditor';
 import { PlayerContainer } from './Player/Container';
 
 export const Main = () => {
+  useKeyboardControls();
+  // useMidiControls();
+
   return (
     <PadDnDProvider>
       <Container>

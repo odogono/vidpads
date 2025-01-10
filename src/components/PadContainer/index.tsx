@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { useKeyboardControls } from '@helpers/keyboard';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
@@ -11,6 +12,8 @@ export const PadContainer = () => {
   const { ACCEPTED_FILE_TYPES } = usePadDnD();
   const { fileInputRef, handleEmptyPadTouch, handleFileSelect } =
     useFileSelector();
+
+  useKeyboardControls();
 
   return (
     <div className='mt-4 w-[800px] mx-auto'>

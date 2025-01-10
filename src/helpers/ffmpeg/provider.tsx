@@ -19,7 +19,7 @@ export interface FFmpegProviderProps extends React.PropsWithChildren {
 
 export const FFmpegProvider: React.FC<FFmpegProviderProps> = ({
   children,
-  loadOnMount = true
+  loadOnMount = false
 }) => {
   const ffmpegRef = useRef<FFmpeg | null>(null);
 

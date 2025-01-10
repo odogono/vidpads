@@ -1,5 +1,8 @@
-import { MediaVideo } from '../model/types';
-import { timeStringToSeconds } from './time';
+import { createLog } from '@helpers/log';
+import { timeStringToSeconds } from '@helpers/time';
+import { MediaVideo } from '@model/types';
+
+const log = createLog('Canvas');
 
 export const extractVideoThumbnail = async (
   file: File,
@@ -12,7 +15,19 @@ export const extractVideoThumbnail = async (
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    video.src = URL.createObjectURL(file);
+    // safari seems to better cope with a FileReader
+    // rather than using URL.createObjectURL - despite
+    // the fact the former uses more memory
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      video.src = e.target?.result as string;
+    };
+
+    reader.onerror = (e) => {
+      log.error('[extractVideoThumbnail] reader.error', e);
+      reject(e);
+    };
+    reader.readAsDataURL(file);
 
     video.onseeked = () =>
       onVideoSeek({ video, canvas, ctx, size, resolve, reject });
@@ -60,6 +75,8 @@ const onVideoSeek = ({
   resolve: (value: string) => void;
   reject: (reason?: unknown) => void;
 }) => {
+  log.debug('onVideoSeek');
+
   if (!ctx) {
     reject(new Error('Could not get canvas context'));
     return;
@@ -82,5 +99,6 @@ const onVideoSeek = ({
   ctx.drawImage(video, offsetX, offsetY, scaledWidth, scaledHeight);
 
   const imageData = canvas.toDataURL('image/jpeg', 0.85);
+  log.debug('[onVideoSeek] imageData', imageData);
   resolve(imageData);
 };

@@ -174,11 +174,16 @@ export const saveVideoData = async ({
 };
 
 interface LoadVideoDataResult {
-  file: Blob;
+  blob: Blob;
   metadata: MediaVideo;
   thumbnail: string;
 }
 
+/**
+ * Loads the video data from the database
+ * @param id - The id of the video
+ * @returns The video data
+ */
 export const loadVideoData = async (
   id: string
 ): Promise<LoadVideoDataResult> => {
@@ -244,13 +249,13 @@ export const loadVideoData = async (
       );
 
       // join chunks into a single file
-      const file = new Blob(
+      const blob = new Blob(
         sortedChunks.map((chunk) => chunk.data),
         { type: mimeType }
       );
 
       resolve({
-        file,
+        blob,
         metadata,
         thumbnail
       });
