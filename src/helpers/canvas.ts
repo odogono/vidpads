@@ -71,8 +71,21 @@ export const extractVideoThumbnailFromVideo = async ({
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    video.onseeked = () =>
-      onVideoSeek({ video, canvas, ctx, size, resolve, reject });
+    const cleanup = () => {
+      video.onseeked = null;
+      canvas.remove();
+    };
+
+    video.onseeked = () => {
+      const { imageData, error } = onVideoSeek({ video, canvas, ctx, size });
+      if (error) {
+        cleanup();
+        reject(error);
+      } else {
+        cleanup();
+        resolve(imageData);
+      }
+    };
 
     video.currentTime = frameTime;
   });
@@ -116,6 +129,6 @@ const onVideoSeek = ({
   ctx.drawImage(video, offsetX, offsetY, scaledWidth, scaledHeight);
 
   const imageData = canvas.toDataURL('image/jpeg', 0.85);
-  log.debug('[onVideoSeek] imageData', imageData);
+  // log.debug('[onVideoSeek] imageData', imageData);
   return { imageData };
 };
