@@ -129,7 +129,12 @@ export const VideoEditor = () => {
         </h3>
         <div className='relative w-full h-full'>
           {metadata && (
-            <Player media={metadata} isVisible={true} showControls={true} />
+            <Player
+              id='player-editor'
+              media={metadata}
+              isVisible={true}
+              showControls={true}
+            />
           )}
         </div>
         <Slider

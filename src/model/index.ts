@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 
-import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
 import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
@@ -41,7 +40,6 @@ export const useMetadataFromPad = (pad?: Pad) => {
   const queryClient = useQueryClient();
 
   // Invalidate the cache when pad changes
-  // TODO: not sure about this yet
   useEffect(() => {
     if (pad) {
       queryClient.invalidateQueries({
@@ -266,59 +264,6 @@ export const addFileToPad = async ({
     log.error('Failed to read media metadata:', error);
     return null;
   }
-};
-
-export const copyPadToPad = async (
-  store: StoreType,
-  sourcePadId: string,
-  targetPadId: string
-) => {
-  const targetPad = getPadById(store, targetPadId);
-  if (!targetPad) {
-    log.warn('[copyPad] Pad not found:', targetPadId);
-    return false;
-  }
-
-  // clear the target pad
-  await deletePadMedia(store, targetPad);
-
-  await dbCopyPadThumbnail(sourcePadId, targetPadId);
-
-  store.send({
-    type: 'copyPad',
-    sourcePadId,
-    targetPadId
-  });
-
-  return true;
-};
-
-/**
- * Clears the pad and deletes the source data if it is the only pad using it
- *
- * @param store
- * @param padId
- * @returns
- */
-export const clearPad = async (
-  store: StoreType,
-  padId: string
-): Promise<boolean> => {
-  // retrieve the pad data
-  const pad = getPadById(store, padId);
-  if (!pad) {
-    log.warn('[clearPad] Pad not found:', padId);
-    return false;
-  }
-
-  await deletePadMedia(store, pad);
-
-  store.send({
-    type: 'clearPad',
-    padId
-  });
-
-  return true;
 };
 
 const deletePadMedia = async (store: StoreType, pad: Pad) => {

@@ -1,5 +1,6 @@
-import { OperationType, Pad } from '@model/types';
+import { createPad } from '@model/pad';
 import { ClearPadAction, StoreContext } from '../types';
+import { addOrReplacePad } from './helpers';
 
 export const clearPad = (
   context: StoreContext,
@@ -11,19 +12,7 @@ export const clearPad = (
     return context;
   }
 
-  const newPad: Pad = {
-    ...pad,
-    pipeline: {
-      ...pad.pipeline,
-      source: {
-        type: OperationType.Source,
-        url: ''
-      }
-    }
-  };
+  const newPad = createPad(padId);
 
-  return {
-    ...context,
-    pads: [...context.pads.filter((p) => p.id !== padId), newPad]
-  };
+  return addOrReplacePad(context, newPad);
 };

@@ -98,6 +98,7 @@ export const PlayerContainer = () => {
       {Object.values(players).map((player) => (
         <Player
           key={player.media.url}
+          id={`player-${player.media.url}`}
           {...player}
           isVisible={player.media.url === visiblePlayerId}
         />

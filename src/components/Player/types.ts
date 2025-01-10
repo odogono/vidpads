@@ -15,6 +15,7 @@ export const PlayerReadyStateKeys = Object.keys(
 export type PlayerReadyState = keyof typeof PlayerReadyState;
 
 export interface PlayerProps {
+  id: string;
   ref?: React.RefObject<PlayerRef>;
   isVisible?: boolean;
   media: Media;

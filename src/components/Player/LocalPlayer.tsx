@@ -29,7 +29,7 @@ type LocalPlayerProps = PlayerProps;
 const log = createLog('player/local');
 
 export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
-  ({ isVisible, showControls, media }, forwardedRef) => {
+  ({ id, isVisible, showControls, media }, forwardedRef) => {
     const events = useEvents();
     const videoRef = useRef<HTMLVideoElement>(null);
     const readyCallbackRef = useRef<(() => void) | null>(null);
@@ -63,7 +63,7 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
         videoRef.current.currentTime = startTime;
         isPlayingRef.current = true;
         videoRef.current.play();
-        log.debug('play', { start, end, isLoop, url });
+        log.debug('[playVideo]', id, { start, end, isLoop, url });
       },
       [videoRef, media.url]
     );
@@ -80,7 +80,7 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
 
     const seekVideo = useCallback(
       ({ time, url }: PlayerSeek) => {
-        // log.debug('[seekVideo] time', { time, url, mediaUrl: media.url });
+        // log.debug('[seekVideo]', id, time', { time, url, mediaUrl: media.url });
         if (!videoRef.current) return;
         if (url !== media.url) return;
         videoRef.current.currentTime = time;
@@ -147,6 +147,17 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
 
     const handleIsReady = useCallback(() => {
       events.emit('video:ready', {
+        url: media.url,
+        duration: videoRef.current?.duration ?? 0,
+        readyState: PlayerReadyStateKeys[
+          videoRef.current?.readyState ?? 0
+        ] as PlayerReadyState,
+        dimensions: {
+          width: videoRef.current?.videoWidth ?? 0,
+          height: videoRef.current?.videoHeight ?? 0
+        }
+      });
+      log.debug('[handleIsReady]', id, {
         url: media.url,
         duration: videoRef.current?.duration ?? 0,
         readyState: PlayerReadyStateKeys[
@@ -249,7 +260,7 @@ const useVideoLoader = (
           // videoRef.current.currentTime = currentTime;
         }
       } catch (error) {
-        log.error('Error loading video:', error);
+        log.error(id, 'Error loading video:', error);
       }
     })();
 

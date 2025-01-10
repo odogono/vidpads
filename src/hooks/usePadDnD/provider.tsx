@@ -2,7 +2,6 @@ import { ReactNode, useCallback, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { usePadOperations } from '@model';
-// import { addFileToPad, clearPad, copyPadToPad } from '@model';
 import { PadDnDContext } from './context';
 
 const log = createLog('PadDnDProvider');
