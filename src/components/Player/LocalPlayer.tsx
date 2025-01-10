@@ -66,7 +66,7 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
         videoRef.current.play();
         // log.debug('[playVideo]', id, { start, end, isLoop, url });
       },
-      [media.url, id]
+      [media.url]
     );
 
     const stopVideo = useCallback(
