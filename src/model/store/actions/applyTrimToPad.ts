@@ -1,6 +1,7 @@
 import { createLog } from '@helpers/log';
 import { applyPadTrimOperation } from '@model/pad';
 import { ApplyTrimToPadAction, StoreContext } from '../types';
+import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('applyTrimToPad');
 
@@ -10,7 +11,7 @@ export const applyTrimToPad = (
 ): StoreContext => {
   const { padId, start, end } = event;
 
-  const pad = context.pads.find((pad) => pad.id === padId);
+  const pad = findPadById(context, padId);
   if (!pad) {
     log.warn('Pad not found:', padId);
     return context;
@@ -18,9 +19,6 @@ export const applyTrimToPad = (
 
   const newPad = applyPadTrimOperation(pad, start, end);
 
-  log.debug('newPad:', newPad);
-  return {
-    ...context,
-    pads: [...context.pads.filter((p) => p.id !== padId), newPad]
-  };
+  // log.debug('newPad:', newPad);
+  return addOrReplacePad(context, newPad);
 };

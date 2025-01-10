@@ -5,10 +5,13 @@ import { getAllMediaMetaData } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import {
   getPadsWithMedia,
+  getSelectedPadSourceUrl,
+  getSelectedPadStartAndEndTime,
   useEditActive,
   usePads
 } from '@model/store/selectors';
 import { Pad } from '@model/types';
+import { getObjectDiff, isObjectEqual } from '../../helpers/diff';
 import { PlayerProps } from './types';
 
 const log = createLog('player/usePlayers');
@@ -17,10 +20,9 @@ type PlayerMap = { [key: string]: PlayerProps };
 
 export const usePlayers = () => {
   const { store, isReady, pads } = usePads();
-  const { isEditActive } = useEditActive();
 
   const [players, setPlayers] = useState<PlayerMap>({});
-  const [visiblePlayerId, setVisiblePlayerId] = useState<string | null>(null);
+  const [visiblePlayerId, setVisiblePlayerId] = useState<string | undefined>();
 
   // a map of padId to media url
   const padToMediaRef = useRef<{ [key: string]: Pad }>({});
@@ -36,23 +38,35 @@ export const usePlayers = () => {
 
     // retrieve all the pads with media
     const padsWithMedia = getPadsWithMedia(store);
+    const selectedPadSourceUrl = getSelectedPadSourceUrl(store);
+    const { start } = getSelectedPadStartAndEndTime(store);
     // log.debug('padsWithMedia', padsWithMedia);
 
+    // log.debug('selectedPadSourceUrl', selectedPadSourceUrl);
     (async () => {
       const media = await getAllMediaMetaData();
 
       // create a player for each media
       const newPlayers = media.reduce((acc, media) => {
+        const isSelected = selectedPadSourceUrl === media.url;
         acc[media.url] = {
-          isVisible: false,
-          currentTime: 0,
+          id: media.url,
+          isVisible: isSelected,
+          initialTime: isSelected ? start : -1,
           media
         };
         return acc;
       }, {} as PlayerMap);
 
-      setPlayers(newPlayers);
-      // log.debug('newPlayers', Object.values(newPlayers));
+      // only use the urls to determine if we need to update the players
+      const playerKeys = Object.keys(players);
+      const newPlayerKeys = Object.keys(newPlayers);
+
+      if (!isObjectEqual(playerKeys, newPlayerKeys)) {
+        // log.debug('setting players', newPlayers);
+        setPlayers(newPlayers);
+      }
+      // playersRef.current = newPlayers;
 
       const newPadToMedia = padsWithMedia.reduce(
         (acc, pad) => {
@@ -65,10 +79,8 @@ export const usePlayers = () => {
       );
 
       padToMediaRef.current = newPadToMedia;
-
-      // log.debug('padToMedia', newPadToMedia);
     })();
-  }, [pads, isReady, isEditActive]);
+  }, [pads, isReady, store, players]);
 
   return {
     getMediaUrlFromPadId,

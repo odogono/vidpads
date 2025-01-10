@@ -125,7 +125,7 @@ export const useStartAndEndTime = ({
         onStartAndEndTimeChange(startTime, endTime);
       }
 
-      log.debug('[handleSlideChangeEnd]', value);
+      // log.debug('[handleSlideChangeEnd]', value);
 
       // update the pad
       existingValueRef.current = [startTime, endTime];
@@ -143,6 +143,7 @@ export const useStartAndEndTime = ({
     setSlideValue([startTime, endTime]);
     lastValueRef.current = [startTime, endTime];
     existingValueRef.current = [startTime, endTime];
+    // log.debug('useEffect', selectedPadId, pad.id, { start, end });
   }, [duration, pad, isActive]);
 
   return {

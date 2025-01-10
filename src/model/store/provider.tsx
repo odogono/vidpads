@@ -37,25 +37,25 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
   // persist the store when it changes
   useEffect(() => {
     if (store) {
-      log.debug('subscribing to store updates');
+      // log.debug('subscribing to store updates');
       const sub = store.subscribe((snapshot) => {
         const hasChanged = !isObjectEqual(
           snapshotRef.current ?? {},
           snapshot.context
         );
         if (hasChanged) {
-          const diff = getObjectDiff(
-            snapshotRef.current ?? {},
-            snapshot.context
-          );
-          log.info('store updated: saving state to IndexedDB:', diff);
+          // const diff = getObjectDiff(
+          //   snapshotRef.current ?? {},
+          //   snapshot.context
+          // );
+          // log.info('store updated: saving state to IndexedDB:', diff);
           saveStateToIndexedDB(snapshot.context);
           snapshotRef.current = snapshot.context;
         }
       });
 
       return () => {
-        log.debug('unsubscribing from store updates');
+        // log.debug('unsubscribing from store updates');
         sub.unsubscribe();
       };
     }

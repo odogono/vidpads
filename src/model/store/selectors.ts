@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useSelector } from '@xstate/store/react';
-import { getPadSourceUrl } from '../pad';
+import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
 import { Pad } from '../types';
 import { StoreType } from './types';
 import { useStore } from './useStore';
@@ -31,8 +31,31 @@ export const getPadsBySourceUrl = (
   sourceUrl: string
 ): Pad[] => {
   const { pads } = store.getSnapshot().context;
-
   return pads.filter((pad) => getPadSourceUrl(pad) === sourceUrl);
+};
+
+export const getSelectedPadId = (store: StoreType): string | undefined =>
+  store.getSnapshot().context.selectedPadId ?? undefined;
+
+export const getSelectedPadSourceUrl = (
+  store: StoreType
+): string | undefined => {
+  const selectedPadId = getSelectedPadId(store);
+  if (!selectedPadId) return undefined;
+  return getPadSourceUrl(getPadById(store, selectedPadId));
+};
+
+export const getSelectedPadStartAndEndTime = (
+  store: StoreType
+): {
+  start: number;
+  end: number;
+} => {
+  const selectedPadId = getSelectedPadId(store);
+  if (!selectedPadId) return { start: -1, end: -1 };
+  const pad = getPadById(store, selectedPadId);
+  if (!pad) return { start: -1, end: -1 };
+  return getPadStartAndEndTime(pad);
 };
 
 export const getPadsWithMedia = (store: StoreType) => {

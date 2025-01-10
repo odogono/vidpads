@@ -29,7 +29,7 @@ type LocalPlayerProps = PlayerProps;
 const log = createLog('player/local');
 
 export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
-  ({ id, isVisible, showControls, media }, forwardedRef) => {
+  ({ id, isVisible, showControls, media, initialTime }, forwardedRef) => {
     const events = useEvents();
     const videoRef = useRef<HTMLVideoElement>(null);
     const readyCallbackRef = useRef<(() => void) | null>(null);
@@ -60,12 +60,13 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
         startTimeRef.current = startTime;
         endTimeRef.current = endTime;
         isLoopedRef.current = isLoop ?? false;
+        // log.debug('[playVideo]', id, startTime);
         videoRef.current.currentTime = startTime;
         isPlayingRef.current = true;
         videoRef.current.play();
-        log.debug('[playVideo]', id, { start, end, isLoop, url });
+        // log.debug('[playVideo]', id, { start, end, isLoop, url });
       },
-      [videoRef, media.url]
+      [media.url, id]
     );
 
     const stopVideo = useCallback(
@@ -80,19 +81,20 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
 
     const seekVideo = useCallback(
       ({ time, url }: PlayerSeek) => {
-        // log.debug('[seekVideo]', id, time', { time, url, mediaUrl: media.url });
+        // log.debug('[seekVideo]', id, time, { time, url, mediaUrl: media.url });
         if (!videoRef.current) return;
         if (url !== media.url) return;
         videoRef.current.currentTime = time;
       },
-      [videoRef, media.url]
+      [media.url]
     );
 
     const extractThumbnail = useCallback(
       ({ time, url, additional }: PlayerExtractThumbnail) => {
         if (!videoRef.current) return;
         if (url !== media.url) return;
-        videoRef.current.currentTime = time;
+
+        // log.debug('[extractThumbnail]', id, time);
         extractVideoThumbnailFromVideo({
           video: videoRef.current,
           frameTime: time
@@ -138,11 +140,13 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
       if (!video) return;
       if (video.currentTime >= endTimeRef.current) {
         if (isLoopedRef.current) {
+          // log.debug('[handleTimeUpdate] looping', id, startTimeRef.current);
           video.currentTime = startTimeRef.current;
         } else {
           stopVideo({ url: media.url });
         }
       }
+      // log.debug('[handleTimeUpdate]', id, video.currentTime);
     }, [stopVideo, media.url]);
 
     const handleIsReady = useCallback(() => {
@@ -157,17 +161,17 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
           height: videoRef.current?.videoHeight ?? 0
         }
       });
-      log.debug('[handleIsReady]', id, {
-        url: media.url,
-        duration: videoRef.current?.duration ?? 0,
-        readyState: PlayerReadyStateKeys[
-          videoRef.current?.readyState ?? 0
-        ] as PlayerReadyState,
-        dimensions: {
-          width: videoRef.current?.videoWidth ?? 0,
-          height: videoRef.current?.videoHeight ?? 0
-        }
-      });
+      // log.debug('[handleIsReady]', id, {
+      //   url: media.url,
+      //   duration: videoRef.current?.duration ?? 0,
+      //   readyState: PlayerReadyStateKeys[
+      //     videoRef.current?.readyState ?? 0
+      //   ] as PlayerReadyState,
+      //   dimensions: {
+      //     width: videoRef.current?.videoWidth ?? 0,
+      //     height: videoRef.current?.videoHeight ?? 0
+      //   }
+      // });
     }, [events, media.url]);
 
     useEffect(() => {
@@ -183,16 +187,28 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
       };
     }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
 
-    useEffect(() => {
-      const video = videoRef.current;
-      if (!video) return;
+    // useEffect(() => {
+    //   const video = videoRef.current;
+    //   if (!video) return;
+    //   // if (isVisible) {
+    //   //   log.debug('useEffect', id, isVisible);
+    //   //   // video.currentTime = initialTime;
+    //   // }
 
-      // const isPlaying =
-      //   video.currentTime > 0 &&
-      //   !video.paused &&
-      //   !video.ended &&
-      //   video.readyState > video.HAVE_CURRENT_DATA;
-    }, [isVisible, videoRef]);
+    //   // const isPlaying =
+    //   //   video.currentTime > 0 &&
+    //   //   !video.paused &&
+    //   //   !video.ended &&
+    //   //   video.readyState > video.HAVE_CURRENT_DATA;
+    // }, [isVisible, videoRef]);
+
+    // runs on mount to set the initial value
+    useEffect(() => {
+      if (!videoRef.current) return;
+      if (initialTime === -1) return;
+      // log.debug('useEffect setting initialTime', id, initialTime);
+      videoRef.current.currentTime = initialTime;
+    }, [id, initialTime]);
 
     // Add loadedmetadata event listener
     useEffect(() => {
@@ -216,7 +232,9 @@ export const LocalPlayer = forwardRef<PlayerRef, LocalPlayerProps>(
       };
     }, []);
 
-    // log.debug('rendering', media.url, isVisible, currentTimeProp);
+    // if (isVisible) {
+    //   log.debug('rendering', media.url, isVisible, initialTime);
+    // }
 
     return <video ref={videoRef} className='w-full h-full' />;
   }
@@ -255,9 +273,7 @@ const useVideoLoader = (
 
         // Set the video source and play
         if (videoRef.current) {
-          // log.debug(url, 'setting video src', videoRef.current, videoUrl);
           videoRef.current.src = videoUrl;
-          // videoRef.current.currentTime = currentTime;
         }
       } catch (error) {
         log.error(id, 'Error loading video:', error);

@@ -59,7 +59,7 @@ export const loadStateFromIndexedDB =
     const db = await openDB();
 
     return new Promise((resolve, reject) => {
-      log.debug('loading state from IndexedDB');
+      // log.debug('loading state from IndexedDB');
       const transaction = db.transaction('store', 'readonly');
       const store = transaction.objectStore('store');
       const getRequest = store.get('state');

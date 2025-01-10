@@ -3,7 +3,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadStartAndEndTime } from '@model/pad';
-import { useEditActive } from '@model/store/selectors';
+import { getSelectedPadSourceUrl, useEditActive } from '@model/store/selectors';
+import { useStore } from '@model/store/useStore';
+import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { Player } from './Player';
 import { usePlayers } from './usePlayers';
 
@@ -11,7 +13,8 @@ const log = createLog('player/container');
 
 export const PlayerContainer = () => {
   const events = useEvents();
-  const { isEditActive } = useEditActive();
+  const { store } = useStore();
+  // const { isEditActive } = useEditActive();
 
   const {
     getMediaUrlFromPadId,
@@ -23,7 +26,7 @@ export const PlayerContainer = () => {
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
-      if (isEditActive) return;
+      // if (isEditActive) return;
       // log.debug('handlePadTouchdown', padId);
 
       const mediaUrl = getMediaUrlFromPadId(padId);
@@ -46,12 +49,12 @@ export const PlayerContainer = () => {
         end
       });
     },
-    [events, getMediaUrlFromPadId, setVisiblePlayerId, isEditActive, pads]
+    [events, getMediaUrlFromPadId, setVisiblePlayerId, pads]
   );
 
   const handlePadTouchup = useCallback(
     ({ padId }: { padId: string }) => {
-      if (isEditActive) return;
+      // if (isEditActive) return;
       // log.debug('handlePadTouchup', padId);
       const url = getMediaUrlFromPadId(padId);
       if (!url) return;
@@ -64,7 +67,7 @@ export const PlayerContainer = () => {
         events.emit('video:stop', { url });
       }
     },
-    [events, getMediaUrlFromPadId, isEditActive, pads]
+    [events, getMediaUrlFromPadId, pads]
   );
 
   useEffect(() => {
@@ -78,19 +81,14 @@ export const PlayerContainer = () => {
   }, [events, handlePadTouchdown, handlePadTouchup]);
 
   useEffect(() => {
-    if (isEditActive) {
-      setVisiblePlayerId(null);
-    }
-  }, [isEditActive, setVisiblePlayerId]);
-
-  // if (isReady) log.debug('render', Object.values(players).length);
+    const selectedPadSourceUrl = getSelectedPadSourceUrl(store);
+    // log.debug('selectedPadSourceUrl', selectedPadSourceUrl);
+    setVisiblePlayerId(selectedPadSourceUrl);
+  }, [setVisiblePlayerId, store]);
 
   // useRenderingTrace('PlayerContainer', {
   //   players,
-  //   isReady,
-  //   visiblePlayerId,
-  //   store,
-  //   events
+  //   visiblePlayerId
   // });
 
   return (
@@ -98,7 +96,6 @@ export const PlayerContainer = () => {
       {Object.values(players).map((player) => (
         <Player
           key={player.media.url}
-          id={`player-${player.media.url}`}
           {...player}
           isVisible={player.media.url === visiblePlayerId}
         />

@@ -14,7 +14,7 @@ const log = createLog('App');
 const queryClient = new QueryClient();
 
 const LoadingContainer = () => {
-  log.debug('showing LoadingContainer');
+  // log.debug('showing LoadingContainer');
 
   return (
     <Container>

@@ -64,15 +64,16 @@ export interface ExtractVideoThumbnailFromVideoProps {
 
 export const extractVideoThumbnailFromVideo = async ({
   video,
-  frameTime = 0,
+  frameTime,
   size = 384
 }: ExtractVideoThumbnailFromVideoProps): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    const existingOnSeek = video.onseeked;
 
     const cleanup = () => {
-      video.onseeked = null;
+      video.onseeked = existingOnSeek;
       canvas.remove();
     };
 
@@ -87,6 +88,7 @@ export const extractVideoThumbnailFromVideo = async ({
       }
     };
 
+    log.debug('[extractVideoThumbnailFromVideo] seek', frameTime);
     video.currentTime = frameTime;
   });
 };

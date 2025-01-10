@@ -4,7 +4,7 @@ import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { BinComponent } from './Bin';
 import { Container } from './Container';
 import { Controls } from './Controls';
-import { VideoEditor } from './Editor/VideoEditor';
+// import { VideoEditor } from './Editor/VideoEditor';
 import { PlayerContainer } from './Player/Container';
 
 export const Main = () => {
@@ -18,7 +18,7 @@ export const Main = () => {
 
         <div className='relative w-[800px] mx-auto'>
           <div className='relative w-[800px] h-[400px] transition-colors overflow-hidden'>
-            <VideoEditor />
+            {/* <VideoEditor /> */}
             <PlayerContainer />
           </div>
         </div>
