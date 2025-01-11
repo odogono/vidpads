@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import ReactPlayer from 'react-player/youtube';
-
 import { useEvents } from '@helpers/events';
-// import YouTube from 'react-youtube';
-
 import { createLog } from '@helpers/log';
-import { extractVideoThumbnailFromVideo } from '../../helpers/canvas';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,
@@ -16,64 +11,53 @@ import {
 } from './types';
 
 const log = createLog('YTPlayer');
-/**
- *
- * See https://github.com/cookpete/react-player
- * @param param0
- * @returns
- */
-export const YTPlayer = ({ media, isVisible, initialTime }: PlayerProps) => {
+
+// Create a promise to track when the API is ready
+let youtubeApiPromise: Promise<void> | null = null;
+
+const loadYouTubeApi = () => {
+  if (youtubeApiPromise) return youtubeApiPromise;
+
+  youtubeApiPromise = new Promise((resolve) => {
+    if (window.YT) {
+      resolve();
+      return;
+    }
+
+    // Store the original callback if it exists
+    const originalCallback = window.onYouTubeIframeAPIReady;
+
+    window.onYouTubeIframeAPIReady = () => {
+      // Call the original callback if it exists
+      if (originalCallback) {
+        originalCallback();
+      }
+      resolve();
+    };
+
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+  });
+
+  return youtubeApiPromise;
+};
+
+export const YTPlayer = ({ media }: PlayerProps) => {
   const events = useEvents();
+  const playerRef = useRef<YT.Player | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
   const isLoopedRef = useRef(false);
-  const videoRef = useRef<ReactPlayer>(null);
-
   const [isPlaying, setIsPlaying] = useState(false);
 
   const { id: videoId } = media;
 
-  const handleReady = (args: any) => {
-    // setIsReady(true);
-    log.debug('ready', media.url, args);
-  };
-
-  const handleStart = () => {
-    log.debug('start', media.url);
-  };
-
-  const handleError = (args: any) => {
-    log.debug('error', media.url, args);
-  };
-
-  const handleEnded = () => {
-    log.debug('ended', media.url);
-  };
-
-  const handleProgress = ({ playedSeconds }: { playedSeconds: number }) => {
-    const video = videoRef.current;
-    if (!video) return;
-    log.debug('progress', media.url, playedSeconds);
-    if (playedSeconds >= endTimeRef.current) {
-      if (isLoopedRef.current) {
-        // log.debug('[handleTimeUpdate] looping', id, startTimeRef.current);
-        videoRef.current.seekTo(startTimeRef.current);
-      } else {
-        stopVideo({ url: media.url });
-      }
-    }
-  };
-
   const playVideo = useCallback(
     ({ start, end, isLoop, url }: PlayerPlay) => {
-      if (!videoRef.current) return;
-      if (url !== media.url) return;
-
-      if (isPlaying && isLoopedRef.current) {
-        setIsPlaying(false);
-        return;
-      }
-      log.debug('[playVideo]', videoId, { start, end, isLoop, url });
+      if (!playerRef.current || url !== media.url) return;
 
       const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
       const endTime =
@@ -84,40 +68,121 @@ export const YTPlayer = ({ media, isVisible, initialTime }: PlayerProps) => {
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
       isLoopedRef.current = isLoop ?? false;
-      log.debug('[playVideo]', videoId, startTime);
-      videoRef.current.seekTo(startTime);
-      setIsPlaying(true);
-    },
-    [media.url, videoId]
-  );
 
-  const stopVideo = useCallback(
-    ({ url }: PlayerStop) => {
-      if (url !== media.url) return;
-      if (!videoRef.current) return;
-      // videoRef.current.pause();
-      // isPlayingRef.current = false;
-      log.debug('[stopVideo]', videoId);
-      setIsPlaying(false);
-    },
-    [media.url, videoId]
-  );
-
-  const seekVideo = useCallback(
-    ({ time, url }: PlayerSeek) => {
-      // log.debug('[seekVideo]', id, time, { time, url, mediaUrl: media.url });
-      if (!videoRef.current) return;
-      if (url !== media.url) return;
-      // videoRef.current.currentTime = time;
-
-      videoRef.current.seekTo(time);
+      playerRef.current.seekTo(startTime, true);
+      playerRef.current.playVideo();
     },
     [media.url]
   );
 
+  const stopVideo = useCallback(
+    ({ url }: PlayerStop) => {
+      if (!playerRef.current || url !== media.url) return;
+      playerRef.current.pauseVideo();
+    },
+    [media.url]
+  );
+
+  const seekVideo = useCallback(
+    ({ time, url }: PlayerSeek) => {
+      if (!playerRef.current || url !== media.url) return;
+      playerRef.current.seekTo(time, true);
+    },
+    [media.url]
+  );
+
+  const handleEnded = useCallback(() => {
+    log.debug('ended', media.url);
+    if (isLoopedRef.current) {
+      playerRef.current?.seekTo(startTimeRef.current, true);
+      playerRef.current?.playVideo();
+    } else {
+      stopVideo({ url: media.url });
+    }
+  }, [media.url, stopVideo]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const initializePlayer = async () => {
+      if (!containerRef.current) return;
+
+      await loadYouTubeApi();
+
+      if (!isMounted || !containerRef.current) return;
+
+      // Create a container element for the player
+      const playerContainer = document.createElement('div');
+      containerRef.current.appendChild(playerContainer);
+
+      playerRef.current = new window.YT.Player(playerContainer, {
+        videoId,
+        width: '100%',
+        height: '100%',
+        playerVars: {
+          playsinline: 1,
+          controls: 0,
+          rel: 0,
+          iv_load_policy: 3
+        },
+        events: {
+          onReady: (event) => {
+            log.debug('ready', media.url, event);
+          },
+          onStateChange: (event) => {
+            if (!isMounted) return;
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              setIsPlaying(true);
+            } else if (event.data === window.YT.PlayerState.PAUSED) {
+              setIsPlaying(false);
+            } else if (event.data === window.YT.PlayerState.ENDED) {
+              handleEnded();
+            }
+          },
+          onError: (event) => {
+            log.debug('error', media.url, event);
+          }
+        }
+      });
+    };
+
+    initializePlayer();
+
+    return () => {
+      isMounted = false;
+      if (playerRef.current) {
+        playerRef.current.destroy();
+      }
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
+    };
+  }, [handleEnded, media.url, videoId]);
+
+  useEffect(() => {
+    const checkProgress = () => {
+      if (!playerRef.current || !isPlaying) return;
+
+      const currentTime = playerRef.current.getCurrentTime();
+      if (currentTime >= endTimeRef.current) {
+        if (isLoopedRef.current) {
+          playerRef.current.seekTo(startTimeRef.current, true);
+        } else {
+          stopVideo({ url: media.url });
+        }
+      }
+    };
+
+    const intervalId = setInterval(checkProgress, 100);
+    return () => clearInterval(intervalId);
+  }, [isPlaying, media.url, stopVideo]);
+
+  // Rest of your handlers (playVideo, stopVideo, seekVideo, extractThumbnail)
+  // remain mostly the same, just update to use playerRef.current instead of videoRef.current
+
   const extractThumbnail = useCallback(
     ({ time, url, additional }: PlayerExtractThumbnail) => {
-      if (!videoRef.current) return;
+      if (!playerRef.current) return;
       if (url !== media.url) return;
 
       events.emit('video:thumbnail-extracted', {
@@ -155,20 +220,7 @@ export const YTPlayer = ({ media, isVisible, initialTime }: PlayerProps) => {
     };
   }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
 
-  log.debug('[YTPlayer]', videoId, isPlaying);
   return (
-    <ReactPlayer
-      ref={videoRef}
-      className='absolute top-0 left-0 w-full h-full'
-      url={`https://www.youtube.com/watch?v=${videoId}`}
-      playing={isPlaying}
-      width='100%'
-      height='100%'
-      onReady={handleReady}
-      onStart={handleStart}
-      onError={handleError}
-      onEnded={handleEnded}
-      onProgress={handleProgress}
-    />
+    <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />
   );
 };
