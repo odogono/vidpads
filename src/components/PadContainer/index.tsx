@@ -1,6 +1,7 @@
 import { Suspense, useRef, useState } from 'react';
 
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { usePadOperations } from '@model';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
@@ -14,14 +15,16 @@ export const PadContainer = () => {
   const { fileInputRef, handleEmptyPadTouch, handleFileSelect } =
     useFileSelector();
   const touchedPadIdRef = useRef<string | null>(null);
+  const { addUrlToPad } = usePadOperations();
 
   const handlePadTouch = (padId: string) => {
     touchedPadIdRef.current = padId;
     setIsModalOpen(true);
   };
 
-  const handleUrlSelect = () => {
+  const handleUrlSelect = async (url: string) => {
     // TODO: Implement URL input handling
+    await addUrlToPad({ url, padId: touchedPadIdRef.current });
     setIsModalOpen(false);
   };
 

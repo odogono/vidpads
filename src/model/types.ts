@@ -47,7 +47,7 @@ export interface Pad {
 }
 
 type ImageMimeType = 'image/png' | 'image/jpeg' | 'image/jpg' | 'image/webp';
-type VideoMimeType = 'video/mp4' | 'video/webm';
+type VideoMimeType = 'video/mp4' | 'video/webm' | 'video/youtube';
 type MimeType = ImageMimeType | VideoMimeType;
 
 export interface Media {
@@ -68,4 +68,23 @@ export interface MediaImage extends Media {
 export interface MediaVideo extends Media {
   mimeType: VideoMimeType;
   videoTotalChunks?: number;
+}
+
+type Thumbnail = {
+  url: string;
+  width: number;
+  height: number;
+};
+
+export interface MediaYouTube extends Media {
+  mimeType: 'video/youtube';
+  videoId: string;
+  title: string;
+  description: string;
+  thumbnails: {
+    default?: Thumbnail;
+    medium?: Thumbnail;
+    standard?: Thumbnail;
+    high?: Thumbnail;
+  };
 }

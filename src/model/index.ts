@@ -4,7 +4,12 @@ import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/c
 import { createImageThumbnail } from '@helpers/image';
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
-import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
+import {
+  getMediaMetadata,
+  getUrlMetadata,
+  isVideoMetadata,
+  isYouTubeMetadata
+} from '@helpers/metadata';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteMediaData as dbDeleteMediaData,
@@ -13,13 +18,15 @@ import {
   getMediaData as dbGetMediaData,
   getPadThumbnail as dbGetPadThumbnail,
   saveImageData as dbSaveImageData,
+  saveUrlData as dbSaveUrlData,
   saveVideoData as dbSaveVideoData,
   setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
-import { MediaImage, MediaVideo, Pad } from '@model/types';
+import { MediaImage, MediaVideo, MediaYouTube, Pad } from '@model/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { getYouTubeThumbnail } from '../helpers/youtube';
 import { getPadSourceUrl } from './pad';
 import { useStore } from './store/useStore';
 
@@ -204,15 +211,53 @@ export const usePadOperations = () => {
 
   return {
     addFileToPad: addFileToPadOp,
+    addUrlToPad: addUrlToPadOp,
     copyPadToPad: copyPadToPadOp,
     clearPad: clearPadOp
   };
 };
 
 export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
-  // determine the type of url
+  if (!store) {
+    log.warn('Store not found');
+    return null;
+  }
 
-  return null;
+  // determine the type of url
+  const metadata = await getUrlMetadata(url);
+
+  if (!metadata) {
+    log.warn('[addUrlToPad] No metadata found for url:', url);
+    return null;
+  }
+
+  log.debug('[addUrlToPad] url:', url, padId);
+
+  // fetch the thumbnail
+  const thumbnail = await getYouTubeThumbnail(metadata as MediaYouTube);
+
+  if (!thumbnail) {
+    log.warn('[addUrlToPad] No thumbnail found for url:', url);
+    return null;
+  }
+
+  await dbSaveUrlData({
+    metadata: metadata as MediaYouTube,
+    thumbnail
+  });
+
+  log.debug('[addUrlToPad] thumbnail:', metadata.id, thumbnail);
+
+  await dbSetPadThumbnail(padId, thumbnail);
+
+  // Update the store with the tile's video ID
+  store.send({
+    type: 'setPadMedia',
+    padId,
+    media: metadata
+  });
+
+  return metadata;
 };
 
 /**

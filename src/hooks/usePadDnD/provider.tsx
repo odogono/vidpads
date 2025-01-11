@@ -7,10 +7,11 @@ import { PadDnDContext } from './context';
 const log = createLog('PadDnDProvider');
 
 const ACCEPTED_FILE_TYPES = [
-  'image/png',
-  'image/jpeg',
-  'image/jpg',
-  'video/mp4'
+  // 'image/png',
+  // 'image/jpeg',
+  // 'image/jpg',
+  'video/mp4',
+  'video/mov'
 ];
 
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {

@@ -66,7 +66,7 @@ export interface PlayerExtractThumbnail {
 export interface PlayerThumbnailExtracted {
   url: string;
   time: number;
-  thumbnail: string;
+  thumbnail?: string;
   additional?: PlayerAdditional;
 }
 

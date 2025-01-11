@@ -12,8 +12,8 @@ import { PlayerProps, PlayerRef } from './types';
 
 export const Player = forwardRef<PlayerRef, PlayerProps>(
   (props: PlayerProps, forwardedRef) => {
-    const isVideo = isVideoMetadata(props.media);
     const isYouTube = isYouTubeMetadata(props.media);
+    const isVideo = !isYouTube && isVideoMetadata(props.media);
     const isImage = isImageMetadata(props.media);
 
     return (

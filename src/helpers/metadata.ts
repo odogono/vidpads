@@ -1,6 +1,7 @@
 import { createLog } from '@helpers/log';
 import type { Media, MediaImage, MediaVideo } from '@model/types';
 import { generateFileId } from './file';
+import { getYouTubeMetadata, isYouTubeUrl } from './youtube';
 
 const log = createLog('metadata');
 
@@ -13,9 +14,18 @@ export const isImageMetadata = (metadata: Media): boolean => {
 };
 
 export const isYouTubeMetadata = (metadata: Media): boolean => {
-  return (
-    metadata.url.includes('youtube.com') || metadata.url.includes('youtu.be')
-  );
+  return metadata.mimeType.startsWith('video/youtube');
+  // return (
+  //   metadata.url.includes('youtube.com') || metadata.url.includes('youtu.be')
+  // );
+};
+
+export const getUrlMetadata = async (url: string): Promise<Media | null> => {
+  if (isYouTubeUrl(url)) {
+    return getYouTubeMetadata(url);
+  }
+
+  return null;
 };
 
 export const getMediaMetadata = (file: File): Promise<Media> => {
@@ -90,7 +100,8 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
         height: img.height,
         sizeInBytes: file.size,
         mimeType: file.type as MediaImage['mimeType'],
-        name: file.name
+        name: file.name,
+        duration: 0
       };
       cleanup();
       resolve(metadata);

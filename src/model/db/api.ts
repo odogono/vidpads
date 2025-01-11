@@ -1,6 +1,12 @@
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
-import { Media, MediaImage, MediaType, MediaVideo } from '@model/types';
+import {
+  Media,
+  MediaImage,
+  MediaType,
+  MediaVideo,
+  MediaYouTube
+} from '@model/types';
 import {
   useMutation,
   useQueryClient,
@@ -99,6 +105,43 @@ export const saveStateToIndexedDB = async (
     transaction.oncomplete = () => {
       log.debug('state saved to IndexedDB');
       db.close();
+    };
+  });
+};
+
+export interface SaveUrlDataProps {
+  metadata: MediaYouTube;
+  thumbnail: string | null;
+}
+
+export const saveUrlData = async ({
+  metadata,
+  thumbnail
+}: SaveUrlDataProps): Promise<void> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['metadata', 'thumbnails'], 'readwrite');
+
+    const { id } = metadata;
+
+    // Save the metadata
+    const metadataStore = transaction.objectStore('metadata');
+    metadataStore.put(metadata);
+
+    // Save the thumbnail
+    const thumbnailStore = transaction.objectStore('thumbnails');
+    thumbnailStore.put({ id, thumbnail });
+
+    transaction.onerror = () => {
+      log.error('Error saving video data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      log.debug('Video data saved successfully');
+      db.close();
+      resolve();
     };
   });
 };
@@ -540,6 +583,10 @@ export const deletePadThumbnail = async (padId: string): Promise<string> => {
 
 // Add this helper function to parse media URLs
 const getMediaIdFromUrl = (url: string): string | null => {
+  if (typeof url !== 'string') {
+    log.error('Invalid media URL format:', url);
+    return null;
+  }
   const match = url.match(/^vidpads:\/\/media\/(.+)$/);
   return match ? match[1] : null;
 };

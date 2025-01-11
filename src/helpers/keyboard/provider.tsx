@@ -35,7 +35,7 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
 
       if (activeKeys.current.has(code)) return;
 
-      log.debug('keydown', code);
+      // log.debug('keydown', code);
 
       activeKeys.current.add(code);
 

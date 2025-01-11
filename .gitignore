@@ -3,3 +3,6 @@ node_modules
 .eslintcache
 *.lockb
 .vscode
+.env
+.env.local
+.env.*.local
