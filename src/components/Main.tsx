@@ -1,36 +1,54 @@
+import { useState } from 'react';
+
 import { PadContainer } from '@components/PadContainer';
 import { useKeyboardControls } from '@helpers/keyboard';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { BinComponent } from './Bin';
-import { Container } from './Container';
 import { Controls } from './Controls';
-// import { VideoEditor } from './Editor/VideoEditor';
+import { FullScreenButton } from './FullScreenButton';
 import { PlayerContainer } from './Player/Container';
 
 export const Main = () => {
   useKeyboardControls();
-  // useMidiControls();
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (
     <PadDnDProvider>
-      <Container>
-        <h1 className='text-3xl font-bold mb-8'>Vid-Pads</h1>
+      <div className='min-h-screen bg-gray-900 text-white'>
+        <div className={`${isFullscreen ? 'p-0' : 'max-w-6xl mx-auto p-8'}`}>
+          {!isFullscreen && <h1 className='font-bold mb-2'>VID-PAD-001</h1>}
 
-        <div className='relative w-[800px] mx-auto'>
-          <div className='relative w-[800px] h-[400px] transition-colors overflow-hidden'>
-            {/* <VideoEditor /> */}
-            <PlayerContainer />
+          <div
+            className={`relative ${isFullscreen ? 'w-screen h-screen' : 'w-[800px] mx-auto'}`}
+          >
+            <div
+              className={`relative transition-all ${
+                isFullscreen ? 'w-full h-full' : 'w-[800px] h-[400px]'
+              } overflow-hidden`}
+            >
+              <PlayerContainer />
+            </div>
+
+            {/* Fullscreen toggle button */}
+            <FullScreenButton
+              isFullscreen={isFullscreen}
+              setIsFullscreen={setIsFullscreen}
+            />
           </div>
+
+          {!isFullscreen && (
+            <>
+              <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-60'>
+                <BinComponent />
+              </div>
+
+              <Controls />
+
+              <PadContainer />
+            </>
+          )}
         </div>
-
-        <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-60'>
-          <BinComponent />
-        </div>
-
-        <Controls />
-
-        <PadContainer />
-      </Container>
+      </div>
     </PadDnDProvider>
   );
 };
