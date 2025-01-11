@@ -1,36 +1,38 @@
-import { getPadSourceUrl } from '@model/pad';
+import { copyPad as copyPadModel, getPadSourceUrl } from '@model/pad';
 import { CopyPadAction, StoreContext } from '@model/store/types';
-import { OperationType, Pad } from '@model/types';
+import { OperationType } from '@model/types';
+import { addOrReplacePad, findPadById } from './helpers';
 
 export const copyPad = (
   context: StoreContext,
   event: CopyPadAction
 ): StoreContext => {
-  const { sourcePadId, targetPadId } = event;
+  const { sourcePadId, targetPadId, copySourceOnly } = event;
 
-  const sourcePad = context.pads.find((pad) => pad.id === sourcePadId);
+  const sourcePad = findPadById(context, sourcePadId);
   if (!sourcePad) {
     return context;
   }
 
-  const targetPad = context.pads.find((pad) => pad.id === targetPadId);
+  const targetPad = findPadById(context, targetPadId);
   if (!targetPad) {
     return context;
   }
 
-  const newPad: Pad = {
-    ...targetPad,
-    pipeline: {
-      ...targetPad.pipeline,
-      source: {
-        type: OperationType.Source,
-        url: getPadSourceUrl(sourcePad) ?? ''
+  if (copySourceOnly) {
+    return addOrReplacePad(context, {
+      ...targetPad,
+      pipeline: {
+        ...targetPad.pipeline,
+        source: {
+          type: OperationType.Source,
+          url: getPadSourceUrl(sourcePad) ?? ''
+        }
       }
-    }
-  };
+    });
+  }
 
-  return {
-    ...context,
-    pads: [...context.pads.filter((pad) => pad.id !== targetPadId), newPad]
-  };
+  const newPad = { ...copyPadModel(sourcePad), id: targetPadId };
+
+  return addOrReplacePad(context, newPad);
 };

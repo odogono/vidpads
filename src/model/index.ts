@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
 import { createImageThumbnail } from '@helpers/image';
+import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
 import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import {
@@ -28,6 +29,12 @@ const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
 
 export interface AddFileToPadProps {
   file: File;
+  padId: string;
+  store?: StoreType;
+}
+
+export interface AddUrlToPadProps {
+  url: string;
   padId: string;
   store?: StoreType;
 }
@@ -110,6 +117,7 @@ export interface CopyPadToPadProps {
 export const usePadOperations = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
+  const { isShiftKeyDown } = useKeyboard();
 
   const addFileToPadOp = useCallback(
     async (props: AddFileToPadProps) => {
@@ -123,6 +131,20 @@ export const usePadOperations = () => {
       return metadata;
     },
     [queryClient, store]
+  );
+
+  const addUrlToPadOp = useCallback(
+    async (props: AddUrlToPadProps) => {
+      const metadata = await addUrlToPad({ ...props, store });
+
+      // Invalidate the pad-thumbnail query to trigger a refetch
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL, props.padId]
+      });
+
+      return metadata;
+    },
+    [store, queryClient]
   );
 
   const copyPadToPadOp = useCallback(
@@ -141,7 +163,8 @@ export const usePadOperations = () => {
       store.send({
         type: 'copyPad',
         sourcePadId,
-        targetPadId
+        targetPadId,
+        copySourceOnly: isShiftKeyDown()
       });
 
       // Invalidate the pad-thumbnail query to trigger a refetch
@@ -153,7 +176,7 @@ export const usePadOperations = () => {
       });
       return true;
     },
-    [store, queryClient]
+    [store, queryClient, isShiftKeyDown]
   );
 
   const clearPadOp = useCallback(
@@ -184,6 +207,12 @@ export const usePadOperations = () => {
     copyPadToPad: copyPadToPadOp,
     clearPad: clearPadOp
   };
+};
+
+export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
+  // determine the type of url
+
+  return null;
 };
 
 /**

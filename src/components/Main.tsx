@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { PadContainer } from '@components/PadContainer';
-import { useKeyboardControls } from '@helpers/keyboard';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { BinComponent } from './Bin';
 import { Controls } from './Controls';
@@ -9,7 +8,6 @@ import { FullScreenButton } from './FullScreenButton';
 import { PlayerContainer } from './Player/Container';
 
 export const Main = () => {
-  useKeyboardControls();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (

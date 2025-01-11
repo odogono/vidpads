@@ -10,6 +10,10 @@ export const createPad = (id: string): Pad => {
   };
 };
 
+export const copyPad = (pad: Pad): Pad => {
+  return JSON.parse(JSON.stringify(pad));
+};
+
 export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
   return pad?.pipeline.source?.url;
 };

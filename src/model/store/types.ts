@@ -48,6 +48,7 @@ export type ClearPadAction = {
 
 export type CopyPadAction = {
   type: 'copyPad';
+  copySourceOnly?: boolean;
   sourcePadId: string;
   targetPadId: string;
 };

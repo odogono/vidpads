@@ -4,17 +4,14 @@ import { Container } from '@components/Container';
 import { Main } from '@components/Main';
 import { EventsProvider } from '@helpers/events';
 import { FFmpegProvider } from '@helpers/ffmpeg/provider';
-import { createLog } from '@helpers/log';
+import { KeyboardProvider } from '@helpers/keyboard/provider';
 import { StoreProvider } from '@model/store/provider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const log = createLog('App');
 // Create a client
 const queryClient = new QueryClient();
 
 const LoadingContainer = () => {
-  // log.debug('showing LoadingContainer');
-
   return (
     <Container>
       <div className='flex items-center justify-center h-screen'>
@@ -31,9 +28,11 @@ export const App = () => {
       <QueryClientProvider client={queryClient}>
         <FFmpegProvider>
           <EventsProvider>
-            <StoreProvider>
-              <Main />
-            </StoreProvider>
+            <KeyboardProvider>
+              <StoreProvider>
+                <Main />
+              </StoreProvider>
+            </KeyboardProvider>
           </EventsProvider>
         </FFmpegProvider>
       </QueryClientProvider>

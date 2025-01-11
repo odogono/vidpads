@@ -1,6 +1,5 @@
 import { Suspense, useRef, useState } from 'react';
 
-import { useKeyboardControls } from '@helpers/keyboard';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
@@ -15,8 +14,6 @@ export const PadContainer = () => {
   const { fileInputRef, handleEmptyPadTouch, handleFileSelect } =
     useFileSelector();
   const touchedPadIdRef = useRef<string | null>(null);
-
-  useKeyboardControls();
 
   const handlePadTouch = (padId: string) => {
     touchedPadIdRef.current = padId;

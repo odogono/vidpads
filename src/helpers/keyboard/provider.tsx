@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { ReactNode, useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-
-const log = createLog('keyboard');
+import { KeyboardContext } from './context';
 
 const KEY_PAD_MAP = {
   Digit1: 'a1',
@@ -24,7 +23,9 @@ const KEY_PAD_MAP = {
   KeyV: 'a16'
 };
 
-export const useKeyboardControls = () => {
+const log = createLog('keyboard');
+
+export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
   const activeKeys = useRef<Set<string>>(new Set());
 
@@ -33,6 +34,8 @@ export const useKeyboardControls = () => {
       const { code } = e;
 
       if (activeKeys.current.has(code)) return;
+
+      log.debug('keydown', code);
 
       activeKeys.current.add(code);
 
@@ -60,6 +63,12 @@ export const useKeyboardControls = () => {
     [events]
   );
 
+  const isKeyDown = (key: string) => activeKeys.current.has(key);
+  const isKeyUp = (key: string) => !activeKeys.current.has(key);
+  const isShiftKeyDown = () =>
+    isKeyDown('ShiftLeft') || isKeyDown('ShiftRight');
+  const isShiftKeyUp = () => isKeyUp('ShiftLeft') || isKeyUp('ShiftRight');
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -69,5 +78,17 @@ export const useKeyboardControls = () => {
     };
   }, [handleKeyDown, handleKeyUp]);
 
-  return null;
+  return (
+    <KeyboardContext.Provider
+      value={{
+        activeKeys: activeKeys.current,
+        isKeyDown,
+        isKeyUp,
+        isShiftKeyDown,
+        isShiftKeyUp
+      }}
+    >
+      {children}
+    </KeyboardContext.Provider>
+  );
 };
