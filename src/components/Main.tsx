@@ -37,9 +37,7 @@ export const Main = () => {
 
           {!isFullscreen && (
             <>
-              <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-60'>
-                <BinComponent />
-              </div>
+              <BinComponent />
 
               <Controls />
 
