@@ -63,7 +63,7 @@ export const Controls = () => {
   }
 
   return (
-    <Card className='mt-4 w-[800px] h-[130px] mx-auto bg-gray-800'>
+    <Card className='mt-4 w-auto max-w-2xl h-[130px] mx-auto bg-gray-800'>
       <CardHeader className='flex justify-between items-center'>
         <div className="flex items-center gap-2">
           <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>

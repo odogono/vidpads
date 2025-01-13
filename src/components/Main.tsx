@@ -18,15 +18,14 @@ export const Main = () => {
         <header className='flex justify-end p-4 max-w-6xl mx-auto'>
         <MenuButton />
       </header>
-        <div className={`${isFullscreen ? 'p-0' : 'max-w-6xl mx-auto p-8'}`}>
-          {!isFullscreen && <h1 className='font-bold mb-2'>VID-PAD-001</h1>}
-
+        <div className={`${isFullscreen ? 'p-0' : ' mx-auto px-4'}`}>
+          
           <div
-            className={`relative ${isFullscreen ? 'w-screen h-screen' : 'w-[800px] mx-auto'}`}
+            className={`relative ${isFullscreen ? 'w-screen h-screen' : 'w-auto mx-auto'}`}
           >
             <div
               className={`relative transition-all ${
-                isFullscreen ? 'w-full h-full' : 'w-[800px] h-[400px]'
+                isFullscreen ? 'w-full h-full' : 'min-h-[480px] bg-red-500'
               } overflow-hidden`}
             >
               <PlayerContainer />
