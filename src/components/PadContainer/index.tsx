@@ -22,7 +22,7 @@ export const PadContainer = () => {
   } = useHelpers();
 
   return (
-    <div className='mt-4 w-[800px] mx-auto'>
+    <div className='mt-4 w-auto mx-auto'>
       <input
         type='file'
         ref={fileInputRef}
@@ -30,7 +30,7 @@ export const PadContainer = () => {
         accept={ACCEPTED_FILE_TYPES.join(',')}
         onChange={handleFileSelect}
       />
-      <div className='grid grid-cols-4 gap-4'>
+      <div className='grid grid-cols-4 landscape:grid-cols-8 gap-4 p-8'>
         {pads.map((pad) => (
           <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
             <PadComponent pad={pad} onEmptyPadTouch={handlePadTouch} />
