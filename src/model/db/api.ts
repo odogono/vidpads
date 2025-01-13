@@ -7,7 +7,8 @@ import {
   MediaImage,
   MediaType,
   MediaVideo,
-  MediaYouTube
+  MediaYouTube,
+  Project
 } from '@model/types';
 import {
   useMutation,
@@ -69,6 +70,83 @@ export const openDB = (): Promise<IDBDatabase> => {
 
       // thumbnails are used for the videos, and the pads
       db.createObjectStore('thumbnails', { keyPath: 'id' });
+
+      db.createObjectStore('projects', { keyPath: 'id' });
+    };
+  });
+};
+
+
+export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
+  const db = await openDB();
+  
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['projects'], 'readonly');
+    const store = transaction.objectStore('projects');
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onerror = () => {
+      log.error('Error loading all projects from IndexedDB:', getAllRequest.error);
+      reject(getAllRequest.error);
+    };
+
+    getAllRequest.onsuccess = () => {
+      const projects = getAllRequest.result as Project[];
+
+      const projectDetails = projects.map((project) => {
+        const { id, name, createdAt, updatedAt } = project;
+        return { id, name, createdAt, updatedAt };
+      });
+      resolve(projectDetails);
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+    };
+  });
+}
+
+
+export const loadProject = async (id: string): Promise<Project | null> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['projects'], 'readonly');
+    const store = transaction.objectStore('projects');
+    const getRequest = store.get(id);
+
+    getRequest.onerror = () => {
+      log.error('Error loading project from IndexedDB:', getRequest.error);
+      reject(getRequest.error);
+    };
+
+    getRequest.onsuccess = () => {
+      const result = (getRequest.result as Project) ?? null;
+      resolve(result);
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+    };
+  });
+};
+
+
+export const saveProject = async (project: Project): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+  const transaction = db.transaction(['projects'], 'readwrite');
+  const store = transaction.objectStore('projects');
+  const putRequest = store.put(project);
+
+  putRequest.onerror = () => {
+    log.error('Error saving project to IndexedDB:', putRequest.error);
+    reject(putRequest.error);
+    };
+    putRequest.onsuccess = () => resolve();
+
+    transaction.oncomplete = () => {
+      db.close();
     };
   });
 };

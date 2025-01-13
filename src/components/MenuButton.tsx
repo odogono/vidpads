@@ -1,7 +1,7 @@
 'use client';
 
 import { NewProjectModal } from './modals/NewProjectModal'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react'
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react'
 import { ChevronDown, Menu } from 'lucide-react'
 import { useCallback, useRef } from 'react'
 import { NewProjectModalRef } from './modals/NewProjectModal'
@@ -16,6 +16,14 @@ const options: Option[] = [
     id: 'new-project', 
     name: 'New Project'
   },
+  {
+    id: 'open-project',
+    name: 'Open Project'
+  },
+  {
+    id: 'save-project',
+    name: 'Save Project'
+  },
   { 
     id: 'export-project', 
     name: 'Export Project'
@@ -29,7 +37,7 @@ export const MenuButton = () => {
     newProjectModalRef.current?.onOpen();
   }, [newProjectModalRef]);
 
-  
+
 
   return (
     <>
@@ -58,11 +66,28 @@ export const MenuButton = () => {
           base: "text-default-500 data-[hover=true]:bg-default-100 data-[hover=true]:text-default-900", // dropdown item colors
         }}
       >
-        {options.map((option) => (
-          <DropdownItem key={option.id}>
-            {option.name}
+        
+          <DropdownItem key='new-project'>
+            New Project
           </DropdownItem>
-        ))}
+
+          <DropdownItem key='open-project'>
+            Open Project
+          </DropdownItem>
+
+          <DropdownItem key='save-project'>
+            Save Project
+          </DropdownItem>
+
+          <DropdownItem key='export-project'>
+            Export Project
+          </DropdownItem>
+
+        <DropdownSection showDivider aria-label="About">
+          <DropdownItem key="about">
+            About
+          </DropdownItem>
+        </DropdownSection>
       </DropdownMenu>
     </Dropdown>
     <NewProjectModal ref={newProjectModalRef} />
