@@ -2,6 +2,8 @@ import type { Media, Pad } from '@model/types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
+  projectId: string | null;
+  name: string;
   isInitial: boolean;
   startTime: string;
   isEditActive?: boolean;
@@ -87,6 +89,10 @@ export type ApplyTrimToPadAction = {
   end: number;
 };
 
+export type NewProjectAction = {
+  type: 'newProject';
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -101,7 +107,8 @@ export type Actions =
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
   | ApplyTrimToPadAction
-  | SetPadIsLoopedAction;
+  | SetPadIsLoopedAction
+  | NewProjectAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

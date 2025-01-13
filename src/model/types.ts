@@ -1,3 +1,5 @@
+import { StoreContextType } from "./store/types";
+
 export const MediaType = {
   Image: 'image',
   Video: 'video'
@@ -34,6 +36,14 @@ export interface TrimOperation extends Operation {
 export interface Pipeline {
   source?: SourceOperation | undefined;
   operations: Operation[];
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  store: StoreContextType;
 }
 
 export interface Pad {

@@ -20,15 +20,19 @@ import {
   saveImageData as dbSaveImageData,
   saveUrlData as dbSaveUrlData,
   saveVideoData as dbSaveVideoData,
-  setPadThumbnail as dbSetPadThumbnail
+  setPadThumbnail as dbSetPadThumbnail,
+  saveProject as dbSaveProject,
+  loadProject as dbLoadProject
 } from '@model/db/api';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
-import { StoreType } from '@model/store/types';
-import { MediaImage, MediaVideo, MediaYouTube, Pad } from '@model/types';
+import { StoreContextType, StoreType } from '@model/store/types';
+import { MediaImage, MediaVideo, MediaYouTube, Pad, Project } from '@model/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { getYouTubeThumbnail } from '../helpers/youtube';
+import { getYouTubeThumbnail } from '@helpers/youtube';
 import { getPadSourceUrl } from './pad';
-import { useStore } from './store/useStore';
+import { useStore } from '@model/store/useStore';
+import { createProject } from '@model/project';
+import { generateUUID } from '@helpers/uuid';
 
 const log = createLog('model/api');
 
@@ -45,6 +49,66 @@ export interface AddUrlToPadProps {
   padId: string;
   store?: StoreType;
 }
+
+
+
+export const useProjects = () => {
+  const { store } = useStore();
+  const queryClient = useQueryClient();
+
+  const createNewProject = useCallback(async () => {
+
+    store.send({ type: 'newProject' });
+
+    const snapshot = store.getSnapshot().context;
+
+    const projectId = snapshot.projectId ?? generateUUID();
+    
+    const project = createProject(projectId, snapshot);
+
+    await dbSaveProject(project);
+    
+    return project;
+  }, [store]);
+
+
+  const loadProject = useCallback(async (id: string) => {
+    const project = await dbLoadProject(id);
+    return project;
+  }, []);
+
+  const saveProject = useCallback(async () => {
+
+    const snapshot = store.getSnapshot().context;
+
+    const id = snapshot.projectId ?? generateUUID();
+
+    const saveProject: Project = {
+      ...project,
+      id,
+      updatedAt: new Date().toISOString(),
+      store: snapshot
+    }
+
+    await dbSaveProject(saveProject);
+  }, [store]);
+
+
+
+  return {
+    createNewProject,
+    saveProject
+  }
+}
+
+
+export const createNewProject = () => {
+  const project = createProject(generateUUID(), store);
+  return project;
+}
+
+
+
 
 export const getAllMediaMetaData = async () => {
   return dbGetAllMediaMetaData();

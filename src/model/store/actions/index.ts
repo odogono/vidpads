@@ -21,6 +21,7 @@ export { clearPad } from './clearPad';
 export { copyPad } from './copyPad';
 export { playPad } from './playPad';
 export { applyTrimToPad } from './applyTrimToPad';
+export { newProject } from './newProject';
 
 export const initialiseStore = (
   context: StoreContext,
