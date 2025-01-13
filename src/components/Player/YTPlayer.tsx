@@ -86,7 +86,16 @@ export const YTPlayer = ({ media }: PlayerProps) => {
   const seekVideo = useCallback(
     ({ time, url }: PlayerSeek) => {
       if (!playerRef.current || url !== media.url) return;
-      playerRef.current.seekTo(time, true);
+      if (!playerRef.current) {
+        log.warn('playerRef.current is null');
+        return;
+      }
+      try {
+        playerRef.current.seekTo(time, true);
+      } catch (error) {
+        // todo - caused by another play request coming in while the player is still loading
+        log.warn('error seeking video', (error as Error).message);
+      }
     },
     [media.url]
   );
@@ -103,17 +112,17 @@ export const YTPlayer = ({ media }: PlayerProps) => {
 
   useEffect(() => {
     let isMounted = true;
+    const container = containerRef.current;
 
     const initializePlayer = async () => {
-      if (!containerRef.current) return;
+      if (!container) return;
 
       await loadYouTubeApi();
 
-      if (!isMounted || !containerRef.current) return;
+      if (!isMounted || !container) return;
 
-      // Create a container element for the player
       const playerContainer = document.createElement('div');
-      containerRef.current.appendChild(playerContainer);
+      container.appendChild(playerContainer);
 
       playerRef.current = new window.YT.Player(playerContainer, {
         videoId,
@@ -153,8 +162,8 @@ export const YTPlayer = ({ media }: PlayerProps) => {
       if (playerRef.current) {
         playerRef.current.destroy();
       }
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+      if (container) {
+        container.innerHTML = '';
       }
     };
   }, [handleEnded, media.url, videoId]);
@@ -177,32 +186,19 @@ export const YTPlayer = ({ media }: PlayerProps) => {
     return () => clearInterval(intervalId);
   }, [isPlaying, media.url, stopVideo]);
 
-  // Rest of your handlers (playVideo, stopVideo, seekVideo, extractThumbnail)
-  // remain mostly the same, just update to use playerRef.current instead of videoRef.current
-
   const extractThumbnail = useCallback(
     ({ time, url, additional }: PlayerExtractThumbnail) => {
       if (!playerRef.current) return;
       if (url !== media.url) return;
 
+      // sadly, extracting the thumbnail at the current time is not possible
+      // with the YouTube API. So the event is emitted anyway to ensure
+      // the start and end times are persisted
       events.emit('video:thumbnail-extracted', {
         url,
         time,
         additional
       });
-
-      // log.debug('[extractThumbnail]', id, time);
-      // extractVideoThumbnailFromVideo({
-      //   video: videoRef.current,
-      //   frameTime: time
-      // }).then((thumbnail) => {
-      //   events.emit('video:thumbnail-extracted', {
-      //     url,
-      //     time,
-      //     thumbnail,
-      //     additional
-      //   });
-      // });
     },
     [media.url, events]
   );

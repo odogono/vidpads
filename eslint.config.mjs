@@ -1,16 +1,26 @@
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
 import preferArrowFunctions from 'eslint-plugin-prefer-arrow-functions';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
-import tseslint from 'typescript-eslint';
 
-import js from '@eslint/js';
+import { FlatCompat } from '@eslint/eslintrc';
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname
+});
+
+const eslintConfig = [
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    ignores: ['dist', '**/*.d.ts', './src/types/mp4box.d.ts']
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
@@ -37,6 +47,7 @@ export default tseslint.config(
         }
       ]
     }
-  },
-  eslintPluginPrettierRecommended
-);
+  }
+];
+
+export default eslintConfig;

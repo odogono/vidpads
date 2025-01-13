@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react';
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEditActive, usePad } from '@model/store/selectors';
@@ -17,6 +19,7 @@ import { StartEndSlider } from './StartEndSlider';
 const log = createLog('Controls');
 
 export const Controls = () => {
+  const [isMounted, setIsMounted] = useState(false);
   const {
     isLooped,
     isPadOneShot,
@@ -27,6 +30,12 @@ export const Controls = () => {
   } = usePad();
   const { isEditActive, setEditActive } = useEditActive();
   const modalRef = useRef<DeleteModalRef>(null);
+
+  // used to prevent hydration error
+  // since selectedPadId is undefined on the server
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleEdit = useCallback(() => {
     setEditActive(!isEditActive);
@@ -42,12 +51,24 @@ export const Controls = () => {
     setPadIsLooped(pad.id, !isLooped);
   }, [pad, isLooped, setPadIsLooped]);
 
+  if (!isMounted) {
+    return null;
+  }
+
+  if (!selectedPadId) {
+    return (
+      <Card className='mt-4 w-[800px] h-[130px] mx-auto bg-gray-800'>
+        <CardHeader className='flex justify-between items-center'>
+          <h3 className='font-semibold text-foreground/90'>No Pad Selected</h3>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card className='mt-4 w-[800px] h-[130px] mx-auto bg-gray-800'>
       <CardHeader className='flex justify-between items-center'>
-        <h3 className='font-semibold text-foreground/90'>
-          Controls {selectedPadId}
-        </h3>
+        <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>
         <div className='flex gap-2'>
           <PadStateButton
             label='One Shot'

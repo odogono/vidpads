@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect } from 'react';
 
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
@@ -53,7 +55,7 @@ export const StartEndSlider = ({
     async ({ url, thumbnail, additional }: PlayerThumbnailExtracted) => {
       if (!pad || url !== padSourceUrl) return;
       const { start, end } = { start: 0, end: 100, ...additional };
-      log.debug('[handleThumbnailExtracted]', pad.id, start, end);
+      // log.debug('[handleThumbnailExtracted]', pad.id, start, end);
       await applyPadTrimOperation({
         pad,
         start,

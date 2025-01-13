@@ -18,8 +18,9 @@ export const getYouTubeMetadata = async (
       throw new Error('Invalid YouTube URL');
     }
 
-    const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
     if (!apiKey) {
+      log.debug('env', process.env);
       throw new Error('YouTube API key not configured');
     }
 

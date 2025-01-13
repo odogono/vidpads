@@ -1,39 +1,25 @@
-import { Suspense, useRef, useState } from 'react';
+import { Suspense } from 'react';
 
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { usePadOperations } from '@model';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 import { SelectSourceModal } from './SelectSourceModal';
-import { useFileSelector } from './useFileSelector';
+import { useHelpers } from './helpers';
 
 export const PadContainer = () => {
   const { pads } = usePads();
   const { ACCEPTED_FILE_TYPES } = usePadDnD();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { fileInputRef, handleEmptyPadTouch, handleFileSelect } =
-    useFileSelector();
-  const touchedPadIdRef = useRef<string | null>(null);
-  const { addUrlToPad } = usePadOperations();
 
-  const handlePadTouch = (padId: string) => {
-    touchedPadIdRef.current = padId;
-    setIsModalOpen(true);
-  };
-
-  const handleUrlSelect = async (url: string) => {
-    // TODO: Implement URL input handling
-    await addUrlToPad({ url, padId: touchedPadIdRef.current });
-    setIsModalOpen(false);
-  };
-
-  const handleFileButtonClick = () => {
-    setIsModalOpen(false);
-    if (touchedPadIdRef.current) {
-      handleEmptyPadTouch(touchedPadIdRef.current);
-    }
-  };
+  const {
+    fileInputRef,
+    isModalOpen,
+    setIsModalOpen,
+    handleFileSelect,
+    handlePadTouch,
+    handleFileButtonClick,
+    handleUrlSelect
+  } = useHelpers();
 
   return (
     <div className='mt-4 w-[800px] mx-auto'>

@@ -1,15 +1,15 @@
+'use client';
+
 import { Suspense } from 'react';
 
 import { Container } from '@components/Container';
 import { Main } from '@components/Main';
+import { QueryClientContextProvider } from '@contexts/queryclient';
 import { EventsProvider } from '@helpers/events';
-import { FFmpegProvider } from '@helpers/ffmpeg/provider';
+// import { FFmpegProvider } from '@helpers/ffmpeg/provider';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
 import { StoreProvider } from '@model/store/provider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-// Create a client
-const queryClient = new QueryClient();
+import { NextUIProvider } from '@nextui-org/react';
 
 const LoadingContainer = () => {
   return (
@@ -22,11 +22,12 @@ const LoadingContainer = () => {
   );
 };
 
-export const App = () => {
+const Player = () => {
   return (
     <Suspense fallback={<LoadingContainer />}>
-      <QueryClientProvider client={queryClient}>
-        <FFmpegProvider>
+      <NextUIProvider>
+        <QueryClientContextProvider>
+          {/* <FFmpegProvider> */}
           <EventsProvider>
             <KeyboardProvider>
               <StoreProvider>
@@ -34,10 +35,11 @@ export const App = () => {
               </StoreProvider>
             </KeyboardProvider>
           </EventsProvider>
-        </FFmpegProvider>
-      </QueryClientProvider>
+          {/* </FFmpegProvider> */}
+        </QueryClientContextProvider>
+      </NextUIProvider>
     </Suspense>
   );
 };
 
-export default App;
+export default Player;

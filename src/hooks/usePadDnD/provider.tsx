@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode, useCallback, useState } from 'react';
 
 import { createLog } from '@helpers/log';
@@ -17,9 +19,6 @@ const ACCEPTED_FILE_TYPES = [
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-
-  // const { ffmpeg } = useFFmpeg();
-  // const { store } = useStore();
   const { addFileToPad, clearPad, copyPadToPad } = usePadOperations();
   const onDragStart = useCallback((id: string) => {
     setDraggingPadId(id);

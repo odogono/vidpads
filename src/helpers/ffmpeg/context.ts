@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext } from 'react';
 
 import type { FFmpegContextType } from '@helpers/ffmpeg/types';
