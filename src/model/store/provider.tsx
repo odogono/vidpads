@@ -1,8 +1,14 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 
 import { getObjectDiff, isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
-import { loadStateFromIndexedDB, saveStateToIndexedDB } from '@model/db/api';
+import {
+  isIndexedDBSupported,
+  loadStateFromIndexedDB,
+  saveStateToIndexedDB
+} from '@model/db/api';
 import { StoreContextType } from '@model/store/types';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { StoreContext } from './context';
@@ -18,15 +24,26 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
   const { data: store, isSuccess } = useSuspenseQuery({
     queryKey: ['store-initialise'],
     queryFn: async () => {
-      const storeState = await loadStateFromIndexedDB();
-      const isInitial = storeState?.isInitial ?? true;
+      let isInitial = true;
+      let storeState: StoreContextType | null = null;
+      if (!isIndexedDBSupported()) {
+        log.warn('IndexedDB is not supported');
+        // note - this is workaround for nextjs server components
+        return createStore(undefined);
+      } else {
+        storeState = await loadStateFromIndexedDB();
+        isInitial = storeState?.isInitial ?? true;
+      }
+
       const store = createStore(storeState ?? undefined);
 
       if (isInitial) {
         log.debug('initialising store');
         store.send({ type: 'initialiseStore' });
         const snapshot = store.getSnapshot();
-        await saveStateToIndexedDB(snapshot.context);
+        if (isIndexedDBSupported()) {
+          await saveStateToIndexedDB(snapshot.context);
+        }
         snapshotRef.current = snapshot.context;
       }
 

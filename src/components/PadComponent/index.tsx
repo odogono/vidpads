@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
@@ -141,12 +143,14 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mouseup', handleTouchEnd);
-      document.addEventListener('touchend', handleTouchEnd);
-      document.addEventListener('mousemove', handleTouchMove);
-      document.addEventListener('dragover', handleDragOver);
+      document.addEventListener('mouseup', handleTouchEnd, { passive: true });
+      document.addEventListener('touchend', handleTouchEnd, { passive: true });
+      document.addEventListener('mousemove', handleTouchMove, {
+        passive: true
+      });
+      document.addEventListener('dragover', handleDragOver, { passive: true });
       document.addEventListener('touchmove', handleTouchMove, {
-        passive: false
+        passive: true
       });
     }
 

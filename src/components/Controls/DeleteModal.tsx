@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, useCallback, useImperativeHandle } from 'react';
 
 import { createLog } from '@helpers/log';

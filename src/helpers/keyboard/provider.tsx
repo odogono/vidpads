@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode, useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';

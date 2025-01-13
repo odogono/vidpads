@@ -1,3 +1,5 @@
+'use client';
+
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
 import {
@@ -26,6 +28,12 @@ export const useDBStore = () => {
   });
 };
 
+export const isIndexedDBSupported = () => {
+  return (
+    typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined'
+  );
+};
+
 export const useDBStoreUpdate = () => {
   const queryClient = useQueryClient();
 
@@ -39,6 +47,11 @@ export const useDBStoreUpdate = () => {
 
 export const openDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
+    if (!isIndexedDBSupported()) {
+      reject(new Error('IndexedDB is not supported'));
+      return;
+    }
+
     const request = indexedDB.open(dbName, dbVersion);
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
@@ -103,7 +116,7 @@ export const saveStateToIndexedDB = async (
     putRequest.onsuccess = () => resolve();
 
     transaction.oncomplete = () => {
-      log.debug('state saved to IndexedDB');
+      // log.debug('state saved to IndexedDB');
       db.close();
     };
   });

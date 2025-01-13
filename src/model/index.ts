@@ -80,7 +80,15 @@ export const useMetadataFromPad = (pad?: Pad) => {
 export const usePadThumbnail = (pad: Pad) => {
   return useSuspenseQuery({
     queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id],
-    queryFn: () => dbGetPadThumbnail(pad.id)
+    queryFn: async () => {
+      try {
+        const thumbnail = await dbGetPadThumbnail(pad.id);
+        return thumbnail;
+      } catch {
+        // log.warn('[usePadThumbnail] Error getting thumbnail:', error);
+        return null;
+      }
+    }
   });
 };
 

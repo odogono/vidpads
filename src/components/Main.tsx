@@ -1,6 +1,7 @@
-import { useState } from 'react';
+'use client';
 
 import { PadContainer } from '@components/PadContainer';
+import { useFullScreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { BinComponent } from './Bin';
 import { Controls } from './Controls';
@@ -8,7 +9,7 @@ import { FullScreenButton } from './FullScreenButton';
 import { PlayerContainer } from './Player/Container';
 
 export const Main = () => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, setFullscreen } = useFullScreen();
 
   return (
     <PadDnDProvider>
@@ -30,7 +31,7 @@ export const Main = () => {
             {/* Fullscreen toggle button */}
             <FullScreenButton
               isFullscreen={isFullscreen}
-              setIsFullscreen={setIsFullscreen}
+              setIsFullscreen={setFullscreen}
             />
           </div>
 
