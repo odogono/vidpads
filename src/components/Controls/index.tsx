@@ -8,12 +8,9 @@ import {
   Button,
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
-  Slider
 } from '@nextui-org/react';
-import { getPadStartAndEndTime } from '../../model/pad';
-import { DeleteModal, DeleteModalRef } from './DeleteModal';
+import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { StartEndSlider } from './StartEndSlider';
 
 const log = createLog('Controls');
@@ -68,7 +65,9 @@ export const Controls = () => {
   return (
     <Card className='mt-4 w-[800px] h-[130px] mx-auto bg-gray-800'>
       <CardHeader className='flex justify-between items-center'>
-        <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>
+        </div>
         <div className='flex gap-2'>
           <PadStateButton
             label='One Shot'
