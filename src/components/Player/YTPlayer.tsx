@@ -90,8 +90,12 @@ export const YTPlayer = ({ media }: PlayerProps) => {
         log.warn('playerRef.current is null');
         return;
       }
+      // todo - implement better controll of this property
+      // yt recommend that the parameter is set to false while the seek is in progress
+      // and then set it to true again after the seek is complete
+      const allowSeekAhead = true;
       try {
-        playerRef.current.seekTo(time, true);
+        playerRef.current.seekTo(time, false);
       } catch (error) {
         // todo - caused by another play request coming in while the player is still loading
         log.warn('error seeking video', (error as Error).message);
