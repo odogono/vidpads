@@ -24,7 +24,7 @@ export const RootLayout = ({
   children: React.ReactNode;
 }>) => (
   <html lang='en'>
-    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <body className={`${geistSans.variable} ${geistMono.variable} bg-gray-900 antialiased`}>
       {children}
     </body>
   </html>

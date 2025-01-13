@@ -8,8 +8,8 @@ export const BinComponent = () => {
 
   return (
     <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-50'>
-    <div
-      className={`
+      <div
+        className={`
         w-[400px] h-[200px] rounded-lg cursor-pointer relative
         flex items-center justify-center
         shadow-[0_0_15px_rgba(0,0,0,0.5)]
@@ -31,7 +31,7 @@ export const BinComponent = () => {
           ${isDraggingOver ? 'text-red-500 scale-110' : 'text-gray-400'}
         `}
       />
-    </div>
+      </div>
     </div>
   );
 };

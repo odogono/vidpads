@@ -18,5 +18,6 @@ export default {
       }
     }
   },
+  darkMode: 'class',
   plugins: [require('tailwindcss-motion'), nextui()]
 } satisfies Config;

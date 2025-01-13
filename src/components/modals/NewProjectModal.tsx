@@ -15,47 +15,44 @@ import {
   useDisclosure
 } from '@nextui-org/react';
 
-const log = createLog('Controls');
+const log = createLog('NewProjectModal');
 
-export interface DeleteModalRef {
+export interface NewProjectModalRef {
   onOpen: () => void;
 }
 
-export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
+export const NewProjectModal = forwardRef<NewProjectModalRef>((_props, ref) => {
   const { selectedPadId } = useSelectedPadId();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { clearPad } = usePadOperations();
+  // const { clearPad } = usePadOperations();
 
-  const handleDelete = useCallback(async () => {
-    if (!selectedPadId) return;
-    await clearPad(selectedPadId);
+  const handleNewProject = useCallback(async () => {
+    // if (!selectedPadId) return;
+    // await clearPad(selectedPadId);
     onClose();
-  }, [selectedPadId, clearPad, onClose]);
+  }, [onClose]);
 
   useImperativeHandle(ref, () => ({
     onOpen
   }));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} backdrop='blur' className='bg-background text-foreground'>
       <ModalContent>
         {(onClose) => (
           <>
             <ModalHeader className='flex flex-col gap-1'>
-              Confirm Delete
+              New Project
             </ModalHeader>
             <ModalBody>
-              <p>Are you sure you want to delete this pad?</p>
-              <p className='text-sm text-gray-500'>
-                This action cannot be undone.
-              </p>
+              <p>Confirm that you want to create a new project.</p>
             </ModalBody>
             <ModalFooter>
-              <Button variant='ghost' onPress={onClose}>
+              <Button variant='ghost' onPress={onClose} className='bg-background text-foreground'>
                 Cancel
               </Button>
-              <Button onPress={handleDelete} className='bg-red-500 text-white'>
-                Delete
+              <Button onPress={handleNewProject} className='bg-red-500 text-foreground'>
+                Create
               </Button>
             </ModalFooter>
           </>
@@ -65,4 +62,4 @@ export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
   );
 });
 
-DeleteModal.displayName = 'DeleteModal';
+NewProjectModal.displayName = 'NewProjectModal';
