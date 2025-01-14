@@ -26,6 +26,7 @@ export type EventEmitterEvents = {
   'video:extract-thumbnail': PlayerExtractThumbnail;
   'video:thumbnail-extracted': PlayerThumbnailExtracted;
   'video:ready': PlayerReady;
+  'keyboard:enabled': boolean;
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;

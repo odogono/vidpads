@@ -10,6 +10,8 @@ import {
   isVideoMetadata,
   isYouTubeMetadata
 } from '@helpers/metadata';
+import { generateUUID } from '@helpers/uuid';
+import { getYouTubeThumbnail } from '@helpers/youtube';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteMediaData as dbDeleteMediaData,
@@ -17,22 +19,34 @@ import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
   getPadThumbnail as dbGetPadThumbnail,
+  loadProject as dbLoadProject,
   saveImageData as dbSaveImageData,
+  saveProject as dbSaveProject,
   saveUrlData as dbSaveUrlData,
   saveVideoData as dbSaveVideoData,
-  setPadThumbnail as dbSetPadThumbnail,
-  saveProject as dbSaveProject,
-  loadProject as dbLoadProject
+  setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
-import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
-import { StoreContextType, StoreType } from '@model/store/types';
-import { MediaImage, MediaVideo, MediaYouTube, Pad, Project } from '@model/types';
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { getYouTubeThumbnail } from '@helpers/youtube';
-import { getPadSourceUrl } from './pad';
-import { useStore } from '@model/store/useStore';
 import { createProject } from '@model/project';
-import { generateUUID } from '@helpers/uuid';
+import {
+  getPadById,
+  getPadsBySourceUrl,
+  useCurrentProject
+} from '@model/store/selectors';
+import { StoreContextType, StoreType } from '@model/store/types';
+import { useStore } from '@model/store/useStore';
+import {
+  MediaImage,
+  MediaVideo,
+  MediaYouTube,
+  Pad,
+  Project
+} from '@model/types';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery
+} from '@tanstack/react-query';
+import { getPadSourceUrl } from './pad';
 
 const log = createLog('model/api');
 
@@ -50,65 +64,66 @@ export interface AddUrlToPadProps {
   store?: StoreType;
 }
 
-
-
 export const useProjects = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
+  const { projectId, projectName } = useCurrentProject();
 
   const createNewProject = useCallback(async () => {
-
     store.send({ type: 'newProject' });
 
     const snapshot = store.getSnapshot().context;
-
     const projectId = snapshot.projectId ?? generateUUID();
-    
     const project = createProject(projectId, snapshot);
 
     await dbSaveProject(project);
-    
     return project;
   }, [store]);
 
+  // Add mutation for saving project
+  const saveProjectMutation = useMutation({
+    mutationFn: async ({ projectName }: { projectName: string }) => {
+      const snapshot = store.getSnapshot().context;
+      const id = snapshot.projectId ?? generateUUID();
+      const name = projectName ?? snapshot.projectName;
 
-  const loadProject = useCallback(async (id: string) => {
-    const project = await dbLoadProject(id);
-    return project;
-  }, []);
+      const project = await dbLoadProject(id);
 
-  const saveProject = useCallback(async () => {
+      const saveProject: Project = {
+        ...(project ?? createProject(id, snapshot)),
+        name,
+        updatedAt: new Date().toISOString(),
+        store: snapshot
+      };
 
-    const snapshot = store.getSnapshot().context;
-
-    const id = snapshot.projectId ?? generateUUID();
-
-    const saveProject: Project = {
-      ...project,
-      id,
-      updatedAt: new Date().toISOString(),
-      store: snapshot
+      await dbSaveProject(saveProject);
+      return saveProject;
+    },
+    onSuccess: () => {
+      // Optionally invalidate queries that depend on project data
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     }
+  });
 
-    await dbSaveProject(saveProject);
-  }, [store]);
-
-
+  const saveProject = useCallback(
+    async (projectName: string = 'Untitled') => {
+      await saveProjectMutation.mutateAsync({ projectName });
+      const { error } = saveProjectMutation;
+      if (error) {
+        log.error('Failed to save project:', error);
+        // throw error;
+      }
+    },
+    [saveProjectMutation]
+  );
 
   return {
+    projectId,
+    projectName,
     createNewProject,
     saveProject
-  }
-}
-
-
-export const createNewProject = () => {
-  const project = createProject(generateUUID(), store);
-  return project;
-}
-
-
-
+  };
+};
 
 export const getAllMediaMetaData = async () => {
   return dbGetAllMediaMetaData();

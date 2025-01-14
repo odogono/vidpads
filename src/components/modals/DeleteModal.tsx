@@ -14,6 +14,7 @@ import {
   ModalHeader,
   useDisclosure
 } from '@nextui-org/react';
+import { useModalState } from './useModalState';
 
 const log = createLog('Controls');
 
@@ -23,7 +24,7 @@ export interface DeleteModalRef {
 
 export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
   const { selectedPadId } = useSelectedPadId();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useModalState();
   const { clearPad } = usePadOperations();
 
   const handleDelete = useCallback(async () => {
@@ -37,7 +38,12 @@ export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
   }));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} backdrop='blur' className='bg-background text-foreground'>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      backdrop='blur'
+      className='bg-background text-foreground'
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -51,10 +57,17 @@ export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
               </p>
             </ModalBody>
             <ModalFooter>
-              <Button variant='ghost' onPress={onClose} className='bg-background text-foreground'>
+              <Button
+                variant='ghost'
+                onPress={onClose}
+                className='bg-background text-foreground'
+              >
                 Cancel
               </Button>
-              <Button onPress={handleDelete} className='bg-red-500 text-foreground'>
+              <Button
+                onPress={handleDelete}
+                className='bg-red-500 text-foreground'
+              >
                 Delete
               </Button>
             </ModalFooter>
