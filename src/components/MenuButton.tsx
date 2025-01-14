@@ -20,6 +20,10 @@ import {
   ImportProjectModal,
   ImportProjectModalRef
 } from './modals/ImportProjectModal';
+import {
+  LoadProjectModal,
+  LoadProjectModalRef
+} from './modals/LoadProjectModal';
 import { NewProjectModal, NewProjectModalRef } from './modals/NewProjectModal';
 import {
   SaveProjectModal,
@@ -28,12 +32,18 @@ import {
 
 export const MenuButton = () => {
   const newProjectModalRef = useRef<NewProjectModalRef>(null);
+  const loadProjectModalRef = useRef<LoadProjectModalRef>(null);
   const saveProjectModalRef = useRef<SaveProjectModalRef>(null);
   const exportProjectModalRef = useRef<ExportProjectModalRef>(null);
   const importProjectModalRef = useRef<ImportProjectModalRef>(null);
+
   const handleNewProject = useCallback(() => {
     newProjectModalRef.current?.onOpen();
   }, [newProjectModalRef]);
+
+  const handleLoadProject = useCallback(() => {
+    loadProjectModalRef.current?.onOpen();
+  }, [loadProjectModalRef]);
 
   const handleSaveProject = useCallback(() => {
     saveProjectModalRef.current?.onOpen();
@@ -69,6 +79,8 @@ export const MenuButton = () => {
           onAction={(key) => {
             if (key === 'new-project') {
               handleNewProject();
+            } else if (key === 'load-project') {
+              handleLoadProject();
             } else if (key === 'save-project') {
               handleSaveProject();
             } else if (key === 'export-project') {
@@ -83,7 +95,7 @@ export const MenuButton = () => {
         >
           <DropdownItem key='new-project'>New Project</DropdownItem>
 
-          <DropdownItem key='open-project'>Open Project</DropdownItem>
+          <DropdownItem key='load-project'>Load Project</DropdownItem>
 
           <DropdownItem key='save-project'>Save Project</DropdownItem>
 
@@ -97,6 +109,7 @@ export const MenuButton = () => {
         </DropdownMenu>
       </Dropdown>
       <NewProjectModal ref={newProjectModalRef} />
+      <LoadProjectModal ref={loadProjectModalRef} />
       <SaveProjectModal ref={saveProjectModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
       <ImportProjectModal ref={importProjectModalRef} />

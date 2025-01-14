@@ -42,7 +42,7 @@ export const idbOpen = (
   });
 
 export const idbDeleteDB = (name: string) =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     const request = indexedDB.deleteDatabase(name);
 
     request.onerror = (err) => {
@@ -67,6 +67,30 @@ export const idbCreateObjectStore = (
   }
   db.createObjectStore(name, options);
   return true;
+};
+
+export type IDBStores<T extends readonly string[]> = {
+  [K in T[number]]: IDBObjectStore;
+} & {
+  transaction: IDBTransaction;
+};
+
+export const idbOpenTransaction = <T extends readonly string[]>(
+  db: IDBDatabase,
+  storeNames: T,
+  mode: IDBTransactionMode = 'readwrite'
+): IDBStores<T> => {
+  const transaction = db.transaction(storeNames, mode);
+
+  const stores = storeNames.reduce<Record<T[number], IDBObjectStore>>(
+    (acc, storeName) => {
+      acc[storeName as T[number]] = transaction.objectStore(storeName);
+      return acc;
+    },
+    {} as Record<T[number], IDBObjectStore>
+  );
+
+  return { ...stores, transaction };
 };
 
 /**
