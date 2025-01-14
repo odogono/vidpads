@@ -27,9 +27,15 @@ export const SaveProjectModal = forwardRef<SaveProjectModalRef>(
     const { saveProject, projectName } = useProjects();
     const [name, setName] = useState(projectName);
     const [isSaving, setIsSaving] = useState(false);
+    const [nameError, setNameError] = useState<string | null>(null);
 
     const handleSaveProject = useCallback(async () => {
       try {
+        if (!name) {
+          setNameError('Name is required');
+          return;
+        }
+
         setIsSaving(true);
         await saveProject(name);
         onClose();
@@ -65,7 +71,12 @@ export const SaveProjectModal = forwardRef<SaveProjectModalRef>(
                   label='Name'
                   variant='bordered'
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setNameError(null);
+                  }}
+                  errorMessage={nameError}
+                  isInvalid={!!nameError}
                 />
               </ModalBody>
               <ModalFooter>

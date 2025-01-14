@@ -23,6 +23,7 @@ export { applyTrimToPad } from './applyTrimToPad';
 export { newProject } from './newProject';
 export { setPadMedia } from './setPadMedia';
 export { importProject } from './importProject';
+export { updateProject } from './updateProject';
 
 export const initialiseStore = (
   context: StoreContext,

@@ -1,5 +1,6 @@
 'use client';
 
+import { idbCreateObjectStore, idbOpen } from '@helpers/idb';
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
 import {
@@ -19,8 +20,8 @@ import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
 
-const dbName = 'vidpads';
-const dbVersion = 1;
+const DB_NAME = 'vidpads';
+const DB_VERSION = 2;
 
 export const useDBStore = () => {
   return useSuspenseQuery({
@@ -46,34 +47,35 @@ export const useDBStoreUpdate = () => {
   });
 };
 
+const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
+  const oldVersion = event.oldVersion;
+  const newVersion = event.newVersion ?? 1;
+
+  log.debug('upgrading db', oldVersion, newVersion);
+
+  // Handle initial database creation (version 0 to 1)
+  if (oldVersion < 1) {
+    idbCreateObjectStore(db, 'store');
+    idbCreateObjectStore(db, 'metadata', { keyPath: 'id' });
+    idbCreateObjectStore(db, 'videoChunks', {
+      keyPath: ['id', 'videoChunkIndex']
+    });
+    idbCreateObjectStore(db, 'images', { keyPath: 'id' });
+    idbCreateObjectStore(db, 'thumbnails', { keyPath: 'id' });
+  }
+
+  // Handle upgrade to version 2
+  if (oldVersion < 2) {
+    idbCreateObjectStore(db, 'projects', { keyPath: 'id' });
+  }
+};
+
 export const openDB = (): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
-    if (!isIndexedDBSupported()) {
-      reject(new Error('IndexedDB is not supported'));
-      return;
-    }
+  return idbOpen(DB_NAME, DB_VERSION, upgradeDB);
+};
 
-    const request = indexedDB.open(dbName, dbVersion);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      db.createObjectStore('store');
-
-      db.createObjectStore('metadata', { keyPath: 'id' });
-
-      db.createObjectStore('videoChunks', {
-        keyPath: ['id', 'videoChunkIndex']
-      });
-
-      db.createObjectStore('images', { keyPath: 'id' });
-
-      // thumbnails are used for the videos, and the pads
-      db.createObjectStore('thumbnails', { keyPath: 'id' });
-
-      db.createObjectStore('projects', { keyPath: 'id' });
-    };
-  });
+export const closeDB = (db: IDBDatabase) => {
+  db.close();
 };
 
 export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
@@ -103,7 +105,7 @@ export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
     };
 
     transaction.oncomplete = () => {
-      db.close();
+      closeDB(db);
     };
   });
 };
@@ -127,7 +129,7 @@ export const loadProject = async (id: string): Promise<Project | null> => {
     };
 
     transaction.oncomplete = () => {
-      db.close();
+      closeDB(db);
     };
   });
 };
@@ -146,7 +148,7 @@ export const saveProject = async (project: Project): Promise<void> => {
     putRequest.onsuccess = () => resolve();
 
     transaction.oncomplete = () => {
-      db.close();
+      closeDB(db);
     };
   });
 };
@@ -172,7 +174,7 @@ export const loadStateFromIndexedDB =
 
       transaction.oncomplete = () => {
         log.debug('state loaded from IndexedDB');
-        db.close();
+        closeDB(db);
       };
     });
   };
@@ -195,7 +197,7 @@ export const saveStateToIndexedDB = async (
 
     transaction.oncomplete = () => {
       // log.debug('state saved to IndexedDB');
-      db.close();
+      closeDB(db);
     };
   });
 };
@@ -231,7 +233,7 @@ export const saveUrlData = async ({
 
     transaction.oncomplete = () => {
       log.debug('Video data saved successfully');
-      db.close();
+      closeDB(db);
       resolve();
     };
   });
@@ -301,7 +303,7 @@ export const saveVideoData = async ({
 
     transaction.oncomplete = () => {
       log.debug('Video data saved successfully');
-      db.close();
+      closeDB(db);
       resolve();
     };
   });
@@ -394,7 +396,7 @@ export const loadVideoData = async (
         thumbnail
       });
       // log.debug('video data loaded from IndexedDB');
-      db.close();
+      closeDB(db);
     };
   });
 };
@@ -442,7 +444,7 @@ export const saveImageData = async (
     // Handle success
     transaction.oncomplete = () => {
       log.debug('Image data saved successfully');
-      db.close();
+      closeDB(db);
       resolve();
     };
   });
@@ -496,7 +498,7 @@ export const loadImageData = async (
         thumbnail: thumbnailData.thumbnail
       });
 
-      db.close();
+      closeDB(db);
     };
   });
 };
@@ -538,7 +540,7 @@ export const getMediaData = async (url: string): Promise<Media | null> => {
 
     transaction.oncomplete = () => {
       const result = request.result;
-      db.close();
+      closeDB(db);
       resolve(result);
     };
   });
@@ -586,7 +588,7 @@ export const deleteMediaData = async (url: string): Promise<void> => {
 
     transaction.oncomplete = () => {
       log.debug('Media data deleted successfully');
-      db.close();
+      closeDB(db);
       resolve();
     };
   });
@@ -609,7 +611,7 @@ export const setPadThumbnail = async (
     };
 
     transaction.oncomplete = () => {
-      db.close();
+      closeDB(db);
       resolve(padId);
     };
   });
@@ -633,7 +635,7 @@ export const getPadThumbnail = async (
 
     transaction.oncomplete = () => {
       const result = request.result;
-      db.close();
+      closeDB(db);
       resolve(result ? result.thumbnail : null);
     };
   });
@@ -666,7 +668,7 @@ export const deletePadThumbnail = async (padId: string): Promise<string> => {
     };
 
     transaction.oncomplete = () => {
-      db.close();
+      closeDB(db);
       resolve(padId);
     };
   });
@@ -710,7 +712,7 @@ export const getThumbnailFromUrl = async (
 
     transaction.oncomplete = () => {
       const result = request.result;
-      db.close();
+      closeDB(db);
       resolve(result ? result.thumbnail : null);
     };
   });

@@ -40,6 +40,9 @@ interface YTPlayer {
   pauseVideo(): void;
   stopVideo(): void;
   seekTo(seconds: number, allowSeekAhead?: boolean): void;
+  getAvailablePlaybackRates(): number[];
+  setPlaybackRate(rate: number): void;
+  getPlaybackRate(): number;
   getCurrentTime(): number;
   getDuration(): number;
   getPlayerState(): number;
