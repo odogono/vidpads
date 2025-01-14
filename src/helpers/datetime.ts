@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from 'date-fns';
+
 import { createLog } from '@helpers/log';
 
 const log = createLog('datetime');
@@ -54,4 +56,8 @@ export const parseISO8601Duration = (duration: string) => {
       return `${h}${m}:${s}`;
     }
   };
+};
+
+export const formatTimeAgo = (date: Date) => {
+  return formatDistanceToNow(date, { addSuffix: true });
 };

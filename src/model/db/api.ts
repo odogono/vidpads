@@ -1,6 +1,11 @@
 'use client';
 
-import { idbCreateObjectStore, idbDeleteRange, idbOpen } from '@helpers/idb';
+import {
+  idbCreateObjectStore,
+  idbDeleteRange,
+  idbOpen,
+  idbOpenTransaction
+} from '@helpers/idb';
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
 import {
@@ -23,6 +28,12 @@ const log = createLog('db/api');
 
 const DB_NAME = 'vidpads';
 const DB_VERSION = 2;
+
+// At the top of the file, define store names as const arrays
+const PROJECT_STORES = ['projects'] as const;
+const MEDIA_STORES = ['metadata', 'thumbnails'] as const;
+const VIDEO_STORES = ['videoChunks', 'metadata', 'thumbnails'] as const;
+const IMAGE_STORES = ['images', 'metadata', 'thumbnails'] as const;
 
 export const useDBStore = () => {
   return useSuspenseQuery({
@@ -83,9 +94,13 @@ export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['projects'], 'readonly');
-    const store = transaction.objectStore('projects');
-    const getAllRequest = store.getAll();
+    const { projects, transaction } = idbOpenTransaction(
+      db,
+      ['projects'],
+      'readonly'
+    );
+
+    const getAllRequest = projects.getAll();
 
     getAllRequest.onerror = () => {
       log.error(
@@ -115,9 +130,12 @@ export const loadProject = async (id: string): Promise<Project | null> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['projects'], 'readonly');
-    const store = transaction.objectStore('projects');
-    const getRequest = store.get(id);
+    const { projects, transaction } = idbOpenTransaction(
+      db,
+      ['projects'],
+      'readonly'
+    );
+    const getRequest = projects.get(id);
 
     getRequest.onerror = () => {
       log.error('Error loading project from IndexedDB:', getRequest.error);

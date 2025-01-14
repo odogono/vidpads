@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { createLog } from '@helpers/log';
 import { generateUUID } from '@helpers/uuid';
 import {
+  getAllProjectDetails as dbGetAllProjectDetails,
   loadProject as dbLoadProject,
   saveProject as dbSaveProject
 } from '@model/db/api';
@@ -11,7 +12,11 @@ import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Project, ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEY_PROJECT, QUERY_KEY_STATE } from '../constants';
+import {
+  QUERY_KEY_PROJECT,
+  QUERY_KEY_PROJECTS,
+  QUERY_KEY_STATE
+} from '../constants';
 import { exportPadToJSON, exportPadToURLString } from '../pad';
 import { usePadMetadata } from './useMetadataFromPad';
 import { usePadOperations } from './usePadOperations';
@@ -25,6 +30,30 @@ export const useProjects = () => {
   const { urlToExternalUrlMap } = usePadMetadata();
   const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
+
+  const loadProject = useCallback(
+    async (projectId: string) => {
+      log.debug('Loading project:', projectId);
+
+      const project = await dbLoadProject(projectId);
+
+      if (!project) {
+        log.error('Project not found:', projectId);
+        return;
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_STATE]
+      });
+
+      await deleteAllPadThumbnails();
+
+      store.send({ type: 'updateProject', project });
+
+      // await loadProjectMutation.mutateAsync({ projectName });
+    },
+    [queryClient, deleteAllPadThumbnails, store]
+  );
 
   const createNewProject = useCallback(async () => {
     store.send({ type: 'newProject' });
@@ -46,12 +75,12 @@ export const useProjects = () => {
 
     await deleteAllPadThumbnails();
 
-    log.debug('Updating project:', project.id);
+    // log.debug('Updating project:', project.id);
     store.send({ type: 'updateProject', project });
 
     // queryClient.clear();
 
-    log.debug('Created new project:', project.id);
+    // log.debug('Created new project:', project.id);
     return project;
   }, [store, queryClient, deleteAllPadThumbnails]);
 
@@ -85,6 +114,9 @@ export const useProjects = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY_PROJECT]
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PROJECTS]
+      });
     }
   });
 
@@ -100,6 +132,26 @@ export const useProjects = () => {
     },
     [saveProjectMutation]
   );
+
+  const getAllProjectDetails = useCallback(async () => {
+    try {
+      return await queryClient.fetchQuery({
+        queryKey: [QUERY_KEY_PROJECTS],
+        queryFn: async () => {
+          try {
+            const projectDetails = await dbGetAllProjectDetails();
+            return projectDetails;
+          } catch {
+            // log.warn('[usePadThumbnail] Error getting thumbnail:', error);
+            return null;
+          }
+        }
+      });
+    } catch (err) {
+      log.error('Failed to get all project details:', err);
+      return [];
+    }
+  }, [queryClient]);
 
   const exportToJSON = useCallback(() => {
     const { context } = store.getSnapshot();
@@ -158,10 +210,12 @@ export const useProjects = () => {
     projectId,
     projectName,
     createNewProject,
+    loadProject,
     saveProject,
     exportToJSON,
     exportToJSONString,
     exportToURLString,
-    importFromJSONString
+    importFromJSONString,
+    getAllProjectDetails
   };
 };
