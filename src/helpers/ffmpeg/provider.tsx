@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL } from '@ffmpeg/util';
 import { createLog } from '@helpers/log';
+import { QUERY_KEY_FFMPEG } from '@model/constants';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { FFmpegContext } from './context';
 
@@ -41,7 +42,7 @@ export const FFmpegProvider: React.FC<FFmpegProviderProps> = ({
 
 const useFFmpegLoader = (isEnabled: boolean) => {
   return useSuspenseQuery({
-    queryKey: ['ffmpeg', isEnabled],
+    queryKey: [QUERY_KEY_FFMPEG, isEnabled],
     queryFn: () => {
       if (!isEnabled) {
         return null;

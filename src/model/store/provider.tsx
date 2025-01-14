@@ -11,6 +11,7 @@ import {
 } from '@model/db/api';
 import { StoreContextType } from '@model/store/types';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { QUERY_KEY_STORE_INITIALISE } from '../constants';
 import { StoreContext } from './context';
 import { createStore } from './store';
 
@@ -22,7 +23,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
   const snapshotRef = useRef<StoreContextType | null>(null);
 
   const { data: store, isSuccess } = useSuspenseQuery({
-    queryKey: ['store-initialise'],
+    queryKey: [QUERY_KEY_STORE_INITIALISE],
     queryFn: async () => {
       let isInitial = true;
       let storeState: StoreContextType | null = null;
@@ -61,11 +62,11 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
           snapshot.context
         );
         if (hasChanged) {
-          // const diff = getObjectDiff(
-          //   snapshotRef.current ?? {},
-          //   snapshot.context
-          // );
-          // log.info('store updated: saving state to IndexedDB:', diff);
+          const diff = getObjectDiff(
+            snapshotRef.current ?? {},
+            snapshot.context
+          );
+          log.info('store updated: saving state to IndexedDB:', diff);
           saveStateToIndexedDB(snapshot.context);
           snapshotRef.current = snapshot.context;
         }

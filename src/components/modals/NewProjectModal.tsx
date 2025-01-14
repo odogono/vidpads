@@ -3,6 +3,7 @@
 import { forwardRef, useCallback, useImperativeHandle } from 'react';
 
 import { createLog } from '@helpers/log';
+import { useProjects } from '@model/hooks/useProjects';
 import {
   Button,
   Modal,
@@ -21,10 +22,12 @@ export interface NewProjectModalRef {
 
 export const NewProjectModal = forwardRef<NewProjectModalRef>((_props, ref) => {
   const { isOpen, onOpen, onClose } = useModalState();
+  const { createNewProject } = useProjects();
 
   const handleNewProject = useCallback(async () => {
+    await createNewProject();
     onClose();
-  }, [onClose]);
+  }, [createNewProject, onClose]);
 
   useImperativeHandle(ref, () => ({
     onOpen

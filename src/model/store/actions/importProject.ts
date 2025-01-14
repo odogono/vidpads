@@ -23,6 +23,7 @@ export const importProject = (
     ...initialContext,
     projectId: data.id ?? generateUUID(),
     projectName: data.name ?? 'Untitled',
+    selectedPadId: undefined,
     createdAt: data.createdAt ?? new Date().toISOString(),
     updatedAt: data.updatedAt ?? new Date().toISOString()
   };

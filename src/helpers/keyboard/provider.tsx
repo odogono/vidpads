@@ -85,7 +85,7 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [handleKeyDown, handleKeyUp, events]);
 
-  log.debug('isEnabled', isEnabled);
+  // log.debug('isEnabled', isEnabled);
 
   return (
     <KeyboardContext.Provider

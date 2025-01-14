@@ -2,10 +2,13 @@ import { useCallback } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
-import { copyPadThumbnail as dbCopyPadThumbnail } from '@model/db/api';
+import {
+  copyPadThumbnail as dbCopyPadThumbnail,
+  deleteAllPadThumbnails as dbDeleteAllPadThumbnails
+} from '@model/db/api';
 import { getPadById } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   AddFileToPadProps,
   AddUrlToPadProps,
@@ -144,10 +147,26 @@ export const usePadOperations = () => {
     [store, queryClient]
   );
 
+  const deleteAllPadThumbnailsMutation = useMutation({
+    mutationFn: async () => {
+      await dbDeleteAllPadThumbnails();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_THUMBNAIL]
+      });
+    }
+  });
+
+  const deleteAllPadThumbnails = useCallback(async () => {
+    await deleteAllPadThumbnailsMutation.mutateAsync();
+  }, [deleteAllPadThumbnailsMutation]);
+
   return {
     addFileToPad: addFileToPadOp,
     addUrlToPad: addUrlToPadOp,
     copyPadToPad: copyPadToPadOp,
-    clearPad: clearPadOp
+    clearPad: clearPadOp,
+    deleteAllPadThumbnails
   };
 };

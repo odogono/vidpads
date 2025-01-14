@@ -4,7 +4,7 @@ import { Pad } from '@model/types';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 export const usePadThumbnail = (pad: Pad) => {
-  return useSuspenseQuery({
+  const { data: thumbnail } = useSuspenseQuery({
     queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id],
     queryFn: async () => {
       try {
@@ -16,4 +16,6 @@ export const usePadThumbnail = (pad: Pad) => {
       }
     }
   });
+
+  return { thumbnail };
 };
