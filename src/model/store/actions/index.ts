@@ -6,7 +6,6 @@ import type {
   SetEditActiveAction,
   SetPadIsLoopedAction,
   SetPadIsOneShotAction,
-  SetPadMediaAction,
   SetSelectedPadIdAction,
   StoreContext,
   UpdatePadSourceAction,
@@ -22,6 +21,8 @@ export { copyPad } from './copyPad';
 export { playPad } from './playPad';
 export { applyTrimToPad } from './applyTrimToPad';
 export { newProject } from './newProject';
+export { setPadMedia } from './setPadMedia';
+export { importProject } from './importProject';
 
 export const initialiseStore = (
   context: StoreContext,
@@ -134,32 +135,6 @@ export const updateStartTime = (
     ...context,
     startTime
   };
-};
-
-export const setPadMedia = (
-  context: StoreContext,
-  event: SetPadMediaAction
-): StoreContext => {
-  const { padId, media } = event;
-  const pad = findPadById(context, padId);
-  if (!pad) {
-    return context;
-  }
-
-  const { url } = media;
-
-  const newPad: Pad = {
-    ...pad,
-    pipeline: {
-      ...pad.pipeline,
-      source: {
-        type: OperationType.Source,
-        url
-      }
-    }
-  };
-
-  return addOrReplacePad(context, newPad);
 };
 
 export const applyPadDrop = (context: StoreContext): StoreContext => {

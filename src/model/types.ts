@@ -1,4 +1,4 @@
-import { StoreContextType } from "./store/types";
+import { StoreContextType } from './store/types';
 
 export const MediaType = {
   Image: 'image',
@@ -98,3 +98,19 @@ export interface MediaYouTube extends Media {
     high?: Thumbnail;
   };
 }
+
+export interface ProjectExport {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  pads: PadExport[];
+}
+
+export interface PadExport {
+  id: string;
+  source: string;
+  operations?: OperationExport[] | undefined;
+}
+
+export type OperationExport = Operation;

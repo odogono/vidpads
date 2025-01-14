@@ -29,6 +29,11 @@ when an image is dropped onto a tile, it creates a new sequence of operations, w
 
 
 
+## Importing from JSON
+
+clear the project
+
+
 ## Extracting a video thumbnail
 
 there are three methods for extracting a video thumbnail:

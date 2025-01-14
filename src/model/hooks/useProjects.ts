@@ -9,10 +9,11 @@ import {
 import { createProject } from '@model/project';
 import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { Project } from '@model/types';
+import { Project, ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { exportPadToJSON, exportPadToURLString } from '../pad';
 import { usePadMetadata } from './useMetadataFromPad';
+import { usePadOperations } from './usePadOperations';
 
 const log = createLog('model/useProjects');
 
@@ -21,6 +22,7 @@ export const useProjects = () => {
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
   const { urlToExternalUrlMap } = usePadMetadata();
+  const { addUrlToPad } = usePadOperations();
 
   const createNewProject = useCallback(async () => {
     store.send({ type: 'newProject' });
@@ -105,6 +107,24 @@ export const useProjects = () => {
     return `${projectId}|${projectName}|${createdAt}|${updatedAt}|${padsURL.join('|')}`;
   }, [store, urlToExternalUrlMap]);
 
+  const importFromJSONString = useCallback(
+    async (json: string) => {
+      const jsonObject = JSON.parse(json) as ProjectExport;
+      log.debug('Importing project:', jsonObject);
+
+      store.send({ type: 'importProject', data: jsonObject });
+
+      await Promise.all(
+        jsonObject.pads.map((pad) =>
+          addUrlToPad({ url: pad.source, padId: pad.id, store })
+        )
+      );
+
+      log.debug('Imported project:', jsonObject);
+    },
+    [store, addUrlToPad]
+  );
+
   return {
     projectId,
     projectName,
@@ -112,6 +132,7 @@ export const useProjects = () => {
     saveProject,
     exportToJSON,
     exportToJSONString,
-    exportToURLString
+    exportToURLString,
+    importFromJSONString
   };
 };

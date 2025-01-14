@@ -3,7 +3,7 @@ import { applyPadTrimOperation } from '@model/pad';
 import { ApplyTrimToPadAction, StoreContext } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
-const log = createLog('applyTrimToPad');
+const log = createLog('store/actions/applyTrimToPad');
 
 export const applyTrimToPad = (
   context: StoreContext,

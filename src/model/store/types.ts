@@ -1,4 +1,4 @@
-import type { Media, Pad } from '@model/types';
+import type { Media, Pad, ProjectExport } from '@model/types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
@@ -95,6 +95,11 @@ export type NewProjectAction = {
   type: 'newProject';
 };
 
+export type ImportProjectAction = {
+  type: 'importProject';
+  data: ProjectExport;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -110,7 +115,8 @@ export type Actions =
   | SetPadIsOneShotAction
   | ApplyTrimToPadAction
   | SetPadIsLoopedAction
-  | NewProjectAction;
+  | NewProjectAction
+  | ImportProjectAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
