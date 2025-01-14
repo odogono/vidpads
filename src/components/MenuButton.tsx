@@ -31,11 +31,11 @@ import {
 } from './modals/SaveProjectModal';
 
 export const MenuButton = () => {
-  const newProjectModalRef = useRef<NewProjectModalRef>(null);
-  const loadProjectModalRef = useRef<LoadProjectModalRef>(null);
-  const saveProjectModalRef = useRef<SaveProjectModalRef>(null);
-  const exportProjectModalRef = useRef<ExportProjectModalRef>(null);
-  const importProjectModalRef = useRef<ImportProjectModalRef>(null);
+  const newProjectModalRef = useRef<NewProjectModalRef | null>(null);
+  const loadProjectModalRef = useRef<LoadProjectModalRef | null>(null);
+  const saveProjectModalRef = useRef<SaveProjectModalRef | null>(null);
+  const exportProjectModalRef = useRef<ExportProjectModalRef | null>(null);
+  const importProjectModalRef = useRef<ImportProjectModalRef | null>(null);
 
   const handleNewProject = useCallback(() => {
     newProjectModalRef.current?.onOpen();

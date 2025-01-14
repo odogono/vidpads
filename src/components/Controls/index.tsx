@@ -2,15 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { createLog } from '@helpers/log';
 import { useEditActive, usePad } from '@model/store/selectors';
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-} from '@nextui-org/react';
-import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
+import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
 import { StartEndSlider } from './StartEndSlider';
 
 const log = createLog('Controls');
@@ -26,7 +21,7 @@ export const Controls = () => {
     selectedPadId
   } = usePad();
   const { isEditActive, setEditActive } = useEditActive();
-  const modalRef = useRef<DeleteModalRef>(null);
+  const modalRef = useRef<DeleteModalRef | null>(null);
 
   // used to prevent hydration error
   // since selectedPadId is undefined on the server
@@ -65,7 +60,7 @@ export const Controls = () => {
   return (
     <Card className='mt-4 w-auto max-w-2xl h-[130px] mx-auto bg-gray-800'>
       <CardHeader className='flex justify-between items-center'>
-        <div className="flex items-center gap-2">
+        <div className='flex items-center gap-2'>
           <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>
         </div>
         <div className='flex gap-2'>

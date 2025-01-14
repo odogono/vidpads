@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
+import { useCallback, useImperativeHandle, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
@@ -21,87 +21,87 @@ export interface SaveProjectModalRef {
   onOpen: () => void;
 }
 
-export const SaveProjectModal = forwardRef<SaveProjectModalRef>(
-  (_props, ref) => {
-    const { isOpen, onOpen, onClose } = useModalState();
-    const { saveProject, projectName } = useProjects();
-    const [name, setName] = useState(projectName);
-    const [isSaving, setIsSaving] = useState(false);
-    const [nameError, setNameError] = useState<string | null>(null);
+export interface SaveProjectModalProps {
+  ref: React.RefObject<SaveProjectModalRef | null>;
+}
 
-    const handleSaveProject = useCallback(async () => {
-      try {
-        if (!name) {
-          setNameError('Name is required');
-          return;
-        }
+export const SaveProjectModal = ({ ref }: SaveProjectModalProps) => {
+  const { isOpen, onOpen, onClose } = useModalState();
+  const { saveProject, projectName } = useProjects();
+  const [name, setName] = useState(projectName);
+  const [isSaving, setIsSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
-        setIsSaving(true);
-        await saveProject(name);
-        onClose();
-      } catch (error) {
-        log.error('Failed to save project:', error);
-        // Handle error (show toast, etc)
-      } finally {
-        setIsSaving(false);
+  const handleSaveProject = useCallback(async () => {
+    try {
+      if (!name) {
+        setNameError('Name is required');
+        return;
       }
-    }, [saveProject, name, onClose]);
 
-    useImperativeHandle(ref, () => ({
-      onOpen
-    }));
+      setIsSaving(true);
+      await saveProject(name);
+      onClose();
+    } catch (error) {
+      log.error('Failed to save project:', error);
+      // Handle error (show toast, etc)
+    } finally {
+      setIsSaving(false);
+    }
+  }, [saveProject, name, onClose]);
 
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        backdrop='blur'
-        className='bg-background text-foreground'
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Save Project
-              </ModalHeader>
-              <ModalBody>
-                <Input
-                  isClearable
-                  className='w-full'
-                  label='Name'
-                  variant='bordered'
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setNameError(null);
-                  }}
-                  errorMessage={nameError}
-                  isInvalid={!!nameError}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  variant='ghost'
-                  onPress={onClose}
-                  className='bg-stone-600 hover:bg-stone-700 text-foreground'
-                  isDisabled={isSaving}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onPress={handleSaveProject}
-                  className='hover:bg-sky-600 bg-sky-500 text-foreground'
-                  isLoading={isSaving}
-                >
-                  Save
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    );
-  }
-);
+  useImperativeHandle(ref, () => ({
+    onOpen
+  }));
 
-SaveProjectModal.displayName = 'SaveProjectModal';
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      backdrop='blur'
+      className='bg-background text-foreground'
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className='flex flex-col gap-1'>
+              Save Project
+            </ModalHeader>
+            <ModalBody>
+              <Input
+                isClearable
+                className='w-full'
+                label='Name'
+                variant='bordered'
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setNameError(null);
+                }}
+                errorMessage={nameError}
+                isInvalid={!!nameError}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant='ghost'
+                onPress={onClose}
+                className='bg-stone-600 hover:bg-stone-700 text-foreground'
+                isDisabled={isSaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                onPress={handleSaveProject}
+                className='hover:bg-sky-600 bg-sky-500 text-foreground'
+                isLoading={isSaving}
+              >
+                Save
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+};

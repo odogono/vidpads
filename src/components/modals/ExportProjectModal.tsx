@@ -1,8 +1,8 @@
 'use client';
 
-import { forwardRef, useImperativeHandle } from 'react';
+import { useImperativeHandle } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
 import {
   Button,
@@ -16,80 +16,80 @@ import {
 import { CopyButton } from '../CopyButton';
 import { useModalState } from './useModalState';
 
-const log = createLog('ExportProjectModal');
+// const log = createLog('ExportProjectModal');
 
 export interface ExportProjectModalRef {
   onOpen: () => void;
 }
 
-export const ExportProjectModal = forwardRef<ExportProjectModalRef>(
-  (_props, ref) => {
-    const { isOpen, onOpen, onClose } = useModalState();
-    const { exportToJSONString, exportToURLString } = useProjects();
+export interface ExportProjectModalProps {
+  ref: React.RefObject<ExportProjectModalRef | null>;
+}
 
-    const json = exportToJSONString();
-    const url = exportToURLString();
+export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
+  const { isOpen, onOpen, onClose } = useModalState();
+  const { exportToJSONString, exportToURLString } = useProjects();
 
-    useImperativeHandle(ref, () => ({
-      onOpen
-    }));
+  const json = exportToJSONString();
+  const url = exportToURLString();
 
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        backdrop='blur'
-        className='bg-background text-foreground'
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Export Project
-              </ModalHeader>
-              <ModalBody>
-                <div className='flex flex-row gap-2 items-center'>
-                  <Input
-                    isReadOnly
-                    className='w-full'
-                    label='URL'
-                    variant='bordered'
-                    defaultValue={url}
-                  />
-                  <CopyButton text={url} />
-                </div>
-                <div className='flex flex-row gap-2 items-center'>
-                  <Input
-                    isReadOnly
-                    className='w-full'
-                    label='JSON'
-                    variant='bordered'
-                    defaultValue={json}
-                  />
-                  <CopyButton text={json} />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  variant='ghost'
-                  onPress={onClose}
-                  className='bg-stone-600 hover:bg-stone-700 text-foreground'
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onPress={onClose}
-                  className='hover:bg-sky-600 bg-sky-500 text-foreground'
-                >
-                  Ok
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    );
-  }
-);
+  useImperativeHandle(ref, () => ({
+    onOpen
+  }));
 
-ExportProjectModal.displayName = 'ExportProjectModal';
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      backdrop='blur'
+      className='bg-background text-foreground'
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className='flex flex-col gap-1'>
+              Export Project
+            </ModalHeader>
+            <ModalBody>
+              <div className='flex flex-row gap-2 items-center'>
+                <Input
+                  isReadOnly
+                  className='w-full'
+                  label='URL'
+                  variant='bordered'
+                  defaultValue={url}
+                />
+                <CopyButton text={url} />
+              </div>
+              <div className='flex flex-row gap-2 items-center'>
+                <Input
+                  isReadOnly
+                  className='w-full'
+                  label='JSON'
+                  variant='bordered'
+                  defaultValue={json}
+                />
+                <CopyButton text={json} />
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant='ghost'
+                onPress={onClose}
+                className='bg-stone-600 hover:bg-stone-700 text-foreground'
+              >
+                Cancel
+              </Button>
+              <Button
+                onPress={onClose}
+                className='hover:bg-sky-600 bg-sky-500 text-foreground'
+              >
+                Ok
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+};

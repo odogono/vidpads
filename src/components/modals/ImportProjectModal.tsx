@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { useImperativeHandle, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
@@ -21,72 +21,72 @@ export interface ImportProjectModalRef {
   onOpen: () => void;
 }
 
-export const ImportProjectModal = forwardRef<ImportProjectModalRef>(
-  (_props, ref) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { isOpen, onOpen, onClose } = useModalState();
-    const { importFromJSONString } = useProjects();
+export interface ImportProjectModalProps {
+  ref: React.RefObject<ImportProjectModalRef | null>;
+}
 
-    const handleImport = () => {
-      const json = textareaRef.current?.value;
-      if (!json) return;
+export const ImportProjectModal = ({ ref }: ImportProjectModalProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { isOpen, onOpen, onClose } = useModalState();
+  const { importFromJSONString } = useProjects();
 
-      try {
-        importFromJSONString(json);
-        onClose();
-      } catch (error) {
-        log.error('Failed to import project:', error);
-      }
-    };
+  const handleImport = () => {
+    const json = textareaRef.current?.value;
+    if (!json) return;
 
-    useImperativeHandle(ref, () => ({
-      onOpen
-    }));
+    try {
+      importFromJSONString(json);
+      onClose();
+    } catch (error) {
+      log.error('Failed to import project:', error);
+    }
+  };
 
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        backdrop='blur'
-        className='bg-background text-foreground'
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Import Project
-              </ModalHeader>
-              <ModalBody>
-                <Textarea
-                  ref={textareaRef}
-                  isClearable
-                  className='w-full'
-                  label='JSON'
-                  placeholder='Paste your JSON here'
-                  variant='bordered'
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  variant='ghost'
-                  onPress={onClose}
-                  className='bg-stone-600 hover:bg-stone-700 text-foreground'
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onPress={handleImport}
-                  className='hover:bg-sky-600 bg-sky-500 text-foreground'
-                >
-                  Import
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    );
-  }
-);
+  useImperativeHandle(ref, () => ({
+    onOpen
+  }));
 
-ImportProjectModal.displayName = 'ImportProjectModal';
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      backdrop='blur'
+      className='bg-background text-foreground'
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className='flex flex-col gap-1'>
+              Import Project
+            </ModalHeader>
+            <ModalBody>
+              <Textarea
+                ref={textareaRef}
+                isClearable
+                className='w-full'
+                label='JSON'
+                placeholder='Paste your JSON here'
+                variant='bordered'
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant='ghost'
+                onPress={onClose}
+                className='bg-stone-600 hover:bg-stone-700 text-foreground'
+              >
+                Cancel
+              </Button>
+              <Button
+                onPress={handleImport}
+                className='hover:bg-sky-600 bg-sky-500 text-foreground'
+              >
+                Import
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+};

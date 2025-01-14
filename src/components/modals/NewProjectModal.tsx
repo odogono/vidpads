@@ -1,8 +1,8 @@
 'use client';
 
-import { forwardRef, useCallback, useImperativeHandle } from 'react';
+import { useCallback, useImperativeHandle } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
 import {
   Button,
@@ -14,13 +14,17 @@ import {
 } from '@nextui-org/react';
 import { useModalState } from './useModalState';
 
-const log = createLog('NewProjectModal');
+// const log = createLog('NewProjectModal');
 
 export interface NewProjectModalRef {
   onOpen: () => void;
 }
 
-export const NewProjectModal = forwardRef<NewProjectModalRef>((_props, ref) => {
+export interface NewProjectModalProps {
+  ref: React.RefObject<NewProjectModalRef | null>;
+}
+
+export const NewProjectModal = ({ ref }: NewProjectModalProps) => {
   const { isOpen, onOpen, onClose } = useModalState();
   const { createNewProject } = useProjects();
 
@@ -69,6 +73,4 @@ export const NewProjectModal = forwardRef<NewProjectModalRef>((_props, ref) => {
       </ModalContent>
     </Modal>
   );
-});
-
-NewProjectModal.displayName = 'NewProjectModal';
+};
