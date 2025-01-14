@@ -16,7 +16,6 @@ export type PlayerReadyState = keyof typeof PlayerReadyState;
 
 export interface PlayerProps {
   id: string;
-  ref?: React.RefObject<PlayerRef>;
   isVisible?: boolean;
   media: Media;
   showControls?: boolean;
@@ -45,9 +44,16 @@ export interface PlayerStop {
   url: string;
 }
 
+export interface PlayerStopped {
+  url: string;
+  time: number;
+}
+
 export interface PlayerSeek {
   url: string;
   time: number;
+  inProgress: boolean;
+  requesterId: string;
 }
 
 interface PlayerAdditional {

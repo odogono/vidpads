@@ -23,11 +23,7 @@ export interface StartEndSliderProps {
 
 const log = createLog('StartEndSlider');
 
-export const StartEndSlider = ({
-  isEditActive,
-  pad,
-  selectedPadId
-}: StartEndSliderProps) => {
+export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
   const events = useEvents();
   const padSourceUrl = getPadSourceUrl(pad);
   const { data: metadata } = useMetadataFromPad(pad);
@@ -68,7 +64,6 @@ export const StartEndSlider = ({
   );
 
   const {
-    isSeeking,
     handleSlideChange,
     handleSlideChangeEnd,
     slideValue,
@@ -91,10 +86,17 @@ export const StartEndSlider = ({
   }, [events, handleThumbnailExtracted]);
 
   useEffect(() => {
-    if (!isSeeking && padSourceUrl) {
-      events.emit('video:seek', { url: padSourceUrl, time: slideValue[0] });
+    if (padSourceUrl) {
+      events.emit('video:seek', {
+        url: padSourceUrl,
+        time: slideValue[0],
+        inProgress: false,
+        requesterId: 'start-end-slider'
+      });
     }
-  }, [slideValue, isSeeking, padSourceUrl, events]);
+    // do not listen to slideValue or isSeeking
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [padSourceUrl, events]);
 
   // log.debug('selectedPadId', pad?.id, slideValue);
 
@@ -109,6 +111,7 @@ export const StartEndSlider = ({
       value={slideValue}
       onChange={handleSlideChange}
       onChangeEnd={handleSlideChangeEnd}
+      showTooltip={true}
       startContent={
         <DurationButton onPress={handleDurationBack}>
           <ChevronsLeft />

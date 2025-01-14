@@ -29,9 +29,14 @@ export const useStartAndEndTime = ({
   const padSourceUrl = getPadSourceUrl(pad);
 
   const setVideoTime = useCallback(
-    (time: number) => {
+    (time: number, inProgress: boolean) => {
       if (!padSourceUrl) return;
-      events.emit('video:seek', { url: padSourceUrl, time });
+      events.emit('video:seek', {
+        url: padSourceUrl,
+        time,
+        inProgress,
+        requesterId: 'useStartAndEndTime'
+      });
     },
     [events, padSourceUrl]
   );
@@ -41,10 +46,10 @@ export const useStartAndEndTime = ({
 
     if (wasStartPressedLast.current) {
       startTime = startTime - 0.1;
-      setVideoTime(startTime);
+      setVideoTime(startTime, false);
     } else {
       endTime = endTime - 0.1;
-      setVideoTime(endTime);
+      setVideoTime(endTime, false);
     }
 
     setSlideValue([startTime, endTime]);
@@ -58,10 +63,10 @@ export const useStartAndEndTime = ({
 
     if (wasStartPressedLast.current) {
       startTime = startTime + 0.1;
-      setVideoTime(startTime);
+      setVideoTime(startTime, false);
     } else {
       endTime = endTime + 0.1;
-      setVideoTime(endTime);
+      setVideoTime(endTime, false);
     }
 
     setSlideValue([startTime, endTime]);
@@ -80,13 +85,13 @@ export const useStartAndEndTime = ({
       if (startTime !== lastStartTime) {
         wasStartPressedLast.current = true;
         // log.debug('[handleSlideChange] startTime', { startTime, endTime });
-        setVideoTime(startTime);
+        setVideoTime(startTime, false);
       }
 
       if (endTime !== lastEndTime) {
         wasStartPressedLast.current = false;
         // log.debug('[handleSlideChange] endTime', { startTime, endTime });
-        setVideoTime(endTime);
+        setVideoTime(endTime, false);
       }
 
       lastValueRef.current = [startTime, endTime];
@@ -110,6 +115,7 @@ export const useStartAndEndTime = ({
           'to',
           startTime
         );
+        setVideoTime(startTime, false);
       }
 
       if (endTime !== lastEndTime) {
@@ -119,6 +125,7 @@ export const useStartAndEndTime = ({
           'to',
           endTime
         );
+        setVideoTime(endTime, false);
       }
 
       if (startTime !== lastStartTime || endTime !== lastEndTime) {
@@ -131,7 +138,7 @@ export const useStartAndEndTime = ({
       existingValueRef.current = [startTime, endTime];
       setIsSeeking(false);
     },
-    [onStartAndEndTimeChange]
+    [onStartAndEndTimeChange, setVideoTime]
   );
 
   useEffect(() => {

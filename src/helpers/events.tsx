@@ -10,6 +10,7 @@ import {
   PlayerReady,
   PlayerSeek,
   PlayerStop,
+  PlayerStopped,
   PlayerThumbnailExtracted
 } from '@components/Player/types';
 
@@ -20,12 +21,21 @@ export type EventEmitterEvents = {
   'pad:touchup': {
     padId: string;
   };
+  // request the video to start
   'video:start': PlayerPlay;
+  // request the video to stop
   'video:stop': PlayerStop;
+  // the video has stopped
+  'video:stopped': PlayerStopped;
+  // request the video to seek to a specific time
   'video:seek': PlayerSeek;
+  // request the video to extract a thumbnail
   'video:extract-thumbnail': PlayerExtractThumbnail;
+  // a thumbnail has been extracted
   'video:thumbnail-extracted': PlayerThumbnailExtracted;
+  // the video is ready
   'video:ready': PlayerReady;
+  // the keyboard is enabled
   'keyboard:enabled': boolean;
 };
 
