@@ -11,6 +11,7 @@ import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Project, ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY_PROJECT } from '../constants';
 import { exportPadToJSON, exportPadToURLString } from '../pad';
 import { usePadMetadata } from './useMetadataFromPad';
 import { usePadOperations } from './usePadOperations';
@@ -51,17 +52,26 @@ export const useProjects = () => {
         store: snapshot
       };
 
+      log.debug('Saving project:', saveProject);
+
       await dbSaveProject(saveProject);
+
+      // update the project id and name
+      store.send({ type: 'updateProject', project: saveProject });
+
       return saveProject;
     },
     onSuccess: () => {
       // Optionally invalidate queries that depend on project data
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PROJECT]
+      });
     }
   });
 
   const saveProject = useCallback(
     async (projectName: string = 'Untitled') => {
+      log.debug('Saving project:', projectName);
       await saveProjectMutation.mutateAsync({ projectName });
       const { error } = saveProjectMutation;
       if (error) {

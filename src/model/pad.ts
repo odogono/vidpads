@@ -88,7 +88,7 @@ export const exportPadToURLString = (
   const ops = operations
     ?.map(exportOperationToJSON)
     .filter(Boolean) as OperationExport[];
-  const opsURL = ops.join(':');
+  const opsURL = ops?.join(':') ?? '';
 
   return `${id}|${source}|${opsURL}`;
 };

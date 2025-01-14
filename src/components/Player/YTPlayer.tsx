@@ -10,7 +10,7 @@ import {
   PlayerStop
 } from './types';
 
-const log = createLog('YTPlayer');
+const log = createLog('player/yt');
 
 // Create a promise to track when the API is ready
 let youtubeApiPromise: Promise<void> | null = null;
@@ -69,6 +69,7 @@ export const YTPlayer = ({ media }: PlayerProps) => {
       endTimeRef.current = endTime;
       isLoopedRef.current = isLoop ?? false;
 
+      // playerRef.current.setPlaybackRate(0.5);
       playerRef.current.seekTo(startTime, true);
       playerRef.current.playVideo();
     },
@@ -141,6 +142,9 @@ export const YTPlayer = ({ media }: PlayerProps) => {
         events: {
           onReady: (event) => {
             log.debug('[onReady]', media.url, event);
+
+            // log.debug('[onReady]', event.target.getAvailablePlaybackRates());
+            // result: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
           },
           onStateChange: (event) => {
             const { data } = event;
