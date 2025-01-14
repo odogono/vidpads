@@ -174,3 +174,32 @@ export const idbGetRange = (
     };
     req.onerror = (ev) => rej(ev);
   });
+
+export const idbDeleteRange = (
+  db: IDBDatabase,
+  storeName: string,
+  range: IDBKeyRange
+): Promise<number> =>
+  new Promise((res, rej) => {
+    const transaction = db.transaction(storeName, 'readwrite');
+    const store = transaction.objectStore(storeName);
+
+    let count = 0;
+
+    const request = store.openCursor(range);
+
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (cursor) {
+        cursor.delete().onsuccess = () => {
+          count++;
+        };
+        cursor.continue();
+      }
+    };
+    request.onerror = () => rej(request.error);
+    transaction.oncomplete = () => {
+      return res(count);
+    };
+    transaction.onerror = () => rej(transaction.error);
+  });

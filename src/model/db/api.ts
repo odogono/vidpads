@@ -1,6 +1,6 @@
 'use client';
 
-import { idbCreateObjectStore, idbOpen } from '@helpers/idb';
+import { idbCreateObjectStore, idbDeleteRange, idbOpen } from '@helpers/idb';
 import { createLog } from '@helpers/log';
 import { StoreContextType } from '@model/store/types';
 import {
@@ -16,6 +16,7 @@ import {
   useQueryClient,
   useSuspenseQuery
 } from '@tanstack/react-query';
+import { QUERY_KEY_STATE } from '../constants';
 import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
@@ -25,7 +26,7 @@ const DB_VERSION = 2;
 
 export const useDBStore = () => {
   return useSuspenseQuery({
-    queryKey: ['store-state'],
+    queryKey: [QUERY_KEY_STATE],
     queryFn: loadStateFromIndexedDB
   });
 };
@@ -42,7 +43,7 @@ export const useDBStoreUpdate = () => {
   return useMutation({
     mutationFn: saveStateToIndexedDB,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['store-state'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY_STATE] });
     }
   });
 };
@@ -224,7 +225,7 @@ export const saveUrlData = async ({
 
     // Save the thumbnail
     const thumbnailStore = transaction.objectStore('thumbnails');
-    thumbnailStore.put({ id, thumbnail });
+    thumbnailStore.put({ id, type: 'url', thumbnail });
 
     transaction.onerror = () => {
       log.error('Error saving video data:', transaction.error);
@@ -275,7 +276,7 @@ export const saveVideoData = async ({
 
     // Save the thumbnail
     const thumbnailStore = transaction.objectStore('thumbnails');
-    thumbnailStore.put({ id, thumbnail });
+    thumbnailStore.put({ id, type: 'video', thumbnail });
 
     // Save the video chunks
     const videoChunksStore = transaction.objectStore('videoChunks');
@@ -433,7 +434,7 @@ export const saveImageData = async (
 
     // Save the thumbnail
     const thumbnailStore = transaction.objectStore('thumbnails');
-    thumbnailStore.put({ id, thumbnail });
+    thumbnailStore.put({ id, type: 'image', thumbnail });
 
     // Handle errors
     transaction.onerror = () => {
@@ -604,7 +605,11 @@ export const setPadThumbnail = async (
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('thumbnails', 'readwrite');
     const thumbnailStore = transaction.objectStore('thumbnails');
-    const request = thumbnailStore.put({ id: thumbnailId, thumbnail });
+    const request = thumbnailStore.put({
+      id: thumbnailId,
+      type: 'pad',
+      thumbnail
+    });
 
     request.onerror = () => {
       reject(request.error);
@@ -639,6 +644,20 @@ export const getPadThumbnail = async (
       resolve(result ? result.thumbnail : null);
     };
   });
+};
+
+export const deleteAllPadThumbnails = async (): Promise<number> => {
+  const db = await openDB();
+
+  const count = await idbDeleteRange(
+    db,
+    'thumbnails',
+    IDBKeyRange.bound('pad-', 'pad-\uFFFF')
+  );
+
+  log.debug('[deleteAllPadThumbnails] deleted pad thumbnails:', count);
+
+  return count;
 };
 
 export const copyPadThumbnail = async (

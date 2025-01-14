@@ -5,6 +5,7 @@ import { StoreContext } from '../types';
 export const newProject = (): StoreContext => {
   return {
     ...initialContext,
+    selectedPadId: undefined,
     projectId: generateUUID(),
     projectName: 'Untitled',
     createdAt: new Date().toISOString(),

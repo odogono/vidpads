@@ -11,7 +11,7 @@ import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Project, ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEY_PROJECT } from '../constants';
+import { QUERY_KEY_PROJECT, QUERY_KEY_STATE } from '../constants';
 import { exportPadToJSON, exportPadToURLString } from '../pad';
 import { usePadMetadata } from './useMetadataFromPad';
 import { usePadOperations } from './usePadOperations';
@@ -23,6 +23,7 @@ export const useProjects = () => {
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
   const { urlToExternalUrlMap } = usePadMetadata();
+  const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
 
   const createNewProject = useCallback(async () => {
@@ -32,9 +33,27 @@ export const useProjects = () => {
     const projectId = snapshot.projectId ?? generateUUID();
     const project = createProject(projectId, snapshot);
 
-    await dbSaveProject(project);
+    // don't save it to the db - this is a user choice
+    // await dbSaveProject(project);
+
+    queryClient.invalidateQueries({
+      queryKey: [QUERY_KEY_PROJECT]
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: [QUERY_KEY_STATE]
+    });
+
+    await deleteAllPadThumbnails();
+
+    log.debug('Updating project:', project.id);
+    store.send({ type: 'updateProject', project });
+
+    // queryClient.clear();
+
+    log.debug('Created new project:', project.id);
     return project;
-  }, [store]);
+  }, [store, queryClient, deleteAllPadThumbnails]);
 
   // Add mutation for saving project
   const saveProjectMutation = useMutation({

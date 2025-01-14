@@ -24,7 +24,7 @@ const log = createLog('PadComponent');
 
 export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
-  const { data: thumbnail } = usePadThumbnail(pad);
+  const { thumbnail } = usePadThumbnail(pad);
   const dragImage = useNullImage();
   const { createGhost, removeGhost, updateGhost } = useGhostDrag();
   const {
