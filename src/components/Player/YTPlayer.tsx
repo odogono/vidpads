@@ -140,20 +140,22 @@ export const YTPlayer = ({ media }: PlayerProps) => {
         },
         events: {
           onReady: (event) => {
-            log.debug('ready', media.url, event);
+            log.debug('[onReady]', media.url, event);
           },
           onStateChange: (event) => {
+            const { data } = event;
             if (!isMounted) return;
-            if (event.data === window.YT.PlayerState.PLAYING) {
+            if (data === window.YT.PlayerState.PLAYING) {
               setIsPlaying(true);
-            } else if (event.data === window.YT.PlayerState.PAUSED) {
+            } else if (data === window.YT.PlayerState.PAUSED) {
               setIsPlaying(false);
-            } else if (event.data === window.YT.PlayerState.ENDED) {
+            } else if (data === window.YT.PlayerState.ENDED) {
               handleEnded();
             }
+            log.debug('[onStateChange]', media.url, PlayerStateToString(data));
           },
           onError: (event) => {
-            log.debug('error', media.url, event);
+            log.debug('[onError]', media.url, event);
           }
         }
       });
@@ -223,4 +225,23 @@ export const YTPlayer = ({ media }: PlayerProps) => {
   return (
     <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />
   );
+};
+
+const PlayerStateToString = (state: number) => {
+  switch (state) {
+    case window.YT.PlayerState.UNSTARTED:
+      return 'UNSTARTED';
+    case window.YT.PlayerState.ENDED:
+      return 'ENDED';
+    case window.YT.PlayerState.PLAYING:
+      return 'PLAYING';
+    case window.YT.PlayerState.PAUSED:
+      return 'PAUSED';
+    case window.YT.PlayerState.BUFFERING:
+      return 'BUFFERING';
+    case window.YT.PlayerState.CUED:
+      return 'CUED';
+    default:
+      return `UNKNOWN:${state}`;
+  }
 };
