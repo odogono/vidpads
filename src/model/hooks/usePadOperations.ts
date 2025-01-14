@@ -14,6 +14,7 @@ import {
   addUrlToPad,
   deletePadMedia
 } from '../';
+import { QUERY_KEY_PADS_METADATA, QUERY_KEY_PAD_METADATA } from '../constants';
 
 const log = createLog('model/api');
 
@@ -33,6 +34,14 @@ export const usePadOperations = () => {
         queryKey: [QUERY_KEY_PAD_THUMBNAIL, props.padId]
       });
 
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_METADATA, props.padId]
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PADS_METADATA]
+      });
+
       return metadata;
     },
     [queryClient, store]
@@ -45,6 +54,14 @@ export const usePadOperations = () => {
       // Invalidate the pad-thumbnail query to trigger a refetch
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY_PAD_THUMBNAIL, props.padId]
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_METADATA, props.padId]
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PADS_METADATA]
       });
 
       return metadata;
@@ -79,6 +96,18 @@ export const usePadOperations = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY_PAD_THUMBNAIL, targetPadId]
       });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_METADATA, sourcePadId]
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_METADATA, targetPadId]
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PADS_METADATA]
+      });
+
       return true;
     },
     [store, queryClient, isShiftKeyDown]
@@ -101,6 +130,14 @@ export const usePadOperations = () => {
 
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY_PAD_THUMBNAIL, padId]
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PAD_METADATA, padId]
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PADS_METADATA]
       });
       return true;
     },

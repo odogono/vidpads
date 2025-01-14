@@ -11,8 +11,7 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader,
-  useDisclosure
+  ModalHeader
 } from '@nextui-org/react';
 import { useModalState } from './useModalState';
 

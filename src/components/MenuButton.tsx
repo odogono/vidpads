@@ -12,6 +12,10 @@ import {
   DropdownSection,
   DropdownTrigger
 } from '@nextui-org/react';
+import {
+  ExportProjectModal,
+  ExportProjectModalRef
+} from './modals/ExportProjectModal';
 import { NewProjectModal, NewProjectModalRef } from './modals/NewProjectModal';
 import {
   SaveProjectModal,
@@ -21,6 +25,7 @@ import {
 export const MenuButton = () => {
   const newProjectModalRef = useRef<NewProjectModalRef>(null);
   const saveProjectModalRef = useRef<SaveProjectModalRef>(null);
+  const exportProjectModalRef = useRef<ExportProjectModalRef>(null);
 
   const handleNewProject = useCallback(() => {
     newProjectModalRef.current?.onOpen();
@@ -29,6 +34,10 @@ export const MenuButton = () => {
   const handleSaveProject = useCallback(() => {
     saveProjectModalRef.current?.onOpen();
   }, [saveProjectModalRef]);
+
+  const handleExportProject = useCallback(() => {
+    exportProjectModalRef.current?.onOpen();
+  }, [exportProjectModalRef]);
 
   return (
     <>
@@ -54,6 +63,8 @@ export const MenuButton = () => {
               handleNewProject();
             } else if (key === 'save-project') {
               handleSaveProject();
+            } else if (key === 'export-project') {
+              handleExportProject();
             }
           }}
           classNames={{
@@ -75,6 +86,7 @@ export const MenuButton = () => {
       </Dropdown>
       <NewProjectModal ref={newProjectModalRef} />
       <SaveProjectModal ref={saveProjectModalRef} />
+      <ExportProjectModal ref={exportProjectModalRef} />
     </>
   );
 };

@@ -11,6 +11,8 @@ import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Project } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { exportPadToJSON, exportPadToURLString } from '../pad';
+import { usePadMetadata } from './useMetadataFromPad';
 
 const log = createLog('model/useProjects');
 
@@ -18,6 +20,7 @@ export const useProjects = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
+  const { urlToExternalUrlMap } = usePadMetadata();
 
   const createNewProject = useCallback(async () => {
     store.send({ type: 'newProject' });
@@ -67,10 +70,48 @@ export const useProjects = () => {
     [saveProjectMutation]
   );
 
+  const exportToJSON = useCallback(() => {
+    const { context } = store.getSnapshot();
+
+    const { projectId, projectName, createdAt, updatedAt, pads } = context;
+
+    const padsJSON = pads
+      .map((pad) => exportPadToJSON(pad, urlToExternalUrlMap))
+      .filter(Boolean);
+
+    return {
+      id: projectId,
+      name: projectName,
+      createdAt,
+      updatedAt,
+      pads: padsJSON
+    };
+  }, [store, urlToExternalUrlMap]);
+
+  const exportToJSONString = useCallback(() => {
+    const json = exportToJSON();
+    return JSON.stringify(json);
+  }, [exportToJSON]);
+
+  const exportToURLString = useCallback(() => {
+    const { context } = store.getSnapshot();
+
+    const { projectId, projectName, createdAt, updatedAt, pads } = context;
+
+    const padsURL = pads
+      .map((pad) => exportPadToURLString(pad, urlToExternalUrlMap))
+      .filter(Boolean);
+
+    return `${projectId}|${projectName}|${createdAt}|${updatedAt}|${padsURL.join('|')}`;
+  }, [store, urlToExternalUrlMap]);
+
   return {
     projectId,
     projectName,
     createNewProject,
-    saveProject
+    saveProject,
+    exportToJSON,
+    exportToJSONString,
+    exportToURLString
   };
 };
