@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { usePadThumbnail } from '@model';
+import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
 import { useGhostDrag } from './ghost';

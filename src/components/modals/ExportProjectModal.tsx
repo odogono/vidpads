@@ -17,11 +17,11 @@ import { useModalState } from './useModalState';
 
 const log = createLog('SaveProjectModal');
 
-export interface SaveProjectModalRef {
+export interface ExportProjectModalRef {
   onOpen: () => void;
 }
 
-export const SaveProjectModal = forwardRef<SaveProjectModalRef>(
+export const ExportProjectModal = forwardRef<ExportProjectModalRef>(
   (_props, ref) => {
     const { isOpen, onOpen, onClose } = useModalState();
     const { saveProject, projectName } = useProjects();
@@ -56,7 +56,7 @@ export const SaveProjectModal = forwardRef<SaveProjectModalRef>(
           {(onClose) => (
             <>
               <ModalHeader className='flex flex-col gap-1'>
-                Save Project
+                Export Project
               </ModalHeader>
               <ModalBody>
                 <Input
@@ -93,4 +93,4 @@ export const SaveProjectModal = forwardRef<SaveProjectModalRef>(
   }
 );
 
-SaveProjectModal.displayName = 'SaveProjectModal';
+ExportProjectModal.displayName = 'ExportProjectModal';

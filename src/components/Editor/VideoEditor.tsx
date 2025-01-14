@@ -10,7 +10,8 @@ import {
 } from '@components/Player/types';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { useMetadataFromPad, usePadTrimOperation } from '@model';
+import { useMetadataFromPad } from '@model/hooks/useMetadataFromPad';
+import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { useEditActive, usePad } from '@model/store/selectors';
 import { Button, Card, CardBody, CardFooter, Slider } from '@nextui-org/react';

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { usePadOperations } from '@model';
+import { usePadOperations } from '@model/hooks/usePadOperations';
 
 const log = createLog('usePadEvents');
 

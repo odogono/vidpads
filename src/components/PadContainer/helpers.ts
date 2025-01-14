@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 
-import { usePadOperations } from '@model';
+import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useFileSelector } from './useFileSelector';
 
 export const useHelpers = () => {
