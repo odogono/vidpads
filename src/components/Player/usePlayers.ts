@@ -48,8 +48,8 @@ export const usePlayers = () => {
     (async () => {
       const media = await getAllMediaMetaData();
 
-      log.debug('media', media.length);
-      log.debug('padsWithMedia', padsWithMedia.length);
+      // log.debug('media', media.length);
+      // log.debug('padsWithMedia', padsWithMedia.length);
 
       const mediaMap = new Map<string, Media>();
       media.forEach((m) => mediaMap.set(m.url, m));

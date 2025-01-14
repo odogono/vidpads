@@ -31,6 +31,27 @@ export const useProjects = () => {
   const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
 
+  const loadProjectFromJSON = useCallback(
+    async (data: ProjectExport) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_STATE]
+      });
+
+      await deleteAllPadThumbnails();
+
+      store.send({ type: 'importProject', data });
+
+      await Promise.all(
+        data.pads.map((pad) =>
+          addUrlToPad({ url: pad.source, padId: pad.id, store })
+        )
+      );
+
+      return true;
+    },
+    [queryClient, deleteAllPadThumbnails, store, addUrlToPad]
+  );
+
   const loadProject = useCallback(
     async (projectId: string) => {
       log.debug('Loading project:', projectId);
@@ -39,31 +60,18 @@ export const useProjects = () => {
 
       if (!project) {
         log.error('Project not found:', projectId);
-        return;
+        return false;
       }
 
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_STATE]
-      });
+      await loadProjectFromJSON(project);
 
-      await deleteAllPadThumbnails();
-
-      store.send({ type: 'updateProject', project });
-
-      // await loadProjectMutation.mutateAsync({ projectName });
+      return true;
     },
-    [queryClient, deleteAllPadThumbnails, store]
+    [loadProjectFromJSON]
   );
 
   const createNewProject = useCallback(async () => {
     store.send({ type: 'newProject' });
-
-    const snapshot = store.getSnapshot().context;
-    const projectId = snapshot.projectId ?? generateUUID();
-    const project = createProject(projectId, snapshot);
-
-    // don't save it to the db - this is a user choice
-    // await dbSaveProject(project);
 
     queryClient.invalidateQueries({
       queryKey: [QUERY_KEY_PROJECT]
@@ -75,39 +83,28 @@ export const useProjects = () => {
 
     await deleteAllPadThumbnails();
 
-    // log.debug('Updating project:', project.id);
-    store.send({ type: 'updateProject', project });
-
-    // queryClient.clear();
-
-    // log.debug('Created new project:', project.id);
-    return project;
+    return true;
   }, [store, queryClient, deleteAllPadThumbnails]);
 
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
     mutationFn: async ({ projectName }: { projectName: string }) => {
-      const snapshot = store.getSnapshot().context;
-      const id = snapshot.projectId ?? generateUUID();
-      const name = projectName ?? snapshot.projectName;
+      const data = exportToJSON();
 
-      const project = await dbLoadProject(id);
-
-      const saveProject: Project = {
-        ...(project ?? createProject(id, snapshot)),
-        name,
-        updatedAt: new Date().toISOString(),
-        store: snapshot
+      const saveData = {
+        ...data,
+        name: projectName,
+        updatedAt: new Date().toISOString()
       };
 
-      log.debug('Saving project:', saveProject);
+      log.debug('Saving project:', data);
 
-      await dbSaveProject(saveProject);
+      await dbSaveProject(saveData);
 
       // update the project id and name
-      store.send({ type: 'updateProject', project: saveProject });
+      store.send({ type: 'updateProject', project: saveData });
 
-      return saveProject;
+      return saveData;
     },
     onSuccess: () => {
       // Optionally invalidate queries that depend on project data
@@ -163,12 +160,12 @@ export const useProjects = () => {
       .filter(Boolean);
 
     return {
-      id: projectId,
-      name: projectName,
-      createdAt,
-      updatedAt,
+      id: projectId ?? generateUUID(),
+      name: projectName ?? 'Untitled',
+      createdAt: createdAt ?? new Date().toISOString(),
+      updatedAt: updatedAt ?? new Date().toISOString(),
       pads: padsJSON
-    };
+    } as ProjectExport;
   }, [store, urlToExternalUrlMap]);
 
   const exportToJSONString = useCallback(() => {
@@ -193,17 +190,9 @@ export const useProjects = () => {
       const jsonObject = JSON.parse(json) as ProjectExport;
       log.debug('Importing project:', jsonObject);
 
-      store.send({ type: 'importProject', data: jsonObject });
-
-      await Promise.all(
-        jsonObject.pads.map((pad) =>
-          addUrlToPad({ url: pad.source, padId: pad.id, store })
-        )
-      );
-
-      log.debug('Imported project:', jsonObject);
+      await loadProjectFromJSON(jsonObject);
     },
-    [store, addUrlToPad]
+    [loadProjectFromJSON]
   );
 
   return {

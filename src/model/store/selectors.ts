@@ -167,6 +167,10 @@ export const usePad = (padId?: string) => {
 
 export const useCurrentProject = () => {
   const { store } = useStore();
-  const { projectId, projectName } = store.getSnapshot().context;
+  // safety tip: dont fetch multiple keys with useSelector, it causes a nextjs
+  // infinite re-render error
+  const projectId = useSelector(store, (state) => state.context.projectId);
+  const projectName = useSelector(store, (state) => state.context.projectName);
+
   return { projectId, projectName };
 };
