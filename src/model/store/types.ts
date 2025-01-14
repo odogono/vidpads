@@ -102,7 +102,7 @@ export type ImportProjectAction = {
 
 export type UpdateProjectAction = {
   type: 'updateProject';
-  project: Project;
+  project: ProjectExport;
 };
 
 export type Actions =

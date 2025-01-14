@@ -14,7 +14,8 @@ import {
   MediaType,
   MediaVideo,
   MediaYouTube,
-  Project
+  Project,
+  ProjectExport
 } from '@model/types';
 import {
   useMutation,
@@ -126,7 +127,9 @@ export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
   });
 };
 
-export const loadProject = async (id: string): Promise<Project | null> => {
+export const loadProject = async (
+  id: string
+): Promise<ProjectExport | null> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -143,7 +146,7 @@ export const loadProject = async (id: string): Promise<Project | null> => {
     };
 
     getRequest.onsuccess = () => {
-      const result = (getRequest.result as Project) ?? null;
+      const result = (getRequest.result as ProjectExport) ?? null;
       resolve(result);
     };
 
@@ -153,12 +156,16 @@ export const loadProject = async (id: string): Promise<Project | null> => {
   });
 };
 
-export const saveProject = async (project: Project): Promise<void> => {
+export const saveProject = async (project: ProjectExport): Promise<void> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['projects'], 'readwrite');
-    const store = transaction.objectStore('projects');
-    const putRequest = store.put(project);
+    const { projects, transaction } = idbOpenTransaction(
+      db,
+      ['projects'],
+      'readwrite'
+    );
+
+    const putRequest = projects.put(project);
 
     putRequest.onerror = () => {
       log.error('Error saving project to IndexedDB:', putRequest.error);

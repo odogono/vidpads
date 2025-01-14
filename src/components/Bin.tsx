@@ -17,20 +17,20 @@ export const BinComponent = () => {
         ${
           isDragging
             ? 'opacity-100 translate-y-0'
-            : 'opacity-0 translate-y-10 pointer-events-none'
+            : 'opacity-0 translate-y-10 pointer-events-none hidden'
         }
         ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
       `}
-      onDragOver={(e) => onDragOver(e, 'bin')}
-      onDragLeave={() => onDragLeave('bin')}
-      onDrop={(e) => onDrop(e, 'bin')}
-    >
-      <TrashIcon
-        className={`
+        onDragOver={(e) => onDragOver(e, 'bin')}
+        onDragLeave={() => onDragLeave('bin')}
+        onDrop={(e) => onDrop(e, 'bin')}
+      >
+        <TrashIcon
+          className={`
           w-24 h-24 transition-all duration-300
           ${isDraggingOver ? 'text-red-500 scale-110' : 'text-gray-400'}
         `}
-      />
+        />
       </div>
     </div>
   );
