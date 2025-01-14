@@ -1,4 +1,11 @@
-import { Operation, OperationType, Pad, TrimOperation } from './types';
+import {
+  Operation,
+  OperationExport,
+  OperationType,
+  Pad,
+  PadExport,
+  TrimOperation
+} from './types';
 
 export const createPad = (id: string): Pad => {
   return {
@@ -10,10 +17,45 @@ export const createPad = (id: string): Pad => {
   };
 };
 
+export interface ImportPadFromJSONProps {
+  pad: PadExport | undefined;
+  options?: ImportPadFromJSONOptions;
+}
+
+export interface ImportPadFromJSONOptions {
+  importSource?: boolean;
+}
+
+export const importPadFromJSON = ({
+  pad,
+  options = { importSource: false }
+}: ImportPadFromJSONProps): Pad | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  const operations = pad.operations
+    ?.map(importOperationFromJSON)
+    .filter(Boolean) as Operation[];
+
+  return {
+    id: pad.id,
+    pipeline: {
+      source: options.importSource
+        ? {
+            type: OperationType.Source,
+            url: pad.source
+          }
+        : undefined,
+      operations
+    }
+  };
+};
+
 export const exportPadToJSON = (
   pad: Pad,
   urlToExternalUrlMap: Record<string, string> = {}
-): object | undefined => {
+): PadExport | undefined => {
   const { id, pipeline } = pad;
 
   const { source, operations } = pipeline;
@@ -22,10 +64,14 @@ export const exportPadToJSON = (
     return undefined;
   }
 
+  const ops = operations
+    ?.map(exportOperationToJSON)
+    .filter(Boolean) as OperationExport[];
+
   return {
     id,
     source: urlToExternalUrlMap[source.url] ?? source.url,
-    operations: operations.map(exportOperationToJSON)
+    operations: ops.length > 0 ? ops : undefined
   };
 };
 
@@ -39,13 +85,17 @@ export const exportPadToURLString = (
   }
 
   const { id, source, operations } = json;
+  const ops = operations
+    ?.map(exportOperationToJSON)
+    .filter(Boolean) as OperationExport[];
+  const opsURL = ops.join(':');
 
-  return `${id}|${source}|${operations.map(exportOperationToURL).join('|')}`;
+  return `${id}|${source}|${opsURL}`;
 };
 
 export const exportOperationToJSON = (
   operation: Operation | undefined
-): object | undefined => {
+): OperationExport | undefined => {
   if (!operation) {
     return undefined;
   }
@@ -56,7 +106,22 @@ export const exportOperationToJSON = (
       type: operation.type,
       start: trimNumberToDecimalPlaces(start, 2),
       end: trimNumberToDecimalPlaces(end, 2)
-    };
+    } as TrimOperation;
+  }
+
+  return undefined;
+};
+
+export const importOperationFromJSON = (
+  operation: OperationExport | undefined
+): Operation | undefined => {
+  if (!operation) {
+    return undefined;
+  }
+
+  if (operation.type === OperationType.Trim) {
+    const { start, end } = operation as TrimOperation;
+    return { type: OperationType.Trim, start, end } as TrimOperation;
   }
 
   return undefined;

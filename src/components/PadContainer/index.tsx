@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 
+import { SelectSourceModal } from '@components/modals/SelectSourceModal';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePads } from '@model/store/selectors';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
-import { SelectSourceModal } from './SelectSourceModal';
 import { useHelpers } from './helpers';
 
 export const PadContainer = () => {

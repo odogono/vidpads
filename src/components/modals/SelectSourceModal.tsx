@@ -22,6 +22,7 @@ type SelectSourceModalProps = {
   onUrlSelect: (url: string) => void;
 };
 
+// todo convert this to standard modal behaviour
 export const SelectSourceModal = ({
   isOpen,
   onOpenChange,
@@ -39,13 +40,18 @@ export const SelectSourceModal = ({
     }
   };
 
-  const handleCancel = () => {
+  const onClose = () => {
     setUrl('');
     setIsEnteringUrl(false);
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='center'>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      placement='center'
+      className='bg-background text-foreground'
+    >
       <ModalContent>
         <ModalHeader>Select Media Source</ModalHeader>
         <ModalBody className='gap-4 pb-6'>
@@ -72,9 +78,9 @@ export const SelectSourceModal = ({
               />
               <div className='flex gap-2'>
                 <Button
-                  onPress={handleCancel}
-                  className='flex-1'
-                  variant='flat'
+                  variant='ghost'
+                  onPress={onClose}
+                  className='bg-stone-600 hover:bg-stone-700 text-foreground'
                 >
                   Cancel
                 </Button>

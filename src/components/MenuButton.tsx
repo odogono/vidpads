@@ -16,6 +16,10 @@ import {
   ExportProjectModal,
   ExportProjectModalRef
 } from './modals/ExportProjectModal';
+import {
+  ImportProjectModal,
+  ImportProjectModalRef
+} from './modals/ImportProjectModal';
 import { NewProjectModal, NewProjectModalRef } from './modals/NewProjectModal';
 import {
   SaveProjectModal,
@@ -26,7 +30,7 @@ export const MenuButton = () => {
   const newProjectModalRef = useRef<NewProjectModalRef>(null);
   const saveProjectModalRef = useRef<SaveProjectModalRef>(null);
   const exportProjectModalRef = useRef<ExportProjectModalRef>(null);
-
+  const importProjectModalRef = useRef<ImportProjectModalRef>(null);
   const handleNewProject = useCallback(() => {
     newProjectModalRef.current?.onOpen();
   }, [newProjectModalRef]);
@@ -38,6 +42,10 @@ export const MenuButton = () => {
   const handleExportProject = useCallback(() => {
     exportProjectModalRef.current?.onOpen();
   }, [exportProjectModalRef]);
+
+  const handleImportProject = useCallback(() => {
+    importProjectModalRef.current?.onOpen();
+  }, [importProjectModalRef]);
 
   return (
     <>
@@ -65,6 +73,8 @@ export const MenuButton = () => {
               handleSaveProject();
             } else if (key === 'export-project') {
               handleExportProject();
+            } else if (key === 'import-project') {
+              handleImportProject();
             }
           }}
           classNames={{
@@ -77,6 +87,8 @@ export const MenuButton = () => {
 
           <DropdownItem key='save-project'>Save Project</DropdownItem>
 
+          <DropdownItem key='import-project'>Import Project</DropdownItem>
+
           <DropdownItem key='export-project'>Export Project</DropdownItem>
 
           <DropdownSection showDivider aria-label='About'>
@@ -87,6 +99,7 @@ export const MenuButton = () => {
       <NewProjectModal ref={newProjectModalRef} />
       <SaveProjectModal ref={saveProjectModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
+      <ImportProjectModal ref={importProjectModalRef} />
     </>
   );
 };

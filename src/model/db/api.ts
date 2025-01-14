@@ -76,17 +76,19 @@ export const openDB = (): Promise<IDBDatabase> => {
   });
 };
 
-
 export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
   const db = await openDB();
-  
+
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['projects'], 'readonly');
     const store = transaction.objectStore('projects');
     const getAllRequest = store.getAll();
 
     getAllRequest.onerror = () => {
-      log.error('Error loading all projects from IndexedDB:', getAllRequest.error);
+      log.error(
+        'Error loading all projects from IndexedDB:',
+        getAllRequest.error
+      );
       reject(getAllRequest.error);
     };
 
@@ -104,8 +106,7 @@ export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
       db.close();
     };
   });
-}
-
+};
 
 export const loadProject = async (id: string): Promise<Project | null> => {
   const db = await openDB();
@@ -131,17 +132,16 @@ export const loadProject = async (id: string): Promise<Project | null> => {
   });
 };
 
-
 export const saveProject = async (project: Project): Promise<void> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-  const transaction = db.transaction(['projects'], 'readwrite');
-  const store = transaction.objectStore('projects');
-  const putRequest = store.put(project);
+    const transaction = db.transaction(['projects'], 'readwrite');
+    const store = transaction.objectStore('projects');
+    const putRequest = store.put(project);
 
-  putRequest.onerror = () => {
-    log.error('Error saving project to IndexedDB:', putRequest.error);
-    reject(putRequest.error);
+    putRequest.onerror = () => {
+      log.error('Error saving project to IndexedDB:', putRequest.error);
+      reject(putRequest.error);
     };
     putRequest.onsuccess = () => resolve();
 
@@ -522,7 +522,7 @@ export const getAllMediaMetaData = async (): Promise<Media[]> => {
 export const getMediaData = async (url: string): Promise<Media | null> => {
   const mediaId = getMediaIdFromUrl(url);
   if (!mediaId) {
-    log.error('Invalid media URL format:', url);
+    log.warn('[getMediaData] Invalid media URL format:', url);
     return null;
   }
   const db = await openDB();
@@ -675,7 +675,7 @@ export const deletePadThumbnail = async (padId: string): Promise<string> => {
 // Add this helper function to parse media URLs
 const getMediaIdFromUrl = (url: string): string | null => {
   if (typeof url !== 'string') {
-    log.error('Invalid media URL format:', url);
+    log.warn('[getMediaIdFromUrl] Invalid media URL format:', url);
     return null;
   }
   const match = url.match(/^vidpads:\/\/media\/(.+)$/);
@@ -692,7 +692,7 @@ export const getThumbnailFromUrl = async (
 
   const mediaId = getMediaIdFromUrl(url);
   if (!mediaId) {
-    log.error('Invalid media URL format:', url);
+    log.warn('[getThumbnailFromUrl] Invalid media URL format:', url);
     return null;
   }
 

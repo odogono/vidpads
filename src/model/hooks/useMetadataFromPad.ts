@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData
@@ -12,7 +12,7 @@ import { isYouTubeMetadata } from '../../helpers/metadata';
 import { QUERY_KEY_PADS_METADATA, QUERY_KEY_PAD_METADATA } from '../constants';
 import { getPadSourceUrl } from '../pad';
 
-const log = createLog('model/useMetadataFromPad');
+// const log = createLog('model/useMetadataFromPad');
 
 export const useMetadataFromPad = (pad?: Pad) => {
   const queryClient = useQueryClient();
@@ -50,13 +50,20 @@ export const useMetadataFromPad = (pad?: Pad) => {
  */
 export const usePadMetadata = () => {
   const { store } = useStore();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // used to prevent hydration error
+  // since selectedPadId is undefined on the server
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { data, isLoading, error } = useSuspenseQuery({
     queryKey: [QUERY_KEY_PADS_METADATA],
     queryFn: async () => {
       const pads = store.getSnapshot().context.pads;
 
-      const metadata = await dbGetAllMediaMetaData();
+      const metadata = isMounted ? await dbGetAllMediaMetaData() : [];
 
       const padsMetadata = pads.map((pad) => {
         const sourceUrl = getPadSourceUrl(pad);
