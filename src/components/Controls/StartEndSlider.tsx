@@ -6,7 +6,8 @@ import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { useMetadataFromPad, usePadTrimOperation } from '@model';
+import { useMetadataFromPad } from '@model/hooks/useMetadataFromPad';
+import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { Slider } from '@nextui-org/react';

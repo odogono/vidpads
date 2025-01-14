@@ -3,7 +3,7 @@
 import { ReactNode, useCallback, useState } from 'react';
 
 import { createLog } from '@helpers/log';
-import { usePadOperations } from '@model';
+import { usePadOperations } from '@model/hooks/usePadOperations';
 import { PadDnDContext } from './context';
 
 const log = createLog('PadDnDProvider');

@@ -3,16 +3,13 @@
 import { forwardRef, useCallback, useImperativeHandle } from 'react';
 
 import { createLog } from '@helpers/log';
-import { usePadOperations } from '@model';
-import { useSelectedPadId } from '@model/store/selectors';
 import {
   Button,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader,
-  useDisclosure
+  ModalHeader
 } from '@nextui-org/react';
 import { useModalState } from './useModalState';
 

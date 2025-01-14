@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useImperativeHandle } from 'react';
 
 import { createLog } from '@helpers/log';
-import { usePadOperations } from '@model';
+import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useSelectedPadId } from '@model/store/selectors';
 import {
   Button,
