@@ -9,6 +9,8 @@ export interface StoreContextType {
   isEditActive?: boolean;
   selectedPadId?: string | null;
   pads: Pad[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type UpdatePadSourceAction = {

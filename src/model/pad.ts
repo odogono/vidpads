@@ -10,6 +10,81 @@ export const createPad = (id: string): Pad => {
   };
 };
 
+export const exportPadToJSON = (
+  pad: Pad,
+  urlToExternalUrlMap: Record<string, string> = {}
+): object | undefined => {
+  const { id, pipeline } = pad;
+
+  const { source, operations } = pipeline;
+
+  if (!source) {
+    return undefined;
+  }
+
+  return {
+    id,
+    source: urlToExternalUrlMap[source.url] ?? source.url,
+    operations: operations.map(exportOperationToJSON)
+  };
+};
+
+export const exportPadToURLString = (
+  pad: Pad,
+  urlToExternalUrlMap: Record<string, string> = {}
+): string | undefined => {
+  const json = exportPadToJSON(pad, urlToExternalUrlMap);
+  if (!json) {
+    return undefined;
+  }
+
+  const { id, source, operations } = json;
+
+  return `${id}|${source}|${operations.map(exportOperationToURL).join('|')}`;
+};
+
+export const exportOperationToJSON = (
+  operation: Operation | undefined
+): object | undefined => {
+  if (!operation) {
+    return undefined;
+  }
+
+  if (operation.type === OperationType.Trim) {
+    const { start, end } = operation as TrimOperation;
+    return {
+      type: operation.type,
+      start: trimNumberToDecimalPlaces(start, 2),
+      end: trimNumberToDecimalPlaces(end, 2)
+    };
+  }
+
+  return undefined;
+};
+
+export const exportOperationToURL = (
+  operation: Operation | undefined
+): string | undefined => {
+  if (!operation) {
+    return '';
+  }
+
+  if (operation.type === OperationType.Trim) {
+    const { start, end } = operation as TrimOperation;
+    return `${operation.type}:${trimNumberToDecimalPlaces(start, 2)}:${trimNumberToDecimalPlaces(end, 2)}`;
+  }
+
+  return '';
+};
+
+const trimNumberToDecimalPlaces = (number: number, places: number): number => {
+  return Math.round(number * Math.pow(10, places)) / Math.pow(10, places);
+};
+
+export const exportToURL = (pad: Pad): string => {
+  return `vidpads://${pad.id}`;
+};
+
 export const copyPad = (pad: Pad): Pad => {
   return JSON.parse(JSON.stringify(pad));
 };

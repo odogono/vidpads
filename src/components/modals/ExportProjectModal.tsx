@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
@@ -13,9 +13,10 @@ import {
   ModalFooter,
   ModalHeader
 } from '@nextui-org/react';
+import { CopyButton } from '../CopyButton';
 import { useModalState } from './useModalState';
 
-const log = createLog('SaveProjectModal');
+const log = createLog('ExportProjectModal');
 
 export interface ExportProjectModalRef {
   onOpen: () => void;
@@ -24,22 +25,10 @@ export interface ExportProjectModalRef {
 export const ExportProjectModal = forwardRef<ExportProjectModalRef>(
   (_props, ref) => {
     const { isOpen, onOpen, onClose } = useModalState();
-    const { saveProject, projectName } = useProjects();
-    const [name, setName] = useState(projectName);
-    const [isSaving, setIsSaving] = useState(false);
+    const { exportToJSONString, exportToURLString } = useProjects();
 
-    const handleSaveProject = useCallback(async () => {
-      try {
-        setIsSaving(true);
-        await saveProject(name);
-        onClose();
-      } catch (error) {
-        log.error('Failed to save project:', error);
-        // Handle error (show toast, etc)
-      } finally {
-        setIsSaving(false);
-      }
-    }, [saveProject, name, onClose]);
+    const json = exportToJSONString();
+    const url = exportToURLString();
 
     useImperativeHandle(ref, () => ({
       onOpen
@@ -59,30 +48,40 @@ export const ExportProjectModal = forwardRef<ExportProjectModalRef>(
                 Export Project
               </ModalHeader>
               <ModalBody>
-                <Input
-                  isClearable
-                  className='w-full'
-                  label='Name'
-                  variant='bordered'
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <div className='flex flex-row gap-2 items-center'>
+                  <Input
+                    isReadOnly
+                    className='w-full'
+                    label='URL'
+                    variant='bordered'
+                    defaultValue={url}
+                  />
+                  <CopyButton text={url} />
+                </div>
+                <div className='flex flex-row gap-2 items-center'>
+                  <Input
+                    isReadOnly
+                    className='w-full'
+                    label='JSON'
+                    variant='bordered'
+                    defaultValue={json}
+                  />
+                  <CopyButton text={json} />
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button
                   variant='ghost'
                   onPress={onClose}
                   className='bg-stone-600 hover:bg-stone-700 text-foreground'
-                  isDisabled={isSaving}
                 >
                   Cancel
                 </Button>
                 <Button
-                  onPress={handleSaveProject}
+                  onPress={onClose}
                   className='hover:bg-sky-600 bg-sky-500 text-foreground'
-                  isLoading={isSaving}
                 >
-                  Save
+                  Ok
                 </Button>
               </ModalFooter>
             </>

@@ -1,9 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { createLog } from '@helpers/log';
-import { getMediaData as dbGetMediaData } from '@model/db/api';
+import {
+  getAllMediaMetaData as dbGetAllMediaMetaData,
+  getMediaData as dbGetMediaData
+} from '@model/db/api';
+import { useStore } from '@model/store/useStore';
 import { Pad } from '@model/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { isYouTubeMetadata } from '../../helpers/metadata';
+import { QUERY_KEY_PADS_METADATA, QUERY_KEY_PAD_METADATA } from '../constants';
 import { getPadSourceUrl } from '../pad';
 
 const log = createLog('model/useMetadataFromPad');
@@ -15,13 +21,16 @@ export const useMetadataFromPad = (pad?: Pad) => {
   useEffect(() => {
     if (pad) {
       queryClient.invalidateQueries({
-        queryKey: ['metadata/pad', pad.id]
+        queryKey: [QUERY_KEY_PAD_METADATA, pad.id]
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_PADS_METADATA]
       });
     }
   }, [pad, queryClient]);
 
   return useSuspenseQuery({
-    queryKey: ['metadata/pad', pad?.id],
+    queryKey: [QUERY_KEY_PAD_METADATA, pad?.id],
     queryFn: async () => {
       if (!pad) return null;
 
@@ -33,4 +42,52 @@ export const useMetadataFromPad = (pad?: Pad) => {
       return media ?? null;
     }
   });
+};
+
+/**
+ * Returns all the metadata for all the pads in the project
+ * @returns
+ */
+export const usePadMetadata = () => {
+  const { store } = useStore();
+
+  const { data, isLoading, error } = useSuspenseQuery({
+    queryKey: [QUERY_KEY_PADS_METADATA],
+    queryFn: async () => {
+      const pads = store.getSnapshot().context.pads;
+
+      const metadata = await dbGetAllMediaMetaData();
+
+      const padsMetadata = pads.map((pad) => {
+        const sourceUrl = getPadSourceUrl(pad);
+        if (!sourceUrl) return null;
+
+        const media = metadata.find((m) => m.url === sourceUrl);
+        return media ?? null;
+      });
+
+      return padsMetadata;
+    }
+  });
+
+  const urlToExternalUrlMap = useMemo(
+    () =>
+      data.reduce(
+        (acc, media) => {
+          if (!media) return acc;
+
+          if (isYouTubeMetadata(media)) {
+            acc[media.url] = `https://m.youtube.com/watch?v=${media.id}`;
+          } else {
+            acc[media.url] = media.url;
+          }
+
+          return acc;
+        },
+        {} as Record<string, string>
+      ),
+    [data]
+  );
+
+  return { metadata: data, isLoading, error, urlToExternalUrlMap };
 };

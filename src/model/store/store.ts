@@ -11,7 +11,9 @@ import type {
 export const initialContext: StoreContextType = {
   isInitial: true,
   projectId: null,
-  name: 'Untitled',
+  projectName: 'Untitled',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   startTime: new Date().toISOString(),
   pads: [
     createPad('a1'),
