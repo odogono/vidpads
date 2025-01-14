@@ -1,13 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadStartAndEndTime } from '@model/pad';
-import { getSelectedPadSourceUrl, useEditActive } from '@model/store/selectors';
+import { getSelectedPadSourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { Player } from './Player';
 import { usePlayers } from './usePlayers';
 

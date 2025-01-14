@@ -85,7 +85,7 @@ export const YTPlayer = ({ media }: PlayerProps) => {
   );
 
   const seekVideo = useCallback(
-    ({ time, url }: PlayerSeek) => {
+    ({ time, url, inProgress, requesterId }: PlayerSeek) => {
       if (!playerRef.current || url !== media.url) return;
       if (!playerRef.current) {
         log.warn('playerRef.current is null');
@@ -94,9 +94,10 @@ export const YTPlayer = ({ media }: PlayerProps) => {
       // todo - implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
       // and then set it to true again after the seek is complete
-      const allowSeekAhead = true;
+      const allowSeekAhead = !inProgress;
       try {
-        playerRef.current.seekTo(time, false);
+        log.debug('[seekVideo]', { time, allowSeekAhead, requesterId });
+        playerRef.current.seekTo(time, allowSeekAhead);
       } catch (error) {
         // todo - caused by another play request coming in while the player is still loading
         log.warn('error seeking video', (error as Error).message);
@@ -152,6 +153,10 @@ export const YTPlayer = ({ media }: PlayerProps) => {
             if (data === window.YT.PlayerState.PLAYING) {
               setIsPlaying(true);
             } else if (data === window.YT.PlayerState.PAUSED) {
+              events.emit('video:stopped', {
+                url: media.url,
+                time: playerRef.current?.getCurrentTime() ?? 0
+              });
               setIsPlaying(false);
             } else if (data === window.YT.PlayerState.ENDED) {
               handleEnded();
@@ -176,7 +181,7 @@ export const YTPlayer = ({ media }: PlayerProps) => {
         container.innerHTML = '';
       }
     };
-  }, [handleEnded, media.url, videoId]);
+  }, [events, handleEnded, media.url, videoId]);
 
   useEffect(() => {
     const checkProgress = () => {

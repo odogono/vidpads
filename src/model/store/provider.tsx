@@ -62,11 +62,11 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
           snapshot.context
         );
         if (hasChanged) {
-          const diff = getObjectDiff(
-            snapshotRef.current ?? {},
-            snapshot.context
-          );
-          log.info('store updated: saving state to IndexedDB:', diff);
+          // const diff = getObjectDiff(
+          //   snapshotRef.current ?? {},
+          //   snapshot.context
+          // );
+          // log.info('store updated: saving state to IndexedDB:', diff);
           saveStateToIndexedDB(snapshot.context);
           snapshotRef.current = snapshot.context;
         }

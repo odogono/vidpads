@@ -116,7 +116,12 @@ export const VideoEditor = () => {
   useEffect(() => {
     if (!isPlayerReady) return;
     if (!isSeeking && padSourceUrl) {
-      events.emit('video:seek', { url: padSourceUrl, time: slideValue[0] });
+      events.emit('video:seek', {
+        url: padSourceUrl,
+        time: slideValue[0],
+        inProgress: false,
+        requesterId: 'video-editor'
+      });
     }
   }, [slideValue, isSeeking, padSourceUrl, events, isPlayerReady]);
 
