@@ -164,3 +164,9 @@ export const usePad = (padId?: string) => {
     store
   };
 };
+
+export const useCurrentProject = () => {
+  const { store } = useStore();
+  const { projectId, projectName } = store.getSnapshot().context;
+  return { projectId, projectName };
+};

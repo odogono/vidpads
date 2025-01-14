@@ -3,7 +3,7 @@ import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
   projectId: string | null;
-  name: string;
+  projectName: string;
   isInitial: boolean;
   startTime: string;
   isEditActive?: boolean;

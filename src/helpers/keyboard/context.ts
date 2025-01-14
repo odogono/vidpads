@@ -8,6 +8,8 @@ export interface KeyboardContextType {
   isKeyUp: (key: string) => boolean;
   isShiftKeyDown: () => boolean;
   isShiftKeyUp: () => boolean;
+  isEnabled: boolean;
+  setIsEnabled: (enabled: boolean) => void;
 }
 
 export const KeyboardContext = createContext<KeyboardContextType | undefined>(

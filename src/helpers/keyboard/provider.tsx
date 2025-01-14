@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useCallback, useEffect, useRef } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -30,14 +30,15 @@ const log = createLog('keyboard');
 export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
   const activeKeys = useRef<Set<string>>(new Set());
+  const [isEnabled, setIsEnabled] = useState(true);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const { code } = e;
 
-      if (activeKeys.current.has(code)) return;
+      if (!isEnabled) return;
 
-      // log.debug('keydown', code);
+      if (activeKeys.current.has(code)) return;
 
       activeKeys.current.add(code);
 
@@ -46,12 +47,14 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
         events.emit('pad:touchdown', { padId });
       }
     },
-    [events]
+    [events, isEnabled]
   );
 
   const handleKeyUp = useCallback(
     (e: KeyboardEvent) => {
       const { code } = e;
+
+      if (!isEnabled) return;
 
       if (!activeKeys.current.has(code)) return;
 
@@ -62,7 +65,7 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
         events.emit('pad:touchup', { padId });
       }
     },
-    [events]
+    [events, isEnabled]
   );
 
   const isKeyDown = (key: string) => activeKeys.current.has(key);
@@ -74,11 +77,15 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    events.on('keyboard:enabled', setIsEnabled);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      events.off('keyboard:enabled', setIsEnabled);
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, [handleKeyDown, handleKeyUp, events]);
+
+  log.debug('isEnabled', isEnabled);
 
   return (
     <KeyboardContext.Provider
@@ -87,7 +94,9 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
         isKeyDown,
         isKeyUp,
         isShiftKeyDown,
-        isShiftKeyUp
+        isShiftKeyUp,
+        isEnabled,
+        setIsEnabled
       }}
     >
       {children}
