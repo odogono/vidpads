@@ -1,8 +1,8 @@
 'use client';
 
-import { forwardRef, useCallback, useImperativeHandle } from 'react';
+import { useCallback, useImperativeHandle } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useSelectedPadId } from '@model/store/selectors';
 import {
@@ -15,13 +15,16 @@ import {
 } from '@nextui-org/react';
 import { useModalState } from './useModalState';
 
-const log = createLog('Controls');
+// const log = createLog('Controls');
 
+export interface DeleteModalProps {
+  ref: React.RefObject<DeleteModalRef | null>;
+}
 export interface DeleteModalRef {
   onOpen: () => void;
 }
 
-export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
+export const DeleteModal = ({ ref }: DeleteModalProps) => {
   const { selectedPadId } = useSelectedPadId();
   const { isOpen, onOpen, onClose } = useModalState();
   const { clearPad } = usePadOperations();
@@ -75,6 +78,4 @@ export const DeleteModal = forwardRef<DeleteModalRef>((_props, ref) => {
       </ModalContent>
     </Modal>
   );
-});
-
-DeleteModal.displayName = 'DeleteModal';
+};
