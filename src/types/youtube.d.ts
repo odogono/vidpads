@@ -21,7 +21,10 @@ interface YT {
         };
         events?: {
           onReady?: (event: { target: YTPlayer }) => void;
-          onStateChange?: (event: { data: YT.PlayerState }) => void;
+          onStateChange?: (event: {
+            target: YTPlayer;
+            data: YT.PlayerState;
+          }) => void;
           onError?: (event: Error) => void;
         };
       }

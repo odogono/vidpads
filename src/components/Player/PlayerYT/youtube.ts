@@ -44,7 +44,7 @@ export interface InitializePlayerProps {
   container: HTMLDivElement;
   videoId: string;
   onReady: (player: YTPlayer) => void;
-  onStateChange: (state: PlayerState) => void;
+  onStateChange: (player: YTPlayer, state: PlayerState) => void;
   onError: (event: Error) => void;
 }
 
@@ -79,7 +79,7 @@ export const initializePlayer = async ({
         onReady(event.target);
       },
       onStateChange: (event) => {
-        onStateChange(event.data);
+        onStateChange(event.target, event.data);
       },
       onError
     }
