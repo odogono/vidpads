@@ -2,35 +2,28 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { PlayerProps } from '../types';
 import {
-  PlayerExtractThumbnail,
-  PlayerPlay,
-  PlayerProps,
-  PlayerSeek,
-  PlayerStop
-} from '../types';
-import { PlayerStateToString } from './helpers';
-import { PlayerState } from './types';
+  PlayerYTPlay,
+  PlayerYTSeek,
+  PlayerYTStop,
+  usePlayerYTEvents
+} from './useEvents';
 import { initializePlayer } from './youtube';
 
 const log = createLog('player/yt');
 
 export const PlayerYT = ({ media }: PlayerProps) => {
   const events = useEvents();
-  const playerRef = useRef<YTPlayer | null>(null);
-  const stateStringRef = useRef('');
   const containerRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
   const isLoopedRef = useRef(false);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const { id: videoId } = media;
 
   const playVideo = useCallback(
-    ({ start, end, isLoop, url, volume }: PlayerPlay) => {
-      if (!playerRef.current || url !== media.url) return;
-      const player = playerRef.current;
+    ({ player, start, end, isLoop, volume }: PlayerYTPlay) => {
       const setVolume = volume ?? 100;
 
       const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
@@ -53,24 +46,15 @@ export const PlayerYT = ({ media }: PlayerProps) => {
       player.seekTo(startTime, true);
       player.playVideo();
     },
-    [media.url]
+    []
   );
 
-  const stopVideo = useCallback(
-    ({ url }: PlayerStop) => {
-      if (!playerRef.current || url !== media.url) return;
-      playerRef.current.pauseVideo();
-    },
-    [media.url]
-  );
+  const stopVideo = useCallback(({ player }: PlayerYTStop) => {
+    player.pauseVideo();
+  }, []);
 
   const seekVideo = useCallback(
-    ({ time, url, inProgress, requesterId }: PlayerSeek) => {
-      if (!playerRef.current || url !== media.url) return;
-      if (!playerRef.current) {
-        log.warn('playerRef.current is null');
-        return;
-      }
+    ({ player, time, inProgress, requesterId }: PlayerYTSeek) => {
       // todo - implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
       // and then set it to true again after the seek is complete
@@ -79,31 +63,31 @@ export const PlayerYT = ({ media }: PlayerProps) => {
         log.debug('[seekVideo]', {
           time,
           allowSeekAhead,
-          requesterId,
-          state: stateStringRef.current
+          requesterId
         });
-        playerRef.current.seekTo(time, allowSeekAhead);
+        player.seekTo(time, allowSeekAhead);
       } catch (error) {
         // todo - caused by another play request coming in while the player is still loading
         log.warn('[seekVideo] error seeking video', (error as Error).message);
         log.debug('[seekVideo] state', {
-          player: playerRef.current,
+          player,
           state: stateStringRef.current
         });
       }
     },
-    [media.url]
+    []
   );
 
-  const handleEnded = useCallback(() => {
-    log.debug('ended', media.url);
-    if (isLoopedRef.current) {
-      playerRef.current?.seekTo(startTimeRef.current, true);
-      playerRef.current?.playVideo();
-    } else {
-      stopVideo({ url: media.url });
-    }
-  }, [media.url, stopVideo]);
+  const { onPlayerReady, onPlayerStateChange, onPlayerError } =
+    usePlayerYTEvents({
+      media,
+      isLoopedRef,
+      startTimeRef,
+      endTimeRef,
+      playVideo,
+      stopVideo,
+      seekVideo
+    });
 
   useEffect(() => {
     let isMounted = true;
@@ -111,121 +95,36 @@ export const PlayerYT = ({ media }: PlayerProps) => {
 
     if (!isMounted || !container) return;
 
+    let player: YTPlayer;
+
     (async () => {
-      playerRef.current = await initializePlayer({
+      player = await initializePlayer({
         container,
         videoId,
-        onReady: (player) => {
-          stateStringRef.current = PlayerStateToString(player.getPlayerState());
-
-          log.debug('[onReady]', media.url, player, {
-            time: player.getCurrentTime(),
-            state: PlayerStateToString(player.getPlayerState())
-          });
-
-          // seek and play in order to buffer
-          // as soon as the state changes to playing
-          // we can stop it and declare the video ready
-          seekVideo({
-            url: media.url,
-            time: 124.7,
-            inProgress: false,
-            requesterId: 'yt-player'
-          });
-          player.mute();
-          player.playVideo();
-          // target.pauseVideo();
-          // target.unMute();
-
-          // log.debug('[onReady]', event.target.getAvailablePlaybackRates());
-          // result: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-        },
-
-        onStateChange: (state: PlayerState) => {
-          switch (state) {
-            case PlayerState.PLAYING:
-              setIsPlaying(true);
-              break;
-            case PlayerState.PAUSED:
-              events.emit('video:stopped', {
-                url: media.url,
-                time: playerRef.current?.getCurrentTime() ?? 0
-              });
-              setIsPlaying(false);
-              break;
-            case PlayerState.ENDED:
-              handleEnded();
-              break;
-            default:
-              break;
-          }
-          stateStringRef.current = PlayerStateToString(state);
-          log.debug('[onStateChange]', media.url, PlayerStateToString(state));
-        },
-        onError: (event) => {
-          log.debug('[onError]', media.url, event);
-        }
+        onReady: onPlayerReady,
+        onStateChange: onPlayerStateChange,
+        onError: onPlayerError
       });
     })();
 
     return () => {
       isMounted = false;
-      if (playerRef.current) {
-        playerRef.current.destroy();
+      if (player) {
+        player.destroy();
       }
       if (container) {
         container.innerHTML = '';
       }
     };
-  }, [events, handleEnded, media.url, seekVideo, videoId]);
-
-  useEffect(() => {
-    const checkProgress = () => {
-      if (!playerRef.current || !isPlaying) return;
-
-      const currentTime = playerRef.current.getCurrentTime();
-      if (currentTime >= endTimeRef.current) {
-        if (isLoopedRef.current) {
-          playerRef.current.seekTo(startTimeRef.current, true);
-        } else {
-          stopVideo({ url: media.url });
-        }
-      }
-    };
-
-    const intervalId = setInterval(checkProgress, 100);
-    return () => clearInterval(intervalId);
-  }, [isPlaying, media.url, stopVideo]);
-
-  const extractThumbnail = useCallback(
-    ({ time, url, additional }: PlayerExtractThumbnail) => {
-      if (!playerRef.current) return;
-      if (url !== media.url) return;
-
-      // sadly, extracting the thumbnail at the current time is not possible
-      // with the YouTube API. So the event is emitted anyway to ensure
-      // the start and end times are persisted
-      events.emit('video:thumbnail-extracted', {
-        url,
-        time,
-        additional
-      });
-    },
-    [media.url, events]
-  );
-
-  useEffect(() => {
-    events.on('video:start', playVideo);
-    events.on('video:stop', stopVideo);
-    events.on('video:seek', seekVideo);
-    events.on('video:extract-thumbnail', extractThumbnail);
-    return () => {
-      events.off('video:start', playVideo);
-      events.off('video:stop', stopVideo);
-      events.off('video:seek', seekVideo);
-      events.off('video:extract-thumbnail', extractThumbnail);
-    };
-  }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
+  }, [
+    events,
+    media.url,
+    onPlayerError,
+    onPlayerReady,
+    onPlayerStateChange,
+    seekVideo,
+    videoId
+  ]);
 
   return (
     <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />
