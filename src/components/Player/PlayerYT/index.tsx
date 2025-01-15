@@ -49,12 +49,20 @@ export const PlayerYT = ({ media }: PlayerProps) => {
     []
   );
 
-  const stopVideo = useCallback(({ player }: PlayerYTStop) => {
-    player.pauseVideo();
+  const stopVideo = useCallback(({ player, stateString }: PlayerYTStop) => {
+    log.debug('[stopVideo]', {
+      player,
+      state: stateString
+    });
+    try {
+      player.pauseVideo();
+    } catch {
+      log.debug('[stopVideo] ⚠️ error pausing video');
+    }
   }, []);
 
   const seekVideo = useCallback(
-    ({ player, time, inProgress, requesterId }: PlayerYTSeek) => {
+    ({ player, time, inProgress, requesterId, stateString }: PlayerYTSeek) => {
       // todo - implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
       // and then set it to true again after the seek is complete
@@ -66,12 +74,12 @@ export const PlayerYT = ({ media }: PlayerProps) => {
           requesterId
         });
         player.seekTo(time, allowSeekAhead);
-      } catch (error) {
+      } catch {
         // todo - caused by another play request coming in while the player is still loading
-        log.warn('[seekVideo] error seeking video', (error as Error).message);
+        log.debug('[seekVideo] ⚠️ error seeking video');
         log.debug('[seekVideo] state', {
           player,
-          state: stateStringRef.current
+          state: stateString
         });
       }
     },

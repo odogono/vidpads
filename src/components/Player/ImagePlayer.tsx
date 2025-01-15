@@ -5,7 +5,7 @@ import { loadImageData } from '@model/db/api';
 import { MediaImage } from '@model/types';
 import { PlayerProps } from './types';
 
-type ImagePlayerProps = PlayerProps & {
+export type ImagePlayerProps = PlayerProps & {
   media: MediaImage;
 };
 

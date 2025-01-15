@@ -487,18 +487,15 @@ export const loadImageData = async (
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(
+    const { images, metadata, thumbnails, transaction } = idbOpenTransaction(
+      db,
       ['images', 'metadata', 'thumbnails'],
       'readonly'
     );
 
-    const imageStore = transaction.objectStore('images');
-    const metadataStore = transaction.objectStore('metadata');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-
-    const imageRequest = imageStore.get(id);
-    const metadataRequest = metadataStore.get(id);
-    const thumbnailRequest = thumbnailStore.get(id);
+    const imageRequest = images.get(id);
+    const metadataRequest = metadata.get(id);
+    const thumbnailRequest = thumbnails.get(id);
 
     transaction.onerror = () => {
       log.error('Error loading image data:', transaction.error);
@@ -533,9 +530,13 @@ export const getAllMediaMetaData = async (): Promise<Media[]> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction('metadata', 'readonly');
-    const metadataStore = transaction.objectStore('metadata');
-    const request = metadataStore.getAll();
+    const { metadata, transaction } = idbOpenTransaction(
+      db,
+      ['metadata'],
+      'readonly'
+    );
+
+    const request = metadata.getAll();
 
     request.onerror = () => {
       reject(request.error);
@@ -543,6 +544,10 @@ export const getAllMediaMetaData = async (): Promise<Media[]> => {
 
     request.onsuccess = () => {
       resolve(request.result);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
     };
   });
 };
@@ -585,24 +590,22 @@ export const deleteMediaData = async (url: string): Promise<void> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(
-      ['images', 'metadata', 'thumbnails', 'videoChunks'],
-      'readwrite'
-    );
-    const imageStore = transaction.objectStore('images');
-    const metadataStore = transaction.objectStore('metadata');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    const videoChunksStore = transaction.objectStore('videoChunks');
+    const { images, metadata, thumbnails, videoChunks, transaction } =
+      idbOpenTransaction(
+        db,
+        ['images', 'metadata', 'thumbnails', 'videoChunks'],
+        'readwrite'
+      );
 
-    metadataStore.delete(id);
-    thumbnailStore.delete(id);
+    metadata.delete(id);
+    thumbnails.delete(id);
 
     if (mediaType === MediaType.Image) {
-      imageStore.delete(id);
+      images.delete(id);
     } else if (mediaType === MediaType.Video) {
-      videoChunksStore.delete(id);
+      videoChunks.delete(id);
 
-      videoChunksStore.delete(
+      videoChunks.delete(
         IDBKeyRange.bound([id, 0], [id, Number.MAX_SAFE_INTEGER])
       );
     }

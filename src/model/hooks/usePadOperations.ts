@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
-
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
-  deleteAllPadThumbnails as dbDeleteAllPadThumbnails
+  deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
+  deleteMediaData as dbDeleteMediaData,
+  deletePadThumbnail as dbDeletePadThumbnail
 } from '@model/db/api';
-import { getPadById } from '@model/store/selectors';
+import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -14,10 +14,11 @@ import {
   AddUrlToPadProps,
   CopyPadToPadProps,
   addFileToPad,
-  addUrlToPad,
-  deletePadMedia
+  addUrlToPad
 } from '../';
 import { QUERY_KEY_PADS_METADATA, QUERY_KEY_PAD_METADATA } from '../constants';
+import { getPadSourceUrl } from '../pad';
+import { Pad } from '../types';
 
 const log = createLog('model/api');
 
@@ -28,60 +29,76 @@ export const usePadOperations = () => {
   const queryClient = useQueryClient();
   const { isShiftKeyDown } = useKeyboard();
 
-  const addFileToPadOp = useCallback(
-    async (props: AddFileToPadProps) => {
-      const metadata = await addFileToPad({ ...props, store });
+  const { mutateAsync: deletePadMediaOp } = useMutation({
+    mutationFn: async (pad: Pad) => {
+      if (!pad) return null;
 
+      const sourceUrl = getPadSourceUrl(pad);
+      if (!sourceUrl) return null;
+
+      const pads = getPadsBySourceUrl(store, sourceUrl);
+
+      // if there is only one pad using this source, then its
+      // safe to delete the source data
+      if (pads.length === 1) {
+        log.debug('[useDeletePadMedia] Deleting source data:', sourceUrl);
+        await dbDeleteMediaData(sourceUrl);
+        queryClient.invalidateQueries({
+          queryKey: [[QUERY_KEY_PADS_METADATA]]
+        });
+      }
+
+      await dbDeletePadThumbnail(pad.id);
+
+      return pad;
+    },
+    onSuccess: (data, pad) => {
+      log.debug('[useDeletePadMedia] Invalidate queries:', pad.id);
+      queryClient.invalidateQueries({
+        queryKey: [[QUERY_KEY_PAD_METADATA, pad.id]]
+      });
+    }
+  });
+
+  const { mutateAsync: addFileToPadOp } = useMutation({
+    mutationFn: (props: AddFileToPadProps) => addFileToPad({ ...props, store }),
+    onSuccess: (data, props) => {
       // Invalidate the pad-thumbnail query to trigger a refetch
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL, props.padId]
+        queryKey: [
+          [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+          [QUERY_KEY_PAD_METADATA, props.padId],
+          [QUERY_KEY_PADS_METADATA]
+        ]
       });
+      return data;
+    }
+  });
 
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_METADATA, props.padId]
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PADS_METADATA]
-      });
-
-      return metadata;
-    },
-    [queryClient, store]
-  );
-
-  const addUrlToPadOp = useCallback(
-    async (props: AddUrlToPadProps) => {
-      const metadata = await addUrlToPad({ ...props, store });
-
+  const { mutateAsync: addUrlToPadOp } = useMutation({
+    mutationFn: (props: AddUrlToPadProps) => addUrlToPad({ ...props, store }),
+    onSuccess: (data, props) => {
       // Invalidate the pad-thumbnail query to trigger a refetch
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL, props.padId]
+        queryKey: [
+          [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+          [QUERY_KEY_PAD_METADATA, props.padId],
+          [QUERY_KEY_PADS_METADATA]
+        ]
       });
+    }
+  });
 
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_METADATA, props.padId]
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PADS_METADATA]
-      });
-
-      return metadata;
-    },
-    [store, queryClient]
-  );
-
-  const copyPadToPadOp = useCallback(
-    async ({ sourcePadId, targetPadId }: CopyPadToPadProps) => {
+  const { mutateAsync: copyPadToPadOp } = useMutation({
+    mutationFn: async ({ sourcePadId, targetPadId }: CopyPadToPadProps) => {
       const targetPad = getPadById(store, targetPadId);
       if (!targetPad) {
         log.warn('[copyPad] Pad not found:', targetPadId);
-        return false;
+        return null;
       }
 
       // clear the target pad
-      await deletePadMedia(store, targetPad);
+      await deletePadMediaOp(targetPad);
 
       await dbCopyPadThumbnail(sourcePadId, targetPadId);
 
@@ -91,63 +108,49 @@ export const usePadOperations = () => {
         targetPadId,
         copySourceOnly: isShiftKeyDown()
       });
-
-      // Invalidate the pad-thumbnail query to trigger a refetch
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL, sourcePadId]
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL, targetPadId]
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_METADATA, sourcePadId]
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_METADATA, targetPadId]
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PADS_METADATA]
-      });
-
-      return true;
     },
-    [store, queryClient, isShiftKeyDown]
-  );
+    onSuccess: (data, { sourcePadId, targetPadId }) => {
+      log.debug('[copyPad] Invalidate queries:', sourcePadId, targetPadId);
+      queryClient.invalidateQueries({
+        queryKey: [
+          [QUERY_KEY_PAD_THUMBNAIL, sourcePadId],
+          [QUERY_KEY_PAD_THUMBNAIL, targetPadId],
+          [QUERY_KEY_PAD_METADATA, sourcePadId],
+          [QUERY_KEY_PAD_METADATA, targetPadId],
+          [QUERY_KEY_PADS_METADATA]
+        ]
+      });
+    }
+  });
 
-  const clearPadOp = useCallback(
-    async (padId: string) => {
+  const { mutateAsync: clearPadOp } = useMutation({
+    mutationFn: async (padId: string) => {
       const pad = getPadById(store, padId);
       if (!pad) {
         log.warn('[clearPad] Pad not found:', padId);
         return false;
       }
 
-      await deletePadMedia(store, pad);
+      await deletePadMediaOp(pad);
 
       store.send({
         type: 'clearPad',
         padId
       });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL, padId]
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_METADATA, padId]
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PADS_METADATA]
-      });
-      return true;
     },
-    [store, queryClient]
-  );
+    onSuccess: (data, padId) => {
+      log.debug('[clearPad] Invalidate queries:', padId);
+      queryClient.invalidateQueries({
+        queryKey: [
+          [QUERY_KEY_PAD_THUMBNAIL, padId],
+          [QUERY_KEY_PAD_METADATA, padId],
+          [QUERY_KEY_PADS_METADATA]
+        ]
+      });
+    }
+  });
 
-  const deleteAllPadThumbnailsMutation = useMutation({
+  const { mutateAsync: deleteAllPadThumbnails } = useMutation({
     mutationFn: async () => {
       await dbDeleteAllPadThumbnails();
     },
@@ -157,10 +160,6 @@ export const usePadOperations = () => {
       });
     }
   });
-
-  const deleteAllPadThumbnails = useCallback(async () => {
-    await deleteAllPadThumbnailsMutation.mutateAsync();
-  }, [deleteAllPadThumbnailsMutation]);
 
   return {
     addFileToPad: addFileToPadOp,

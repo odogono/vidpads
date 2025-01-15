@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 
 import { SelectSourceModal } from '@components/modals/SelectSourceModal';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { usePads } from '@model/store/selectors';
+import { usePads } from '@model/hooks/usePads';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 import { useHelpers } from './helpers';

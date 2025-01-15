@@ -6,3 +6,4 @@ export const QUERY_KEY_PROJECTS = 'projects';
 export const QUERY_KEY_STATE = 'store-state';
 export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
 export const QUERY_KEY_FFMPEG = 'ffmpeg';
+export const QUERY_KEY_METADATA = 'metadata';

@@ -111,7 +111,7 @@ export const usePlayerYTEvents = ({
       // log.debug('[onReady]', event.target.getAvailablePlaybackRates());
       // result: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
     },
-    [media.url, seekVideo]
+    [media.url]
   );
 
   const onPlayerStateChange = useCallback(
