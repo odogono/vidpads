@@ -7,6 +7,7 @@ import { createLog } from '@helpers/log';
 import { getPadStartAndEndTime } from '@model/pad';
 import { getSelectedPadSourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
+import { Interval } from '@model/types';
 import { usePlayers } from './usePlayers';
 
 const log = createLog('player/container');
@@ -34,7 +35,10 @@ export const PlayerContainer = () => {
       if (!pad) return;
       const isOneShot = pad.isOneShot ?? false;
       const isLoop = pad.isLooped ?? false;
-      const { start, end } = getPadStartAndEndTime(pad);
+      const { start, end } = getPadStartAndEndTime(pad, {
+        start: 0,
+        end: Number.MAX_SAFE_INTEGER
+      }) as Interval;
       setVisiblePlayerId(mediaUrl);
       events.emit('video:start', {
         url: mediaUrl,

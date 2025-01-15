@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import { useSelector } from '@xstate/store/react';
 import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
-import { Pad } from '../types';
+import { Interval, Pad } from '../types';
 import { StoreType } from './types';
 import { useStore } from './useStore';
 
@@ -35,17 +35,13 @@ export const getSelectedPadSourceUrl = (
   return getPadSourceUrl(getPadById(store, selectedPadId));
 };
 
-export const getSelectedPadStartAndEndTime = (
-  store: StoreType
-): {
-  start: number;
-  end: number;
-} => {
+export const getSelectedPadStartAndEndTime = (store: StoreType): Interval => {
+  const defaultInterval: Interval = { start: 0, end: Number.MAX_SAFE_INTEGER };
   const selectedPadId = getSelectedPadId(store);
-  if (!selectedPadId) return { start: -1, end: -1 };
+  if (!selectedPadId) return defaultInterval;
   const pad = getPadById(store, selectedPadId);
-  if (!pad) return { start: -1, end: -1 };
-  return getPadStartAndEndTime(pad);
+  if (!pad) return defaultInterval;
+  return getPadStartAndEndTime(pad, defaultInterval) as Interval;
 };
 
 export const getPadsWithMedia = (store: StoreType) => {

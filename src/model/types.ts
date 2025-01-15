@@ -1,5 +1,10 @@
 import { StoreContextType } from './store/types';
 
+export interface Interval {
+  start: number;
+  end: number;
+}
+
 export const MediaType = {
   Image: 'image',
   Video: 'video'
