@@ -1,8 +1,5 @@
 'use client';
 
-import { Suspense } from 'react';
-
-import { Container } from '@components/Container';
 import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
 import { EventsProvider } from '@helpers/events';
@@ -10,35 +7,27 @@ import { EventsProvider } from '@helpers/events';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
 import { StoreProvider } from '@model/store/provider';
 import { NextUIProvider } from '@nextui-org/react';
-
-const LoadingContainer = () => {
-  return (
-    <Container>
-      <div className='flex items-center justify-center h-screen'>
-        <div className='w-8 h-8 border-4 border-gray-600 mr-4 border-t-gray-400 rounded-full animate-spin' />
-        <div className='text-gray-400'>Loading...</div>
-      </div>
-    </Container>
-  );
-};
+import { LoadingSuspense } from '../../components/Loading';
 
 const Player = () => {
   return (
-    <Suspense fallback={<LoadingContainer />}>
+    <LoadingSuspense>
       <NextUIProvider>
         <QueryClientContextProvider>
           {/* <FFmpegProvider> */}
           <EventsProvider>
             <KeyboardProvider>
-              <StoreProvider>
-                <Main />
-              </StoreProvider>
+              <LoadingSuspense message='Loading store...'>
+                <StoreProvider>
+                  <Main />
+                </StoreProvider>
+              </LoadingSuspense>
             </KeyboardProvider>
           </EventsProvider>
           {/* </FFmpegProvider> */}
         </QueryClientContextProvider>
       </NextUIProvider>
-    </Suspense>
+    </LoadingSuspense>
   );
 };
 

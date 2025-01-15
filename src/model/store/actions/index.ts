@@ -2,7 +2,6 @@ import { createLog } from '@helpers/log';
 import { OperationType, Pad } from '@model/types';
 import type {
   Emit,
-  InitialiseStoreAction,
   SetEditActiveAction,
   SetPadIsLoopedAction,
   SetPadIsOneShotAction,
@@ -24,21 +23,7 @@ export { newProject } from './newProject';
 export { setPadMedia } from './setPadMedia';
 export { importProject } from './importProject';
 export { updateProject } from './updateProject';
-
-export const initialiseStore = (
-  context: StoreContext,
-  event: InitialiseStoreAction,
-  { emit }: Emit
-): StoreContext => {
-  log.debug('setStoreInitialised', event);
-
-  emit({ type: 'storeInitialised' });
-
-  return {
-    ...context,
-    isInitial: false
-  };
-};
+export { initialiseStore } from './initialiseStore';
 
 export const setEditActive = (
   context: StoreContext,

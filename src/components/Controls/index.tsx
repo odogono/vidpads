@@ -1,16 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
-import { createLog } from '@helpers/log';
 import { useEditActive, usePad } from '@model/store/selectors';
 import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
 import { StartEndSlider } from './StartEndSlider';
+import { ControlsLoading } from './loading';
 
-const log = createLog('Controls');
-
-export const Controls = () => {
+export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
   const {
     isLooped,
@@ -91,6 +89,14 @@ export const Controls = () => {
       </CardBody>
       <DeleteModal ref={modalRef} />
     </Card>
+  );
+};
+
+export const Controls = () => {
+  return (
+    <Suspense fallback={<ControlsLoading />}>
+      <ControlsLoaded />
+    </Suspense>
   );
 };
 
