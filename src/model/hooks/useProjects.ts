@@ -1,23 +1,23 @@
 import { useCallback } from 'react';
 
 import { createLog } from '@helpers/log';
+import { invalidateQueryKeys } from '@helpers/query';
 import { generateUUID } from '@helpers/uuid';
+import {
+  QUERY_KEY_PROJECT,
+  QUERY_KEY_PROJECTS,
+  QUERY_KEY_STATE
+} from '@model/constants';
 import {
   getAllProjectDetails as dbGetAllProjectDetails,
   loadProject as dbLoadProject,
   saveProject as dbSaveProject
 } from '@model/db/api';
-import { createProject } from '@model/project';
+import { exportPadToJSON, exportPadToURLString } from '@model/pad';
 import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { Project, ProjectExport } from '@model/types';
+import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  QUERY_KEY_PROJECT,
-  QUERY_KEY_PROJECTS,
-  QUERY_KEY_STATE
-} from '../constants';
-import { exportPadToJSON, exportPadToURLString } from '../pad';
 import { usePadMetadata } from './useMetadataFromPad';
 import { usePadOperations } from './usePadOperations';
 
@@ -33,9 +33,7 @@ export const useProjects = () => {
 
   const loadProjectFromJSON = useCallback(
     async (data: ProjectExport) => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_STATE]
-      });
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_STATE]]);
 
       await deleteAllPadThumbnails();
 
@@ -73,13 +71,7 @@ export const useProjects = () => {
   const createNewProject = useCallback(async () => {
     store.send({ type: 'newProject' });
 
-    queryClient.invalidateQueries({
-      queryKey: [QUERY_KEY_PROJECT]
-    });
-
-    queryClient.invalidateQueries({
-      queryKey: [QUERY_KEY_STATE]
-    });
+    invalidateQueryKeys(queryClient, [[QUERY_KEY_PROJECT], [QUERY_KEY_STATE]]);
 
     await deleteAllPadThumbnails();
 
@@ -108,12 +100,10 @@ export const useProjects = () => {
     },
     onSuccess: () => {
       // Optionally invalidate queries that depend on project data
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PROJECT]
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PROJECTS]
-      });
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PROJECT],
+        [QUERY_KEY_PROJECTS]
+      ]);
     }
   });
 

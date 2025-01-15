@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { getPadStartAndEndTime } from '@model/pad';
+import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { getSelectedPadSourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Interval } from '@model/types';
@@ -15,24 +15,22 @@ const log = createLog('player/container');
 export const PlayerContainer = () => {
   const events = useEvents();
   const { store } = useStore();
-  // const { isEditActive } = useEditActive();
 
-  const { getMediaUrlFromPadId, pads, players, setVisiblePlayerId } =
-    usePlayers();
+  const { pads, players, setVisiblePlayerId } = usePlayers();
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
       // if (isEditActive) return;
       // log.debug('handlePadTouchdown', padId);
+      const pad = pads.find((pad) => pad.id === padId);
+      if (!pad) return;
 
-      const mediaUrl = getMediaUrlFromPadId(padId);
+      const mediaUrl = getPadSourceUrl(pad);
       if (!mediaUrl) {
-        log.debug('no media url for pad', padId);
+        log.debug('no media url for pad', padId, pad);
         return;
       }
 
-      const pad = pads.find((pad) => pad.id === padId);
-      if (!pad) return;
       const isOneShot = pad.isOneShot ?? false;
       const isLoop = pad.isLooped ?? false;
       const { start, end } = getPadStartAndEndTime(pad, {
@@ -48,25 +46,25 @@ export const PlayerContainer = () => {
         end
       });
     },
-    [events, getMediaUrlFromPadId, setVisiblePlayerId, pads]
+    [events, setVisiblePlayerId, pads]
   );
 
   const handlePadTouchup = useCallback(
     ({ padId }: { padId: string }) => {
       // if (isEditActive) return;
       // log.debug('handlePadTouchup', padId);
-      const url = getMediaUrlFromPadId(padId);
-      if (!url) return;
-
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
+      const url = getPadSourceUrl(pad);
+      if (!url) return;
+
       const isOneShot = pad.isOneShot ?? false;
 
       if (!isOneShot) {
         events.emit('video:stop', { url });
       }
     },
-    [events, getMediaUrlFromPadId, pads]
+    [events, pads]
   );
 
   useEffect(() => {

@@ -2,7 +2,7 @@ import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { Media } from '@model/types';
+import { Interval, Media } from '@model/types';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,
@@ -10,7 +10,8 @@ import {
   PlayerStop
 } from '../types';
 import { PlayerStateToString } from './helpers';
-import { PlayerState } from './types';
+import { usePlayerYTState } from './state';
+import { PlayerState, PlayerYTState } from './types';
 
 const log = createLog('player/yt/events');
 
@@ -20,12 +21,14 @@ type PlayerYTEvents = {
   stateString: string;
 };
 
-export type PlayerYTPlay = PlayerPlay & PlayerYTEvents;
-export type PlayerYTStop = PlayerStop & PlayerYTEvents;
-export type PlayerYTSeek = PlayerSeek & PlayerYTEvents;
+export type PlayerYTPlay = PlayerPlay; // & PlayerYTEvents;
+export type PlayerYTStop = PlayerStop; // & PlayerYTEvents;
+export type PlayerYTSeek = PlayerSeek; // & PlayerYTEvents;
 export type PlayerYTExtractThumbnail = PlayerExtractThumbnail & PlayerYTEvents;
 
 export interface UsePlayerYTEventsProps {
+  // player: YTPlayer | null;
+  intervals: Interval[];
   media: Media;
   isLoopedRef: RefObject<boolean>;
   startTimeRef: RefObject<number>;
@@ -36,6 +39,8 @@ export interface UsePlayerYTEventsProps {
 }
 
 export const usePlayerYTEvents = ({
+  // player,
+  intervals,
   media,
   isLoopedRef,
   startTimeRef,
@@ -46,24 +51,55 @@ export const usePlayerYTEvents = ({
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
   const [isPlaying, setIsPlaying] = useState(false);
-  const playerRef = useRef<YTPlayer | null>(null);
+  // const playerRef = useRef<YTPlayer | null>(null);
+
+  // const forwardEvent = useCallback(
+  //   <T extends PlayerPlay | PlayerStop | PlayerSeek | PlayerExtractThumbnail>(
+  //     event: T,
+  //     handler: (props: T & PlayerYTEvents) => void
+  //   ) => {
+  //     const { url } = event;
+  //     if (url !== media.url) return;
+  //     // const state = player.getPlayerState();
+  //     // const stateString = PlayerStateToString(state);
+  //     handler({ ...event, player, state, stateString });
+  //   },
+  //   [media.url, player]
+  // );
+
+  const { handlePlayerStateChange } = usePlayerYTState({
+    intervals,
+    media,
+    // playVideo: (props: PlayerPlay) => {
+    //   const player = playerRef.current;
+    //   if (!player) {
+    //     log.debug('oh dear no player ref', media.url);
+    //     return;
+    //   }
+    //   const state = player.getPlayerState();
+    //   const stateString = PlayerStateToString(state);
+    //   playVideo({ ...props, player, url: media.url, state, stateString });
+    // },
+    playVideo, //: (e: PlayerPlay) => forwardEvent(e, playVideo),
+    stopVideo //: (e: PlayerStop) => forwardEvent(e, stopVideo)
+  });
 
   const handleEnded = useCallback(
     (player: YTPlayer) => {
-      const state = player.getPlayerState();
-      const stateString = PlayerStateToString(state);
+      // const state = player.getPlayerState();
+      // const stateString = PlayerStateToString(state);
       log.debug('ended', media.url);
       if (isLoopedRef.current) {
         playVideo({
-          url: media.url,
-          player,
-          state,
-          stateString
+          url: media.url
+          // player,
+          // state,
+          // stateString
         });
         // player.seekTo(startTimeRef.current, true);
         // player.playVideo();
       } else {
-        stopVideo({ url: media.url, player, state, stateString });
+        stopVideo({ url: media.url });
       }
     },
     [isLoopedRef, media.url, playVideo, stopVideo]
@@ -85,13 +121,16 @@ export const usePlayerYTEvents = ({
 
   const onPlayerReady = useCallback(
     (player: YTPlayer) => {
-      playerRef.current = player;
+      // playerRef.current = player;
       // stateStringRef.current = PlayerStateToString(player.getPlayerState());
 
-      log.debug('[onReady]', media.url, player, {
-        time: player.getCurrentTime(),
-        state: PlayerStateToString(player.getPlayerState())
-      });
+      // log.debug('[onReady]', media.url, player, {
+      //   time: player.getCurrentTime(),
+      //   state: PlayerStateToString(player.getPlayerState())
+      // });
+
+      log.debug('[onPlayerReady]', player.odgnId);
+      handlePlayerStateChange(player.getPlayerState());
 
       // seek and play in order to buffer
       // as soon as the state changes to playing
@@ -111,7 +150,7 @@ export const usePlayerYTEvents = ({
       // log.debug('[onReady]', event.target.getAvailablePlaybackRates());
       // result: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
     },
-    [media.url]
+    [handlePlayerStateChange]
   );
 
   const onPlayerStateChange = useCallback(
@@ -134,9 +173,15 @@ export const usePlayerYTEvents = ({
           break;
       }
       // stateStringRef.current = PlayerStateToString(state);
-      log.debug('[onStateChange]', media.url, PlayerStateToString(state));
+      log.debug(
+        '[onStateChange]',
+        player.odgnId,
+        media.url,
+        PlayerStateToString(state)
+      );
+      handlePlayerStateChange(state);
     },
-    [media.url, events, handleEnded]
+    [media.url, events, handleEnded, handlePlayerStateChange]
   );
 
   const onPlayerError = useCallback(
@@ -146,73 +191,13 @@ export const usePlayerYTEvents = ({
     [media.url]
   );
 
-  // handles the oneshot or looped behaviour
   useEffect(() => {
-    const checkProgress = () => {
-      if (!playerRef.current || !isPlaying) return;
-
-      const currentTime = playerRef.current.getCurrentTime();
-      if (currentTime >= endTimeRef.current) {
-        const player = playerRef.current;
-        const state = player.getPlayerState();
-        const stateString = PlayerStateToString(state);
-        if (isLoopedRef.current) {
-          // playerRef.current.seekTo(startTimeRef.current, true);
-          seekVideo({
-            player,
-            url: media.url,
-            time: startTimeRef.current,
-            inProgress: false,
-            requesterId: 'yt-player',
-            state,
-            stateString
-          });
-        } else {
-          stopVideo({
-            url: media.url,
-            player,
-            state,
-            stateString
-          });
-        }
-      }
-    };
-
-    const intervalId = setInterval(checkProgress, 100);
-    return () => clearInterval(intervalId);
-  }, [
-    isPlaying,
-    media.url,
-    stopVideo,
-    playerRef,
-    isLoopedRef,
-    startTimeRef,
-    endTimeRef,
-    seekVideo
-  ]);
-
-  const forwardEvent = useCallback(
-    <T extends PlayerPlay | PlayerStop | PlayerSeek | PlayerExtractThumbnail>(
-      event: T,
-      handler: (props: T & PlayerYTEvents) => void
-    ) => {
-      const player = playerRef.current;
-      if (!player) return;
-      const { url } = event;
-      if (url !== media.url) return;
-      const state = player.getPlayerState();
-      const stateString = PlayerStateToString(state);
-      handler({ ...event, player, state, stateString });
-    },
-    [media.url, playerRef]
-  );
-
-  useEffect(() => {
-    const evtStart = (e: PlayerPlay) => forwardEvent(e, playVideo);
-    const evtStop = (e: PlayerStop) => forwardEvent(e, stopVideo);
-    const evtSeek = (e: PlayerSeek) => forwardEvent(e, seekVideo);
+    const evtStart = playVideo; //(e: PlayerPlay) => forwardEvent(e, playVideo);
+    const evtStop = stopVideo; //(e: PlayerStop) => forwardEvent(e, stopVideo);
+    const evtSeek = seekVideo; //(e: PlayerSeek) => forwardEvent(e, seekVideo);
     const evtExtractThumbnail = (e: PlayerExtractThumbnail) =>
-      forwardEvent(e, extractThumbnail);
+      extractThumbnail(e);
+    // forwardEvent(e, extractThumbnail);
 
     events.on('video:start', evtStart);
     events.on('video:stop', evtStop);
@@ -224,7 +209,7 @@ export const usePlayerYTEvents = ({
       events.off('video:seek', evtSeek);
       events.off('video:extract-thumbnail', evtExtractThumbnail);
     };
-  }, [events, extractThumbnail, forwardEvent, playVideo, seekVideo, stopVideo]);
+  }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
 
   return {
     onPlayerReady,

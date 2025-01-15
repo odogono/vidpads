@@ -1,3 +1,16 @@
+export const PlayerYTState = {
+  UNINITIALIZED: -1,
+  READY_FOR_CUE: 0,
+  CUEING: 1,
+  LOADED: 2,
+  READY: 3,
+  PLAYING: 4,
+  PAUSED: 5,
+  ENDED: 6
+} as const;
+
+export type PlayerYTState = (typeof PlayerYTState)[keyof typeof PlayerYTState];
+
 export const PlayerState = {
   UNSTARTED: -1,
   ENDED: 0,

@@ -92,16 +92,16 @@ export const usePadsExtended = () => {
   }, [padsWithMedia, urlToMetadata]);
 
   // log.debug('mediaIntervals', mediaIntervals);
-  useRenderingTrace('usePads', {
-    pads,
-    selectedPadId,
-    padSourceUrls,
-    padsWithMedia,
-    selectedPadSourceUrl,
-    selectedPadStartAndEndTime
-    // mediaIntervals
-    // mediaStartAndEndTimes
-  });
+  // useRenderingTrace('usePads', {
+  //   pads,
+  //   selectedPadId,
+  //   padSourceUrls,
+  //   padsWithMedia,
+  //   selectedPadSourceUrl,
+  //   selectedPadStartAndEndTime
+  //   // mediaIntervals
+  //   // mediaStartAndEndTimes
+  // });
 
   return {
     isReady,

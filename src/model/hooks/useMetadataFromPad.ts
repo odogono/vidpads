@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { isYouTubeMetadata } from '@helpers/metadata';
+import { invalidateQueryKeys } from '@helpers/query';
+import {
+  QUERY_KEY_PADS_METADATA,
+  QUERY_KEY_PAD_METADATA
+} from '@model/constants';
 // import { createLog } from '@helpers/log';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData
 } from '@model/db/api';
+import { getPadSourceUrl } from '@model/pad';
 import { useStore } from '@model/store/useStore';
 import { Pad } from '@model/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { isYouTubeMetadata } from '../../helpers/metadata';
-import { QUERY_KEY_PADS_METADATA, QUERY_KEY_PAD_METADATA } from '../constants';
-import { getPadSourceUrl } from '../pad';
 
 // const log = createLog('model/useMetadataFromPad');
 
@@ -20,12 +24,10 @@ export const useMetadataFromPad = (pad?: Pad) => {
   // Invalidate the cache when pad changes
   useEffect(() => {
     if (pad) {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_METADATA, pad.id]
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PADS_METADATA]
-      });
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PAD_METADATA, pad.id],
+        [QUERY_KEY_PADS_METADATA]
+      ]);
     }
   }, [pad, queryClient]);
 
