@@ -8,18 +8,6 @@ import { Pad } from '../types';
 import { StoreType } from './types';
 import { useStore } from './useStore';
 
-export const usePads = () => {
-  const { store, isReady } = useStore();
-  const pads = useSelector(store, (state) => state.context.pads) ?? [];
-
-  // Sort pads using natural sort to handle numbers correctly
-  const sortedPads = pads.sort((a, b) => {
-    return a.id.localeCompare(b.id, undefined, { numeric: true });
-  });
-
-  return { isReady, pads: sortedPads, store };
-};
-
 export const getPadById = (
   store: StoreType,
   padId: string

@@ -3,10 +3,12 @@ import {
   isVideoMetadata,
   isYouTubeMetadata
 } from '@helpers/metadata';
-import { ImagePlayer } from './ImagePlayer';
+import { ImagePlayer, ImagePlayerProps } from './ImagePlayer';
 import { LocalPlayer } from './LocalPlayer';
 import { PlayerYT } from './PlayerYT';
 import { PlayerProps } from './types';
+
+export type Player = (props: PlayerProps) => React.ReactElement;
 
 export const Player = (props: PlayerProps) => {
   const isYouTube = isYouTubeMetadata(props.media);
@@ -21,7 +23,7 @@ export const Player = (props: PlayerProps) => {
     >
       {isVideo && <LocalPlayer {...props} />}
       {isYouTube && <PlayerYT {...props} />}
-      {isImage && <ImagePlayer {...props} />}
+      {isImage && <ImagePlayer {...(props as ImagePlayerProps)} />}
     </div>
   );
 };

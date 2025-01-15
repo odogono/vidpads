@@ -8,18 +8,14 @@ import {
 } from '@helpers/metadata';
 import { getYouTubeThumbnail } from '@helpers/youtube';
 import {
-  deleteMediaData as dbDeleteMediaData,
-  deletePadThumbnail as dbDeletePadThumbnail,
   getAllMediaMetaData as dbGetAllMediaMetaData,
   saveImageData as dbSaveImageData,
   saveUrlData as dbSaveUrlData,
   saveVideoData as dbSaveVideoData,
   setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
-import { getPadsBySourceUrl } from '@model/store/selectors';
 import { StoreType } from '@model/store/types';
-import { MediaImage, MediaVideo, MediaYouTube, Pad } from '@model/types';
-import { getPadSourceUrl } from './pad';
+import { MediaImage, MediaVideo, MediaYouTube } from '@model/types';
 
 const log = createLog('model/api');
 
@@ -165,27 +161,4 @@ export const addFileToPad = async ({
     log.error('Failed to read media metadata:', error);
     return null;
   }
-};
-
-export const deletePadMedia = async (store: StoreType, pad: Pad) => {
-  const sourceUrl = getPadSourceUrl(pad);
-
-  // nothing to clear
-  if (!sourceUrl) {
-    // log.warn('[deletePadMedia] No source URL found:', pad.id);
-    return false;
-  }
-
-  const pads = getPadsBySourceUrl(store, sourceUrl);
-
-  // if there is only one pad using this source, then its
-  // safe to delete the source data
-  if (pads.length === 1) {
-    log.debug('[deletePadMedia] Deleting source data:', sourceUrl);
-    await dbDeleteMediaData(sourceUrl);
-  }
-
-  await dbDeletePadThumbnail(pad.id);
-
-  return true;
 };

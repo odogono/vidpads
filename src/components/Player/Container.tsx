@@ -7,7 +7,6 @@ import { createLog } from '@helpers/log';
 import { getPadStartAndEndTime } from '@model/pad';
 import { getSelectedPadSourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { Player } from './Player';
 import { usePlayers } from './usePlayers';
 
 const log = createLog('player/container');
@@ -17,13 +16,8 @@ export const PlayerContainer = () => {
   const { store } = useStore();
   // const { isEditActive } = useEditActive();
 
-  const {
-    getMediaUrlFromPadId,
-    pads,
-    players,
-    visiblePlayerId,
-    setVisiblePlayerId
-  } = usePlayers();
+  const { getMediaUrlFromPadId, pads, players, setVisiblePlayerId } =
+    usePlayers();
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
@@ -92,15 +86,5 @@ export const PlayerContainer = () => {
   //   visiblePlayerId
   // });
 
-  return (
-    <>
-      {Object.values(players).map((player) => (
-        <Player
-          key={player.media.url}
-          {...player}
-          isVisible={player.media.url === visiblePlayerId}
-        />
-      ))}
-    </>
-  );
+  return <>{players}</>;
 };
