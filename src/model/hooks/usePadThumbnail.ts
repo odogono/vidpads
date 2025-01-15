@@ -8,8 +8,7 @@ export const usePadThumbnail = (pad: Pad) => {
     queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id],
     queryFn: async () => {
       try {
-        const thumbnail = await dbGetPadThumbnail(pad.id);
-        return thumbnail;
+        return await dbGetPadThumbnail(pad.id);
       } catch {
         // log.warn('[usePadThumbnail] Error getting thumbnail:', error);
         return null;
