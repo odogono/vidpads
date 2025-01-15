@@ -1,4 +1,6 @@
 import {
+  Duration,
+  Interval,
   Operation,
   OperationExport,
   OperationType,
@@ -158,16 +160,16 @@ export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
   return pad?.pipeline.source?.url;
 };
 
-export const getPadStartAndEndTime = (pad: Pad) => {
+export const getPadStartAndEndTime = (
+  pad: Pad,
+  defaultTo?: Interval | undefined
+): Interval | undefined => {
   const trimOperation = getPadOperation(pad, OperationType.Trim) as
     | TrimOperation
     | undefined;
 
   if (!trimOperation) {
-    return {
-      start: -1,
-      end: -1
-    };
+    return defaultTo;
   }
 
   return {
@@ -217,5 +219,5 @@ export const applyPadTrimOperation = (
 };
 
 export const getPadOperation = (pad: Pad, type: OperationType) => {
-  return pad.pipeline.operations.find((operation) => operation.type === type);
+  return pad.pipeline?.operations?.find((operation) => operation.type === type);
 };

@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
-import { Pad } from '@model/types';
+import { Interval, Pad } from '@model/types';
 
 const log = createLog('usePadTouches');
 
@@ -21,7 +21,10 @@ export const usePadTouches = ({ isActive, pad }: UsePadTouchesProps) => {
       if (!isActive || pad?.id !== padId) return;
       const url = getPadSourceUrl(pad);
       if (!url) return;
-      const { start, end } = getPadStartAndEndTime(pad);
+      const { start, end } = getPadStartAndEndTime(pad, {
+        start: 0,
+        end: Number.MAX_SAFE_INTEGER
+      }) as Interval;
       events.emit('video:start', {
         start,
         end,

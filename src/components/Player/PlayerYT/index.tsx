@@ -13,7 +13,7 @@ import { initializePlayer } from './youtube';
 
 const log = createLog('player/yt');
 
-export const PlayerYT = ({ media }: PlayerProps) => {
+export const PlayerYT = ({ media, intervals }: PlayerProps) => {
   const events = useEvents();
   const containerRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef(0);

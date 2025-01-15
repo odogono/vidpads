@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
-import { Pad } from '@model/types';
+import { Interval, Pad } from '@model/types';
 
 const log = createLog('useStartAndEndTime');
 
@@ -143,13 +143,14 @@ export const useStartAndEndTime = ({
 
   useEffect(() => {
     if (!pad || !isActive) return;
-    const { start, end } = getPadStartAndEndTime(pad);
-    const startTime = start === -1 ? 0 : start;
-    const endTime = end === -1 ? duration : end;
+    const { start, end } = getPadStartAndEndTime(pad, {
+      start: 0,
+      end: duration
+    }) as Interval;
 
-    setSlideValue([startTime, endTime]);
-    lastValueRef.current = [startTime, endTime];
-    existingValueRef.current = [startTime, endTime];
+    setSlideValue([start, end]);
+    lastValueRef.current = [start, end];
+    existingValueRef.current = [start, end];
     // log.debug('useEffect', selectedPadId, pad.id, { start, end });
   }, [duration, pad, isActive]);
 

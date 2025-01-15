@@ -14,8 +14,8 @@ import { PlayerProps } from './types';
 const log = createLog('player/usePlayers');
 
 export const usePlayers = () => {
-  const { isReady, pads, padSourceUrls } = usePadsExtended();
-  const { urlToMetadata } = useMetadata();
+  const { isReady, pads, padSourceUrls, urlToMetadata, mediaIntervals } =
+    usePadsExtended();
 
   const [visiblePlayerId, setVisiblePlayerId] = useState<string | undefined>();
 
@@ -34,11 +34,13 @@ export const usePlayers = () => {
         const media = urlToMetadata?.get(url);
         if (!isReady || !media) return null;
 
+        const intervals = mediaIntervals[url];
+
         const props: PlayerProps = {
           id: url,
           isVisible: false,
           media,
-          initialTime: -1
+          intervals
         };
 
         log.debug('player', props);
