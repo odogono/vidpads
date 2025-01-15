@@ -78,24 +78,21 @@ export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
 
   useEffect(() => {
     events.on('video:thumbnail-extracted', handleThumbnailExtracted);
-    // events.on('video:ready', handleVideoReady);
     return () => {
       events.off('video:thumbnail-extracted', handleThumbnailExtracted);
-      // events.off('video:ready', handleVideoReady);
     };
   }, [events, handleThumbnailExtracted]);
 
   useEffect(() => {
     if (padSourceUrl) {
-      events.emit('video:seek', {
-        url: padSourceUrl,
-        time: slideValue[0],
-        inProgress: false,
-        requesterId: 'start-end-slider'
-      });
+      // events.emit('video:seek', {
+      //   url: padSourceUrl,
+      //   time: slideValue[0],
+      //   inProgress: false,
+      //   requesterId: 'start-end-slider'
+      // });
     }
     // do not listen to slideValue or isSeeking
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [padSourceUrl, events]);
 
   // log.debug('selectedPadId', pad?.id, slideValue);

@@ -1,13 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { getObjectDiff, isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
-import { useMetadata } from '@model/hooks/useMetadata';
 import { usePadsExtended } from '@model/hooks/usePads';
-import { getPadSourceUrl } from '@model/pad';
-import { Media, Pad } from '@model/types';
 import { Player } from './Player';
 import { PlayerProps } from './types';
 
@@ -19,15 +16,6 @@ export const usePlayers = () => {
 
   const [visiblePlayerId, setVisiblePlayerId] = useState<string | undefined>();
 
-  // a map of padId to media url
-  const padToMediaRef = useRef<{ [key: string]: Pad }>({});
-
-  const getMediaUrlFromPadId = useCallback((padId: string) => {
-    const pad = padToMediaRef.current[padId];
-    if (!pad) return null;
-    return getPadSourceUrl(pad);
-  }, []);
-
   const players = useMemo<Player[]>(() => {
     const result = padSourceUrls
       .map((url) => {
@@ -38,7 +26,7 @@ export const usePlayers = () => {
 
         const props: PlayerProps = {
           id: url,
-          isVisible: false,
+          isVisible: true,
           media,
           intervals
         };
@@ -50,7 +38,7 @@ export const usePlayers = () => {
       .filter(Boolean) as unknown as Player[];
 
     return result;
-  }, [padSourceUrls, urlToMetadata, isReady]);
+  }, [padSourceUrls, urlToMetadata, isReady, mediaIntervals]);
 
   // useEffect(() => {
   //   if (!isReady) return;
@@ -125,7 +113,6 @@ export const usePlayers = () => {
   // ]);
 
   return {
-    getMediaUrlFromPadId,
     pads,
     players,
     visiblePlayerId,

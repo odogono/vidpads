@@ -146,9 +146,7 @@ export const usePadOperations = () => {
       await dbDeleteAllPadThumbnails();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL]
-      });
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_PAD_THUMBNAIL]]);
     }
   });
 

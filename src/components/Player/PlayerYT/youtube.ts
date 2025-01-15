@@ -48,6 +48,8 @@ export interface InitializePlayerProps {
   onError: (event: Error) => void;
 }
 
+let playerCount = 0;
+
 export const initializePlayer = async ({
   container,
   videoId,
@@ -67,7 +69,7 @@ export const initializePlayer = async ({
     width: '100%',
     height: '100%',
     playerVars: {
-      // enablejsapi: 1,
+      enablejsapi: 1,
       playsinline: 1,
       disablekb: 1, // disable keyboard controls
       controls: 0, // disable controls
@@ -84,6 +86,21 @@ export const initializePlayer = async ({
       onError
     }
   });
-
+  player.odgnId = `yt-${++playerCount}`;
+  log.debug('initializePlayer', player.odgnId);
   return player;
+};
+
+export const destroyPlayer = (
+  container: HTMLDivElement | null,
+  player: YTPlayer | null
+) => {
+  if (player) {
+    log.debug('destroyPlayer', player.odgnId);
+    player.destroy();
+  }
+  if (container) {
+    container.innerHTML = '';
+  }
+  return null;
 };
