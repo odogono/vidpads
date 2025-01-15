@@ -192,6 +192,7 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
       {...dragProps}
     >
       {thumbnail && (
+        // next/image needs a width and height
         <img
           src={thumbnail}
           alt={`Thumbnail for pad ${pad.id}`}

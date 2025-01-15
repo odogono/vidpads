@@ -1,28 +1,31 @@
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
-import {
-  copyPadThumbnail as dbCopyPadThumbnail,
-  deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
-  deleteMediaData as dbDeleteMediaData,
-  deletePadThumbnail as dbDeletePadThumbnail
-} from '@model/db/api';
-import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
-import { useStore } from '@model/store/useStore';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { invalidateQueryKeys } from '@helpers/query';
 import {
   AddFileToPadProps,
   AddUrlToPadProps,
   CopyPadToPadProps,
   addFileToPad,
   addUrlToPad
-} from '../';
-import { QUERY_KEY_PADS_METADATA, QUERY_KEY_PAD_METADATA } from '../constants';
-import { getPadSourceUrl } from '../pad';
-import { Pad } from '../types';
+} from '@model';
+import {
+  QUERY_KEY_PADS_METADATA,
+  QUERY_KEY_PAD_METADATA,
+  QUERY_KEY_PAD_THUMBNAIL
+} from '@model/constants';
+import {
+  copyPadThumbnail as dbCopyPadThumbnail,
+  deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
+  deleteMediaData as dbDeleteMediaData,
+  deletePadThumbnail as dbDeletePadThumbnail
+} from '@model/db/api';
+import { getPadSourceUrl } from '@model/pad';
+import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
+import { useStore } from '@model/store/useStore';
+import { Pad } from '@model/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const log = createLog('model/api');
-
-const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
 
 export const usePadOperations = () => {
   const { store } = useStore();
@@ -43,9 +46,7 @@ export const usePadOperations = () => {
       if (pads.length === 1) {
         log.debug('[useDeletePadMedia] Deleting source data:', sourceUrl);
         await dbDeleteMediaData(sourceUrl);
-        queryClient.invalidateQueries({
-          queryKey: [[QUERY_KEY_PADS_METADATA]]
-        });
+        invalidateQueryKeys(queryClient, [[QUERY_KEY_PADS_METADATA]]);
       }
 
       await dbDeletePadThumbnail(pad.id);
@@ -54,9 +55,7 @@ export const usePadOperations = () => {
     },
     onSuccess: (data, pad) => {
       log.debug('[useDeletePadMedia] Invalidate queries:', pad.id);
-      queryClient.invalidateQueries({
-        queryKey: [[QUERY_KEY_PAD_METADATA, pad.id]]
-      });
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_PAD_METADATA, pad.id]]);
     }
   });
 
@@ -64,13 +63,11 @@ export const usePadOperations = () => {
     mutationFn: (props: AddFileToPadProps) => addFileToPad({ ...props, store }),
     onSuccess: (data, props) => {
       // Invalidate the pad-thumbnail query to trigger a refetch
-      queryClient.invalidateQueries({
-        queryKey: [
-          [QUERY_KEY_PAD_THUMBNAIL, props.padId],
-          [QUERY_KEY_PAD_METADATA, props.padId],
-          [QUERY_KEY_PADS_METADATA]
-        ]
-      });
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+        [QUERY_KEY_PAD_METADATA, props.padId],
+        [QUERY_KEY_PADS_METADATA]
+      ]);
       return data;
     }
   });
@@ -79,13 +76,11 @@ export const usePadOperations = () => {
     mutationFn: (props: AddUrlToPadProps) => addUrlToPad({ ...props, store }),
     onSuccess: (data, props) => {
       // Invalidate the pad-thumbnail query to trigger a refetch
-      queryClient.invalidateQueries({
-        queryKey: [
-          [QUERY_KEY_PAD_THUMBNAIL, props.padId],
-          [QUERY_KEY_PAD_METADATA, props.padId],
-          [QUERY_KEY_PADS_METADATA]
-        ]
-      });
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+        [QUERY_KEY_PAD_METADATA, props.padId],
+        [QUERY_KEY_PADS_METADATA]
+      ]);
     }
   });
 
@@ -111,15 +106,13 @@ export const usePadOperations = () => {
     },
     onSuccess: (data, { sourcePadId, targetPadId }) => {
       log.debug('[copyPad] Invalidate queries:', sourcePadId, targetPadId);
-      queryClient.invalidateQueries({
-        queryKey: [
-          [QUERY_KEY_PAD_THUMBNAIL, sourcePadId],
-          [QUERY_KEY_PAD_THUMBNAIL, targetPadId],
-          [QUERY_KEY_PAD_METADATA, sourcePadId],
-          [QUERY_KEY_PAD_METADATA, targetPadId],
-          [QUERY_KEY_PADS_METADATA]
-        ]
-      });
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PAD_THUMBNAIL, sourcePadId],
+        [QUERY_KEY_PAD_THUMBNAIL, targetPadId],
+        [QUERY_KEY_PAD_METADATA, sourcePadId],
+        [QUERY_KEY_PAD_METADATA, targetPadId],
+        [QUERY_KEY_PADS_METADATA]
+      ]);
     }
   });
 
@@ -140,13 +133,11 @@ export const usePadOperations = () => {
     },
     onSuccess: (data, padId) => {
       log.debug('[clearPad] Invalidate queries:', padId);
-      queryClient.invalidateQueries({
-        queryKey: [
-          [QUERY_KEY_PAD_THUMBNAIL, padId],
-          [QUERY_KEY_PAD_METADATA, padId],
-          [QUERY_KEY_PADS_METADATA]
-        ]
-      });
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PAD_THUMBNAIL, padId],
+        [QUERY_KEY_PAD_METADATA, padId],
+        [QUERY_KEY_PADS_METADATA]
+      ]);
     }
   });
 
