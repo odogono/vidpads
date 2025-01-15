@@ -1,7 +1,7 @@
 interface YT {
   Player: {
     new (
-      elementId: string,
+      elementId: string | HTMLDivElement,
       options: {
         videoId?: string;
         width?: number | string;
@@ -9,6 +9,7 @@ interface YT {
         playerVars?: {
           autoplay?: 0 | 1;
           controls?: 0 | 1;
+          disablekb?: 0 | 1;
           start?: number;
           end?: number;
           loop?: 0 | 1;
@@ -16,11 +17,12 @@ interface YT {
           playsinline?: 0 | 1;
           iv_load_policy?: 1 | 3;
           rel?: 0 | 1;
+          enablejsapi?: 0 | 1;
         };
         events?: {
-          onReady?: (event: { target: YT.Player }) => void;
-          onStateChange?: (event: { data: number }) => void;
-          onError?: (event: { data: number }) => void;
+          onReady?: (event: { target: YTPlayer }) => void;
+          onStateChange?: (event: { data: YT.PlayerState }) => void;
+          onError?: (event: Error) => void;
         };
       }
     ): YT.Player;
@@ -45,8 +47,11 @@ interface YTPlayer {
   getPlaybackRate(): number;
   getCurrentTime(): number;
   getDuration(): number;
-  getPlayerState(): number;
+  getPlayerState(): YT.PlayerState;
+  mute(): void;
+  unMute(): void;
   destroy(): void;
+  setVolume(volume: number): void;
 }
 
 interface Window {
