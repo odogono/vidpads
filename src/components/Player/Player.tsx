@@ -5,7 +5,7 @@ import {
 } from '@helpers/metadata';
 import { ImagePlayer } from './ImagePlayer';
 import { LocalPlayer } from './LocalPlayer';
-import { YTPlayer } from './YTPlayer';
+import { PlayerYT } from './PlayerYT';
 import { PlayerProps } from './types';
 
 export const Player = (props: PlayerProps) => {
@@ -20,7 +20,7 @@ export const Player = (props: PlayerProps) => {
       }`}
     >
       {isVideo && <LocalPlayer {...props} />}
-      {isYouTube && <YTPlayer {...props} />}
+      {isYouTube && <PlayerYT {...props} />}
       {isImage && <ImagePlayer {...props} />}
     </div>
   );

@@ -28,6 +28,7 @@ export interface PlayerPlay {
   end?: number;
   isLoop?: boolean;
   isOneShot?: boolean;
+  volume?: number;
 }
 
 export interface PlayerReady {
