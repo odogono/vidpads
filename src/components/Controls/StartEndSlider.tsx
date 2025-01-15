@@ -11,9 +11,9 @@ import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { Slider } from '@nextui-org/react';
-import { useStartAndEndTime } from '../Editor/useStartAndEndTime';
 import { PlayerThumbnailExtracted } from '../Player/types';
 import { DurationButton } from './DurationButton';
+import { useStartAndEndTime } from './useStartAndEndTime';
 
 export interface StartEndSliderProps {
   isEditActive?: boolean;
