@@ -45,18 +45,21 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
         if (isIndexedDBSupported()) {
           await saveStateToIndexedDB(snapshot.context);
         }
-        snapshotRef.current = snapshot.context;
       }
 
       return store;
     }
   });
 
+  if (!snapshotRef.current) {
+    snapshotRef.current = store?.getSnapshot().context;
+  }
+
   // persist the store when it changes
   useEffect(() => {
     if (store) {
       // log.debug('subscribing to store updates');
-      const sub = store.subscribe((snapshot) => {
+      const sub = store.subscribe(async (snapshot) => {
         const hasChanged = !isObjectEqual(
           snapshotRef.current ?? {},
           snapshot.context
@@ -67,8 +70,9 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
           //   snapshot.context
           // );
           // log.info('store updated: saving state to IndexedDB:', diff);
-          saveStateToIndexedDB(snapshot.context);
+          // log.debug('was', snapshotRef.current);
           snapshotRef.current = snapshot.context;
+          await saveStateToIndexedDB(snapshot.context);
         }
       });
 
