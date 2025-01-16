@@ -167,14 +167,19 @@ export const usePlayerYTEvents = ({
     (player: YTPlayer, state: PlayerState) => {
       switch (state) {
         case PlayerState.PLAYING:
+          // events.emit('player:playing', {
+          //   url: mediaUrl,
+          //   padId: playerPadId,
+          //   time: player.getCurrentTime()
+          // });
           // setIsPlaying(true);
           break;
         case PlayerState.PAUSED:
-          events.emit('video:stopped', {
-            url: mediaUrl,
-            padId: playerPadId,
-            time: player.getCurrentTime()
-          });
+          // events.emit('player:stopped', {
+          //   url: mediaUrl,
+          //   padId: playerPadId,
+          //   time: player.getCurrentTime()
+          // });
           // setIsPlaying(false);
           break;
         case PlayerState.ENDED:
@@ -190,7 +195,7 @@ export const usePlayerYTEvents = ({
       //   media.url,
       //   PlayerStateToString(state)
       // );
-      handlePlayerStateChange(state, player.odgnId);
+      handlePlayerStateChange(state, player);
     },
     [mediaUrl, events, handleEnded, handlePlayerStateChange, playerPadId]
   );

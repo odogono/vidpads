@@ -8,6 +8,7 @@ import {
   PlayerExtractThumbnail,
   PlayerNotReady,
   PlayerPlay,
+  PlayerPlaying,
   PlayerReady,
   PlayerSeek,
   PlayerStop,
@@ -26,8 +27,6 @@ export type EventEmitterEvents = {
   'video:start': PlayerPlay;
   // request the video to stop
   'video:stop': PlayerStop;
-  // the video has stopped
-  'video:stopped': PlayerStopped;
   // request the video to seek to a specific time
   'video:seek': PlayerSeek;
   // request the video to extract a thumbnail
@@ -42,6 +41,9 @@ export type EventEmitterEvents = {
   'player:ready': PlayerReady;
   // the player is not ready for interaction
   'player:not-ready': PlayerNotReady;
+
+  'player:playing': PlayerPlaying;
+  'player:stopped': PlayerStopped;
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;
