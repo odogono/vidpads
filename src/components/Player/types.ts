@@ -16,14 +16,17 @@ export type PlayerReadyState = keyof typeof PlayerReadyState;
 
 export interface PlayerProps {
   id: string;
+  padId: string;
   isVisible?: boolean;
+  mediaUrl: string; // same as media.url
   media: Media;
   showControls?: boolean;
-  intervals: Interval[];
+  interval: Interval;
 }
 
 export interface PlayerPlay {
   url: string;
+  padId: string;
   start?: number;
   end?: number;
   isLoop?: boolean;
@@ -33,6 +36,7 @@ export interface PlayerPlay {
 
 export interface PlayerReady {
   url: string;
+  padId: string;
   state: number;
   // duration: number;
   // dimensions: {
@@ -43,20 +47,24 @@ export interface PlayerReady {
 
 export interface PlayerNotReady {
   url: string;
+  padId: string;
   state: number;
 }
 
 export interface PlayerStop {
   url: string;
+  padId: string;
 }
 
 export interface PlayerStopped {
   url: string;
+  padId: string;
   time: number;
 }
 
 export interface PlayerSeek {
   url: string;
+  padId: string;
   time: number;
   inProgress: boolean;
   requesterId: string;
@@ -71,12 +79,14 @@ interface PlayerAdditional {
 
 export interface PlayerExtractThumbnail {
   url: string;
+  padId: string;
   time: number;
   additional?: PlayerAdditional;
 }
 
 export interface PlayerThumbnailExtracted {
   url: string;
+  padId: string;
   time: number;
   thumbnail?: string;
   additional?: PlayerAdditional;

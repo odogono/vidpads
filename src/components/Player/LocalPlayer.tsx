@@ -10,22 +10,21 @@ import {
   PlayerPlay,
   PlayerProps,
   PlayerReadyState,
-  PlayerReadyStateKeys,
   PlayerSeek,
   PlayerStop
 } from './types';
 
 type LocalPlayerProps = PlayerProps;
-// type handleVideoStartProps = EventEmitterEvents['video:start'];
-// type handleVideoStopProps = EventEmitterEvents['video:stop'];
 
 const log = createLog('player/local');
 
 export const LocalPlayer = ({
   id,
+  padId: playerPadId,
   showControls,
   media,
-  initialTime
+  mediaUrl,
+  interval
 }: LocalPlayerProps) => {
   const events = useEvents();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -38,9 +37,10 @@ export const LocalPlayer = ({
   useVideoLoader(media as MediaVideo, videoRef);
 
   const playVideo = useCallback(
-    ({ start, end, isLoop, url }: PlayerPlay) => {
+    ({ start, end, isLoop, url, padId }: PlayerPlay) => {
       if (!videoRef.current) return;
-      if (url !== media.url) return;
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
 
       if (isPlayingRef.current && isLoopedRef.current) {
         videoRef.current.pause();
@@ -63,33 +63,36 @@ export const LocalPlayer = ({
       videoRef.current.play();
       // log.debug('[playVideo]', id, { start, end, isLoop, url });
     },
-    [media.url]
+    [mediaUrl, playerPadId]
   );
 
   const stopVideo = useCallback(
-    ({ url }: PlayerStop) => {
-      if (url !== media.url) return;
+    ({ url, padId }: PlayerStop) => {
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
       if (!videoRef.current) return;
       videoRef.current.pause();
       isPlayingRef.current = false;
     },
-    [videoRef, media.url]
+    [videoRef, mediaUrl, playerPadId]
   );
 
   const seekVideo = useCallback(
-    ({ time, url }: PlayerSeek) => {
-      // log.debug('[seekVideo]', id, time, { time, url, mediaUrl: media.url });
+    ({ time, url, padId }: PlayerSeek) => {
+      // log.debug('[seekVideo]', id, time, { time, url, mediaUrl: mediaUrl });
       if (!videoRef.current) return;
-      if (url !== media.url) return;
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
       videoRef.current.currentTime = time;
     },
-    [media.url]
+    [mediaUrl, playerPadId]
   );
 
   const extractThumbnail = useCallback(
-    ({ time, url, additional }: PlayerExtractThumbnail) => {
+    ({ time, url, padId, additional }: PlayerExtractThumbnail) => {
       if (!videoRef.current) return;
-      if (url !== media.url) return;
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
 
       // log.debug('[extractThumbnail]', id, time);
       extractVideoThumbnailFromVideo({
@@ -98,13 +101,14 @@ export const LocalPlayer = ({
       }).then((thumbnail) => {
         events.emit('video:thumbnail-extracted', {
           url,
+          padId,
           time,
           thumbnail,
           additional
         });
       });
     },
-    [media.url, events]
+    [mediaUrl, playerPadId, events]
   );
 
   const handleTimeUpdate = useCallback(() => {
@@ -115,20 +119,21 @@ export const LocalPlayer = ({
         // log.debug('[handleTimeUpdate] looping', id, startTimeRef.current);
         video.currentTime = startTimeRef.current;
       } else {
-        stopVideo({ url: media.url });
+        stopVideo({ url: mediaUrl, padId: playerPadId });
       }
     }
     // log.debug('[handleTimeUpdate]', id, video.currentTime);
-  }, [stopVideo, media.url]);
+  }, [stopVideo, mediaUrl, playerPadId]);
 
   const handleIsReady = useCallback(() => {
     events.emit('player:ready', {
-      url: media.url,
+      url: mediaUrl,
+      padId: playerPadId,
       state: PlayerReadyState.HAVE_METADATA
     });
 
     // events.emit('video:ready', {
-    //   url: media.url,
+    //   url: mediaUrl,
     //   duration: videoRef.current?.duration ?? 0,
     //   readyState: PlayerReadyStateKeys[
     //     videoRef.current?.readyState ?? 0
@@ -138,7 +143,7 @@ export const LocalPlayer = ({
     //     height: videoRef.current?.videoHeight ?? 0
     //   }
     // });
-  }, [events, media.url]);
+  }, [events, mediaUrl, playerPadId]);
 
   useEffect(() => {
     events.on('video:start', playVideo);
@@ -156,10 +161,10 @@ export const LocalPlayer = ({
   // runs on mount to set the initial value
   useEffect(() => {
     if (!videoRef.current) return;
-    if (initialTime === -1) return;
+    if (!interval || interval.start === -1) return;
     // log.debug('useEffect setting initialTime', id, initialTime);
-    videoRef.current.currentTime = initialTime;
-  }, [id, initialTime]);
+    videoRef.current.currentTime = interval.start;
+  }, [id, interval]);
 
   // Add loadedmetadata event listener
   useEffect(() => {
@@ -181,7 +186,7 @@ export const LocalPlayer = ({
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('canplay', handleIsReady);
     };
-  }, []);
+  }, [handleIsReady, handleTimeUpdate, showControls]);
 
   // if (isVisible) {
   //   log.debug('rendering', media.url, isVisible, initialTime);

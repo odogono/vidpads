@@ -1,4 +1,4 @@
-import type { Media, Pad, Project, ProjectExport } from '@model/types';
+import type { Media, Pad, ProjectExport } from '@model/types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {

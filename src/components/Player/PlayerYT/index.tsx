@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { useRenderingTrace } from '../../../hooks/useRenderingTrace';
 import { PlayerPlay, PlayerProps, PlayerSeek, PlayerStop } from '../types';
 import { PlayerStateToString } from './helpers';
 import { PlayerState } from './types';
@@ -11,7 +10,12 @@ import { destroyPlayer, initializePlayer } from './youtube';
 
 const log = createLog('player/yt');
 
-export const PlayerYT = ({ media, intervals }: PlayerProps) => {
+export const PlayerYT = ({
+  media,
+  mediaUrl,
+  interval,
+  padId: playerPadId
+}: PlayerProps) => {
   const events = useEvents();
   const containerRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef(0);
@@ -20,13 +24,13 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
   const playerRef = useRef<YTPlayer | null>(null);
 
   const { id: videoId } = media;
-  const mediaUrl = media.url;
 
   const playVideo = useCallback(
-    ({ url, start, end, isLoop, volume }: PlayerPlay) => {
+    ({ url, padId, start, end, isLoop, volume }: PlayerPlay) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
 
       const setVolume = volume ?? 100;
 
@@ -57,14 +61,15 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
       player.seekTo(startTime, true);
       player.playVideo();
     },
-    [mediaUrl]
+    [mediaUrl, playerPadId]
   );
 
   const stopVideo = useCallback(
-    ({ url }: PlayerStop) => {
+    ({ url, padId }: PlayerStop) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
 
       log.debug('[stopVideo]', player.odgnId, {
         player,
@@ -76,15 +81,15 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
         log.debug('[stopVideo] ⚠️ error pausing video');
       }
     },
-    [mediaUrl]
+    [mediaUrl, playerPadId]
   );
 
   const seekVideo = useCallback(
-    ({ url, time, inProgress, requesterId }: PlayerSeek) => {
+    ({ url, time, inProgress, requesterId, padId }: PlayerSeek) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
-
+      if (padId !== playerPadId) return;
       // todo - implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
       // and then set it to true again after the seek is complete
@@ -105,7 +110,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
         });
       }
     },
-    [mediaUrl]
+    [mediaUrl, playerPadId]
   );
 
   // takes care of preparing the player on mount for playback
@@ -116,8 +121,9 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
     onPlayerStateChange,
     onPlayerError
   } = usePlayerYTEvents({
-    intervals,
-    media,
+    interval,
+    mediaUrl,
+    padId: playerPadId,
     isLoopedRef,
     startTimeRef,
     endTimeRef,
@@ -202,13 +208,15 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
         if (isLoopedRef.current) {
           seekVideo({
             url: mediaUrl,
+            padId: playerPadId,
             time: startTimeRef.current,
             inProgress: false,
             requesterId: 'yt-player'
           });
         } else {
           stopVideo({
-            url: mediaUrl
+            url: mediaUrl,
+            padId: playerPadId
           });
         }
       }
@@ -216,7 +224,15 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
 
     const intervalId = setInterval(checkProgress, 100);
     return () => clearInterval(intervalId);
-  }, [mediaUrl, stopVideo, isLoopedRef, startTimeRef, endTimeRef, seekVideo]);
+  }, [
+    mediaUrl,
+    playerPadId,
+    stopVideo,
+    isLoopedRef,
+    startTimeRef,
+    endTimeRef,
+    seekVideo
+  ]);
 
   return (
     <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />

@@ -20,8 +20,6 @@ export const PlayerContainer = () => {
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
-      // if (isEditActive) return;
-      // log.debug('handlePadTouchdown', padId);
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
 
@@ -40,6 +38,7 @@ export const PlayerContainer = () => {
       setVisiblePlayerId(mediaUrl);
       events.emit('video:start', {
         url: mediaUrl,
+        padId: pad.id,
         isOneShot,
         isLoop,
         start,
@@ -61,7 +60,7 @@ export const PlayerContainer = () => {
       const isOneShot = pad.isOneShot ?? false;
 
       if (!isOneShot) {
-        events.emit('video:stop', { url });
+        events.emit('video:stop', { url, padId });
       }
     },
     [events, pads]
