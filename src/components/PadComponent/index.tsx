@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -8,9 +8,16 @@ import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
+import {
+  PlayerNotReady,
+  PlayerPlaying,
+  PlayerReady,
+  PlayerStopped
+} from '../Player/types';
 import { useGhostDrag } from './ghost';
 import { GeneralTouchEvent } from './types';
 import { useNullImage } from './useNullImage';
+import { usePlayerEvents } from './usePlayerEvents';
 
 export interface PadComponentProps {
   pad: Pad;
@@ -23,6 +30,7 @@ const isMouseEvent = (e: GeneralTouchEvent) => e.type.includes('mouse');
 const log = createLog('PadComponent');
 
 export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
+  const events = useEvents();
   const elementRef = useRef<HTMLDivElement>(null);
   const { thumbnail } = usePadThumbnail(pad);
   const dragImage = useNullImage();
@@ -38,8 +46,9 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     onDrop
   } = usePadDnD();
   const isDraggingOver = dragOverId === pad.id;
-  const events = useEvents();
   const { selectedPadId, setSelectedPadId } = useSelectedPadId();
+
+  const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad.id);
 
   useEffect(() => {
     if (!isDragging) {
@@ -49,11 +58,12 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
 
   const handleTouchStart = useCallback(
     (e: GeneralTouchEvent) => {
-      // log.debug('handleTouchStart');
-      events.emit('pad:touchdown', { padId: pad.id });
-      setSelectedPadId(pad.id);
+      if (isPlayerReady) {
+        events.emit('pad:touchdown', { padId: pad.id });
+        setSelectedPadId(pad.id);
+      }
     },
-    [events, pad, setSelectedPadId]
+    [events, pad, setSelectedPadId, isPlayerReady]
   );
 
   const handleTouchMove = useCallback(
@@ -80,7 +90,9 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
       if (!thumbnail) {
         onEmptyPadTouch(pad.id);
       } else {
-        events.emit('pad:touchup', { padId: pad.id });
+        if (isPlayerReady) {
+          events.emit('pad:touchup', { padId: pad.id });
+        }
       }
     } else {
       removeGhost();
@@ -93,7 +105,8 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     pad.id,
     events,
     removeGhost,
-    setDraggingPadId
+    setDraggingPadId,
+    isPlayerReady
   ]);
 
   const handleDragStart = useCallback(
@@ -181,6 +194,7 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
           aspect-square rounded-lg cursor-pointer transition-all relative
           ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
+          ${isPlayerReady ? 'opacity-100' : 'opacity-40'}
         `}
       // onClick={handleClick}
       // Only attach touch handlers for touch devices
@@ -199,6 +213,12 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
           className='w-full h-full object-cover rounded-lg'
         />
       )}
+      <span
+        className={`
+          absolute inset-0 rounded-lg bg-white transition-opacity duration-200
+          ${isPlayerPlaying ? 'animate-opacity-pulse' : 'opacity-0'}
+        `}
+      ></span>
       <span className='absolute bottom-2 right-2 text-xs text-gray-400 select-none'>
         {pad.id}
       </span>
