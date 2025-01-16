@@ -21,13 +21,12 @@ type PlayerYTEvents = {
   stateString: string;
 };
 
-export type PlayerYTPlay = PlayerPlay; // & PlayerYTEvents;
-export type PlayerYTStop = PlayerStop; // & PlayerYTEvents;
-export type PlayerYTSeek = PlayerSeek; // & PlayerYTEvents;
+export type PlayerYTPlay = PlayerPlay;
+export type PlayerYTStop = PlayerStop;
+export type PlayerYTSeek = PlayerSeek;
 export type PlayerYTExtractThumbnail = PlayerExtractThumbnail & PlayerYTEvents;
 
 export interface UsePlayerYTEventsProps {
-  // player: YTPlayer | null;
   intervals: Interval[];
   media: Media;
   isLoopedRef: RefObject<boolean>;
@@ -39,19 +38,16 @@ export interface UsePlayerYTEventsProps {
 }
 
 export const usePlayerYTEvents = ({
-  // player,
   intervals,
   media,
   isLoopedRef,
-  startTimeRef,
-  endTimeRef,
   playVideo,
   stopVideo,
   seekVideo
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
   const [isPlaying, setIsPlaying] = useState(false);
-  // const playerRef = useRef<YTPlayer | null>(null);
+  const mediaUrl = media.url;
 
   // const forwardEvent = useCallback(
   //   <T extends PlayerPlay | PlayerStop | PlayerSeek | PlayerExtractThumbnail>(
@@ -88,10 +84,10 @@ export const usePlayerYTEvents = ({
     (player: YTPlayer) => {
       // const state = player.getPlayerState();
       // const stateString = PlayerStateToString(state);
-      log.debug('ended', media.url);
+      log.debug('ended', mediaUrl);
       if (isLoopedRef.current) {
         playVideo({
-          url: media.url
+          url: mediaUrl
           // player,
           // state,
           // stateString
@@ -99,10 +95,10 @@ export const usePlayerYTEvents = ({
         // player.seekTo(startTimeRef.current, true);
         // player.playVideo();
       } else {
-        stopVideo({ url: media.url });
+        stopVideo({ url: mediaUrl });
       }
     },
-    [isLoopedRef, media.url, playVideo, stopVideo]
+    [isLoopedRef, mediaUrl, playVideo, stopVideo]
   );
 
   const extractThumbnail = useCallback(
@@ -208,12 +204,11 @@ export const usePlayerYTEvents = ({
   );
 
   useEffect(() => {
-    const evtStart = playVideo; //(e: PlayerPlay) => forwardEvent(e, playVideo);
-    const evtStop = stopVideo; //(e: PlayerStop) => forwardEvent(e, stopVideo);
-    const evtSeek = seekVideo; //(e: PlayerSeek) => forwardEvent(e, seekVideo);
+    const evtStart = playVideo;
+    const evtStop = stopVideo;
+    const evtSeek = seekVideo;
     const evtExtractThumbnail = (e: PlayerExtractThumbnail) =>
       extractThumbnail(e);
-    // forwardEvent(e, extractThumbnail);
 
     events.on('video:start', evtStart);
     events.on('video:stop', evtStop);

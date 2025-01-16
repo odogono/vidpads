@@ -3,15 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useRenderingTrace } from '../../../hooks/useRenderingTrace';
-import { PlayerProps, PlayerSeek, PlayerStop } from '../types';
+import { PlayerPlay, PlayerProps, PlayerSeek, PlayerStop } from '../types';
 import { PlayerStateToString } from './helpers';
 import { PlayerState } from './types';
-import {
-  PlayerYTPlay,
-  PlayerYTSeek,
-  PlayerYTStop,
-  usePlayerYTEvents
-} from './useEvents';
+import { usePlayerYTEvents } from './useEvents';
 import { destroyPlayer, initializePlayer } from './youtube';
 
 const log = createLog('player/yt');
@@ -28,7 +23,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
   const mediaUrl = media.url;
 
   const playVideo = useCallback(
-    ({ url, start, end, isLoop, volume }: PlayerYTPlay) => {
+    ({ url, start, end, isLoop, volume }: PlayerPlay) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
@@ -113,6 +108,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
     [mediaUrl]
   );
 
+  // takes care of preparing the player on mount for playback
   const {
     onPlayerCreated,
     onPlayerDestroyed,
@@ -120,7 +116,6 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
     onPlayerStateChange,
     onPlayerError
   } = usePlayerYTEvents({
-    // player: playerRef.current,
     intervals,
     media,
     isLoopedRef,
@@ -168,7 +163,6 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
       }
     };
 
-    // const timeoutId = setTimeout(() => init(), 1);
     init();
 
     return () => {
@@ -193,15 +187,6 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
     videoId
   ]);
 
-  // useRenderingTrace('PlayerYT][useEffect', {
-  //   events,
-  //   onPlayerError,
-  //   onPlayerReady,
-  //   onPlayerStateChange,
-  //   seekVideo,
-  //   videoId
-  // });
-
   // handles the oneshot or looped behaviour
   useEffect(() => {
     const checkProgress = () => {
@@ -214,18 +199,12 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
 
       const currentTime = player.getCurrentTime();
       if (currentTime >= endTimeRef.current) {
-        // const state = player.getPlayerState();
-        // const stateString = PlayerStateToString(state);
         if (isLoopedRef.current) {
-          // playerRef.current.seekTo(startTimeRef.current, true);
           seekVideo({
-            // player,
             url: mediaUrl,
             time: startTimeRef.current,
             inProgress: false,
             requesterId: 'yt-player'
-            // state,
-            // stateString
           });
         } else {
           stopVideo({

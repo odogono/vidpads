@@ -33,12 +33,17 @@ export interface PlayerPlay {
 
 export interface PlayerReady {
   url: string;
-  readyState: PlayerReadyState;
-  duration: number;
-  dimensions: {
-    width: number;
-    height: number;
-  };
+  state: number;
+  // duration: number;
+  // dimensions: {
+  //   width: number;
+  //   height: number;
+  // };
+}
+
+export interface PlayerNotReady {
+  url: string;
+  state: number;
 }
 
 export interface PlayerStop {
