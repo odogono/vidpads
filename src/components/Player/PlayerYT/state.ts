@@ -7,7 +7,7 @@ import { Interval, Media } from '@model/types';
 import { createStore as createXStateStore } from '@xstate/store';
 import { useSelector } from '@xstate/store/react';
 import { PlayerPlay, PlayerStop } from '../types';
-import { PlayerStateToString } from './helpers';
+import { PlayerStateToString, PlayerYTStateToString } from './helpers';
 import { PlayerState, PlayerYTState } from './types';
 import { PlayerYTPlay } from './useEvents';
 
@@ -16,17 +16,22 @@ const log = createLog('player/yt/state');
 type PlayerStateChangeAction = {
   type: 'playerStateChange';
   state: PlayerState;
+  playerId: string;
 };
 type UpdateIntervalsAction = { type: 'updateIntervals'; intervals: Interval[] };
 
 type Actions = PlayerStateChangeAction | UpdateIntervalsAction;
 
-type StartQueuingEvent = { type: 'startQueuing'; intervals: Interval[] };
+type StartQueuingEvent = { type: 'startQueuing'; interval: Interval };
+type ReadyEvent = { type: 'ready' };
+type NotReadyEvent = { type: 'notReady'; state: PlayerYTState };
 
-type EmittedEvents = StartQueuingEvent;
+type EmittedEvents = StartQueuingEvent | ReadyEvent | NotReadyEvent;
 type StoreContext = {
   state: PlayerYTState;
   intervals: Interval[];
+  playerId: string;
+  intervalIndex: number;
 };
 
 const createStore = () => {
@@ -37,8 +42,10 @@ const createStore = () => {
       emitted: {} as EmittedEvents
     },
     context: {
-      state: PlayerYTState.UNINITIALIZED
-      // intervals: []
+      state: PlayerYTState.UNINITIALIZED,
+      intervals: [],
+      playerId: '',
+      intervalIndex: -1
     },
     on: {
       playerStateChange: (
@@ -46,17 +53,74 @@ const createStore = () => {
         event: PlayerStateChangeAction,
         { emit }: { emit: (event: EmittedEvents) => void }
       ): StoreContext => {
-        const { state } = event;
+        const { state: playerState, playerId } = event;
+
+        if (playerState === PlayerState.DESTROYED) {
+          emit({ type: 'notReady', state: context.state });
+          return {
+            ...context,
+            state: PlayerYTState.UNINITIALIZED,
+            intervalIndex: -1
+            // intervals: []
+          };
+        }
+
+        if (playerState === PlayerState.CREATED) {
+          if (context.state === PlayerYTState.UNINITIALIZED) {
+            emit({ type: 'notReady', state: context.state });
+            return {
+              ...context,
+              intervalIndex: -1,
+              state: PlayerYTState.READY_FOR_CUE
+            };
+          }
+        }
 
         if (
           context.state === PlayerYTState.READY_FOR_CUE &&
-          state === PlayerState.CUED
+          playerState === PlayerState.CUED
         ) {
-          emit({ type: 'startQueuing', intervals: context.intervals });
-          return {
-            ...context,
-            state: PlayerYTState.CUEING
-          };
+          log.debug('we have ', context.intervals.length, 'intervals');
+          if (context.intervals.length > 0) {
+            const newIntervalIndex = context.intervalIndex + 1;
+            emit({
+              type: 'startQueuing',
+              interval: context.intervals[newIntervalIndex]
+            });
+            return {
+              ...context,
+              state: PlayerYTState.CUEING,
+              intervalIndex: newIntervalIndex
+            };
+          } else {
+            // no intervals to cue, so wait for them
+            log.debug('no intervals to cue');
+          }
+        }
+
+        if (context.state === PlayerYTState.CUEING) {
+          if (playerState === PlayerState.PAUSED) {
+            if (context.intervalIndex < context.intervals.length - 1) {
+              // cue the next interval
+              const newIntervalIndex = context.intervalIndex + 1;
+              emit({
+                type: 'startQueuing',
+                interval: context.intervals[newIntervalIndex]
+              });
+              return {
+                ...context,
+                state: PlayerYTState.CUEING,
+                intervalIndex: newIntervalIndex
+              };
+            } else {
+              // no more intervals to cue, we can declare the player ready
+              emit({ type: 'ready' });
+              return {
+                ...context,
+                state: PlayerYTState.READY
+              };
+            }
+          }
         }
 
         // context.state = event.state;
@@ -74,6 +138,7 @@ const createStore = () => {
           return {
             ...context,
             intervals: event.intervals,
+            intervalIndex: -1,
             state: PlayerYTState.READY_FOR_CUE
           };
         }
@@ -82,13 +147,6 @@ const createStore = () => {
     }
   });
 };
-
-// the state begins in PlayerYTState.UNINITIALIZED
-// when the player sends a CUED state, the state changes to PlayerYTState.READY_FOR_CUE
-// when intervals are received, the state changes to PlayerYTState.CUEING
-// the intervals are sent to seek the player
-// once the intervals have been processed, the state changes to PlayerYTState.READY
-// at this point an event is sent and the player becomes visible and ready to play
 
 export interface UsePlayerYTStateProps {
   intervals: Interval[];
@@ -104,49 +162,61 @@ export const usePlayerYTState = ({
   stopVideo
 }: UsePlayerYTStateProps) => {
   const [store] = useState(() => createStore());
-  const state = useSelector(store, (state) => state.context.state);
+  const mediaUrl = media.url;
 
   useEffect(() => {
+    log.debug('[useEffect] updateIntervals?', intervals);
     store.send({ type: 'updateIntervals', intervals });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(intervals), media.url]);
+  }, [JSON.stringify(intervals), mediaUrl]);
 
   const handlePlayerStateChange = useCallback(
-    (state: PlayerState) => {
-      log.debug('handlePlayerStateChange', PlayerStateToString(state));
-      store.send({ type: 'playerStateChange', state });
+    (playerState: PlayerState, playerId: string) => {
+      const state = store.getSnapshot().context.state;
+      log.debug(
+        'handlePlayerStateChange',
+        playerId,
+        PlayerStateToString(playerState),
+        'current state',
+        PlayerYTStateToString(state)
+      );
+      store.send({ type: 'playerStateChange', state: playerState, playerId });
     },
     [store]
   );
 
   const handleStartQueuing = useCallback(
-    ({ intervals }: StartQueuingEvent) => {
-      log.debug('GO startQueuing', media.url, intervals);
-      const start = intervals[0].start;
-      // const end = intervals[0].end;
+    ({ interval }: StartQueuingEvent) => {
+      log.debug('GO startQueuing', mediaUrl, interval);
+      const start = interval.start;
+      const end = interval.end;
 
       playVideo({
-        url: media.url,
+        url: mediaUrl,
         volume: 0,
         start,
-        end: start + 1
+        end: Math.min(start + 1, end)
       });
-
-      setTimeout(() => {
-        stopVideo({ url: media.url });
-      }, 1000);
     },
-    [media.url, playVideo, stopVideo]
+    [mediaUrl, playVideo]
   );
+
+  const handleReady = useCallback(() => {
+    log.debug('GO ready', mediaUrl);
+  }, [mediaUrl]);
 
   useEffect(() => {
     const evtStartQueuing = store.on('startQueuing', handleStartQueuing);
+    const evtReady = store.on('ready', handleReady);
     return () => {
       evtStartQueuing.unsubscribe();
+      evtReady.unsubscribe();
     };
-  }, [handleStartQueuing, store]);
+  }, [handleStartQueuing, handleReady, store]);
 
-  log.debug('state', state);
+  // useEffect(() => {
+  //   log.debug('state', PlayerYTStateToString(state));
+  // }, [state]);
 
   return {
     handlePlayerStateChange

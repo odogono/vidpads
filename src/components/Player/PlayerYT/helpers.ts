@@ -1,17 +1,46 @@
-export const PlayerStateToString = (state: number) => {
+import { PlayerState, PlayerYTState } from './types';
+
+export const PlayerStateToString = (state: PlayerState) => {
   switch (state) {
-    case window.YT.PlayerState.UNSTARTED:
+    case PlayerState.CREATED:
+      return 'CREATED';
+    case PlayerState.DESTROYED:
+      return 'DESTROYED';
+    case PlayerState.UNSTARTED:
       return 'UNSTARTED';
-    case window.YT.PlayerState.ENDED:
+    case PlayerState.ENDED:
       return 'ENDED';
-    case window.YT.PlayerState.PLAYING:
+    case PlayerState.PLAYING:
       return 'PLAYING';
-    case window.YT.PlayerState.PAUSED:
+    case PlayerState.PAUSED:
       return 'PAUSED';
-    case window.YT.PlayerState.BUFFERING:
+    case PlayerState.BUFFERING:
       return 'BUFFERING';
-    case window.YT.PlayerState.CUED:
+    case PlayerState.CUED:
       return 'CUED';
+    default:
+      return `UNKNOWN:${state}`;
+  }
+};
+
+export const PlayerYTStateToString = (state: PlayerYTState) => {
+  switch (state) {
+    case PlayerYTState.UNINITIALIZED:
+      return 'UNINITIALIZED';
+    case PlayerYTState.READY_FOR_CUE:
+      return 'READY_FOR_CUE';
+    case PlayerYTState.CUEING:
+      return 'CUEING';
+    case PlayerYTState.LOADED:
+      return 'LOADED';
+    case PlayerYTState.READY:
+      return 'READY';
+    case PlayerYTState.PLAYING:
+      return 'PLAYING';
+    case PlayerYTState.PAUSED:
+      return 'PAUSED';
+    case PlayerYTState.ENDED:
+      return 'ENDED';
     default:
       return `UNKNOWN:${state}`;
   }

@@ -12,6 +12,8 @@ export const PlayerYTState = {
 export type PlayerYTState = (typeof PlayerYTState)[keyof typeof PlayerYTState];
 
 export const PlayerState = {
+  CREATED: -2,
+  DESTROYED: -3,
   UNSTARTED: -1,
   ENDED: 0,
   PLAYING: 1,
