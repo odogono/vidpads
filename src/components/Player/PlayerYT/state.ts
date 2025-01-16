@@ -32,6 +32,7 @@ type StoreContext = {
   intervals: Interval[];
   playerId: string;
   intervalIndex: number;
+  playerState: PlayerState;
 };
 
 const createStore = () => {
@@ -42,30 +43,32 @@ const createStore = () => {
       { emit }: Emit
     ): StoreContext => {
       const { state: playerState } = event;
+      const { state: contextState } = context;
 
       if (playerState === PlayerState.DESTROYED) {
         emit({ type: 'notReady', state: context.state });
         return {
           ...context,
           state: PlayerYTState.UNINITIALIZED,
-          intervalIndex: -1
-          // intervals: []
+          intervalIndex: -1,
+          playerState
         };
       }
 
       if (playerState === PlayerState.CREATED) {
-        if (context.state === PlayerYTState.UNINITIALIZED) {
+        if (contextState === PlayerYTState.UNINITIALIZED) {
           emit({ type: 'notReady', state: context.state });
           return {
             ...context,
             intervalIndex: -1,
-            state: PlayerYTState.READY_FOR_CUE
+            state: PlayerYTState.READY_FOR_CUE,
+            playerState
           };
         }
       }
 
       if (
-        context.state === PlayerYTState.READY_FOR_CUE &&
+        contextState === PlayerYTState.READY_FOR_CUE &&
         playerState === PlayerState.CUED
       ) {
         log.debug('we have ', context.intervals.length, 'intervals');
@@ -78,7 +81,8 @@ const createStore = () => {
           return {
             ...context,
             state: PlayerYTState.CUEING,
-            intervalIndex: newIntervalIndex
+            intervalIndex: newIntervalIndex,
+            playerState
           };
         } else {
           // no intervals to cue, so wait for them
@@ -86,7 +90,7 @@ const createStore = () => {
         }
       }
 
-      if (context.state === PlayerYTState.CUEING) {
+      if (contextState === PlayerYTState.CUEING) {
         if (playerState === PlayerState.PAUSED) {
           if (context.intervalIndex < context.intervals.length - 1) {
             // cue the next interval
@@ -98,30 +102,31 @@ const createStore = () => {
             return {
               ...context,
               state: PlayerYTState.CUEING,
+              playerState,
               intervalIndex: newIntervalIndex
             };
           } else {
             // no more intervals to cue, we can declare the player ready
-            emit({ type: 'ready', state: context.state });
+            emit({ type: 'ready', state: contextState });
             return {
               ...context,
-              state: PlayerYTState.READY
+              state: PlayerYTState.READY,
+              playerState
             };
           }
         }
       }
 
-      // context.state = event.state;
-      // log.debug('playerStateChange', PlayerStateToString(state));
-      return context;
+      return { ...context, playerState };
     },
     updateIntervals: (
       context: StoreContext,
       event: UpdateIntervalsAction
     ): StoreContext => {
+      const { state: contextState } = context;
       if (
-        context.state === PlayerYTState.READY_FOR_CUE ||
-        context.state === PlayerYTState.UNINITIALIZED
+        contextState === PlayerYTState.READY_FOR_CUE ||
+        contextState === PlayerYTState.UNINITIALIZED
       ) {
         return {
           ...context,
@@ -144,7 +149,8 @@ const createStore = () => {
       state: PlayerYTState.UNINITIALIZED,
       intervals: [],
       playerId: '',
-      intervalIndex: -1
+      intervalIndex: -1,
+      playerState: PlayerState.UNSTARTED
     },
     on
   };
@@ -175,18 +181,52 @@ export const usePlayerYTState = ({
   }, [JSON.stringify(intervals), mediaUrl]);
 
   const handlePlayerStateChange = useCallback(
-    (playerState: PlayerState, playerId: string) => {
-      const state = store.getSnapshot().context.state;
+    (playerState: PlayerState, player: YTPlayer) => {
+      const contextState = store.getSnapshot().context.state as PlayerYTState;
+      const contextPlayerState = store.getSnapshot().context
+        .playerState as PlayerState;
       log.debug(
         'handlePlayerStateChange',
-        playerId,
+        player.odgnId,
         PlayerStateToString(playerState),
         'current state',
-        PlayerYTStateToString(state)
+        PlayerYTStateToString(contextState)
       );
-      store.send({ type: 'playerStateChange', state: playerState, playerId });
+      store.send({
+        type: 'playerStateChange',
+        state: playerState,
+        playerId: player.odgnId
+      });
+
+      if (contextState === PlayerYTState.READY) {
+        if (
+          playerState === PlayerState.PLAYING &&
+          contextPlayerState !== PlayerState.PLAYING
+        ) {
+          log.debug(
+            'player state changed from',
+            PlayerStateToString(contextPlayerState),
+            'to',
+            PlayerStateToString(playerState)
+          );
+          events.emit('player:playing', {
+            url: mediaUrl,
+            padId: playerPadId,
+            time: player.getCurrentTime()
+          });
+        } else if (
+          playerState === PlayerState.PAUSED &&
+          contextPlayerState !== PlayerState.PAUSED
+        ) {
+          events.emit('player:stopped', {
+            url: mediaUrl,
+            padId: playerPadId,
+            time: player.getCurrentTime()
+          });
+        }
+      }
     },
-    [store]
+    [store, events, mediaUrl, playerPadId]
   );
 
   const handleStartQueuing = useCallback(

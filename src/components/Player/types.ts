@@ -24,6 +24,18 @@ export interface PlayerProps {
   interval: Interval;
 }
 
+export interface PlayerPlaying {
+  url: string;
+  padId: string;
+  time: number;
+}
+
+export interface PlayerStopped {
+  url: string;
+  padId: string;
+  time: number;
+}
+
 export interface PlayerPlay {
   url: string;
   padId: string;
