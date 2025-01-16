@@ -41,6 +41,7 @@ interface YT {
 }
 
 interface YTPlayer {
+  odgnId: string;
   playVideo(): void;
   pauseVideo(): void;
   stopVideo(): void;

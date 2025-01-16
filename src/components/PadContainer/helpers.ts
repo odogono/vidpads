@@ -19,6 +19,7 @@ export const useHelpers = () => {
 
   const handleUrlSelect = async (url: string) => {
     // TODO: Implement URL input handling
+    if (!touchedPadIdRef.current) return;
     await addUrlToPad({ url, padId: touchedPadIdRef.current });
     setIsModalOpen(false);
   };

@@ -2,15 +2,13 @@
 
 import { useMemo } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
-import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
-import { Interval } from '../types';
 import { useMetadata } from './useMetadata';
 
-const log = createLog('model/usePads');
+// const log = createLog('model/usePads');
 
 export const usePads = () => {
   const { store, isReady } = useStore();
@@ -47,70 +45,58 @@ export const usePadsExtended = () => {
     [pads]
   );
 
-  const padSourceUrls = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          padsWithMedia
-            .map((pad) => getPadSourceUrl(pad))
-            .filter(Boolean) as string[]
-        )
-      ),
-    [padsWithMedia]
-  );
+  // const padSourceUrls = useMemo(
+  //   () =>
+  //     Array.from(
+  //       new Set(
+  //         padsWithMedia
+  //           .map((pad) => getPadSourceUrl(pad))
+  //           .filter(Boolean) as string[]
+  //       )
+  //     ),
+  //   [padsWithMedia]
+  // );
 
   // for each media url, get a list of start and end times
-  const mediaIntervals = useMemo(() => {
-    const urlToIntervals = padsWithMedia.reduce(
-      (acc, pad) => {
-        const url = getPadSourceUrl(pad);
-        if (!url) return acc;
-        let startAndEndTime = getPadStartAndEndTime(pad);
-        if (!startAndEndTime) {
-          const media = urlToMetadata?.get(url);
-          if (!media) return acc;
-          const { duration } = media;
-          startAndEndTime = { start: 0, end: duration };
-        }
-        const existing = acc[url] ?? new Set<string>();
-        existing.add(JSON.stringify(startAndEndTime));
-        acc[url] = existing;
-        return acc;
-      },
-      {} as { [key: string]: Set<string> }
-    );
+  // const mediaIntervals = useMemo(() => {
+  //   const urlToIntervals = padsWithMedia.reduce(
+  //     (acc, pad) => {
+  //       const url = getPadSourceUrl(pad);
+  //       if (!url) return acc;
+  //       let interval = getPadStartAndEndTime(pad);
+  //       if (!interval) {
+  //         const media = urlToMetadata?.get(url);
+  //         if (!media) return acc;
+  //         const { duration } = media;
+  //         interval = { start: 0, end: duration };
+  //       }
+  //       const existing = acc[url] ?? new Set<string>();
+  //       existing.add(JSON.stringify(interval));
+  //       acc[url] = existing;
+  //       return acc;
+  //     },
+  //     {} as { [key: string]: Set<string> }
+  //   );
 
-    const result = Object.entries(urlToIntervals).reduce(
-      (acc, [url, intervals]) => {
-        acc[url] = Array.from(intervals).map((str) => JSON.parse(str));
-        return acc;
-      },
-      {} as { [key: string]: Interval[] }
-    );
+  //   const result = Object.entries(urlToIntervals).reduce(
+  //     (acc, [url, intervals]) => {
+  //       acc[url] = Array.from(intervals).map((str) => JSON.parse(str));
+  //       return acc;
+  //     },
+  //     {} as { [key: string]: Interval[] }
+  //   );
 
-    return result;
-  }, [padsWithMedia, urlToMetadata]);
-
-  // log.debug('mediaIntervals', mediaIntervals);
-  // useRenderingTrace('usePads', {
-  //   pads,
-  //   selectedPadId,
-  //   padSourceUrls,
-  //   padsWithMedia,
-  //   selectedPadSourceUrl,
-  //   selectedPadStartAndEndTime
-  //   // mediaIntervals
-  //   // mediaStartAndEndTimes
-  // });
+  //   return result;
+  // }, [padsWithMedia, urlToMetadata]);
 
   return {
     isReady,
     pads,
-    padSourceUrls,
+    // padSourceUrls,
     padsWithMedia,
     selectedPadSourceUrl,
     selectedPadStartAndEndTime,
-    urlToMetadata,
-    mediaIntervals
+    urlToMetadata
+    // mediaIntervals
   };
 };

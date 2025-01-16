@@ -1,17 +1,16 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { Interval, Media } from '@model/types';
+import { Interval } from '@model/types';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,
   PlayerSeek,
   PlayerStop
 } from '../types';
-import { PlayerStateToString } from './helpers';
 import { usePlayerYTState } from './state';
-import { PlayerState, PlayerYTState } from './types';
+import { PlayerState } from './types';
 
 const log = createLog('player/yt/events');
 
@@ -27,8 +26,9 @@ export type PlayerYTSeek = PlayerSeek;
 export type PlayerYTExtractThumbnail = PlayerExtractThumbnail & PlayerYTEvents;
 
 export interface UsePlayerYTEventsProps {
-  intervals: Interval[];
-  media: Media;
+  interval: Interval;
+  mediaUrl: string;
+  padId: string;
   isLoopedRef: RefObject<boolean>;
   startTimeRef: RefObject<number>;
   endTimeRef: RefObject<number>;
@@ -38,16 +38,16 @@ export interface UsePlayerYTEventsProps {
 }
 
 export const usePlayerYTEvents = ({
-  intervals,
-  media,
+  interval,
+  mediaUrl,
+  padId: playerPadId,
   isLoopedRef,
   playVideo,
   stopVideo,
   seekVideo
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const mediaUrl = media.url;
+  // const [isPlaying, setIsPlaying] = useState(false);
 
   // const forwardEvent = useCallback(
   //   <T extends PlayerPlay | PlayerStop | PlayerSeek | PlayerExtractThumbnail>(
@@ -64,8 +64,9 @@ export const usePlayerYTEvents = ({
   // );
 
   const { handlePlayerStateChange } = usePlayerYTState({
-    intervals,
-    media,
+    intervals: [interval],
+    mediaUrl,
+    playerPadId,
     // playVideo: (props: PlayerPlay) => {
     //   const player = playerRef.current;
     //   if (!player) {
@@ -80,26 +81,22 @@ export const usePlayerYTEvents = ({
     stopVideo //: (e: PlayerStop) => forwardEvent(e, stopVideo)
   });
 
-  const handleEnded = useCallback(
-    (player: YTPlayer) => {
-      // const state = player.getPlayerState();
-      // const stateString = PlayerStateToString(state);
-      log.debug('ended', mediaUrl);
-      if (isLoopedRef.current) {
-        playVideo({
-          url: mediaUrl
-          // player,
-          // state,
-          // stateString
-        });
-        // player.seekTo(startTimeRef.current, true);
-        // player.playVideo();
-      } else {
-        stopVideo({ url: mediaUrl });
-      }
-    },
-    [isLoopedRef, mediaUrl, playVideo, stopVideo]
-  );
+  const handleEnded = useCallback(() => {
+    log.debug('ended', mediaUrl);
+    if (isLoopedRef.current) {
+      playVideo({
+        url: mediaUrl,
+        padId: playerPadId
+        // player,
+        // state,
+        // stateString
+      });
+      // player.seekTo(startTimeRef.current, true);
+      // player.playVideo();
+    } else {
+      stopVideo({ url: mediaUrl, padId: playerPadId });
+    }
+  }, [isLoopedRef, mediaUrl, playVideo, stopVideo, playerPadId]);
 
   const extractThumbnail = useCallback(
     ({ time, url, additional }: PlayerExtractThumbnail) => {
@@ -109,10 +106,11 @@ export const usePlayerYTEvents = ({
       events.emit('video:thumbnail-extracted', {
         url,
         time,
-        additional
+        additional,
+        padId: playerPadId
       });
     },
-    [events]
+    [events, playerPadId]
   );
 
   const onPlayerCreated = useCallback(
@@ -169,17 +167,18 @@ export const usePlayerYTEvents = ({
     (player: YTPlayer, state: PlayerState) => {
       switch (state) {
         case PlayerState.PLAYING:
-          setIsPlaying(true);
+          // setIsPlaying(true);
           break;
         case PlayerState.PAUSED:
           events.emit('video:stopped', {
-            url: media.url,
+            url: mediaUrl,
+            padId: playerPadId,
             time: player.getCurrentTime()
           });
-          setIsPlaying(false);
+          // setIsPlaying(false);
           break;
         case PlayerState.ENDED:
-          handleEnded(player);
+          handleEnded();
           break;
         default:
           break;
@@ -193,14 +192,14 @@ export const usePlayerYTEvents = ({
       // );
       handlePlayerStateChange(state, player.odgnId);
     },
-    [media.url, events, handleEnded, handlePlayerStateChange]
+    [mediaUrl, events, handleEnded, handlePlayerStateChange, playerPadId]
   );
 
   const onPlayerError = useCallback(
     (error: Error) => {
-      log.error('[onError]', media.url, error);
+      log.error('[onError]', mediaUrl, error);
     },
-    [media.url]
+    [mediaUrl]
   );
 
   useEffect(() => {
