@@ -12,13 +12,9 @@ import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { Player } from './Player';
 import {
   getPlayerDataState,
-  getPlayerElement,
-  hideElement,
   hidePlayer,
   setPlayerDataState,
   setPlayerZIndex,
-  setZIndex,
-  showElement,
   showPlayer
 } from './helpers';
 import {
@@ -146,6 +142,7 @@ export const PlayerContainer = () => {
 
   const handlePlayerNotReady = useCallback((e: PlayerNotReady) => {
     log.debug('❤️ player:not-ready', e);
+    hidePlayer(e.padId);
   }, []);
 
   useEffect(() => {
