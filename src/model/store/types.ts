@@ -8,6 +8,8 @@ export interface StoreContextType {
   startTime: string;
   isEditActive?: boolean;
   selectedPadId?: string | null;
+  lastMediaUrl?: string | null;
+  lastImportUrl?: string | null;
   pads: Pad[];
   createdAt: string;
   updatedAt: string;
@@ -105,6 +107,16 @@ export type UpdateProjectAction = {
   project: ProjectExport;
 };
 
+export type SetLastMediaUrlAction = {
+  type: 'setLastMediaUrl';
+  url: string;
+};
+
+export type SetLastImportUrlAction = {
+  type: 'setLastImportUrl';
+  url: string;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -122,7 +134,9 @@ export type Actions =
   | SetPadIsLoopedAction
   | NewProjectAction
   | ImportProjectAction
-  | UpdateProjectAction;
+  | UpdateProjectAction
+  | SetLastMediaUrlAction
+  | SetLastImportUrlAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

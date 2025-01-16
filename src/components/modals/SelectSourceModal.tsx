@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { useLastMediaUrl } from '@model/store/selectors';
 import {
   Button,
   Input,
@@ -30,18 +31,17 @@ export const SelectSourceModal = ({
   onUrlSelect
 }: SelectSourceModalProps) => {
   const [isEnteringUrl, setIsEnteringUrl] = useState(false);
-  const [url, setUrl] = useState('');
-
+  const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
+  const [url, setUrl] = useState(lastMediaUrl ?? '');
   const handleUrlSubmit = () => {
     if (url.trim()) {
       onUrlSelect(url);
-      setUrl('');
       setIsEnteringUrl(false);
+      setLastMediaUrl(url);
     }
   };
 
   const onClose = () => {
-    setUrl('');
     setIsEnteringUrl(false);
   };
 
@@ -74,7 +74,7 @@ export const SelectSourceModal = ({
                 placeholder='Enter media URL'
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                onKeyUp={(e) => e.key === 'Enter' && handleUrlSubmit()}
               />
               <div className='flex gap-2'>
                 <Button
