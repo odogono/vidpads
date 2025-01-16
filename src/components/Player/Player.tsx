@@ -17,9 +17,9 @@ export const Player = (props: PlayerProps) => {
 
   return (
     <div
-      className={`absolute top-0 left-0 w-full h-full ${
-        props.isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
+      className={`absolute top-0 left-0 w-full h-full`}
+      style={{ opacity: props.isVisible ? 1 : 0, zIndex: 0 }}
+      data-player-id={props.padId}
     >
       {isVideo && <LocalPlayer {...props} />}
       {isYouTube && <PlayerYT {...props} />}

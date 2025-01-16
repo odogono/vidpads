@@ -200,7 +200,8 @@ export const usePlayerYTState = ({
 
       if (contextState === PlayerYTState.READY) {
         if (
-          playerState === PlayerState.PLAYING &&
+          playerState === PlayerState.BUFFERING &&
+          contextPlayerState !== PlayerState.BUFFERING &&
           contextPlayerState !== PlayerState.PLAYING
         ) {
           log.debug(

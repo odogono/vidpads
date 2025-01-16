@@ -33,12 +33,13 @@ export const useStartAndEndTime = ({
       if (!padSourceUrl) return;
       events.emit('video:seek', {
         url: padSourceUrl,
+        padId: pad!.id,
         time,
         inProgress,
         requesterId: 'useStartAndEndTime'
       });
     },
-    [events, padSourceUrl]
+    [events, padSourceUrl, pad]
   );
 
   const handleDurationBack = useCallback(() => {
