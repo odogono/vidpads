@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useRenderingTrace } from '../../../hooks/useRenderingTrace';
 import { PlayerProps, PlayerSeek, PlayerStop } from '../types';
 import { PlayerStateToString } from './helpers';
 import { PlayerState } from './types';
@@ -24,12 +25,13 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
   const playerRef = useRef<YTPlayer | null>(null);
 
   const { id: videoId } = media;
+  const mediaUrl = media.url;
 
   const playVideo = useCallback(
     ({ url, start, end, isLoop, volume }: PlayerYTPlay) => {
       const player = playerRef.current;
       if (!player) return;
-      if (url !== media.url) return;
+      if (url !== mediaUrl) return;
 
       const setVolume = volume ?? 100;
 
@@ -43,20 +45,14 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
       endTimeRef.current = endTime;
       isLoopedRef.current = isLoop ?? false;
 
-      log.debug(
-        'playVideo',
-        player.odgnId,
-        {
-          start: startTime,
-          end: endTime,
-          isLoop,
-          volume: setVolume
-        },
-        player
-      );
+      log.debug('playVideo', player.odgnId, {
+        start: startTime,
+        end: endTime,
+        isLoop,
+        volume: setVolume
+      });
 
       if (setVolume === 0) {
-        log.debug('[playVideo] mute', typeof player.mute);
         player.mute();
       } else {
         player.unMute();
@@ -66,14 +62,14 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
       player.seekTo(startTime, true);
       player.playVideo();
     },
-    []
+    [mediaUrl]
   );
 
   const stopVideo = useCallback(
     ({ url }: PlayerStop) => {
       const player = playerRef.current;
       if (!player) return;
-      if (url !== media.url) return;
+      if (url !== mediaUrl) return;
 
       log.debug('[stopVideo]', player.odgnId, {
         player,
@@ -85,14 +81,14 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
         log.debug('[stopVideo] ⚠️ error pausing video');
       }
     },
-    [media.url]
+    [mediaUrl]
   );
 
   const seekVideo = useCallback(
     ({ url, time, inProgress, requesterId }: PlayerSeek) => {
       const player = playerRef.current;
       if (!player) return;
-      if (url !== media.url) return;
+      if (url !== mediaUrl) return;
 
       // todo - implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
@@ -114,21 +110,26 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
         });
       }
     },
-    [media.url]
+    [mediaUrl]
   );
 
-  const { onPlayerReady, onPlayerStateChange, onPlayerError } =
-    usePlayerYTEvents({
-      // player: playerRef.current,
-      intervals,
-      media,
-      isLoopedRef,
-      startTimeRef,
-      endTimeRef,
-      playVideo,
-      stopVideo,
-      seekVideo
-    });
+  const {
+    onPlayerCreated,
+    onPlayerDestroyed,
+    onPlayerReady,
+    onPlayerStateChange,
+    onPlayerError
+  } = usePlayerYTEvents({
+    // player: playerRef.current,
+    intervals,
+    media,
+    isLoopedRef,
+    startTimeRef,
+    endTimeRef,
+    playVideo,
+    stopVideo,
+    seekVideo
+  });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -138,6 +139,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
     let player: YTPlayer | null = null;
 
     const init = async () => {
+      log.debug('[useEffect][init] initialising player', videoId);
       try {
         const newPlayer = await initializePlayer({
           container,
@@ -150,41 +152,55 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
         // Check if component is still mounted
         if (!mounted) {
           log.debug(
-            '[useEffect] destroying non-mounted player',
+            '[useEffect][init] destroying non-mounted player',
             newPlayer.odgnId
           );
           destroyPlayer(null, newPlayer);
           return;
         }
 
-        log.debug('[useEffect] initialised player', newPlayer.odgnId);
+        log.debug('[useEffect][init] initialised player', newPlayer.odgnId);
+        onPlayerCreated(newPlayer);
         player = newPlayer;
         playerRef.current = newPlayer;
       } catch (error) {
-        log.error('[useEffect] failed to initialize player', error);
+        log.error('[useEffect][init] failed to initialize player', error);
       }
     };
 
+    // const timeoutId = setTimeout(() => init(), 1);
     init();
 
     return () => {
       mounted = false;
+      // clearTimeout(timeoutId);
       if (player) {
-        log.debug('[useEffect] destroying player', player.odgnId);
+        log.debug('[useEffect][unmount] destroying player', player.odgnId);
+        onPlayerDestroyed(player);
         playerRef.current = destroyPlayer(container, player);
       } else {
-        log.debug('[useEffect] no player to destroy');
+        // log.debug('[useEffect][unmount] no player to destroy');
       }
     };
   }, [
     events,
-    media.url,
+    onPlayerCreated,
+    onPlayerDestroyed,
     onPlayerError,
     onPlayerReady,
     onPlayerStateChange,
     seekVideo,
     videoId
   ]);
+
+  // useRenderingTrace('PlayerYT][useEffect', {
+  //   events,
+  //   onPlayerError,
+  //   onPlayerReady,
+  //   onPlayerStateChange,
+  //   seekVideo,
+  //   videoId
+  // });
 
   // handles the oneshot or looped behaviour
   useEffect(() => {
@@ -204,7 +220,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
           // playerRef.current.seekTo(startTimeRef.current, true);
           seekVideo({
             // player,
-            url: media.url,
+            url: mediaUrl,
             time: startTimeRef.current,
             inProgress: false,
             requesterId: 'yt-player'
@@ -213,7 +229,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
           });
         } else {
           stopVideo({
-            url: media.url
+            url: mediaUrl
           });
         }
       }
@@ -221,7 +237,7 @@ export const PlayerYT = ({ media, intervals }: PlayerProps) => {
 
     const intervalId = setInterval(checkProgress, 100);
     return () => clearInterval(intervalId);
-  }, [media.url, stopVideo, isLoopedRef, startTimeRef, endTimeRef, seekVideo]);
+  }, [mediaUrl, stopVideo, isLoopedRef, startTimeRef, endTimeRef, seekVideo]);
 
   return (
     <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />

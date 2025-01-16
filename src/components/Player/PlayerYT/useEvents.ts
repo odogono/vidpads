@@ -119,6 +119,22 @@ export const usePlayerYTEvents = ({
     [events]
   );
 
+  const onPlayerCreated = useCallback(
+    (player: YTPlayer) => {
+      // log.debug('[onPlayerCreated]', player.odgnId);
+      handlePlayerStateChange(PlayerState.CREATED, player.odgnId);
+    },
+    [handlePlayerStateChange]
+  );
+
+  const onPlayerDestroyed = useCallback(
+    (player: YTPlayer) => {
+      // log.debug('[onPlayerDestroyed]', player.odgnId);
+      handlePlayerStateChange(PlayerState.DESTROYED, player.odgnId);
+    },
+    [handlePlayerStateChange]
+  );
+
   const onPlayerReady = useCallback(
     (player: YTPlayer) => {
       // playerRef.current = player;
@@ -129,8 +145,8 @@ export const usePlayerYTEvents = ({
       //   state: PlayerStateToString(player.getPlayerState())
       // });
 
-      log.debug('[onPlayerReady]', player.odgnId);
-      handlePlayerStateChange(player.getPlayerState());
+      // log.debug('[onPlayerReady]', player.odgnId);
+      handlePlayerStateChange(player.getPlayerState(), player.odgnId);
 
       // seek and play in order to buffer
       // as soon as the state changes to playing
@@ -173,13 +189,13 @@ export const usePlayerYTEvents = ({
           break;
       }
       // stateStringRef.current = PlayerStateToString(state);
-      log.debug(
-        '[onStateChange]',
-        player.odgnId,
-        media.url,
-        PlayerStateToString(state)
-      );
-      handlePlayerStateChange(state);
+      // log.debug(
+      //   '[onStateChange]',
+      //   player.odgnId,
+      //   media.url,
+      //   PlayerStateToString(state)
+      // );
+      handlePlayerStateChange(state, player.odgnId);
     },
     [media.url, events, handleEnded, handlePlayerStateChange]
   );
@@ -212,6 +228,8 @@ export const usePlayerYTEvents = ({
   }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
 
   return {
+    onPlayerCreated,
+    onPlayerDestroyed,
     onPlayerReady,
     onPlayerStateChange,
     onPlayerError
