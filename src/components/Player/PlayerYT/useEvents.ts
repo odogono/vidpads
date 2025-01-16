@@ -1,11 +1,14 @@
-import { RefObject, useCallback, useEffect } from 'react';
+import { RefObject, useCallback, useEffect, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { Interval } from '@model/types';
 import {
+  PlayerEvent,
   PlayerExtractThumbnail,
+  PlayerNotReady,
   PlayerPlay,
+  PlayerReady,
   PlayerSeek,
   PlayerStop
 } from '../types';
@@ -125,18 +128,61 @@ export const usePlayerYTEvents = ({
     [mediaUrl]
   );
 
+  const [isReady, setIsReady] = useState(false);
+
+  const handleReady = useCallback(
+    (e: PlayerReady) => {
+      if (!doesPlayerEventMatch(e, playerPadId)) return;
+      log.debug('player ready', e);
+      setIsReady(true);
+    },
+    [playerPadId]
+  );
+
+  const handleNotReady = useCallback(
+    (e: PlayerNotReady) => {
+      if (!doesPlayerEventMatch(e, playerPadId)) return;
+      log.debug('player not ready?', e);
+      setIsReady(false);
+    },
+    [playerPadId]
+  );
+
   useEffect(() => {
-    events.on('video:start', playVideo);
-    events.on('video:stop', stopVideo);
-    events.on('video:seek', seekVideo);
-    events.on('video:extract-thumbnail', extractThumbnail);
+    // prevent start/stop/seek/... from triggering before the player is ready
+    const evtPlayVideo = (e: PlayerEvent) =>
+      isReady ? playVideo(e as PlayerPlay) : undefined;
+    const evtStopVideo = (e: PlayerEvent) =>
+      isReady ? stopVideo(e as PlayerStop) : undefined;
+    const evtSeekVideo = (e: PlayerEvent) =>
+      isReady ? seekVideo(e as PlayerSeek) : undefined;
+    const evtExtractThumbnail = (e: PlayerEvent) =>
+      isReady ? extractThumbnail(e as PlayerExtractThumbnail) : undefined;
+
+    events.on('video:start', evtPlayVideo);
+    events.on('video:stop', evtStopVideo);
+    events.on('video:seek', evtSeekVideo);
+    events.on('video:extract-thumbnail', evtExtractThumbnail);
+    events.on('player:ready', handleReady);
+    events.on('player:not-ready', handleNotReady);
     return () => {
-      events.off('video:start', playVideo);
-      events.off('video:stop', stopVideo);
-      events.off('video:seek', seekVideo);
-      events.off('video:extract-thumbnail', extractThumbnail);
+      events.off('video:start', evtPlayVideo);
+      events.off('video:stop', evtStopVideo);
+      events.off('video:seek', evtSeekVideo);
+      events.off('video:extract-thumbnail', evtExtractThumbnail);
+      events.off('player:ready', handleReady);
+      events.off('player:not-ready', handleNotReady);
     };
-  }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
+  }, [
+    events,
+    extractThumbnail,
+    handleNotReady,
+    handleReady,
+    isReady,
+    playVideo,
+    seekVideo,
+    stopVideo
+  ]);
 
   return {
     onPlayerCreated,
@@ -145,4 +191,8 @@ export const usePlayerYTEvents = ({
     onPlayerStateChange,
     onPlayerError
   };
+};
+
+const doesPlayerEventMatch = (e: PlayerEvent, playerPadId: string) => {
+  return e.padId === playerPadId;
 };

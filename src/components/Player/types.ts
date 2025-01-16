@@ -24,21 +24,21 @@ export interface PlayerProps {
   interval: Interval;
 }
 
-export interface PlayerPlaying {
+export interface PlayerEvent {
   url: string;
   padId: string;
+  additional?: PlayerAdditional;
+}
+
+export interface PlayerPlaying extends PlayerEvent {
   time: number;
 }
 
-export interface PlayerStopped {
-  url: string;
-  padId: string;
+export interface PlayerStopped extends PlayerEvent {
   time: number;
 }
 
-export interface PlayerPlay {
-  url: string;
-  padId: string;
+export interface PlayerPlay extends PlayerEvent {
   start?: number;
   end?: number;
   isLoop?: boolean;
@@ -46,9 +46,7 @@ export interface PlayerPlay {
   volume?: number;
 }
 
-export interface PlayerReady {
-  url: string;
-  padId: string;
+export interface PlayerReady extends PlayerEvent {
   state: number;
   // duration: number;
   // dimensions: {
@@ -57,26 +55,15 @@ export interface PlayerReady {
   // };
 }
 
-export interface PlayerNotReady {
-  url: string;
-  padId: string;
+export interface PlayerNotReady extends PlayerEvent {
   state: number;
 }
 
-export interface PlayerStop {
-  url: string;
-  padId: string;
-}
-
-export interface PlayerStopped {
-  url: string;
-  padId: string;
+export interface PlayerStop extends PlayerEvent {
   time: number;
 }
 
-export interface PlayerSeek {
-  url: string;
-  padId: string;
+export interface PlayerSeek extends PlayerEvent {
   time: number;
   inProgress: boolean;
   requesterId: string;
@@ -89,19 +76,13 @@ interface PlayerAdditional {
   isOneShot?: boolean;
 }
 
-export interface PlayerExtractThumbnail {
-  url: string;
-  padId: string;
+export interface PlayerExtractThumbnail extends PlayerEvent {
   time: number;
-  additional?: PlayerAdditional;
 }
 
-export interface PlayerThumbnailExtracted {
-  url: string;
-  padId: string;
+export interface PlayerThumbnailExtracted extends PlayerEvent {
   time: number;
   thumbnail?: string;
-  additional?: PlayerAdditional;
 }
 
 export interface PlayerRef {
