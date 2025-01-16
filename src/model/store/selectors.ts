@@ -158,3 +158,35 @@ export const useCurrentProject = () => {
 
   return { projectId, projectName };
 };
+
+export const useLastMediaUrl = () => {
+  const { store } = useStore();
+  const lastMediaUrl = useSelector(
+    store,
+    (state) => state.context.lastMediaUrl
+  );
+
+  const setLastMediaUrl = useCallback(
+    (url: string) => {
+      store.send({ type: 'setLastMediaUrl', url });
+    },
+    [store]
+  );
+  return { lastMediaUrl, setLastMediaUrl };
+};
+
+export const useLastImportUrl = () => {
+  const { store } = useStore();
+  const lastImportUrl = useSelector(
+    store,
+    (state) => state.context.lastImportUrl
+  );
+
+  const setLastImportUrl = useCallback(
+    (url: string) => {
+      store.send({ type: 'setLastImportUrl', url });
+    },
+    [store]
+  );
+  return { lastImportUrl, setLastImportUrl };
+};

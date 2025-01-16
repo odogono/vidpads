@@ -24,6 +24,7 @@ export const usePlayerEvents = (padId: string) => {
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {
       if (e.padId !== padId) return;
+      setIsPlayerPlaying(false);
       setIsPlayerReady(false);
     },
     [padId]
