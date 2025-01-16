@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -8,8 +8,26 @@ import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { getSelectedPadSourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Interval } from '@model/types';
+import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { Player } from './Player';
-import { PlayerPlaying, PlayerStopped } from './types';
+import {
+  getPlayerDataState,
+  getPlayerElement,
+  hideElement,
+  hidePlayer,
+  setPlayerDataState,
+  setPlayerZIndex,
+  setZIndex,
+  showElement,
+  showPlayer
+} from './helpers';
+import {
+  PlayerNotReady,
+  PlayerPlaying,
+  PlayerReady,
+  PlayerSeek,
+  PlayerStopped
+} from './types';
 import { usePlayers } from './usePlayers';
 
 const log = createLog('player/container');
@@ -17,6 +35,7 @@ const log = createLog('player/container');
 export const PlayerContainer = () => {
   const events = useEvents();
   const { store } = useStore();
+  const playingStackRef = useRef<string[]>([]);
 
   const { pads, players, setVisiblePlayerId } = usePlayers();
 
@@ -52,8 +71,6 @@ export const PlayerContainer = () => {
 
   const handlePadTouchup = useCallback(
     ({ padId }: { padId: string }) => {
-      // if (isEditActive) return;
-      // log.debug('handlePadTouchup', padId);
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
       const url = getPadSourceUrl(pad);
@@ -68,42 +85,95 @@ export const PlayerContainer = () => {
     [events, pads]
   );
 
-  const [playingStack, setPlayingStack] = useState<string[]>([]);
-
   const handlePlayerPlaying = useCallback((e: PlayerPlaying) => {
     log.debug('❤️ player:playing', e);
 
-    setPlayingStack((prev) => {
-      // remove the padId from the stack if it is already in the stack
-      return [...prev.filter((id) => id !== e.padId), e.padId];
+    showPlayer(e.padId);
+
+    const stack = playingStackRef.current;
+
+    // remove stopped state players
+    const playingStack = stack.filter((id) => {
+      const active = getPlayerDataState(id) === 'playing';
+      if (!active) {
+        hidePlayer(id);
+      }
+      return active;
     });
+
+    const newStack = [...playingStack.filter((id) => id !== e.padId), e.padId];
+
+    // Update z-index of all players based on stack position
+    newStack.forEach((id, index) => setPlayerZIndex(id, index + 1));
+
+    // log.debug('stack players:', newStack.length);
+    // for (const index in players) {
+    //   const id = players[index].padId;
+    //   const playerElement = getPlayerElement(id);
+    //   const zIndex = playerElement?.style.zIndex;
+    //   const opacity = playerElement?.style.opacity;
+    //   const state = playerElement?.dataset.state;
+    //   const stackp = newStack.indexOf(id);
+    //   log.debug('player', { id, zIndex, opacity, state, stackp });
+    // }
+
+    playingStackRef.current = newStack;
   }, []);
 
   const handlePlayerStopped = useCallback((e: PlayerStopped) => {
-    log.debug('❤️ player:stopped', e);
-    // hide the player
-    // remove from the stack of playing players
-    setPlayingStack((prev) => prev.filter((id) => id !== e.padId));
+    log.debug('❤️ player:stopped');
+
+    const stack = playingStackRef.current;
+
+    if (stack.length > 1) {
+      hidePlayer(e.padId);
+      const newStack = stack.filter((id) => id !== e.padId);
+      playingStackRef.current = newStack;
+    } else {
+      setPlayerDataState(e.padId, 'stopped');
+    }
+  }, []);
+
+  const handlePlayerSeek = useCallback((e: PlayerSeek) => {
+    log.debug('❤️ player:seek', e);
+
+    showPlayer(e.padId);
+  }, []);
+
+  const handlePlayerReady = useCallback((e: PlayerReady) => {
+    log.debug('❤️ player:ready', e);
+  }, []);
+
+  const handlePlayerNotReady = useCallback((e: PlayerNotReady) => {
+    log.debug('❤️ player:not-ready', e);
   }, []);
 
   useEffect(() => {
     events.on('pad:touchdown', handlePadTouchdown);
     events.on('pad:touchup', handlePadTouchup);
-
     events.on('player:playing', handlePlayerPlaying);
-
     events.on('player:stopped', handlePlayerStopped);
-
+    events.on('video:seek', handlePlayerSeek);
+    events.on('player:ready', handlePlayerReady);
+    events.on('player:not-ready', handlePlayerNotReady);
     return () => {
       events.off('pad:touchdown', handlePadTouchdown);
       events.off('pad:touchup', handlePadTouchup);
+      events.off('player:playing', handlePlayerPlaying);
+      events.off('player:stopped', handlePlayerStopped);
+      events.off('video:seek', handlePlayerSeek);
+      events.off('player:ready', handlePlayerReady);
+      events.off('player:not-ready', handlePlayerNotReady);
     };
   }, [
     events,
     handlePadTouchdown,
     handlePadTouchup,
     handlePlayerPlaying,
-    handlePlayerStopped
+    handlePlayerStopped,
+    handlePlayerSeek,
+    handlePlayerReady,
+    handlePlayerNotReady
   ]);
 
   useEffect(() => {
@@ -112,17 +182,19 @@ export const PlayerContainer = () => {
     setVisiblePlayerId(selectedPadSourceUrl);
   }, [setVisiblePlayerId, store]);
 
-  // useRenderingTrace('PlayerContainer', {
-  //   players,
-  //   visiblePlayerId
-  // });
+  useRenderingTrace('PlayerContainer', {
+    pads,
+    players,
+    events,
+    store
+  });
 
-  log.debug('❤️ playingStack', playingStack);
   return (
     <>
       {players.map((player) => {
-        const isPlaying = playingStack.includes(player.padId);
-        return <Player key={player.id} {...player} isVisible={isPlaying} />;
+        return (
+          <Player key={player.id} {...player} data-player-id={player.padId} />
+        );
       })}
     </>
   );
