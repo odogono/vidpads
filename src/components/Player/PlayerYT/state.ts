@@ -2,14 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { Interval, Media } from '@model/types';
 import { createStore as createXStateStore } from '@xstate/store';
-import { useSelector } from '@xstate/store/react';
 import { PlayerPlay, PlayerStop } from '../types';
 import { PlayerStateToString, PlayerYTStateToString } from './helpers';
 import { PlayerState, PlayerYTState } from './types';
-import { PlayerYTPlay } from './useEvents';
 
 const log = createLog('player/yt/state');
 
@@ -23,7 +22,7 @@ type UpdateIntervalsAction = { type: 'updateIntervals'; intervals: Interval[] };
 type Actions = PlayerStateChangeAction | UpdateIntervalsAction;
 
 type StartQueuingEvent = { type: 'startQueuing'; interval: Interval };
-type ReadyEvent = { type: 'ready' };
+type ReadyEvent = { type: 'ready'; state: PlayerYTState };
 type NotReadyEvent = { type: 'notReady'; state: PlayerYTState };
 
 type EmittedEvents = StartQueuingEvent | ReadyEvent | NotReadyEvent;
@@ -114,7 +113,7 @@ const createStore = () => {
               };
             } else {
               // no more intervals to cue, we can declare the player ready
-              emit({ type: 'ready' });
+              emit({ type: 'ready', state: context.state });
               return {
                 ...context,
                 state: PlayerYTState.READY
@@ -163,6 +162,7 @@ export const usePlayerYTState = ({
 }: UsePlayerYTStateProps) => {
   const [store] = useState(() => createStore());
   const mediaUrl = media.url;
+  const events = useEvents();
 
   useEffect(() => {
     log.debug('[useEffect] updateIntervals?', intervals);
@@ -201,18 +201,38 @@ export const usePlayerYTState = ({
     [mediaUrl, playVideo]
   );
 
-  const handleReady = useCallback(() => {
-    log.debug('GO ready', mediaUrl);
-  }, [mediaUrl]);
+  const handleReady = useCallback(
+    ({ state }: { state: PlayerYTState }) => {
+      log.debug('GO ready', mediaUrl);
+      events.emit('player:ready', {
+        url: mediaUrl,
+        state
+      });
+    },
+    [mediaUrl, events]
+  );
+
+  const handleNotReady = useCallback(
+    ({ state }: { state: PlayerYTState }) => {
+      log.debug('GO notReady', mediaUrl, state);
+      events.emit('player:not-ready', {
+        url: mediaUrl,
+        state
+      });
+    },
+    [mediaUrl, events]
+  );
 
   useEffect(() => {
     const evtStartQueuing = store.on('startQueuing', handleStartQueuing);
     const evtReady = store.on('ready', handleReady);
+    const evtNotReady = store.on('notReady', handleNotReady);
     return () => {
       evtStartQueuing.unsubscribe();
       evtReady.unsubscribe();
+      evtNotReady.unsubscribe();
     };
-  }, [handleStartQueuing, handleReady, store]);
+  }, [handleStartQueuing, handleReady, handleNotReady, store]);
 
   // useEffect(() => {
   //   log.debug('state', PlayerYTStateToString(state));

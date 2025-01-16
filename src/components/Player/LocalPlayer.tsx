@@ -122,17 +122,22 @@ export const LocalPlayer = ({
   }, [stopVideo, media.url]);
 
   const handleIsReady = useCallback(() => {
-    events.emit('video:ready', {
+    events.emit('player:ready', {
       url: media.url,
-      duration: videoRef.current?.duration ?? 0,
-      readyState: PlayerReadyStateKeys[
-        videoRef.current?.readyState ?? 0
-      ] as PlayerReadyState,
-      dimensions: {
-        width: videoRef.current?.videoWidth ?? 0,
-        height: videoRef.current?.videoHeight ?? 0
-      }
+      state: PlayerReadyState.HAVE_METADATA
     });
+
+    // events.emit('video:ready', {
+    //   url: media.url,
+    //   duration: videoRef.current?.duration ?? 0,
+    //   readyState: PlayerReadyStateKeys[
+    //     videoRef.current?.readyState ?? 0
+    //   ] as PlayerReadyState,
+    //   dimensions: {
+    //     width: videoRef.current?.videoWidth ?? 0,
+    //     height: videoRef.current?.videoHeight ?? 0
+    //   }
+    // });
   }, [events, media.url]);
 
   useEffect(() => {

@@ -6,6 +6,7 @@ import mitt, { Emitter } from 'mitt';
 
 import {
   PlayerExtractThumbnail,
+  PlayerNotReady,
   PlayerPlay,
   PlayerReady,
   PlayerSeek,
@@ -34,9 +35,13 @@ export type EventEmitterEvents = {
   // a thumbnail has been extracted
   'video:thumbnail-extracted': PlayerThumbnailExtracted;
   // the video is ready
-  'video:ready': PlayerReady;
+  // 'video:ready': PlayerReady;
   // the keyboard is enabled
   'keyboard:enabled': boolean;
+  // the player is ready for interaction
+  'player:ready': PlayerReady;
+  // the player is not ready for interaction
+  'player:not-ready': PlayerNotReady;
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;
