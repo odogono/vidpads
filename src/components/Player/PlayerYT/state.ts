@@ -71,12 +71,12 @@ const createStore = () => {
         contextState === PlayerYTState.READY_FOR_CUE &&
         playerState === PlayerState.CUED
       ) {
-        log.debug('we have ', context.intervals.length, 'intervals');
+        // log.debug('we have', context.intervals.length, 'intervals');
         if (context.intervals.length > 0) {
           const newIntervalIndex = context.intervalIndex + 1;
           const interval = context.intervals[newIntervalIndex];
-          log.debug('[playerStateChange] startQueuing player', player);
-          log.debug('[playerStateChange] startQueuing interval', interval);
+          // log.debug('[playerStateChange] startQueuing player', player);
+          // log.debug('[playerStateChange] startQueuing interval', interval);
 
           // check that the interval end is valid
           if (interval.end === -1) {
@@ -245,7 +245,7 @@ export const usePlayerYTState = ({
 
   const handleStartQueuing = useCallback(
     ({ interval }: StartQueuingEvent) => {
-      log.debug('GO startQueuing', playerPadId, mediaUrl, interval);
+      // log.debug('GO startQueuing', playerPadId, mediaUrl, interval);
       const start = interval.start;
       const end = interval.end;
 
@@ -262,7 +262,7 @@ export const usePlayerYTState = ({
 
   const handleReady = useCallback(
     ({ state }: { state: PlayerYTState }) => {
-      log.debug('GO ready', playerPadId, mediaUrl);
+      // log.debug('GO ready', playerPadId, mediaUrl);
       events.emit('player:ready', {
         url: mediaUrl,
         padId: playerPadId,
@@ -274,7 +274,7 @@ export const usePlayerYTState = ({
 
   const handleNotReady = useCallback(
     ({ state }: { state: PlayerYTState }) => {
-      log.debug('GO notReady', playerPadId, mediaUrl, state);
+      // log.debug('GO notReady', playerPadId, mediaUrl, state);
       events.emit('player:not-ready', {
         url: mediaUrl,
         padId: playerPadId,
