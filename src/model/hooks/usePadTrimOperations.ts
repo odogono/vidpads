@@ -1,8 +1,11 @@
+import { useCallback } from 'react';
+
 import { QUERY_KEY_PAD_THUMBNAIL } from '@model/constants';
 import { setPadThumbnail as dbSetPadThumbnail } from '@model/db/api';
 import { useStore } from '@model/store/useStore';
-import { Pad } from '@model/types';
+import { Interval, Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
+import { getPadStartAndEndTime } from '../pad';
 
 export interface UsePadTrimOperationProps {
   pad: Pad;

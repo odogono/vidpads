@@ -20,7 +20,6 @@ import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMediaIdFromUrl } from '../helpers';
 
 const log = createLog('model/api');
 

@@ -5,6 +5,11 @@ export interface Interval {
   end: number;
 }
 
+export const UndefinedInterval: Interval = {
+  start: -1,
+  end: -1
+};
+
 export const MediaType = {
   Image: 'image',
   Video: 'video'

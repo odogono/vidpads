@@ -2,6 +2,7 @@ import { RefObject, useCallback, useEffect, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { usePadDetails } from '@model/hooks/usePads';
 import { Interval } from '@model/types';
 import {
   PlayerEvent,
@@ -29,7 +30,6 @@ export type PlayerYTSeek = PlayerSeek;
 export type PlayerYTExtractThumbnail = PlayerExtractThumbnail & PlayerYTEvents;
 
 export interface UsePlayerYTEventsProps {
-  interval: Interval;
   mediaUrl: string;
   padId: string;
   isLoopedRef: RefObject<boolean>;
@@ -41,7 +41,6 @@ export interface UsePlayerYTEventsProps {
 }
 
 export const usePlayerYTEvents = ({
-  interval,
   mediaUrl,
   padId: playerPadId,
   isLoopedRef,
@@ -50,9 +49,11 @@ export const usePlayerYTEvents = ({
   seekVideo
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
+  const { getPadInterval } = usePadDetails();
+  const [interval] = useState(() => getPadInterval(playerPadId));
 
   const { handlePlayerStateChange } = usePlayerYTState({
-    intervals: [interval],
+    intervals: interval ? [interval] : [],
     mediaUrl,
     playerPadId,
     playVideo,

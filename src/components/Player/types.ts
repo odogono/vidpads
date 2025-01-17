@@ -1,4 +1,4 @@
-import { Interval, Media } from '@model/types';
+import { Media } from '@model/types';
 
 export const PlayerReadyState = {
   HAVE_NOTHING: 0,
@@ -18,10 +18,8 @@ export interface PlayerProps {
   id: string;
   padId: string;
   isVisible?: boolean;
-  mediaUrl: string; // same as media.url
   media: Media;
   showControls?: boolean;
-  interval: Interval;
 }
 
 export interface PlayerEvent {

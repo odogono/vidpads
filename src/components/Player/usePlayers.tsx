@@ -1,12 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
+import { QUERY_KEY_METADATA } from '@model/constants';
 import { usePadsExtended } from '@model/hooks/usePads';
-import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
+import { getPadSourceUrl } from '@model/pad';
+import { Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEY_METADATA } from '../../model/constants';
 import { PlayerProps } from './types';
 
 const log = createLog('player/usePlayers');
@@ -16,6 +17,10 @@ type PlayersResult = [string, PlayerProps[]];
 export const usePlayers = () => {
   const { isReady, pads, padsWithMedia, urlToMetadata } = usePadsExtended();
   const queryClient = useQueryClient();
+
+  const padsRef = useRef<Pad[]>([]);
+  const playersRef = useRef<PlayerProps[]>([]);
+  const padUrlStrRef = useRef<string>('');
 
   const [padUrlStr, players] = useMemo<PlayersResult>(() => {
     log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
@@ -38,10 +43,10 @@ export const usePlayers = () => {
         return acc;
       }
 
-      let interval = getPadStartAndEndTime(pad);
-      if (!interval) {
-        interval = { start: 0, end: media.duration };
-      }
+      // let interval = getPadStartAndEndTime(pad);
+      // if (!interval) {
+      //   interval = { start: 0, end: media.duration };
+      // }
 
       const id = `player-${pad.id}`;
 
@@ -49,9 +54,7 @@ export const usePlayers = () => {
         id,
         padId: pad.id,
         isVisible: false,
-        media,
-        mediaUrl: media.url,
-        interval
+        media
       };
 
       // the key has to be for each active pad!
@@ -61,15 +64,21 @@ export const usePlayers = () => {
     }, [] as PlayerProps[]);
 
     const padUrlStr = result
-      .map((player) => `${player.padId}: ${player.mediaUrl}`)
+      .map((player) => `${player.padId}: ${player.media.url}`)
       .join(', ');
 
+    if (padUrlStr !== padUrlStrRef.current) {
+      padsRef.current = padsWithMedia;
+      playersRef.current = result;
+      padUrlStrRef.current = padUrlStr;
+    }
+
     return [padUrlStr, result];
-  }, [padsWithMedia, urlToMetadata, isReady]);
+  }, [padsWithMedia, isReady, urlToMetadata, queryClient]);
 
   return {
-    pads,
-    padUrlStr,
-    players
+    pads: padsRef.current,
+    padUrlStr: padUrlStrRef.current,
+    players: playersRef.current
   };
 };

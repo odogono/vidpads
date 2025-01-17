@@ -11,15 +11,15 @@ export type ImagePlayerProps = PlayerProps & {
 
 const log = createLog('player/image');
 
-export const ImagePlayer = ({ isVisible, media }: ImagePlayerProps) => {
+export const ImagePlayer = ({ media }: ImagePlayerProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!imageUrl) {
       (async () => {
         try {
-          const { id } = media;
-          const { blob } = await loadImageData(id);
+          const { url: mediaUrl } = media;
+          const { blob } = await loadImageData(mediaUrl);
           const url = URL.createObjectURL(blob);
           setImageUrl(url);
 
@@ -36,7 +36,7 @@ export const ImagePlayer = ({ isVisible, media }: ImagePlayerProps) => {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [media]);
+  }, [imageUrl, media]);
 
   if (!imageUrl) {
     return <div>Loading...</div>;
