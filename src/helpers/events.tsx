@@ -44,6 +44,11 @@ export type EventEmitterEvents = {
 
   'player:playing': PlayerPlaying;
   'player:stopped': PlayerStopped;
+
+  'media:duration-update': {
+    mediaUrl: string;
+    duration: number;
+  };
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;

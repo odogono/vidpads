@@ -54,8 +54,8 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     (e: GeneralTouchEvent) => {
       if (isPlayerReady) {
         events.emit('pad:touchdown', { padId: pad.id });
-        setSelectedPadId(pad.id);
       }
+      setSelectedPadId(pad.id);
     },
     [events, pad, setSelectedPadId, isPlayerReady]
   );
@@ -180,6 +180,8 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     onDrop: handleDrop
   };
 
+  const isReady = !!thumbnail ? isPlayerReady : true;
+
   return (
     <div
       ref={elementRef}
@@ -188,10 +190,8 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
           aspect-square rounded-lg cursor-pointer transition-all relative
           ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
-          ${isPlayerReady ? 'opacity-100' : 'opacity-40'}
+          ${isReady ? 'opacity-100' : 'opacity-20'}
         `}
-      // onClick={handleClick}
-      // Only attach touch handlers for touch devices
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

@@ -8,11 +8,7 @@ import {
   addFileToPad,
   addUrlToPad
 } from '@model';
-import {
-  QUERY_KEY_PADS_METADATA,
-  QUERY_KEY_PAD_METADATA,
-  QUERY_KEY_PAD_THUMBNAIL
-} from '@model/constants';
+import { QUERY_KEY_METADATA, QUERY_KEY_PAD_THUMBNAIL } from '@model/constants';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
@@ -24,6 +20,7 @@ import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getMediaIdFromUrl } from '../helpers';
 
 const log = createLog('model/api');
 
@@ -46,7 +43,10 @@ export const usePadOperations = () => {
       if (pads.length === 1) {
         log.debug('[useDeletePadMedia] Deleting source data:', sourceUrl);
         await dbDeleteMediaData(sourceUrl);
-        invalidateQueryKeys(queryClient, [[QUERY_KEY_PADS_METADATA]]);
+        const mediaId = getMediaIdFromUrl(sourceUrl);
+        if (mediaId) {
+          invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaId]]);
+        }
       }
 
       await dbDeletePadThumbnail(pad.id);
@@ -55,7 +55,7 @@ export const usePadOperations = () => {
     },
     onSuccess: (data, pad) => {
       log.debug('[useDeletePadMedia] Invalidate queries:', pad.id);
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_PAD_METADATA, pad.id]]);
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, pad.id]]);
     }
   });
 
@@ -65,8 +65,7 @@ export const usePadOperations = () => {
       // Invalidate the pad-thumbnail query to trigger a refetch
       invalidateQueryKeys(queryClient, [
         [QUERY_KEY_PAD_THUMBNAIL, props.padId],
-        [QUERY_KEY_PAD_METADATA, props.padId],
-        [QUERY_KEY_PADS_METADATA]
+        [QUERY_KEY_METADATA, props.padId]
       ]);
       return data;
     }
@@ -78,9 +77,9 @@ export const usePadOperations = () => {
       // Invalidate the pad-thumbnail query to trigger a refetch
       invalidateQueryKeys(queryClient, [
         [QUERY_KEY_PAD_THUMBNAIL, props.padId],
-        [QUERY_KEY_PAD_METADATA, props.padId],
-        [QUERY_KEY_PADS_METADATA]
+        [QUERY_KEY_METADATA]
       ]);
+      return data;
     }
   });
 
@@ -109,9 +108,8 @@ export const usePadOperations = () => {
       invalidateQueryKeys(queryClient, [
         [QUERY_KEY_PAD_THUMBNAIL, sourcePadId],
         [QUERY_KEY_PAD_THUMBNAIL, targetPadId],
-        [QUERY_KEY_PAD_METADATA, sourcePadId],
-        [QUERY_KEY_PAD_METADATA, targetPadId],
-        [QUERY_KEY_PADS_METADATA]
+        [QUERY_KEY_METADATA, sourcePadId],
+        [QUERY_KEY_METADATA, targetPadId]
       ]);
     }
   });
@@ -135,8 +133,7 @@ export const usePadOperations = () => {
       log.debug('[clearPad] Invalidate queries:', padId);
       invalidateQueryKeys(queryClient, [
         [QUERY_KEY_PAD_THUMBNAIL, padId],
-        [QUERY_KEY_PAD_METADATA, padId],
-        [QUERY_KEY_PADS_METADATA]
+        [QUERY_KEY_METADATA, padId]
       ]);
     }
   });

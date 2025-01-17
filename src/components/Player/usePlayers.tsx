@@ -1,35 +1,38 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-// import { createLog } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import { usePadsExtended } from '@model/hooks/usePads';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { PlayerProps } from './types';
 
-// const log = createLog('player/usePlayers');
+const log = createLog('player/usePlayers');
 
-type PlayersResult = PlayerProps[];
+type PlayersResult = [string, PlayerProps[]];
 
 export const usePlayers = () => {
   const { isReady, pads, padsWithMedia, urlToMetadata } = usePadsExtended();
 
-  const [visiblePlayerId, setVisiblePlayerId] = useState<string | undefined>();
-
-  const players: PlayersResult = useMemo<PlayersResult>(() => {
+  const [padUrlStr, players] = useMemo<PlayersResult>(() => {
+    log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
     const result = padsWithMedia.reduce((acc, pad) => {
       const url = getPadSourceUrl(pad);
-      if (!isReady || !url) return acc;
+      if (!isReady || !url) {
+        if (!isReady) log.debug('[usePlayers] isReady:', pad.id, isReady);
+        if (!url) log.debug('[usePlayers] no url:', pad.id, url);
+        return acc;
+      }
 
       const media = urlToMetadata?.get(url);
-      if (!media) return acc;
+      if (!media) {
+        log.debug('[usePlayers] no media:', pad.id, media);
+        return acc;
+      }
 
       let interval = getPadStartAndEndTime(pad);
       if (!interval) {
-        const media = urlToMetadata?.get(url);
-        if (!media) return acc;
-        const { duration } = media;
-        interval = { start: 0, end: duration };
+        interval = { start: 0, end: media.duration };
       }
 
       const id = `player-${pad.id}`;
@@ -47,15 +50,18 @@ export const usePlayers = () => {
       acc.push(props);
 
       return acc;
-    }, [] as PlayersResult);
+    }, [] as PlayerProps[]);
 
-    return result;
+    const padUrlStr = result
+      .map((player) => `${player.padId}: ${player.mediaUrl}`)
+      .join(', ');
+
+    return [padUrlStr, result];
   }, [padsWithMedia, urlToMetadata, isReady]);
 
   return {
     pads,
-    players,
-    visiblePlayerId,
-    setVisiblePlayerId
+    padUrlStr,
+    players
   };
 };

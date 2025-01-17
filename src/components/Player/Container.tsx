@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
-import { getSelectedPadSourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Interval } from '@model/types';
 import { useRenderingTrace } from '../../hooks/useRenderingTrace';
@@ -33,7 +32,7 @@ export const PlayerContainer = () => {
   const { store } = useStore();
   const playingStackRef = useRef<string[]>([]);
 
-  const { pads, players, setVisiblePlayerId } = usePlayers();
+  const { pads, padUrlStr, players } = usePlayers();
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
@@ -52,7 +51,6 @@ export const PlayerContainer = () => {
         start: 0,
         end: Number.MAX_SAFE_INTEGER
       }) as Interval;
-      setVisiblePlayerId(mediaUrl);
       events.emit('video:start', {
         url: mediaUrl,
         padId: pad.id,
@@ -62,7 +60,7 @@ export const PlayerContainer = () => {
         end
       });
     },
-    [events, setVisiblePlayerId, pads]
+    [events, pads]
   );
 
   const handlePadTouchup = useCallback(
@@ -75,7 +73,7 @@ export const PlayerContainer = () => {
       const isOneShot = pad.isOneShot ?? false;
 
       if (!isOneShot) {
-        events.emit('video:stop', { url, padId });
+        events.emit('video:stop', { url, padId, time: 0 });
       }
     },
     [events, pads]
@@ -173,18 +171,14 @@ export const PlayerContainer = () => {
     handlePlayerNotReady
   ]);
 
-  useEffect(() => {
-    const selectedPadSourceUrl = getSelectedPadSourceUrl(store);
-    // log.debug('selectedPadSourceUrl', selectedPadSourceUrl);
-    setVisiblePlayerId(selectedPadSourceUrl);
-  }, [setVisiblePlayerId, store]);
-
   useRenderingTrace('PlayerContainer', {
     pads,
     players,
     events,
-    store
+    store,
+    padUrlStr
   });
+  log.debug('pads:', padUrlStr);
 
   return (
     <>

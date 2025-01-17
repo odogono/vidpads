@@ -184,9 +184,12 @@ export const loadStateFromIndexedDB =
     const db = await openDB();
 
     return new Promise((resolve, reject) => {
-      // log.debug('loading state from IndexedDB');
-      const transaction = db.transaction('store', 'readonly');
-      const store = transaction.objectStore('store');
+      const { store, transaction } = idbOpenTransaction(
+        db,
+        ['store'],
+        'readonly'
+      );
+
       const getRequest = store.get('state');
 
       getRequest.onerror = () => {
@@ -211,8 +214,12 @@ export const saveStateToIndexedDB = async (
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction('store', 'readwrite');
-    const store = transaction.objectStore('store');
+    const { store, transaction } = idbOpenTransaction(
+      db,
+      ['store'],
+      'readwrite'
+    );
+
     const putRequest = store.put(state, 'state');
 
     putRequest.onerror = () => {
@@ -229,28 +236,29 @@ export const saveStateToIndexedDB = async (
 };
 
 export interface SaveUrlDataProps {
-  metadata: MediaYouTube;
+  media: MediaYouTube;
   thumbnail: string | null;
 }
 
 export const saveUrlData = async ({
-  metadata,
+  media,
   thumbnail
 }: SaveUrlDataProps): Promise<void> => {
   const db = await openDB();
+  const { id } = media;
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['metadata', 'thumbnails'], 'readwrite');
-
-    const { id } = metadata;
+    const { metadata, thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['metadata', 'thumbnails'],
+      'readwrite'
+    );
 
     // Save the metadata
-    const metadataStore = transaction.objectStore('metadata');
-    metadataStore.put(metadata);
+    metadata.put(media);
 
     // Save the thumbnail
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    thumbnailStore.put({ id, type: 'url', thumbnail });
+    thumbnails.put({ id, type: 'url', thumbnail });
 
     transaction.onerror = () => {
       log.error('Error saving video data:', transaction.error);
@@ -265,16 +273,49 @@ export const saveUrlData = async ({
   });
 };
 
+export const updateMetadataDuration = async (
+  mediaId: string,
+  duration: number
+): Promise<void> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const { metadata, transaction } = idbOpenTransaction(
+      db,
+      ['metadata'],
+      'readwrite'
+    );
+
+    const request = metadata.get(mediaId);
+
+    request.onsuccess = () => {
+      const result = request.result;
+      result.duration = duration;
+      metadata.put(result);
+    };
+
+    transaction.onerror = () => {
+      log.error('Error updating metadata duration:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+      resolve();
+    };
+  });
+};
+
 export interface SaveVideoDataProps {
   file: File;
-  metadata: MediaVideo;
+  media: MediaVideo;
   thumbnail: string | null;
   chunkSize?: number;
 }
 
 export const saveVideoData = async ({
   file,
-  metadata,
+  media,
   thumbnail,
   chunkSize = 1024 * 1024 * 10 // 10MB
 }: SaveVideoDataProps): Promise<void> => {
@@ -290,14 +331,14 @@ export const saveVideoData = async ({
       'readwrite'
     );
 
-    const { id, sizeInBytes } = metadata;
+    const { id, sizeInBytes } = media;
     const videoTotalChunks = Math.ceil(sizeInBytes / chunkSize);
 
-    metadata.videoTotalChunks = videoTotalChunks;
+    media.videoTotalChunks = videoTotalChunks;
 
     // Save the metadata
     const metadataStore = transaction.objectStore('metadata');
-    metadataStore.put(metadata);
+    metadataStore.put(media);
 
     // Save the thumbnail
     const thumbnailStore = transaction.objectStore('thumbnails');
@@ -356,13 +397,14 @@ export const loadVideoData = async (
     metadata: MediaVideo;
     thumbnail: string;
   }>((resolve, reject) => {
-    const transaction = db.transaction(['metadata', 'thumbnails'], 'readonly');
+    const { metadata, thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['metadata', 'thumbnails'],
+      'readonly'
+    );
 
-    const metadataStore = transaction.objectStore('metadata');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-
-    const metadataRequest = metadataStore.get(id);
-    const thumbnailRequest = thumbnailStore.get(id);
+    const metadataRequest = metadata.get(id);
+    const thumbnailRequest = thumbnails.get(id);
 
     transaction.onerror = () => {
       reject(transaction.error);
@@ -429,37 +471,35 @@ export const loadVideoData = async (
 
 export const saveImageData = async (
   file: File,
-  metadata: MediaImage,
+  media: MediaImage,
   thumbnail: string
 ): Promise<void> => {
   const db = await openDB();
+  const { id } = media;
 
   // Convert File to ArrayBuffer for storage
   const arrayBuffer = await file.arrayBuffer();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(
+    const { images, metadata, thumbnails, transaction } = idbOpenTransaction(
+      db,
       ['images', 'metadata', 'thumbnails'],
       'readwrite'
     );
 
-    const { id } = metadata;
-
     // Save the image as ArrayBuffer
-    const imageStore = transaction.objectStore('images');
-    imageStore.put({
+
+    images.put({
       id,
       data: arrayBuffer,
       type: file.type // Store the mime type for later reconstruction
     });
 
     // Save the metadata
-    const metadataStore = transaction.objectStore('metadata');
-    metadataStore.put(metadata);
+    metadata.put(media);
 
     // Save the thumbnail
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    thumbnailStore.put({ id, type: 'image', thumbnail });
+    thumbnails.put({ id, type: 'image', thumbnail });
 
     // Handle errors
     transaction.onerror = () => {
@@ -560,9 +600,13 @@ export const getMediaData = async (url: string): Promise<Media | null> => {
   }
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction('metadata', 'readonly');
-    const metadataStore = transaction.objectStore('metadata');
-    const request = metadataStore.get(mediaId);
+    const { metadata, transaction } = idbOpenTransaction(
+      db,
+      ['metadata'],
+      'readonly'
+    );
+
+    const request = metadata.get(mediaId);
 
     request.onerror = () => {
       log.error('Error loading metadata:', request.error);
@@ -631,9 +675,13 @@ export const setPadThumbnail = async (
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction('thumbnails', 'readwrite');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    const request = thumbnailStore.put({
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readwrite'
+    );
+
+    const request = thumbnails.put({
       id: thumbnailId,
       type: 'pad',
       thumbnail
@@ -657,9 +705,13 @@ export const getPadThumbnail = async (
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction('thumbnails', 'readonly');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    const request = thumbnailStore.get(thumbnailId);
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readonly'
+    );
+
+    const request = thumbnails.get(thumbnailId);
 
     request.onerror = () => {
       log.error('Error loading pad thumbnail:', request.error);
@@ -705,9 +757,12 @@ export const deletePadThumbnail = async (padId: string): Promise<string> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction('thumbnails', 'readwrite');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    const request = thumbnailStore.delete(thumbnailId);
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readwrite'
+    );
+    const request = thumbnails.delete(thumbnailId);
 
     request.onerror = () => {
       log.error('Error deleting pad thumbnail:', request.error);
@@ -748,9 +803,12 @@ export const getThumbnailFromUrl = async (
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['thumbnails'], 'readonly');
-    const thumbnailStore = transaction.objectStore('thumbnails');
-    const request = thumbnailStore.get(mediaId);
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readonly'
+    );
+    const request = thumbnails.get(mediaId);
 
     request.onerror = () => {
       log.error('Error loading thumbnail:', request.error);

@@ -47,9 +47,9 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
   }
 
   // determine the type of url
-  const metadata = await getUrlMetadata(url);
+  const media = await getUrlMetadata(url);
 
-  if (!metadata) {
+  if (!media) {
     log.warn('[addUrlToPad] No metadata found for url:', url);
     return null;
   }
@@ -57,7 +57,7 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
   log.debug('[addUrlToPad] url:', url, padId);
 
   // fetch the thumbnail
-  const thumbnail = await getYouTubeThumbnail(metadata as MediaYouTube);
+  const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
 
   if (!thumbnail) {
     log.warn('[addUrlToPad] No thumbnail found for url:', url);
@@ -65,11 +65,11 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
   }
 
   await dbSaveUrlData({
-    metadata: metadata as MediaYouTube,
+    media: media as MediaYouTube,
     thumbnail
   });
 
-  log.debug('[addUrlToPad] thumbnail:', metadata.id, thumbnail);
+  log.debug('[addUrlToPad] thumbnail:', media.id, thumbnail);
 
   await dbSetPadThumbnail(padId, thumbnail);
 
@@ -77,10 +77,10 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
   store.send({
     type: 'setPadMedia',
     padId,
-    media: metadata
+    media
   });
 
-  return metadata;
+  return media;
 };
 
 /**
@@ -97,10 +97,10 @@ export const addFileToPad = async ({
   store
 }: AddFileToPadProps) => {
   try {
-    const metadata = await getMediaMetadata(file);
-    const isVideo = isVideoMetadata(metadata);
+    const media = await getMediaMetadata(file);
+    const isVideo = isVideoMetadata(media);
     const mediaType = isVideo ? 'video' : 'image';
-    log.info(`${mediaType} metadata for pad ${padId}:`, metadata);
+    log.info(`${mediaType} metadata for pad ${padId}:`, media);
 
     if (!store) {
       log.warn('Store not found');
@@ -115,13 +115,13 @@ export const addFileToPad = async ({
         // const thumbnail = await extractVideoThumbnail(ffmpeg, file);
         const thumbnail = await extractVideoThumbnailCanvas(
           file,
-          metadata as MediaVideo
+          media as MediaVideo
         );
 
         log.debug('saving video data');
         await dbSaveVideoData({
           file,
-          metadata: metadata as MediaVideo,
+          media: media as MediaVideo,
           thumbnail
         });
 
@@ -131,7 +131,7 @@ export const addFileToPad = async ({
         store.send({
           type: 'setPadMedia',
           padId,
-          media: metadata
+          media: media
         });
       } catch (error) {
         log.error('Failed to generate video thumbnail:', error);
@@ -143,20 +143,20 @@ export const addFileToPad = async ({
         log.info(`Generated thumbnail for image at pad ${padId}`);
 
         // Save image data to IndexedDB
-        await dbSaveImageData(file, metadata as MediaImage, thumbnail);
+        await dbSaveImageData(file, media as MediaImage, thumbnail);
 
         // Update the store with the tile's image ID
         store.send({
           type: 'setPadMedia',
           padId,
-          media: metadata
+          media
         });
       } catch (error) {
         log.error('Failed to generate thumbnail:', error);
       }
     }
 
-    return metadata;
+    return media;
   } catch (error) {
     log.error('Failed to read media metadata:', error);
     return null;
