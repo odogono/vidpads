@@ -65,19 +65,6 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
     setEmitter(mittEvents);
   }
 
-  useEffect(() => {
-    return () => {
-      if (emitter) {
-        emitter.off('pad:touchdown');
-        emitter.off('pad:touchup');
-        emitter.off('video:start');
-        emitter.off('video:stop');
-        emitter.off('video:seek');
-        emitter.off('video:extract-thumbnail');
-      }
-    };
-  }, [emitter]);
-
   return (
     <EventsContext.Provider value={emitter}>{children}</EventsContext.Provider>
   );

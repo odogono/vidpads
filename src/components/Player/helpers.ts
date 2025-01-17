@@ -1,3 +1,5 @@
+import { QueryClient } from '@tanstack/react-query';
+
 export const hidePlayer = (padId: string) => {
   const playerElement = document.querySelector(
     `[data-player-id="${padId}"]`
@@ -74,4 +76,21 @@ export const getPlayerDataState = (padId: string) => {
     `[data-player-id="${padId}"]`
   ) as HTMLElement | null;
   return playerElement?.dataset.state as 'playing' | 'stopped' | undefined;
+};
+
+export const setPlayerReadyInCache = (
+  queryClient: QueryClient,
+  mediaUrl: string,
+  padId: string,
+  isReady: boolean
+) => {
+  queryClient.setQueryData(['player:ready', `${mediaUrl}-${padId}`], isReady);
+};
+
+export const getPlayerReadyInCache = (
+  queryClient: QueryClient,
+  mediaUrl: string,
+  padId: string
+) => {
+  return !!queryClient.getQueryData(['player:ready', `${mediaUrl}-${padId}`]);
 };

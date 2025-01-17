@@ -69,7 +69,7 @@ const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
   // Handle initial database creation (version 0 to 1)
   if (oldVersion < 1) {
     idbCreateObjectStore(db, 'store');
-    idbCreateObjectStore(db, 'metadata', { keyPath: 'id' });
+    idbCreateObjectStore(db, 'metadata', { keyPath: 'url' });
     idbCreateObjectStore(db, 'videoChunks', {
       keyPath: ['id', 'videoChunkIndex']
     });
@@ -245,7 +245,6 @@ export const saveUrlData = async ({
   thumbnail
 }: SaveUrlDataProps): Promise<void> => {
   const db = await openDB();
-  const { id } = media;
 
   return new Promise((resolve, reject) => {
     const { metadata, thumbnails, transaction } = idbOpenTransaction(
@@ -258,7 +257,7 @@ export const saveUrlData = async ({
     metadata.put(media);
 
     // Save the thumbnail
-    thumbnails.put({ id, type: 'url', thumbnail });
+    thumbnails.put({ id: media.url, type: 'url', thumbnail });
 
     transaction.onerror = () => {
       log.error('Error saving video data:', transaction.error);
@@ -274,7 +273,7 @@ export const saveUrlData = async ({
 };
 
 export const updateMetadataDuration = async (
-  mediaId: string,
+  mediaUrl: string,
   duration: number
 ): Promise<void> => {
   const db = await openDB();
@@ -286,7 +285,7 @@ export const updateMetadataDuration = async (
       'readwrite'
     );
 
-    const request = metadata.get(mediaId);
+    const request = metadata.get(mediaUrl);
 
     request.onsuccess = () => {
       const result = request.result;
@@ -331,7 +330,7 @@ export const saveVideoData = async ({
       'readwrite'
     );
 
-    const { id, sizeInBytes } = media;
+    const { url, sizeInBytes } = media;
     const videoTotalChunks = Math.ceil(sizeInBytes / chunkSize);
 
     media.videoTotalChunks = videoTotalChunks;
@@ -342,7 +341,7 @@ export const saveVideoData = async ({
 
     // Save the thumbnail
     const thumbnailStore = transaction.objectStore('thumbnails');
-    thumbnailStore.put({ id, type: 'video', thumbnail });
+    thumbnailStore.put({ id: url, type: 'video', thumbnail });
 
     // Save the video chunks
     const videoChunksStore = transaction.objectStore('videoChunks');
@@ -353,7 +352,7 @@ export const saveVideoData = async ({
       const chunk = file.slice(start, end);
 
       const data = {
-        id,
+        id: url,
         videoChunkIndex: ii,
         videoTotalChunks,
         data: chunk,
@@ -593,11 +592,6 @@ export const getAllMediaMetaData = async (): Promise<Media[]> => {
 };
 
 export const getMediaData = async (url: string): Promise<Media | null> => {
-  const mediaId = getMediaIdFromUrl(url);
-  if (!mediaId) {
-    log.warn('[getMediaData] Invalid media URL format:', url);
-    return null;
-  }
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const { metadata, transaction } = idbOpenTransaction(
@@ -606,7 +600,7 @@ export const getMediaData = async (url: string): Promise<Media | null> => {
       'readonly'
     );
 
-    const request = metadata.get(mediaId);
+    const request = metadata.get(url);
 
     request.onerror = () => {
       log.error('Error loading metadata:', request.error);
@@ -629,7 +623,6 @@ export const deleteMediaData = async (url: string): Promise<void> => {
   }
 
   const mediaType = getMediaType(mediaData);
-  const { id } = mediaData;
 
   const db = await openDB();
 
@@ -641,16 +634,16 @@ export const deleteMediaData = async (url: string): Promise<void> => {
         'readwrite'
       );
 
-    metadata.delete(id);
-    thumbnails.delete(id);
+    metadata.delete(url);
+    thumbnails.delete(url);
 
     if (mediaType === MediaType.Image) {
-      images.delete(id);
+      images.delete(url);
     } else if (mediaType === MediaType.Video) {
-      videoChunks.delete(id);
+      videoChunks.delete(url);
 
       videoChunks.delete(
-        IDBKeyRange.bound([id, 0], [id, Number.MAX_SAFE_INTEGER])
+        IDBKeyRange.bound([url, 0], [url, Number.MAX_SAFE_INTEGER])
       );
     }
 

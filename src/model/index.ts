@@ -69,7 +69,7 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
     thumbnail
   });
 
-  log.debug('[addUrlToPad] thumbnail:', media.id, thumbnail);
+  log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
 
   await dbSetPadThumbnail(padId, thumbnail);
 
@@ -131,7 +131,7 @@ export const addFileToPad = async ({
         store.send({
           type: 'setPadMedia',
           padId,
-          media: media
+          media
         });
       } catch (error) {
         log.error('Failed to generate video thumbnail:', error);

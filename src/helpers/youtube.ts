@@ -1,5 +1,5 @@
 import { createLog } from '@helpers/log';
-import { MediaYouTube } from '@model/types';
+import { Media, MediaYouTube } from '@model/types';
 
 // import { parseISO8601Duration } from './datetime';
 
@@ -7,6 +7,16 @@ const log = createLog('youtube');
 
 export const isYouTubeUrl = (url: string): boolean => {
   return url.includes('youtube.com') || url.includes('youtu.be');
+};
+
+export const getYoutubeUrlFromMedia = (media: Media): string | undefined => {
+  if (
+    media.mimeType.startsWith('video/youtube') &&
+    (media as MediaYouTube).videoId
+  ) {
+    return `https://m.youtube.com/watch?v=${(media as MediaYouTube).videoId}`;
+  }
+  return undefined;
 };
 
 // const fetchFromYouTubeAPI = async (

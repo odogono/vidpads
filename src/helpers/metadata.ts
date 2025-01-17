@@ -1,5 +1,5 @@
 import { createLog } from '@helpers/log';
-import type { Media, MediaImage, MediaVideo } from '@model/types';
+import type { Media, MediaImage, MediaVideo, MediaYouTube } from '@model/types';
 import { generateFileId } from './file';
 import { getYouTubeMetadata, isYouTubeUrl } from './youtube';
 
@@ -58,8 +58,8 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
       video.onloadedmetadata = () => {
         clearTimeout(timeoutId);
         const metadata: MediaVideo = {
-          id: fileId,
           url: 'vidpads://media/' + fileId,
+          fileId,
           width: video.videoWidth,
           height: video.videoHeight,
           duration: video.duration,

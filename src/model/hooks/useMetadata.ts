@@ -6,6 +6,7 @@ import { isYouTubeMetadata } from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
+  getMediaData as dbGetMediaData,
   updateMetadataDuration as dbUpdateMetadataDuration
 } from '@model/db/api';
 import {
@@ -13,6 +14,7 @@ import {
   useQueryClient,
   useSuspenseQuery
 } from '@tanstack/react-query';
+import { getYoutubeUrlFromMedia } from '../../helpers/youtube';
 import { QUERY_KEY_METADATA } from '../constants';
 import { getMediaIdFromUrl } from '../helpers';
 import { Media } from '../types';
@@ -22,19 +24,20 @@ const log = createLog('model/useMetadata');
 export const useMetadata = () => {
   const events = useEvents();
   const queryClient = useQueryClient();
+  const isMounted = typeof window !== 'undefined';
   // const [isMounted, setIsMounted] = useState(false);
 
   // // used to prevent hydration error
-  // // since selectedPadId is undefined on the server
   // useEffect(() => {
   //   setIsMounted(true);
+  //   log.debug('MOUNTED');
   // }, []);
 
   const { data } = useSuspenseQuery({
     queryKey: [QUERY_KEY_METADATA],
     queryFn: async () => {
-      const metadata = await dbGetAllMediaMetaData();
-      log.debug('queryFn', metadata.length);
+      const metadata = isMounted ? await dbGetAllMediaMetaData() : [];
+      log.debug('queryFn', metadata.length, { isMounted });
 
       const urlToMetadata = new Map<string, Media>();
       metadata.forEach((m) => urlToMetadata.set(m.url, m));
@@ -42,7 +45,10 @@ export const useMetadata = () => {
       const urlToExternalUrl = metadata.reduce(
         (acc, media) => {
           if (isYouTubeMetadata(media)) {
-            acc[media.url] = `https://m.youtube.com/watch?v=${media.id}`;
+            const ytUrl = getYoutubeUrlFromMedia(media);
+            if (ytUrl) {
+              acc[media.url] = ytUrl;
+            }
           } else {
             acc[media.url] = media.url;
           }
@@ -57,17 +63,17 @@ export const useMetadata = () => {
 
   const { mutateAsync: updateMetadataDuration } = useMutation({
     mutationFn: async ({
-      mediaId,
+      mediaUrl,
       duration
     }: {
-      mediaId: string;
+      mediaUrl: string;
       duration: number;
     }) => {
-      await dbUpdateMetadataDuration(mediaId, duration);
+      await dbUpdateMetadataDuration(mediaUrl, duration);
     },
-    onSuccess: (_, { mediaId, duration }) => {
-      log.debug('updated duration', mediaId, duration);
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA]]);
+    onSuccess: (_, { mediaUrl, duration }) => {
+      log.debug('updated duration', mediaUrl, duration);
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaUrl]]);
     }
   });
 
@@ -75,10 +81,7 @@ export const useMetadata = () => {
     (event: { mediaUrl: string; duration: number }) => {
       const { mediaUrl, duration } = event;
 
-      const mediaId = getMediaIdFromUrl(mediaUrl);
-      if (!mediaId) return;
-
-      updateMetadataDuration({ mediaId, duration });
+      updateMetadataDuration({ mediaUrl, duration });
     },
     [updateMetadataDuration]
   );
@@ -95,4 +98,28 @@ export const useMetadata = () => {
     urlToMetadata: data?.urlToMetadata,
     urlToExternalUrl: data?.urlToExternalUrl
   };
+};
+
+export const useMetadataByUrl = (url: string | undefined) => {
+  // const queryClient = useQueryClient();
+
+  // Invalidate the cache when pad changes
+  // useEffect(() => {
+  //   if (url) {
+  //     invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, url]]);
+  //   }
+  // }, [url, queryClient]);
+
+  const { data } = useSuspenseQuery({
+    queryKey: [QUERY_KEY_METADATA, url],
+    queryFn: async () => {
+      if (!url) return null;
+
+      const media = await dbGetMediaData(url);
+
+      return media ?? null;
+    }
+  });
+
+  return data;
 };

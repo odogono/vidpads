@@ -61,7 +61,6 @@ export const LocalPlayer = ({
       videoRef.current.currentTime = startTime;
       isPlayingRef.current = true;
       videoRef.current.play();
-      // log.debug('[playVideo]', id, { start, end, isLoop, url });
     },
     [mediaUrl, playerPadId]
   );
@@ -111,6 +110,22 @@ export const LocalPlayer = ({
     [mediaUrl, playerPadId, events]
   );
 
+  const handlePlaying = useCallback(() => {
+    events.emit('player:playing', {
+      url: mediaUrl,
+      padId: playerPadId,
+      time: videoRef.current?.currentTime ?? 0
+    });
+  }, [events, mediaUrl, playerPadId]);
+
+  const handlePaused = useCallback(() => {
+    events.emit('player:stopped', {
+      url: mediaUrl,
+      padId: playerPadId,
+      time: videoRef.current?.currentTime ?? 0
+    });
+  }, [events, mediaUrl, playerPadId]);
+
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -119,31 +134,33 @@ export const LocalPlayer = ({
         // log.debug('[handleTimeUpdate] looping', id, startTimeRef.current);
         video.currentTime = startTimeRef.current;
       } else {
-        stopVideo({ url: mediaUrl, padId: playerPadId });
+        stopVideo({
+          url: mediaUrl,
+          padId: playerPadId,
+          time: video.currentTime
+        });
       }
     }
     // log.debug('[handleTimeUpdate]', id, video.currentTime);
   }, [stopVideo, mediaUrl, playerPadId]);
 
-  const handleIsReady = useCallback(() => {
+  const handleLoadedMetadata = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (showControls) {
+      video.controls = true;
+    }
+    readyCallbackRef.current?.();
+
+    log.debug('❤️ player:ready', mediaUrl, playerPadId);
+
     events.emit('player:ready', {
       url: mediaUrl,
       padId: playerPadId,
       state: PlayerReadyState.HAVE_METADATA
     });
-
-    // events.emit('video:ready', {
-    //   url: mediaUrl,
-    //   duration: videoRef.current?.duration ?? 0,
-    //   readyState: PlayerReadyStateKeys[
-    //     videoRef.current?.readyState ?? 0
-    //   ] as PlayerReadyState,
-    //   dimensions: {
-    //     width: videoRef.current?.videoWidth ?? 0,
-    //     height: videoRef.current?.videoHeight ?? 0
-    //   }
-    // });
-  }, [events, mediaUrl, playerPadId]);
+  }, [events, mediaUrl, playerPadId, showControls]);
 
   useEffect(() => {
     events.on('video:start', playVideo);
@@ -171,22 +188,18 @@ export const LocalPlayer = ({
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoadedMetadata = () => {
-      if (showControls) {
-        video.controls = true;
-      }
-      readyCallbackRef.current?.();
-    };
-
+    video.addEventListener('playing', handlePlaying);
+    video.addEventListener('pause', handlePaused);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('canplay', handleIsReady);
+    // video.addEventListener('canplay', handleIsReady);
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('canplay', handleIsReady);
+      video.removeEventListener('playing', handlePlaying);
+      video.removeEventListener('pause', handlePaused);
     };
-  }, [handleIsReady, handleTimeUpdate, showControls]);
+  }, [handleLoadedMetadata, handleTimeUpdate, handlePlaying, handlePaused]);
 
   // if (isVisible) {
   //   log.debug('rendering', media.url, isVisible, initialTime);
@@ -214,13 +227,11 @@ const useVideoLoader = (
       return;
     }
 
-    // log.debug('mounting', media.url, isVisible, currentTime);
-
     (async () => {
-      const { id } = media;
+      const { url } = media;
 
       try {
-        const { blob } = await dbLoadVideoData(id);
+        const { blob } = await dbLoadVideoData(url);
 
         // Create a blob URL from the video file
         const videoUrl = URL.createObjectURL(blob);
@@ -231,7 +242,7 @@ const useVideoLoader = (
           videoRef.current.src = videoUrl;
         }
       } catch (error) {
-        log.error(id, 'Error loading video:', error);
+        log.error('Error loading video:', url, error);
       }
     })();
 
