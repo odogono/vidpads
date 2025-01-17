@@ -26,7 +26,7 @@ const log = createLog('StartEndSlider');
 export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
   const events = useEvents();
   const padSourceUrl = getPadSourceUrl(pad);
-  const { data: metadata } = useMetadataFromPad(pad);
+  const metadata = useMetadataFromPad(pad);
   const applyPadTrimOperation = usePadTrimOperation();
 
   const videoDuration = metadata?.duration ?? 100;
@@ -39,6 +39,7 @@ export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
       events.emit('video:extract-thumbnail', {
         url: padSourceUrl,
         time: start,
+        padId: pad.id,
         additional: {
           start,
           end

@@ -87,15 +87,15 @@ export interface MediaVideo extends Media {
 
 type Thumbnail = {
   url: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 };
 
 export interface MediaYouTube extends Media {
   mimeType: 'video/youtube';
   videoId: string;
   title: string;
-  description: string;
+  description?: string;
   thumbnails: {
     default?: Thumbnail;
     medium?: Thumbnail;

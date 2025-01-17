@@ -216,7 +216,8 @@ export const PlayerYT = ({
         } else {
           stopVideo({
             url: mediaUrl,
-            padId: playerPadId
+            padId: playerPadId,
+            time: player.getCurrentTime()
           });
         }
       }

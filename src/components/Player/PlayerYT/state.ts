@@ -15,7 +15,7 @@ const log = createLog('player/yt/state');
 type PlayerStateChangeAction = {
   type: 'playerStateChange';
   state: PlayerState;
-  playerId: string;
+  player: YTPlayer;
 };
 type UpdateIntervalsAction = { type: 'updateIntervals'; intervals: Interval[] };
 
@@ -42,7 +42,7 @@ const createStore = () => {
       event: PlayerStateChangeAction,
       { emit }: Emit
     ): StoreContext => {
-      const { state: playerState } = event;
+      const { state: playerState, player } = event;
       const { state: contextState } = context;
 
       if (playerState === PlayerState.DESTROYED) {
@@ -74,6 +74,19 @@ const createStore = () => {
         log.debug('we have ', context.intervals.length, 'intervals');
         if (context.intervals.length > 0) {
           const newIntervalIndex = context.intervalIndex + 1;
+          const interval = context.intervals[newIntervalIndex];
+          log.debug('[playerStateChange] startQueuing player', player);
+          log.debug('[playerStateChange] startQueuing interval', interval);
+
+          // check that the interval end is valid
+          if (interval.end === -1) {
+            log.debug(
+              '[playerStateChange] interval end is -1, setting to',
+              player.getDuration()
+            );
+            interval.end = player.getDuration();
+          }
+
           emit({
             type: 'startQueuing',
             interval: context.intervals[newIntervalIndex]
@@ -195,7 +208,7 @@ export const usePlayerYTState = ({
       store.send({
         type: 'playerStateChange',
         state: playerState,
-        playerId: player.odgnId
+        player
       });
 
       if (contextState === PlayerYTState.READY) {

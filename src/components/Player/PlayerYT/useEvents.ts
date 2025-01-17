@@ -59,17 +59,24 @@ export const usePlayerYTEvents = ({
     stopVideo
   });
 
-  const handleEnded = useCallback(() => {
-    log.debug('ended', mediaUrl);
-    if (isLoopedRef.current) {
-      playVideo({
-        url: mediaUrl,
-        padId: playerPadId
-      });
-    } else {
-      stopVideo({ url: mediaUrl, padId: playerPadId });
-    }
-  }, [isLoopedRef, mediaUrl, playVideo, stopVideo, playerPadId]);
+  const handleEnded = useCallback(
+    (player: YTPlayer) => {
+      log.debug('ended', mediaUrl);
+      if (isLoopedRef.current) {
+        playVideo({
+          url: mediaUrl,
+          padId: playerPadId
+        });
+      } else {
+        stopVideo({
+          url: mediaUrl,
+          padId: playerPadId,
+          time: player.getCurrentTime()
+        });
+      }
+    },
+    [isLoopedRef, mediaUrl, playVideo, stopVideo, playerPadId]
+  );
 
   const extractThumbnail = useCallback(
     ({ time, url, additional }: PlayerExtractThumbnail) => {
@@ -88,7 +95,6 @@ export const usePlayerYTEvents = ({
 
   const onPlayerCreated = useCallback(
     (player: YTPlayer) => {
-      // log.debug('[onPlayerCreated]', player.odgnId);
       handlePlayerStateChange(PlayerState.CREATED, player);
     },
     [handlePlayerStateChange]
@@ -105,15 +111,24 @@ export const usePlayerYTEvents = ({
   // called when the YTPlayer has indicated it is ready
   const onPlayerReady = useCallback(
     (player: YTPlayer) => {
+      // check the interval end time - its possible that it is invalid
+      // and we need to set it to the video duration
+      if (interval.end === -1) {
+        interval.end = player.getDuration();
+        events.emit('media:duration-update', {
+          mediaUrl,
+          duration: player.getDuration()
+        });
+      }
       handlePlayerStateChange(player.getPlayerState(), player);
     },
-    [handlePlayerStateChange]
+    [handlePlayerStateChange, interval, mediaUrl, events]
   );
 
   const onPlayerStateChange = useCallback(
     (player: YTPlayer, state: PlayerState) => {
       if (state === PlayerState.ENDED) {
-        handleEnded();
+        handleEnded(player);
       }
 
       handlePlayerStateChange(state, player);

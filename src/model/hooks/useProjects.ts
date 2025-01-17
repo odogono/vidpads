@@ -18,7 +18,7 @@ import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { usePadMetadata } from './useMetadataFromPad';
+import { useMetadata } from './useMetadata';
 import { usePadOperations } from './usePadOperations';
 
 const log = createLog('model/useProjects');
@@ -27,7 +27,7 @@ export const useProjects = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
-  const { urlToExternalUrlMap } = usePadMetadata();
+  const { urlToExternalUrl } = useMetadata();
   const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
 
@@ -146,7 +146,7 @@ export const useProjects = () => {
     const { projectId, projectName, createdAt, updatedAt, pads } = context;
 
     const padsJSON = pads
-      .map((pad) => exportPadToJSON(pad, urlToExternalUrlMap))
+      .map((pad) => exportPadToJSON(pad, urlToExternalUrl))
       .filter(Boolean);
 
     return {
@@ -156,7 +156,7 @@ export const useProjects = () => {
       updatedAt: updatedAt ?? new Date().toISOString(),
       pads: padsJSON
     } as ProjectExport;
-  }, [store, urlToExternalUrlMap]);
+  }, [store, urlToExternalUrl]);
 
   const exportToJSONString = useCallback(() => {
     const json = exportToJSON();
@@ -169,11 +169,11 @@ export const useProjects = () => {
     const { projectId, projectName, createdAt, updatedAt, pads } = context;
 
     const padsURL = pads
-      .map((pad) => exportPadToURLString(pad, urlToExternalUrlMap))
+      .map((pad) => exportPadToURLString(pad, urlToExternalUrl))
       .filter(Boolean);
 
     return `${projectId}|${projectName}|${createdAt}|${updatedAt}|${padsURL.join('|')}`;
-  }, [store, urlToExternalUrlMap]);
+  }, [store, urlToExternalUrl]);
 
   const importFromJSONString = useCallback(
     async (json: string) => {
