@@ -7,12 +7,14 @@ import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { useStore } from '@model/store/useStore';
 import { Interval } from '@model/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { Player } from './Player';
 import {
   getPlayerDataState,
   hidePlayer,
   setPlayerDataState,
+  setPlayerReadyInCache,
   setPlayerZIndex,
   showPlayer
 } from './helpers';
@@ -31,6 +33,7 @@ export const PlayerContainer = () => {
   const events = useEvents();
   const { store } = useStore();
   const playingStackRef = useRef<string[]>([]);
+  const queryClient = useQueryClient();
 
   const { pads, padUrlStr, players } = usePlayers();
 
@@ -80,7 +83,7 @@ export const PlayerContainer = () => {
   );
 
   const handlePlayerPlaying = useCallback((e: PlayerPlaying) => {
-    log.debug('❤️ player:playing', e);
+    // log.debug('❤️ player:playing', e);
 
     showPlayer(e.padId);
 
@@ -115,7 +118,7 @@ export const PlayerContainer = () => {
   }, []);
 
   const handlePlayerStopped = useCallback((e: PlayerStopped) => {
-    log.debug('❤️ player:stopped');
+    log.debug('❤️ player:stopped', e);
 
     const stack = playingStackRef.current;
 
@@ -134,14 +137,22 @@ export const PlayerContainer = () => {
     showPlayer(e.padId);
   }, []);
 
-  const handlePlayerReady = useCallback((e: PlayerReady) => {
-    log.debug('❤️ player:ready', e);
-  }, []);
+  const handlePlayerReady = useCallback(
+    (e: PlayerReady) => {
+      log.debug('❤️ player:ready', e);
+      setPlayerReadyInCache(queryClient, e.url, e.padId, true);
+    },
+    [queryClient]
+  );
 
-  const handlePlayerNotReady = useCallback((e: PlayerNotReady) => {
-    log.debug('❤️ player:not-ready', e);
-    hidePlayer(e.padId);
-  }, []);
+  const handlePlayerNotReady = useCallback(
+    (e: PlayerNotReady) => {
+      log.debug('❤️ player:not-ready', e);
+      hidePlayer(e.padId);
+      setPlayerReadyInCache(queryClient, e.url, e.padId, false);
+    },
+    [queryClient]
+  );
 
   useEffect(() => {
     events.on('pad:touchdown', handlePadTouchdown);

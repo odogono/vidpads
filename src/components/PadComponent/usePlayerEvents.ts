@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
+import { Pad } from '@model/types';
+import { useQueryClient } from '@tanstack/react-query';
+import { createLog } from '../../helpers/log';
+import { getPadSourceUrl } from '../../model/pad';
+import { getPlayerReadyInCache } from '../Player/helpers';
 import {
   PlayerNotReady,
   PlayerPlaying,
@@ -8,13 +13,18 @@ import {
   PlayerStopped
 } from '../Player/types';
 
-export const usePlayerEvents = (padId: string) => {
+const log = createLog('PadComponent/usePlayerEvents');
+
+export const usePlayerEvents = (pad: Pad) => {
   const events = useEvents();
+  const padId = pad.id;
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isPlayerPlaying, setIsPlayerPlaying] = useState(false);
+  const queryClient = useQueryClient();
 
   const handlePlayerReady = useCallback(
     (e: PlayerReady) => {
+      // log.debug('🎉 player:ready', e.padId, padId);
       if (e.padId !== padId) return;
       setIsPlayerReady(true);
     },
@@ -23,6 +33,7 @@ export const usePlayerEvents = (padId: string) => {
 
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {
+      // log.debug('🎉 player:not-ready', e.padId, padId);
       if (e.padId !== padId) return;
       setIsPlayerPlaying(false);
       setIsPlayerReady(false);
@@ -47,6 +58,15 @@ export const usePlayerEvents = (padId: string) => {
   );
 
   useEffect(() => {
+    const url = getPadSourceUrl(pad);
+
+    // handle the player being ready before this component is mounted
+    if (url) {
+      const isReady = getPlayerReadyInCache(queryClient, url, pad.id);
+      setIsPlayerReady(isReady);
+      if (pad.id === 'a1') log.debug('🎉 useEffect', pad.id, { url, isReady });
+    }
+
     events.on('player:ready', handlePlayerReady);
     events.on('player:not-ready', handlePlayerNotReady);
     events.on('player:playing', handlePlayerPlaying);
@@ -62,7 +82,9 @@ export const usePlayerEvents = (padId: string) => {
     handlePlayerReady,
     handlePlayerNotReady,
     handlePlayerPlaying,
-    handlePlayerStopped
+    handlePlayerStopped,
+    pad,
+    queryClient
   ]);
   return {
     isPlayerReady,

@@ -66,7 +66,6 @@ type VideoMimeType = 'video/mp4' | 'video/webm' | 'video/youtube';
 type MimeType = ImageMimeType | VideoMimeType;
 
 export interface Media {
-  id: string;
   url: string;
   name: string;
   sizeInBytes: number;
@@ -83,6 +82,7 @@ export interface MediaImage extends Media {
 export interface MediaVideo extends Media {
   mimeType: VideoMimeType;
   videoTotalChunks?: number;
+  fileId: string;
 }
 
 type Thumbnail = {

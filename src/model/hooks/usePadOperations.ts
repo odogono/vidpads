@@ -43,43 +43,48 @@ export const usePadOperations = () => {
       if (pads.length === 1) {
         log.debug('[useDeletePadMedia] Deleting source data:', sourceUrl);
         await dbDeleteMediaData(sourceUrl);
-        const mediaId = getMediaIdFromUrl(sourceUrl);
-        if (mediaId) {
-          invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaId]]);
-        }
+        invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, sourceUrl]]);
       }
 
       await dbDeletePadThumbnail(pad.id);
 
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_PAD_THUMBNAIL, pad.id]]);
+
       return pad;
-    },
-    onSuccess: (data, pad) => {
-      log.debug('[useDeletePadMedia] Invalidate queries:', pad.id);
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, pad.id]]);
     }
   });
 
   const { mutateAsync: addFileToPadOp } = useMutation({
-    mutationFn: (props: AddFileToPadProps) => addFileToPad({ ...props, store }),
-    onSuccess: (data, props) => {
+    mutationFn: async (props: AddFileToPadProps) => {
+      const media = await addFileToPad({ ...props, store });
+      if (!media) return null;
+
       // Invalidate the pad-thumbnail query to trigger a refetch
       invalidateQueryKeys(queryClient, [
         [QUERY_KEY_PAD_THUMBNAIL, props.padId],
-        [QUERY_KEY_METADATA, props.padId]
+
+        // all metadata has to be invalidated so that the useMetadata query
+        // can be refetched correctly
+        [QUERY_KEY_METADATA]
       ]);
-      return data;
+
+      return media;
     }
   });
 
   const { mutateAsync: addUrlToPadOp } = useMutation({
-    mutationFn: (props: AddUrlToPadProps) => addUrlToPad({ ...props, store }),
-    onSuccess: (data, props) => {
-      // Invalidate the pad-thumbnail query to trigger a refetch
+    mutationFn: async (props: AddUrlToPadProps) => {
+      const media = await addUrlToPad({ ...props, store });
+      if (!media) return null;
+
       invalidateQueryKeys(queryClient, [
         [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+        // all metadata has to be invalidated so that the useMetadata query
+        // can be refetched correctly
         [QUERY_KEY_METADATA]
       ]);
-      return data;
+
+      return media;
     }
   });
 
@@ -96,21 +101,27 @@ export const usePadOperations = () => {
 
       await dbCopyPadThumbnail(sourcePadId, targetPadId);
 
+      const sourcePad = getPadById(store, sourcePadId);
+      const sourcePadUrl = getPadSourceUrl(sourcePad);
+      if (sourcePadUrl) {
+        invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, sourcePadUrl]]);
+      }
+
+      const targetPadUrl = getPadSourceUrl(targetPad);
+      if (targetPadUrl) {
+        invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, targetPadUrl]]);
+      }
+
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_PAD_THUMBNAIL, targetPad.id]
+      ]);
+
       store.send({
         type: 'copyPad',
         sourcePadId,
         targetPadId,
         copySourceOnly: isShiftKeyDown()
       });
-    },
-    onSuccess: (data, { sourcePadId, targetPadId }) => {
-      log.debug('[copyPad] Invalidate queries:', sourcePadId, targetPadId);
-      invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_PAD_THUMBNAIL, sourcePadId],
-        [QUERY_KEY_PAD_THUMBNAIL, targetPadId],
-        [QUERY_KEY_METADATA, sourcePadId],
-        [QUERY_KEY_METADATA, targetPadId]
-      ]);
     }
   });
 
@@ -128,13 +139,6 @@ export const usePadOperations = () => {
         type: 'clearPad',
         padId
       });
-    },
-    onSuccess: (data, padId) => {
-      log.debug('[clearPad] Invalidate queries:', padId);
-      invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_PAD_THUMBNAIL, padId],
-        [QUERY_KEY_METADATA, padId]
-      ]);
     }
   });
 

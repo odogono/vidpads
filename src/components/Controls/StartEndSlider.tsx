@@ -6,7 +6,7 @@ import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { useMetadataFromPad } from '@model/hooks/useMetadataFromPad';
+import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
@@ -26,7 +26,7 @@ const log = createLog('StartEndSlider');
 export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
   const events = useEvents();
   const padSourceUrl = getPadSourceUrl(pad);
-  const metadata = useMetadataFromPad(pad);
+  const metadata = useMetadataByUrl(padSourceUrl);
   const applyPadTrimOperation = usePadTrimOperation();
 
   const videoDuration = metadata?.duration ?? 100;

@@ -8,6 +8,7 @@ import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
+import { getPadSourceUrl } from '../../model/pad';
 import { useGhostDrag } from './ghost';
 import { GeneralTouchEvent } from './types';
 import { useNullImage } from './useNullImage';
@@ -42,7 +43,7 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   const isDraggingOver = dragOverId === pad.id;
   const { selectedPadId, setSelectedPadId } = useSelectedPadId();
 
-  const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad.id);
+  const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
 
   useEffect(() => {
     if (!isDragging) {
@@ -116,8 +117,14 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
 
       onDragStart(pad.id);
       log.debug('handleDragStart');
+
+      events.emit('video:stop', {
+        url: getPadSourceUrl(pad) ?? '',
+        padId: pad.id,
+        time: 0
+      });
     },
-    [pad.id, dragImage, createGhost, onDragStart]
+    [dragImage, createGhost, onDragStart, events, pad]
   );
 
   const handleDrop = useCallback(
@@ -140,13 +147,13 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
 
   // Add onDragEnd handler to clean up
   const handleDragEnd = useCallback(() => {
-    log.debug('handleDragEnd', isDragging);
+    // log.debug('handleDragEnd', isDragging);
     // Ensure we clean up even if the component is about to unmount
     requestAnimationFrame(() => {
       removeGhost();
       onDragEnd(pad.id);
     });
-  }, [isDragging, removeGhost, onDragEnd, pad.id]);
+  }, [removeGhost, onDragEnd, pad.id]);
 
   useEffect(() => {
     if (isDragging) {
@@ -181,6 +188,14 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   };
 
   const isReady = !!thumbnail ? isPlayerReady : true;
+
+  // if (pad.id === 'a1') {
+  //   log.debug('render', pad.id, {
+  //     isReady,
+  //     isPlayerReady,
+  //     thumbnail: !!thumbnail
+  //   });
+  // }
 
   return (
     <div

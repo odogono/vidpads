@@ -5,6 +5,8 @@ import { useMemo } from 'react';
 import { createLog } from '@helpers/log';
 import { usePadsExtended } from '@model/hooks/usePads';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY_METADATA } from '../../model/constants';
 import { PlayerProps } from './types';
 
 const log = createLog('player/usePlayers');
@@ -13,6 +15,7 @@ type PlayersResult = [string, PlayerProps[]];
 
 export const usePlayers = () => {
   const { isReady, pads, padsWithMedia, urlToMetadata } = usePadsExtended();
+  const queryClient = useQueryClient();
 
   const [padUrlStr, players] = useMemo<PlayersResult>(() => {
     log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
@@ -26,7 +29,12 @@ export const usePlayers = () => {
 
       const media = urlToMetadata?.get(url);
       if (!media) {
-        log.debug('[usePlayers] no media:', pad.id, media);
+        log.debug(
+          '[usePlayers] no media:',
+          pad.id,
+          media,
+          queryClient.getQueryData([QUERY_KEY_METADATA, url])
+        );
         return acc;
       }
 
