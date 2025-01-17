@@ -37,7 +37,7 @@ export const useMetadata = () => {
     queryKey: [QUERY_KEY_METADATA],
     queryFn: async () => {
       const metadata = isMounted ? await dbGetAllMediaMetaData() : [];
-      log.debug('queryFn', metadata.length, { isMounted });
+      // log.debug('queryFn', metadata.length, { isMounted });
 
       const urlToMetadata = new Map<string, Media>();
       metadata.forEach((m) => urlToMetadata.set(m.url, m));

@@ -18,12 +18,11 @@ export const usePlayers = () => {
   const { isReady, pads, padsWithMedia, urlToMetadata } = usePadsExtended();
   const queryClient = useQueryClient();
 
-  const padsRef = useRef<Pad[]>([]);
   const playersRef = useRef<PlayerProps[]>([]);
   const padUrlStrRef = useRef<string>('');
 
-  const [padUrlStr, players] = useMemo<PlayersResult>(() => {
-    log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
+  useMemo<PlayersResult>(() => {
+    // log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
     const result = padsWithMedia.reduce((acc, pad) => {
       const url = getPadSourceUrl(pad);
       if (!isReady || !url) {
@@ -42,11 +41,6 @@ export const usePlayers = () => {
         );
         return acc;
       }
-
-      // let interval = getPadStartAndEndTime(pad);
-      // if (!interval) {
-      //   interval = { start: 0, end: media.duration };
-      // }
 
       const id = `player-${pad.id}`;
 
@@ -68,7 +62,7 @@ export const usePlayers = () => {
       .join(', ');
 
     if (padUrlStr !== padUrlStrRef.current) {
-      padsRef.current = padsWithMedia;
+      // padsRef.current = padsWithMedia;
       playersRef.current = result;
       padUrlStrRef.current = padUrlStr;
     }
@@ -77,7 +71,7 @@ export const usePlayers = () => {
   }, [padsWithMedia, isReady, urlToMetadata, queryClient]);
 
   return {
-    pads: padsRef.current,
+    pads,
     padUrlStr: padUrlStrRef.current,
     players: playersRef.current
   };
