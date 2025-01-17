@@ -29,6 +29,9 @@ export default {
       animation: {
         'pad-pulse': 'pad-pulse 1s ease-in-out infinite',
         'opacity-pulse': 'opacity-pulse 1s ease-in-out infinite'
+      },
+      minHeight: {
+        '1/2': '50%'
       }
     }
   },

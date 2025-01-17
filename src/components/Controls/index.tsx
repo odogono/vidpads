@@ -47,7 +47,7 @@ export const ControlsLoaded = () => {
 
   if (!selectedPadId) {
     return (
-      <Card className='mt-4 w-[800px] h-[130px] mx-auto bg-gray-800'>
+      <Card className='mt-4 w-full min-h-[8vh] bg-gray-800'>
         <CardHeader className='flex justify-between items-center'>
           <h3 className='font-semibold text-foreground/90'>No Pad Selected</h3>
         </CardHeader>
@@ -56,7 +56,7 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <Card className='mt-4 w-auto max-w-2xl h-[130px] mx-auto bg-gray-800'>
+    <Card className='mt-4 min-h-[8vh] bg-gray-800'>
       <CardHeader className='flex justify-between items-center'>
         <div className='flex items-center gap-2'>
           <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>

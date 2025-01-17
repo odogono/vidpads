@@ -22,7 +22,7 @@ export const PadContainer = () => {
   } = useHelpers();
 
   return (
-    <div className='mt-4 w-auto mx-auto'>
+    <div id='pad-container' className='flex mt-4 w-full flex-grow bg-red-800'>
       <input
         type='file'
         ref={fileInputRef}
@@ -30,11 +30,19 @@ export const PadContainer = () => {
         accept={ACCEPTED_FILE_TYPES.join(',')}
         onChange={handleFileSelect}
       />
-      <div className='grid grid-cols-4 landscape:grid-cols-8 gap-4 p-8'>
-        {pads.map((pad) => (
+      <div className='grid grid-cols-4 landscape:grid-cols-8 gap-4 p-8 w-full h-full'>
+        {/* {pads.map((pad) => (
           <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
             <PadComponent pad={pad} onEmptyPadTouch={handlePadTouch} />
           </Suspense>
+        ))} */}
+
+        {pads.map((pad) => (
+          <div key={pad.id} className='w-full h-full min-h-[4vh]'>
+            <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
+              <PadComponent pad={pad} onEmptyPadTouch={handlePadTouch} />
+            </Suspense>
+          </div>
         ))}
       </div>
       <SelectSourceModal

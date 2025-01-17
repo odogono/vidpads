@@ -12,9 +12,8 @@ import { LoadingSuspense } from '../../components/Loading';
 const Player = () => {
   return (
     <LoadingSuspense>
-      <NextUIProvider>
+      <NextUIProvider disableAnimation className='w-full h-full flex flex-col'>
         <QueryClientContextProvider>
-          {/* <FFmpegProvider> */}
           <EventsProvider>
             <KeyboardProvider>
               <LoadingSuspense message='Loading store...'>
@@ -24,7 +23,6 @@ const Player = () => {
               </LoadingSuspense>
             </KeyboardProvider>
           </EventsProvider>
-          {/* </FFmpegProvider> */}
         </QueryClientContextProvider>
       </NextUIProvider>
     </LoadingSuspense>

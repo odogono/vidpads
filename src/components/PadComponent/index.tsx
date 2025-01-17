@@ -202,7 +202,7 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
       ref={elementRef}
       key={pad.id}
       className={`
-          aspect-square rounded-lg cursor-pointer transition-all relative
+          w-full h-full rounded-lg cursor-pointer transition-all relative
           ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
           ${isReady ? 'opacity-100' : 'opacity-20'}
@@ -215,12 +215,13 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
       {...dragProps}
     >
       {thumbnail && (
-        // next/image needs a width and height
-        <img
-          src={thumbnail}
-          alt={`Thumbnail for pad ${pad.id}`}
-          className='w-full h-full object-cover rounded-lg'
-        />
+        <div className='w-full h-full absolute inset-0 rounded-lg'>
+          <img
+            src={thumbnail}
+            alt={`Thumbnail for pad ${pad.id}`}
+            className='object-cover w-full h-full rounded-lg'
+          />
+        </div>
       )}
       <span
         className={`

@@ -7,7 +7,10 @@ export const BinComponent = () => {
   const isDraggingOver = dragOverId === 'bin';
 
   return (
-    <div className='absolute left-1/2 -translate-x-1/2 top-[420px] z-50'>
+    <div
+      id='bin-container'
+      className='absolute left-1/2 -translate-x-1/2 top-[420px] z-50'
+    >
       <div
         className={`
         w-[400px] h-[200px] rounded-lg cursor-pointer relative

@@ -14,39 +14,44 @@ export const Main = () => {
 
   return (
     <PadDnDProvider>
-      <div className='min-h-screen text-white dark text-foreground bg-background'>
-        <header className='flex justify-end p-4 max-w-6xl mx-auto'>
+      <div
+        id='player-main'
+        className={`w-full h-full text-white dark text-foreground flex flex-col ${
+          isFullscreen ? 'p-0' : 'p-8'
+        }`}
+      >
+        <header
+          className={`flex justify-end p-4 w-full mx-auto ${isFullscreen ? 'hidden' : ''}`}
+        >
           <MenuButton />
         </header>
-        <div className={`${isFullscreen ? 'p-0' : ' mx-auto px-4'}`}>
-          <div
-            className={`relative ${isFullscreen ? 'w-screen h-screen' : 'w-auto mx-auto'}`}
-          >
-            <div
-              className={`relative transition-all ${
-                isFullscreen ? 'w-full h-full' : 'min-h-[480px] bg-red-500'
-              } overflow-hidden`}
-            >
-              <PlayerContainer />
-            </div>
 
-            {/* Fullscreen toggle button */}
-            <FullScreenButton
-              isFullscreen={isFullscreen}
-              setIsFullscreen={setFullscreen}
-            />
+        <div
+          id='fullscreen-wrapper'
+          className={`relative ${
+            isFullscreen ? 'fixed inset-0 w-screen h-screen z-50' : 'flex-1'
+          }`}
+        >
+          <div
+            id='player-wrapper'
+            className='relative w-full h-full overflow-hidden'
+          >
+            <PlayerContainer />
           </div>
 
-          {!isFullscreen && (
-            <>
-              <BinComponent />
-
-              <Controls />
-
-              <PadContainer />
-            </>
-          )}
+          <FullScreenButton
+            isFullscreen={isFullscreen}
+            setIsFullscreen={setFullscreen}
+          />
         </div>
+
+        {!isFullscreen && (
+          <>
+            <BinComponent />
+            <Controls />
+            <PadContainer />
+          </>
+        )}
       </div>
     </PadDnDProvider>
   );
