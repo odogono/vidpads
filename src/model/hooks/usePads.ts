@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
 import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
+import { Interval } from '../types';
 import { useMetadata } from './useMetadata';
 
 const log = createLog('model/usePads');
@@ -45,52 +46,6 @@ export const usePadsExtended = () => {
     [pads]
   );
 
-  log.debug('[usePadsExtended] padsWithMedia:', padsWithMedia.length);
-
-  // const padSourceUrls = useMemo(
-  //   () =>
-  //     Array.from(
-  //       new Set(
-  //         padsWithMedia
-  //           .map((pad) => getPadSourceUrl(pad))
-  //           .filter(Boolean) as string[]
-  //       )
-  //     ),
-  //   [padsWithMedia]
-  // );
-
-  // for each media url, get a list of start and end times
-  // const mediaIntervals = useMemo(() => {
-  //   const urlToIntervals = padsWithMedia.reduce(
-  //     (acc, pad) => {
-  //       const url = getPadSourceUrl(pad);
-  //       if (!url) return acc;
-  //       let interval = getPadStartAndEndTime(pad);
-  //       if (!interval) {
-  //         const media = urlToMetadata?.get(url);
-  //         if (!media) return acc;
-  //         const { duration } = media;
-  //         interval = { start: 0, end: duration };
-  //       }
-  //       const existing = acc[url] ?? new Set<string>();
-  //       existing.add(JSON.stringify(interval));
-  //       acc[url] = existing;
-  //       return acc;
-  //     },
-  //     {} as { [key: string]: Set<string> }
-  //   );
-
-  //   const result = Object.entries(urlToIntervals).reduce(
-  //     (acc, [url, intervals]) => {
-  //       acc[url] = Array.from(intervals).map((str) => JSON.parse(str));
-  //       return acc;
-  //     },
-  //     {} as { [key: string]: Interval[] }
-  //   );
-
-  //   return result;
-  // }, [padsWithMedia, urlToMetadata]);
-
   return {
     isReady,
     pads,
@@ -100,5 +55,24 @@ export const usePadsExtended = () => {
     selectedPadStartAndEndTime,
     urlToMetadata
     // mediaIntervals
+  };
+};
+
+export const usePadDetails = () => {
+  const { store } = useStore();
+
+  const getPadInterval = useCallback(
+    (padId: string): Interval | undefined => {
+      const pad = store
+        .getSnapshot()
+        .context.pads.find((pad) => pad.id === padId);
+      if (!pad) return undefined;
+      return getPadStartAndEndTime(pad);
+    },
+    [store]
+  );
+
+  return {
+    getPadInterval
   };
 };

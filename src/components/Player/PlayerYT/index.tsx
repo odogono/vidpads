@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useRenderingTrace } from '@hooks/useRenderingTrace';
+import { MediaYouTube } from '@model/types';
 import { PlayerPlay, PlayerProps, PlayerSeek, PlayerStop } from '../types';
 import { PlayerStateToString } from './helpers';
 import { PlayerState } from './types';
@@ -10,20 +12,21 @@ import { destroyPlayer, initializePlayer } from './youtube';
 
 const log = createLog('player/yt');
 
-export const PlayerYT = ({
-  media,
-  mediaUrl,
-  interval,
-  padId: playerPadId
-}: PlayerProps) => {
+export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const events = useEvents();
   const containerRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
   const isLoopedRef = useRef(false);
   const playerRef = useRef<YTPlayer | null>(null);
+  const mediaUrl = media.url;
+  const { videoId } = media as MediaYouTube;
 
-  const { id: videoId } = media;
+  useRenderingTrace('PlayerYT', {
+    media,
+    mediaUrl,
+    playerPadId
+  });
 
   const playVideo = useCallback(
     ({ url, padId, start, end, isLoop, volume }: PlayerPlay) => {
@@ -85,7 +88,7 @@ export const PlayerYT = ({
   );
 
   const seekVideo = useCallback(
-    ({ url, time, inProgress, requesterId, padId }: PlayerSeek) => {
+    ({ url, time, inProgress, padId }: PlayerSeek) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
@@ -95,11 +98,11 @@ export const PlayerYT = ({
       // and then set it to true again after the seek is complete
       const allowSeekAhead = !inProgress;
       try {
-        log.debug('[seekVideo]', {
-          time,
-          allowSeekAhead,
-          requesterId
-        });
+        // log.debug('[seekVideo]', {
+        //   time,
+        //   allowSeekAhead,
+        //   requesterId
+        // });
         player.seekTo(time, allowSeekAhead);
       } catch {
         // todo - caused by another play request coming in while the player is still loading
@@ -121,7 +124,6 @@ export const PlayerYT = ({
     onPlayerStateChange,
     onPlayerError
   } = usePlayerYTEvents({
-    interval,
     mediaUrl,
     padId: playerPadId,
     isLoopedRef,

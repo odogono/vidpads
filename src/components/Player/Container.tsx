@@ -132,7 +132,7 @@ export const PlayerContainer = () => {
   }, []);
 
   const handlePlayerSeek = useCallback((e: PlayerSeek) => {
-    log.debug('❤️ player:seek', e);
+    // log.debug('❤️ player:seek', e);
 
     showPlayer(e.padId);
   }, []);
@@ -189,7 +189,7 @@ export const PlayerContainer = () => {
     store,
     padUrlStr
   });
-  log.debug('pads:', padUrlStr);
+  // log.debug('pads:', padUrlStr);
 
   return (
     <>

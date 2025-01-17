@@ -4,7 +4,9 @@ import { extractVideoThumbnailFromVideo } from '@helpers/canvas';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
-import { MediaVideo } from '@model/types';
+import { usePadDetails } from '@model/hooks/usePads';
+import { Interval, MediaVideo } from '@model/types';
+import { getPadStartAndEndTime } from '../../model/pad';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,
@@ -22,17 +24,17 @@ export const LocalPlayer = ({
   id,
   padId: playerPadId,
   showControls,
-  media,
-  mediaUrl,
-  interval
+  media
 }: LocalPlayerProps) => {
   const events = useEvents();
+  const { getPadInterval } = usePadDetails();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const readyCallbackRef = useRef<(() => void) | null>(null);
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
   const isLoopedRef = useRef(false);
   const isPlayingRef = useRef(false);
+  const mediaUrl = media.url;
 
   useVideoLoader(media as MediaVideo, videoRef);
 
@@ -177,11 +179,17 @@ export const LocalPlayer = ({
 
   // runs on mount to set the initial value
   useEffect(() => {
-    if (!videoRef.current) return;
-    if (!interval || interval.start === -1) return;
-    // log.debug('useEffect setting initialTime', id, initialTime);
-    videoRef.current.currentTime = interval.start;
-  }, [id, interval]);
+    const video = videoRef.current;
+    if (!video) return;
+
+    // set the initial interval
+    const interval = getPadInterval(playerPadId) ?? {
+      start: 0,
+      end: video.duration
+    };
+
+    video.currentTime = interval.start;
+  }, [getPadInterval, id, playerPadId]);
 
   // Add loadedmetadata event listener
   useEffect(() => {
