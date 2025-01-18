@@ -35,12 +35,6 @@ export type SetPadMediaAction = {
   media: Media;
 };
 
-export type ApplyFileToPadAction = {
-  type: 'applyFileToPad';
-  padId: string;
-  file: File;
-};
-
 export type ApplyPadDropAction = {
   type: 'applyPadDrop';
   sourcePadId: string;
@@ -122,7 +116,6 @@ export type Actions =
   | UpdateStartTimeAction
   | UpdatePadSourceAction
   | SetPadMediaAction
-  | ApplyFileToPadAction
   | ApplyPadDropAction
   | ClearPadAction
   | CopyPadAction

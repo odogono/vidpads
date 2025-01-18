@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
@@ -26,7 +27,7 @@ export const viewport: Viewport = {
   userScalable: false
 };
 
-export const RootLayout = ({
+const RootLayout = ({
   children
 }: Readonly<{
   children: React.ReactNode;

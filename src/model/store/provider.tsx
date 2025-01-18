@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-import { getObjectDiff, isObjectEqual } from '@helpers/diff';
+import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
 import {
   isIndexedDBSupported,

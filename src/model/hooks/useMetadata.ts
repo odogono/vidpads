@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -16,7 +16,6 @@ import {
 } from '@tanstack/react-query';
 import { getYoutubeUrlFromMedia } from '../../helpers/youtube';
 import { QUERY_KEY_METADATA } from '../constants';
-import { getMediaIdFromUrl } from '../helpers';
 import { Media } from '../types';
 
 const log = createLog('model/useMetadata');

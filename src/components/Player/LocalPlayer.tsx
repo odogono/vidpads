@@ -5,8 +5,7 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { usePadDetails } from '@model/hooks/usePads';
-import { Interval, MediaVideo } from '@model/types';
-import { getPadStartAndEndTime } from '../../model/pad';
+import { MediaVideo } from '@model/types';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,

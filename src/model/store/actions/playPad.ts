@@ -1,4 +1,3 @@
-import { getPadSourceUrl } from '@model/pad';
 import { Emit, PlayPadAction, StoreContext } from '@model/store/types';
 
 export const playPad = (
@@ -12,8 +11,6 @@ export const playPad = (
   if (!pad) {
     return context;
   }
-
-  const url = getPadSourceUrl(pad) ?? '';
 
   emit({ type: 'playPad', pad });
 

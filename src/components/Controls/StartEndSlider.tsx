@@ -5,7 +5,7 @@ import { useCallback, useEffect } from 'react';
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
@@ -21,7 +21,7 @@ export interface StartEndSliderProps {
   selectedPadId?: string;
 }
 
-const log = createLog('StartEndSlider');
+// const log = createLog('StartEndSlider');
 
 export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
   const events = useEvents();

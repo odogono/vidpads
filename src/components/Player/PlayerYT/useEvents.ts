@@ -3,7 +3,6 @@ import { RefObject, useCallback, useEffect, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadDetails } from '@model/hooks/usePads';
-import { Interval } from '@model/types';
 import {
   PlayerEvent,
   PlayerExtractThumbnail,

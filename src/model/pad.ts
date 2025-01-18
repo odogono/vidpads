@@ -1,5 +1,4 @@
 import {
-  Duration,
   Interval,
   Operation,
   OperationExport,

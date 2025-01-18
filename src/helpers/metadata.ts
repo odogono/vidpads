@@ -1,5 +1,5 @@
 import { createLog } from '@helpers/log';
-import type { Media, MediaImage, MediaVideo, MediaYouTube } from '@model/types';
+import type { Media, MediaImage, MediaVideo } from '@model/types';
 import { generateFileId } from './file';
 import { getYouTubeMetadata, isYouTubeUrl } from './youtube';
 

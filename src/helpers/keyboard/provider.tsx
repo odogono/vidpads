@@ -3,7 +3,7 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { KeyboardContext } from './context';
 
 const KEY_PAD_MAP = {
@@ -25,7 +25,7 @@ const KEY_PAD_MAP = {
   KeyV: 'a16'
 };
 
-const log = createLog('keyboard');
+// const log = createLog('keyboard');
 
 export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();

@@ -6,7 +6,6 @@ import { createLog } from '@helpers/log';
 import { QUERY_KEY_METADATA } from '@model/constants';
 import { usePadsExtended } from '@model/hooks/usePads';
 import { getPadSourceUrl } from '@model/pad';
-import { Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { PlayerProps } from './types';
 

@@ -173,16 +173,18 @@ const getDescription = (file: File): Promise<Uint8Array> => {
   return new Promise((resolve, reject) => {
     const mp4boxfile = MP4Box.createFile() as MP4File;
 
-    mp4boxfile.onError = (error) => reject(error);
+    mp4boxfile.onError = (error: unknown) => reject(error);
 
     mp4boxfile.onReady = (info: MP4Info) => {
-      const videoTrack = info.tracks.find((track) => track.type === 'video');
+      const videoTrack = info.tracks.find(
+        (track: { type: string }) => track.type === 'video'
+      );
       if (!videoTrack) {
         reject(new Error('No video track found'));
         return;
       }
 
-      const trak = (mp4boxfile as any).getTrackById(videoTrack.id);
+      const trak = (mp4boxfile as MP4File).getTrackById(videoTrack.id);
       log.debug('Got video track', {
         id: videoTrack.id,
         codec: videoTrack.codec,
@@ -230,67 +232,72 @@ const getDescription = (file: File): Promise<Uint8Array> => {
   });
 };
 
-const extractFrameAlt = async (
-  file: File,
-  frameTime: string
-): Promise<EncodedVideoChunk[]> =>
-  new Promise(async (resolve, reject) => {
-    const timestamp = timeStringToSeconds(frameTime);
-    const mp4boxfile = MP4Box.createFile();
-    const videoArrayBuffer = await readFile(file);
+// const extractFrameAlt = async (
+//   file: File,
+//   frameTime: string
+// ): Promise<EncodedVideoChunk[]> =>
+//   new Promise(async (resolve, reject) => {
+//     const timestamp = timeStringToSeconds(frameTime);
+//     const mp4boxfile = MP4Box.createFile();
+//     const videoArrayBuffer = await readFile(file);
 
-    mp4boxfile.onReady = async (info) => {
-      const videoTrack = info.videoTracks[0];
-      const timescale = videoTrack.timescale;
-      const timeMapping = timestamp * timescale;
+//     mp4boxfile.onReady = async (info: MP4Info) => {
+//       const videoTrack = info.videoTracks[0];
+//       const timescale = videoTrack.timescale;
+//       const timeMapping = timestamp * timescale;
 
-      mp4boxfile.start();
-      const samples = mp4boxfile.getTrackSamplesInfo(videoTrack.id);
+//       mp4boxfile.start();
+//       const samples = mp4boxfile.getTrackSamplesInfo(videoTrack.id);
 
-      let start = 0;
-      let end = 0;
-      for (let i = 0; i < samples.length; i += 1) {
-        const si = samples[i];
-        if (si.cts <= timeMapping && si.timeEnd >= timeMapping) {
-          end = i;
+//       let start = 0;
+//       let end = 0;
+//       for (let i = 0; i < samples.length; i += 1) {
+//         const si = samples[i];
+//         if (si.cts <= timeMapping && si.timeEnd >= timeMapping) {
+//           end = i;
 
-          if (!si.is_sync) {
-            for (let j = i - 1; j >= 0; j -= 1) {
-              const sj = samples[j];
-              if (sj.is_sync) {
-                start = j;
-                break;
-              }
-            }
-          }
-          break;
-        }
-      }
+//           if (!si.is_sync) {
+//             for (let j = i - 1; j >= 0; j -= 1) {
+//               const sj = samples[j];
+//               if (sj.is_sync) {
+//                 start = j;
+//                 break;
+//               }
+//             }
+//           }
+//           break;
+//         }
+//       }
 
-      const chunks = await Promise.all(
-        samples.slice(start, end + 1).map(
-          async (sample) =>
-            new EncodedVideoChunk({
-              type: sample.is_sync ? 'key' : 'delta',
-              timestamp: (sample.cts * 1000000) / timescale,
-              duration: (sample.duration * 1000000) / timescale,
-              data: sample.data
-            })
-        )
-      );
-      if (chunks.length === 0) return resolve([]);
-      resolve(chunks);
-    };
+//       const chunks = await Promise.all(
+//         samples.slice(start, end + 1).map(
+//           async (sample: {
+//             is_sync: boolean;
+//             cts: number;
+//             duration: number;
+//             data: ArrayBuffer;
+//           }) =>
+//             new EncodedVideoChunk({
+//               type: sample.is_sync ? 'key' : 'delta',
+//               timestamp: (sample.cts * 1000000) / timescale,
+//               duration: (sample.duration * 1000000) / timescale,
+//               data: sample.data
+//             })
+//         )
+//       );
+//       if (chunks.length === 0) return resolve([]);
+//       resolve(chunks);
+//     };
 
-    //
+//     //
 
-    mp4boxfile.onError = (error) => {
-      reject(error);
-    };
+//     mp4boxfile.onError = (error: unknown) => {
+//       reject(error);
+//     };
 
-    mp4boxfile.appendBuffer(videoArrayBuffer);
-    mp4boxfile.flush();
-  });
+//     mp4boxfile.appendBuffer(videoArrayBuffer);
+//     mp4boxfile.flush();
+//   });
 
 const extractFrame = async (
   file: File,
@@ -301,7 +308,7 @@ const extractFrame = async (
     const mp4boxfile = MP4Box.createFile();
     const videoArrayBuffer = await readFile(file);
 
-    mp4boxfile.onReady = async (info) => {
+    mp4boxfile.onReady = async (info: MP4Info) => {
       const videoTrack = info.videoTracks[0];
       const timescale = videoTrack.timescale;
       const targetTime = timestamp * timescale;
@@ -334,10 +341,12 @@ const extractFrame = async (
 
       log.debug('foundSamples', start, end, samples.length);
 
-      const foundSamples = samples.slice(start, end + 1).map((sample) => {
-        log.debug('neededSample', sample.cts);
-        return sample;
-      });
+      // const foundSamples = samples
+      //   .slice(start, end + 1)
+      //   .map((sample: { cts: number }) => {
+      //     log.debug('neededSample', sample.cts);
+      //     return sample;
+      //   });
 
       // Binary search to find the closest sample
       let left = 0;
@@ -380,7 +389,16 @@ const extractFrame = async (
 
       let endFound = false;
 
-      mp4boxfile.onSamples = (track_id, ref, chunkSamples) => {
+      mp4boxfile.onSamples = (
+        track_id: number,
+        ref: unknown,
+        chunkSamples: {
+          cts: number;
+          duration: number;
+          data: ArrayBuffer;
+          is_sync: boolean;
+        }[]
+      ) => {
         if (currentChunk === startChunk && !endFound) {
           // Collect all samples from keyframe to target
           const startOffset = keyframeIndex % CHUNK_SIZE;
@@ -418,7 +436,7 @@ const extractFrame = async (
       mp4boxfile.start();
     };
 
-    mp4boxfile.onError = (error) => {
+    mp4boxfile.onError = (error: unknown) => {
       reject(error);
     };
 
@@ -426,119 +444,134 @@ const extractFrame = async (
     mp4boxfile.flush();
   });
 
-const extractKeyframe = async (
-  file: File,
-  frameTime: string
-): Promise<ArrayBuffer> => {
-  return new Promise((resolve, reject) => {
-    const mp4boxfile = MP4Box.createFile() as MP4File;
-    const targetTimeSeconds = timeStringToSeconds(frameTime);
-    let bestSample: any = null;
-    let bestTimeDiff = Infinity;
+// const extractKeyframe = async (
+//   file: File,
+//   frameTime: string
+// ): Promise<ArrayBuffer> => {
+//   return new Promise((resolve, reject) => {
+//     const mp4boxfile = MP4Box.createFile() as MP4File;
+//     const targetTimeSeconds = timeStringToSeconds(frameTime);
+//     let bestSample: any = null;
+//     let bestTimeDiff = Infinity;
 
-    mp4boxfile.onError = (error) => reject(error);
+//     mp4boxfile.onError = (error: unknown) => reject(error);
 
-    mp4boxfile.onReady = (info: MP4Info) => {
-      const videoTrack = info.tracks.find((track) => track.type === 'video');
-      if (!videoTrack) {
-        reject(new Error('No video track found'));
-        return;
-      }
+//     mp4boxfile.onReady = (info: MP4Info) => {
+//       const videoTrack = info.tracks.find((track) => track.type === 'video');
+//       if (!videoTrack) {
+//         reject(new Error('No video track found'));
+//         return;
+//       }
 
-      const timescale = videoTrack.timescale;
-      const targetTime = Math.floor(targetTimeSeconds * timescale);
+//       const timescale = videoTrack.timescale;
+//       const targetTime = Math.floor(targetTimeSeconds * timescale);
 
-      // Request a segment around our target time
-      // Look at samples from 2 seconds before to 2 seconds after our target
-      const segmentStart = Math.max(0, targetTime - 2 * timescale);
-      const segmentDuration = 4 * timescale;
+//       // Request a segment around our target time
+//       // Look at samples from 2 seconds before to 2 seconds after our target
+//       const segmentStart = Math.max(0, targetTime - 2 * timescale);
+//       const segmentDuration = 4 * timescale;
 
-      log.debug('Extracting segment', {
-        targetTime,
-        targetSeconds: targetTimeSeconds,
-        segmentStart,
-        segmentDuration,
-        timescale
-      });
+//       log.debug('Extracting segment', {
+//         targetTime,
+//         targetSeconds: targetTimeSeconds,
+//         segmentStart,
+//         segmentDuration,
+//         timescale
+//       });
 
-      mp4boxfile.setSegmentOptions(videoTrack.id, null, {
-        nbSamples: 0, // Get all samples in range
-        rapAlignement: true, // Align to keyframes
-        duration: segmentDuration
-      });
+//       mp4boxfile.setSegmentOptions(videoTrack.id, null, {
+//         nbSamples: 0, // Get all samples in range
+//         rapAlignement: true, // Align to keyframes
+//         duration: segmentDuration
+//       });
 
-      mp4boxfile.initializeSegmentation();
+//       mp4boxfile.initializeSegmentation();
 
-      mp4boxfile.onSegment = (id, user, buffer, sampleNum, isLast) => {
-        log.debug('Got segment', { id, sampleNum, isLast });
+//       mp4boxfile.onSegment = (
+//         id: number,
+//         user: unknown,
+//         buffer: ArrayBuffer,
+//         sampleNum: number,
+//         isLast: boolean
+//       ) => {
+//         log.debug('Got segment', { id, sampleNum, isLast });
 
-        // Extract samples from the segment
-        mp4boxfile.setExtractionOptions(videoTrack.id, null, {
-          nbSamples: 0 // Get all samples
-        });
-        mp4boxfile.start();
-      };
+//         // Extract samples from the segment
+//         mp4boxfile.setExtractionOptions(videoTrack.id, null, {
+//           nbSamples: 0 // Get all samples
+//         });
+//         mp4boxfile.start();
+//       };
 
-      mp4boxfile.onSamples = (trackId, user, samples) => {
-        log.debug('Got samples', samples.length);
+//       mp4boxfile.onSamples = (
+//         trackId: number,
+//         user: unknown,
+//         samples: {
+//           cts: number;
+//           duration: number;
+//           data: ArrayBuffer;
+//           is_sync: boolean;
+//         }[]
+//       ) => {
+//         log.debug('Got samples', samples.length);
 
-        // Find the keyframe closest to our target time
-        for (const sample of samples) {
-          if (!sample.is_sync) continue;
+//         // Find the keyframe closest to our target time
+//         for (const sample of samples) {
+//           if (!sample.is_sync) continue;
 
-          const sampleTimeSeconds = sample.cts / timescale;
-          const timeDiff = Math.abs(sampleTimeSeconds - targetTimeSeconds);
+//           const sampleTimeSeconds = sample.cts / timescale;
+//           const timeDiff = Math.abs(sampleTimeSeconds - targetTimeSeconds);
 
-          log.debug('Found keyframe', {
-            time: sampleTimeSeconds,
-            diff: timeDiff,
-            cts: sample.cts,
-            is_sync: sample.is_sync
-          });
+//           log.debug('Found keyframe', {
+//             time: sampleTimeSeconds,
+//             diff: timeDiff,
+//             cts: sample.cts,
+//             is_sync: sample.is_sync
+//           });
 
-          if (timeDiff < bestTimeDiff) {
-            bestTimeDiff = timeDiff;
-            bestSample = sample;
-          }
-        }
+//           if (timeDiff < bestTimeDiff) {
+//             bestTimeDiff = timeDiff;
+//             bestSample = sample;
+//           }
+//         }
 
-        if (bestSample) {
-          log.debug('Selected keyframe', {
-            time: bestSample.cts / timescale,
-            targetTime: targetTimeSeconds,
-            diff: bestTimeDiff,
-            size: bestSample.data.byteLength
-          });
+//         if (bestSample) {
+//           log.debug('Selected keyframe', {
+//             time: bestSample.cts / timescale,
+//             targetTime: targetTimeSeconds,
+//             diff: bestTimeDiff,
+//             size: bestSample.data.byteLength
+//           });
 
-          resolve(bestSample.data);
-          mp4boxfile.stop();
-        }
-      };
+//           resolve(bestSample.data);
+//           mp4boxfile.stop();
+//         }
+//       };
 
-      // Start segmentation from our desired point
-      mp4boxfile.seek(segmentStart, true);
-      mp4boxfile.start();
-    };
+//       // Start segmentation from our desired point
+//       mp4boxfile.seek(segmentStart, true);
+//       mp4boxfile.start();
+//     };
 
-    // Read the file
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (!e.target?.result) {
-        reject(new Error('Failed to read file'));
-        return;
-      }
-      const arrayBuffer = e.target.result as ArrayBuffer;
+//     // Read the file
+//     const reader = new FileReader();
+//     reader.onload = (e) => {
+//       if (!e.target?.result) {
+//         reject(new Error('Failed to read file'));
+//         return;
+//       }
+//       const arrayBuffer = e.target.result as ArrayBuffer;
 
-      // Create a proper MP4ArrayBuffer
-      const buffer = arrayBuffer as MP4ArrayBuffer;
-      buffer.fileStart = 0;
+//       // Create a proper MP4ArrayBuffer
+//       const buffer = arrayBuffer as MP4ArrayBuffer;
+//       buffer.fileStart = 0;
 
-      mp4boxfile.appendBuffer(buffer);
-      mp4boxfile.flush();
-    };
-    reader.readAsArrayBuffer(file);
-  });
-};
+//       mp4boxfile.appendBuffer(buffer);
+//       mp4boxfile.flush();
+//     };
+//     reader.readAsArrayBuffer(file);
+//   });
+// };
 
 const readFile = async (file: File): Promise<MP4ArrayBuffer> => {
   return new Promise((resolve, reject) => {

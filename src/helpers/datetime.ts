@@ -1,8 +1,8 @@
 import { formatDistanceToNow } from 'date-fns';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 
-const log = createLog('datetime');
+// const log = createLog('datetime');
 
 export const parseISO8601Duration = (duration: string) => {
   // Handle the case of empty or invalid input

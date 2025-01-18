@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
@@ -51,15 +52,12 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     }
   }, [isDragging, removeGhost]);
 
-  const handleTouchStart = useCallback(
-    (e: GeneralTouchEvent) => {
-      if (isPlayerReady) {
-        events.emit('pad:touchdown', { padId: pad.id });
-      }
-      setSelectedPadId(pad.id);
-    },
-    [events, pad, setSelectedPadId, isPlayerReady]
-  );
+  const handleTouchStart = useCallback(() => {
+    if (isPlayerReady) {
+      events.emit('pad:touchdown', { padId: pad.id });
+    }
+    setSelectedPadId(pad.id);
+  }, [events, pad, setSelectedPadId, isPlayerReady]);
 
   const handleTouchMove = useCallback(
     (e: GeneralTouchEvent) => {
@@ -111,8 +109,9 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
       e.dataTransfer.effectAllowed = 'move';
 
       // Use the empty canvas as the drag image
-      e.dataTransfer.setDragImage(dragImage, 0, 0);
-
+      if (dragImage) {
+        e.dataTransfer.setDragImage(dragImage, 0, 0);
+      }
       createGhost(e, elementRef.current!);
 
       onDragStart(pad.id);

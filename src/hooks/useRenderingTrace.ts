@@ -25,15 +25,18 @@ const log = createLog('');
  */
 export const useRenderingTrace = (
   componentName: string,
-  propsAndStates: any,
+  propsAndStates: Record<string, unknown>,
   level: 'debug' | 'info' | 'log' = 'debug'
 ) => {
   const prev = useRef(propsAndStates);
 
   useEffect(() => {
-    const changedProps: { [key: string]: { old: any; new: any } } =
+    const changedProps: { [key: string]: { old: unknown; new: unknown } } =
       Object.entries(propsAndStates).reduce(
-        (property: any, [key, value]: [string, any]) => {
+        (
+          property: Record<string, { old: unknown; new: unknown }>,
+          [key, value]: [string, unknown]
+        ) => {
           if (prev.current[key] !== value) {
             property[key] = {
               old: prev.current[key],

@@ -2,14 +2,14 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
 import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
 import { Interval } from '../types';
 import { useMetadata } from './useMetadata';
 
-const log = createLog('model/usePads');
+// const log = createLog('model/usePads');
 
 export const usePads = () => {
   const { store, isReady } = useStore();

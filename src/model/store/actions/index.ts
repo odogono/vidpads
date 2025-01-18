@@ -1,4 +1,4 @@
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { OperationType, Pad } from '@model/types';
 import type {
   Emit,
@@ -12,9 +12,8 @@ import type {
 } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
-const log = createLog('store/actions');
+// const log = createLog('store/actions');
 
-export { applyFileToPad } from './applyFileToPad';
 export { clearPad } from './clearPad';
 export { copyPad } from './copyPad';
 export { playPad } from './playPad';

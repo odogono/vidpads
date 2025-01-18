@@ -30,12 +30,6 @@ const log = createLog('db/api');
 const DB_NAME = 'vidpads';
 const DB_VERSION = 2;
 
-// At the top of the file, define store names as const arrays
-const PROJECT_STORES = ['projects'] as const;
-const MEDIA_STORES = ['metadata', 'thumbnails'] as const;
-const VIDEO_STORES = ['videoChunks', 'metadata', 'thumbnails'] as const;
-const IMAGE_STORES = ['images', 'metadata', 'thumbnails'] as const;
-
 export const useDBStore = () => {
   return useSuspenseQuery({
     queryKey: [QUERY_KEY_STATE],
