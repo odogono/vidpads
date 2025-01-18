@@ -272,8 +272,6 @@ export const updateMetadataDuration = async (
 ): Promise<void> => {
   const db = await openDB();
 
-  const id = getMediaIdFromUrl(mediaUrl);
-
   return new Promise((resolve, reject) => {
     const { metadata, transaction } = idbOpenTransaction(
       db,
@@ -281,11 +279,11 @@ export const updateMetadataDuration = async (
       'readwrite'
     );
 
-    if (!id) {
+    if (!mediaUrl) {
       reject(new Error(`Invalid media URL ${mediaUrl}`));
     }
 
-    const request = metadata.get(id!);
+    const request = metadata.get(mediaUrl);
 
     request.onsuccess = () => {
       const result = request.result;
@@ -296,6 +294,7 @@ export const updateMetadataDuration = async (
       }
       result.duration = duration;
       metadata.put(result);
+      // log.debug('updated duration', mediaUrl, result);
     };
 
     transaction.onerror = () => {
