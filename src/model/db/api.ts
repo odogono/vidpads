@@ -468,7 +468,7 @@ export const saveImageData = async (
   thumbnail: string
 ): Promise<void> => {
   const db = await openDB();
-  const { id } = media;
+  const { url: id } = media;
 
   // Convert File to ArrayBuffer for storage
   const arrayBuffer = await file.arrayBuffer();

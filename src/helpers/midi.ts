@@ -30,7 +30,7 @@ export const useMidiControls = () => {
   const activeNotes = useRef<Set<number>>(new Set());
 
   const handleMidiMessage = useCallback(
-    (message: WebMidi.MIDIMessageEvent) => {
+    (message: { data: number[] }) => {
       const [status, note, velocity] = message.data;
 
       // Note On event (144 = 0x90)
@@ -64,7 +64,9 @@ export const useMidiControls = () => {
 
       // Add handlers for all MIDI inputs
       midiAccess.inputs.forEach((input) => {
-        input.onmidimessage = handleMidiMessage;
+        input.onmidimessage = (ev: MIDIMessageEvent) => {
+          handleMidiMessage({ data: Array.from(ev.data || []) });
+        };
       });
 
       // Handle when MIDI devices are connected/disconnected
@@ -72,7 +74,9 @@ export const useMidiControls = () => {
         const port = e.port;
         if (port.type === 'input') {
           if (port.state === 'connected') {
-            port.onmidimessage = handleMidiMessage;
+            // port.onstatechange = (ev: MIDIMessageEvent) => {
+            //   handleMidiMessage({ data: Array.from(ev.data || []) });
+            // };
           }
         }
       };

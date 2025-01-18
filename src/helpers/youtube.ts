@@ -90,7 +90,6 @@ const fetchFromOEmbed = async (
   const data = await response.json();
 
   const metadata: MediaYouTube = {
-    id: videoId,
     url: 'vidpads://media/' + videoId,
     name: data.title,
     sizeInBytes: -1,

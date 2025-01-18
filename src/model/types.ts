@@ -82,6 +82,7 @@ export interface Media {
 
 export interface MediaImage extends Media {
   mimeType: ImageMimeType;
+  fileId: string;
 }
 
 export interface MediaVideo extends Media {

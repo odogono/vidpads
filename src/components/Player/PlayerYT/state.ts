@@ -160,11 +160,11 @@ const createStore = () => {
     },
     context: {
       state: PlayerYTState.UNINITIALIZED,
-      intervals: [],
+      intervals: [] as Interval[],
       playerId: '',
       intervalIndex: -1,
       playerState: PlayerState.UNSTARTED
-    },
+    } as StoreContext,
     on
   };
 

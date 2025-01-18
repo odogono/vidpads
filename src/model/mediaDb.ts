@@ -24,10 +24,14 @@ export const checkStorageQuota = async () => {
     const estimate = await navigator.storage.estimate();
 
     if (!estimate) {
-      throw new Error('Storage estimate not available');
+      throw new Error('Storage estimate not available (a)');
     }
 
     const { quota, usage } = estimate;
+
+    if (!quota || !usage) {
+      throw new Error('Storage estimate not available (b)');
+    }
 
     const availableSpace = quota - usage;
 

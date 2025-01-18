@@ -94,8 +94,8 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
     img.onload = () => {
       clearTimeout(timeoutId);
       const metadata: MediaImage = {
-        id: fileId,
         url: 'vidpads://media/' + fileId,
+        fileId,
         width: img.width,
         height: img.height,
         sizeInBytes: file.size,

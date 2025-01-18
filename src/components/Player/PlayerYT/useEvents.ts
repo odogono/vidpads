@@ -113,7 +113,7 @@ export const usePlayerYTEvents = ({
     (player: YTPlayer) => {
       // check the interval end time - its possible that it is invalid
       // and we need to set it to the video duration
-      if (interval.end === -1) {
+      if (interval && interval.end === -1) {
         interval.end = player.getDuration();
         events.emit('media:duration-update', {
           mediaUrl,
