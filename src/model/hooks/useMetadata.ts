@@ -20,6 +20,8 @@ import { Media } from '../types';
 
 const log = createLog('model/useMetadata');
 
+export type InternalToExternalUrlMap = Record<string, string>;
+
 export const useMetadata = () => {
   const events = useEvents();
   const queryClient = useQueryClient();
@@ -41,20 +43,17 @@ export const useMetadata = () => {
       const urlToMetadata = new Map<string, Media>();
       metadata.forEach((m) => urlToMetadata.set(m.url, m));
 
-      const urlToExternalUrl = metadata.reduce(
-        (acc, media) => {
-          if (isYouTubeMetadata(media)) {
-            const ytUrl = getYoutubeUrlFromMedia(media);
-            if (ytUrl) {
-              acc[media.url] = ytUrl;
-            }
-          } else {
-            acc[media.url] = media.url;
+      const urlToExternalUrl = metadata.reduce((acc, media) => {
+        if (isYouTubeMetadata(media)) {
+          const ytUrl = getYoutubeUrlFromMedia(media);
+          if (ytUrl) {
+            acc[media.url] = ytUrl;
           }
-          return acc;
-        },
-        {} as Record<string, string>
-      );
+        } else {
+          acc[media.url] = media.url;
+        }
+        return acc;
+      }, {} as InternalToExternalUrlMap);
 
       return { metadata, urlToMetadata, urlToExternalUrl };
     }
