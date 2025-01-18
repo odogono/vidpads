@@ -16,7 +16,8 @@ import {
 import {
   exportToJSON,
   exportToJSONString,
-  exportToURLString
+  exportToURLString,
+  urlStringToProject
 } from '@model/export';
 import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
@@ -32,7 +33,7 @@ export const useProjects = () => {
   const events = useEvents();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
-  const { metadata, urlToExternalUrl } = useMetadata();
+  const { urlToExternalUrl } = useMetadata();
   const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
 
@@ -50,7 +51,36 @@ export const useProjects = () => {
         )
       );
 
-      events.emit('project:loaded', { projectId: data.id });
+      events.emit('project:loaded', {
+        projectId: data.id,
+        projectName: data.name
+      });
+
+      return true;
+    },
+    [queryClient, deleteAllPadThumbnails, store, addUrlToPad, events]
+  );
+
+  const importFromURLString = useCallback(
+    async (urlString: string) => {
+      const data = urlStringToProject(urlString);
+
+      invalidateQueryKeys(queryClient, [[QUERY_KEY_STATE]]);
+
+      await deleteAllPadThumbnails();
+
+      store.send({ type: 'importProject', data });
+
+      await Promise.all(
+        data.pads.map((pad) =>
+          addUrlToPad({ url: pad.source, padId: pad.id, store })
+        )
+      );
+
+      events.emit('project:loaded', {
+        projectId: data.id,
+        projectName: data.name
+      });
 
       return true;
     },
@@ -92,7 +122,7 @@ export const useProjects = () => {
 
       await loadProjectFromJSON(project);
 
-      events.emit('project:loaded', { projectId });
+      events.emit('project:loaded', { projectId, projectName: project.name });
 
       return true;
     },
@@ -108,7 +138,10 @@ export const useProjects = () => {
 
     const projectId = store.getSnapshot().context.projectId;
 
-    events.emit('project:created', { projectId: projectId! });
+    events.emit('project:created', {
+      projectId: projectId!,
+      projectName: 'Untitled'
+    });
 
     return true;
   }, [store, queryClient, deleteAllPadThumbnails, events]);
@@ -185,6 +218,7 @@ export const useProjects = () => {
     exportToJSONString: exportProjectToJSONString,
     exportToURLString: exportProjectToURLString,
     importFromJSONString,
+    importFromURLString,
     getAllProjectDetails
   };
 };

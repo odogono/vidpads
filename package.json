@@ -10,7 +10,11 @@
     "lint:fix": "next lint --fix",
     "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
     "prettier:fix": "prettier --write src",
-    "outdated": "bunx npm-check-updates --interactive --format group"
+    "outdated": "bunx npm-check-updates --interactive --format group",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:update": "jest --update-snapshot"
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
@@ -36,7 +40,10 @@
     "@eslint/eslintrc": "^3",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@statelyai/inspect": "^0.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "@types/bun": "^1.1.17",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -51,10 +58,13 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
     "prettier": "^3.4.2",
     "tailwindcss": "^3.4.17",
     "tailwindcss-motion": "^1.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5",
     "typescript-eslint": "^8.20.0"
   }

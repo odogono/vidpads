@@ -5,6 +5,10 @@ import { createLog } from '@helpers/log';
 import { isYouTubeMetadata } from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
 import {
+  getYoutubeUrlFromMedia,
+  getYoutubeVideoIdFromMedia
+} from '@helpers/youtube';
+import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
   updateMetadataDuration as dbUpdateMetadataDuration
@@ -14,7 +18,6 @@ import {
   useQueryClient,
   useSuspenseQuery
 } from '@tanstack/react-query';
-import { getYoutubeUrlFromMedia } from '../../helpers/youtube';
 import { QUERY_KEY_METADATA } from '../constants';
 import { Media } from '../types';
 
@@ -45,7 +48,7 @@ export const useMetadata = () => {
 
       const urlToExternalUrl = metadata.reduce((acc, media) => {
         if (isYouTubeMetadata(media)) {
-          const ytUrl = getYoutubeUrlFromMedia(media);
+          const ytUrl = getYoutubeVideoIdFromMedia(media);
           if (ytUrl) {
             acc[media.url] = ytUrl;
           }

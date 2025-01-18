@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
+import { ProjectCreatedEvent, ProjectLoadedEvent } from '../model/types';
 
 const log = createLog('useWindowUrl');
 
@@ -18,30 +19,64 @@ export const useWindowUrl = () => {
   const {
     projectId: currentProjectId,
     projectName: currentProjectName,
-    loadProject
+    loadProject,
+    importFromURLString
   } = useProjects();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const setProjectParams = useCallback(
+    (projectId: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set('p', projectId);
+      params.delete('d');
+      router.push(`?${params.toString()}`);
+    },
+    [router, searchParams]
+  );
 
   // handle the path changing
   useEffect(() => {
     const projectId = searchParams.get('p');
-    log.debug({ currentProjectId, projectId });
-    if (projectId && projectId !== currentProjectId) {
-      log.debug('Project loading from url:', projectId);
+    const importData = searchParams.get('d');
 
-      try {
-        loadProject(projectId).then((success) => {
-          if (!success) {
-            const params = new URLSearchParams(searchParams);
-            params.set('p', currentProjectId!);
-            router.push(`?${params.toString()}`);
-          }
-        });
-      } catch (error) {
-        log.error('Failed to load project:', error);
-      }
+    // Guard against concurrent operations
+    if (isLoading) {
+      log.debug('Skipping URL handling - operation already in progress');
+      return;
     }
+
+    const handleUrlChange = async () => {
+      if (importData) {
+        try {
+          setIsLoading(true);
+          log.debug('Importing project from url:', importData);
+          const success = await importFromURLString(importData);
+          if (!success) {
+            setProjectParams(currentProjectId!);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      } else if (projectId && projectId !== currentProjectId) {
+        try {
+          setIsLoading(true);
+          log.debug('Project loading from url:', projectId);
+          const success = await loadProject(projectId);
+          if (!success) {
+            setProjectParams(currentProjectId!);
+          }
+        } catch (error) {
+          log.error('Failed to load project:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    handleUrlChange();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, searchParams, loadProject]);
+  }, [pathname, searchParams, loadProject, setProjectParams]);
 
   useEffect(() => {
     if (currentProjectName) {
@@ -49,31 +84,44 @@ export const useWindowUrl = () => {
     }
   }, [currentProjectName]);
 
-  const handleProjectCreated = useCallback(
-    ({ projectId }: { projectId: string }) => {
-      const params = new URLSearchParams(searchParams);
-      params.set('p', projectId);
-      router.push(`?${params.toString()}`);
-    },
-    [router, searchParams]
-  );
-
   const handleProjectLoaded = useCallback(
-    ({ projectId }: { projectId: string }) => {
-      const params = new URLSearchParams(searchParams);
-      params.set('p', projectId);
-      router.push(`?${params.toString()}`);
+    ({ projectId, projectName }: ProjectCreatedEvent) => {
+      setProjectParams(projectId);
+      document.title = `ODGN Vidpads - ${projectName}`;
     },
-    [router, searchParams]
+    [setProjectParams]
   );
 
   useEffect(() => {
-    events.on('project:created', handleProjectCreated);
+    events.on('project:created', handleProjectLoaded);
     events.on('project:loaded', handleProjectLoaded);
 
     return () => {
-      events.off('project:created', handleProjectCreated);
+      events.off('project:created', handleProjectLoaded);
       events.off('project:loaded', handleProjectLoaded);
     };
-  }, [events, handleProjectCreated, handleProjectLoaded]);
+  }, [events, handleProjectLoaded]);
+};
+
+export const useShareUrl = () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createNewUrl = (newParams: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams);
+
+    // Add or update parameters
+    Object.entries(newParams).forEach(([key, value]) => {
+      params.set(key, value);
+    });
+
+    // Get the base URL including host and port
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+
+    return `${baseUrl}${pathname}?${params.toString()}`;
+  };
+
+  return {
+    createNewUrl
+  };
 };

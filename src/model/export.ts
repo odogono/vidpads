@@ -2,21 +2,27 @@ import { createLog } from '@helpers/log';
 import { version as appVersion } from '../../package.json';
 import { generateShortUUID } from '../helpers/uuid';
 import { InternalToExternalUrlMap } from './hooks/useMetadata';
-import { exportPadToJSON, exportPadToURLString } from './pad';
+import {
+  exportPadToJSON,
+  exportPadToURLString,
+  importOperationFromURLString,
+  importPadFromURLString
+} from './pad';
 import { StoreType } from './store/types';
-import { ProjectExport } from './types';
+import { Pad, PadExport, ProjectExport } from './types';
 
 const log = createLog('model/export');
 
 const EXPORT_JSON_VERSION = 1;
 const EXPORT_APP_VERSION = appVersion;
 
+const EXPORT_URL_VERSION = 1;
+
 export type ExportOptions = Record<string, unknown>;
 
 export const exportToJSON = (
   store: StoreType,
-  urlToExternalUrl: InternalToExternalUrlMap,
-  options: ExportOptions = {}
+  urlToExternalUrl: InternalToExternalUrlMap
 ): ProjectExport => {
   const { context } = store.getSnapshot();
 
@@ -39,17 +45,15 @@ export const exportToJSON = (
 
 export const exportToJSONString = (
   store: StoreType,
-  urlToExternalUrl: InternalToExternalUrlMap,
-  options: ExportOptions = {}
+  urlToExternalUrl: InternalToExternalUrlMap
 ) => {
-  const json = exportToJSON(store, urlToExternalUrl, options);
+  const json = exportToJSON(store, urlToExternalUrl);
   return JSON.stringify(json);
 };
 
 export const exportToURLString = (
   store: StoreType,
-  urlToExternalUrl: InternalToExternalUrlMap,
-  options: ExportOptions = {}
+  urlToExternalUrl: InternalToExternalUrlMap
 ) => {
   const { context } = store.getSnapshot();
 
@@ -59,5 +63,45 @@ export const exportToURLString = (
     .map((pad) => exportPadToURLString(pad, urlToExternalUrl))
     .filter(Boolean);
 
-  return `${projectId}|${projectName}|${createdAt}|${updatedAt}|${padsURL.join('|')}`;
+  const createTimeMs = createdAt ? new Date(createdAt).getTime() : 0;
+  const updateTimeMs = updatedAt ? new Date(updatedAt).getTime() : 0;
+
+  // base64 encode the project name
+  const projectNameBase64 = projectName ? encodeURIComponent(projectName) : '';
+
+  return `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeMs}|${updateTimeMs}|${padsURL.join('(')}`;
+};
+
+export const urlStringToProject = (urlString: string) => {
+  const [
+    version,
+    projectId,
+    projectNameBase64,
+    createTimeMs,
+    updateTimeMs,
+    padsURL
+  ] = urlString.split('|');
+
+  if (parseInt(version, 10) !== EXPORT_URL_VERSION) {
+    throw new Error('Unsupported export version');
+  }
+
+  const createdAt = new Date(parseInt(createTimeMs, 10));
+  const updatedAt = new Date(parseInt(updateTimeMs, 10));
+
+  const projectName = decodeURIComponent(projectNameBase64);
+
+  const pads = padsURL
+    .split('(')
+    .map(importPadFromURLString)
+    .filter(Boolean) as PadExport[];
+
+  return {
+    id: projectId,
+    name: projectName,
+    exportVersion: `${version}`,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+    pads
+  } as ProjectExport;
 };

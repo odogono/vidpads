@@ -2,6 +2,7 @@
 
 import { useImperativeHandle } from 'react';
 
+import { useShareUrl } from '@hooks/useWindowUrl';
 // import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
 import {
@@ -11,7 +12,8 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  Snippet
 } from '@nextui-org/react';
 import { CopyButton } from '../CopyButton';
 import { useModalState } from './useModalState';
@@ -29,9 +31,10 @@ export interface ExportProjectModalProps {
 export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
   const { isOpen, onOpen, onClose } = useModalState();
   const { exportToJSONString, exportToURLString } = useProjects();
+  const { createNewUrl } = useShareUrl();
 
   const json = exportToJSONString();
-  const url = exportToURLString();
+  const url = createNewUrl({ d: exportToURLString() });
 
   useImperativeHandle(ref, () => ({
     onOpen
@@ -61,6 +64,7 @@ export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
                 />
                 <CopyButton text={url} />
               </div>
+
               <div className='flex flex-row gap-2 items-center'>
                 <Input
                   isReadOnly

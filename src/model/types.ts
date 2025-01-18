@@ -113,7 +113,6 @@ export interface MediaYouTube extends Media {
 export interface ProjectExport {
   id: string;
   name: string;
-  version: string;
   exportVersion: string;
   createdAt: string;
   updatedAt: string;
@@ -127,3 +126,13 @@ export interface PadExport {
 }
 
 export type OperationExport = Operation;
+
+export interface ProjectLoadedEvent {
+  projectId: string;
+  projectName: string;
+}
+
+export interface ProjectCreatedEvent {
+  projectId: string;
+  projectName: string;
+}

@@ -86,12 +86,71 @@ export const exportPadToURLString = (
   }
 
   const { id, source, operations } = json;
-  const ops = operations
-    ?.map(exportOperationToJSON)
-    .filter(Boolean) as OperationExport[];
-  const opsURL = ops?.join(':') ?? '';
 
-  return `${id}|${source}|${opsURL}`;
+  const ops =
+    operations?.reduce((acc, op) => {
+      const url = exportOperationToURLString(op);
+      if (url) {
+        acc.push(url);
+      }
+      return acc;
+    }, [] as string[]) ?? [];
+
+  const opsURL = ops.join('+') ?? '';
+
+  const sourceStr = encodeURIComponent(source);
+
+  return `${id}[${sourceStr}[${opsURL}`;
+};
+
+export const importPadFromURLString = (
+  urlString: string
+): PadExport | undefined => {
+  const [id, sourceStr, opsStr] = urlString.split('[');
+
+  const source = decodeURIComponent(sourceStr);
+
+  const ops = opsStr
+    .split('+')
+    .map(importOperationFromURLString)
+    .filter(Boolean) as OperationExport[];
+
+  return {
+    id,
+    source,
+    operations: ops.length > 0 ? ops : undefined
+  };
+};
+
+export const exportOperationToURLString = (
+  operation: Operation | undefined
+): string | undefined => {
+  if (!operation) {
+    return undefined;
+  }
+
+  if (operation.type === OperationType.Trim) {
+    const { start, end } = operation as TrimOperation;
+    return `${operation.type},${trimNumberToDecimalPlaces(start, 2)},${trimNumberToDecimalPlaces(end, 2)}`;
+  }
+
+  throw new Error(`Unsupported operation type: ${operation.type}`);
+};
+
+export const importOperationFromURLString = (
+  urlString: string
+): OperationExport | undefined => {
+  const [type, start, end] = urlString.split(',');
+
+  if (type === OperationType.Trim) {
+    return {
+      type: OperationType.Trim,
+      start: parseFloat(start),
+      end: parseFloat(end)
+    } as TrimOperation;
+  }
+
+  return undefined;
 };
 
 export const exportOperationToJSON = (

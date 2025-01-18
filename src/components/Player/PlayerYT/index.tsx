@@ -22,11 +22,11 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const mediaUrl = media.url;
   const { videoId } = media as MediaYouTube;
 
-  useRenderingTrace('PlayerYT', {
-    media,
-    mediaUrl,
-    playerPadId
-  });
+  // useRenderingTrace('PlayerYT', {
+  //   media,
+  //   mediaUrl,
+  //   playerPadId
+  // });
 
   const playVideo = useCallback(
     ({ url, padId, start, end, isLoop, volume }: PlayerPlay) => {
