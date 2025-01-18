@@ -113,6 +113,8 @@ export interface MediaYouTube extends Media {
 export interface ProjectExport {
   id: string;
   name: string;
+  version: string;
+  exportVersion: string;
   createdAt: string;
   updatedAt: string;
   pads: PadExport[];

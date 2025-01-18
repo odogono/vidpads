@@ -1,13 +1,17 @@
 import { createLog } from '@helpers/log';
+import { version as appVersion } from '../../package.json';
 import { generateShortUUID } from '../helpers/uuid';
 import { InternalToExternalUrlMap } from './hooks/useMetadata';
 import { exportPadToJSON, exportPadToURLString } from './pad';
 import { StoreType } from './store/types';
-import { Media, ProjectExport } from './types';
+import { ProjectExport } from './types';
 
 const log = createLog('model/export');
 
-export interface ExportOptions {}
+const EXPORT_JSON_VERSION = 1;
+const EXPORT_APP_VERSION = appVersion;
+
+export type ExportOptions = Record<string, unknown>;
 
 export const exportToJSON = (
   store: StoreType,
@@ -25,6 +29,8 @@ export const exportToJSON = (
   return {
     id: projectId ?? generateShortUUID(),
     name: projectName ?? 'Untitled',
+    version: EXPORT_APP_VERSION,
+    exportVersion: `${EXPORT_JSON_VERSION}`,
     createdAt: createdAt ?? new Date().toISOString(),
     updatedAt: updatedAt ?? new Date().toISOString(),
     pads: padsJSON

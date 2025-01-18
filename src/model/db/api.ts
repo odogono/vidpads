@@ -290,9 +290,9 @@ export const updateMetadataDuration = async (
     request.onsuccess = () => {
       const result = request.result;
       if (!result) {
-        log.debug('updateMetadataDuration', mediaUrl, 'not found', {
-          duration
-        });
+        return reject(
+          new Error(`updateMetadataDuration not found for ${mediaUrl}`)
+        );
       }
       result.duration = duration;
       metadata.put(result);

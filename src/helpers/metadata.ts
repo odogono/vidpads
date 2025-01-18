@@ -1,9 +1,30 @@
 import { createLog } from '@helpers/log';
 import type { Media, MediaImage, MediaVideo } from '@model/types';
 import { generateFileId } from './file';
-import { getYouTubeMetadata, isYouTubeUrl } from './youtube';
+import { getYouTubeMetadata, isYouTubeUrl, isYouTubeVideoId } from './youtube';
 
 const log = createLog('metadata');
+
+export const isValidSourceUrl = (url?: string): boolean => {
+  if (!url) return false;
+
+  if (url.trim() === '') return false;
+
+  // return true if the url starts with http or https and ends with mp4
+  if (url.startsWith('http') && url.endsWith('.mp4')) {
+    return true;
+  }
+
+  if (isYouTubeVideoId(url)) {
+    return true;
+  }
+
+  if (isYouTubeUrl(url)) {
+    return true;
+  }
+
+  return false;
+};
 
 export const isVideoMetadata = (metadata: Media): boolean => {
   return metadata.mimeType.startsWith('video/');
@@ -21,9 +42,11 @@ export const isYouTubeMetadata = (metadata: Media): boolean => {
 };
 
 export const getUrlMetadata = async (url: string): Promise<Media | null> => {
-  if (isYouTubeUrl(url)) {
+  if (isYouTubeUrl(url) || isYouTubeVideoId(url)) {
     return getYouTubeMetadata(url);
   }
+
+  log.warn('[getUrlMetadata] invalid url:', url);
 
   return null;
 };

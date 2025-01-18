@@ -67,7 +67,12 @@ export const useMetadata = () => {
       mediaUrl: string;
       duration: number;
     }) => {
-      await dbUpdateMetadataDuration(mediaUrl, duration);
+      try {
+        await dbUpdateMetadataDuration(mediaUrl, duration);
+      } catch (error) {
+        log.warn('updateMetadataDuration error', error, mediaUrl, duration);
+        return null;
+      }
     },
     onSuccess: (_, { mediaUrl, duration }) => {
       log.debug('updated duration', mediaUrl, duration);
