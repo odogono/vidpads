@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
-import { generateUUID } from '@helpers/uuid';
 import {
   QUERY_KEY_PROJECT,
   QUERY_KEY_PROJECTS,
@@ -13,7 +12,11 @@ import {
   loadProject as dbLoadProject,
   saveProject as dbSaveProject
 } from '@model/db/api';
-import { exportPadToJSON, exportPadToURLString } from '@model/pad';
+import {
+  exportToJSON,
+  exportToJSONString,
+  exportToURLString
+} from '@model/export';
 import { useCurrentProject } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { ProjectExport } from '@model/types';
@@ -27,7 +30,7 @@ export const useProjects = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
-  const { urlToExternalUrl } = useMetadata();
+  const { metadata, urlToExternalUrl } = useMetadata();
   const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
 
@@ -140,39 +143,16 @@ export const useProjects = () => {
     }
   }, [queryClient]);
 
-  const exportToJSON = useCallback(() => {
-    const { context } = store.getSnapshot();
-
-    const { projectId, projectName, createdAt, updatedAt, pads } = context;
-
-    const padsJSON = pads
-      .map((pad) => exportPadToJSON(pad, urlToExternalUrl))
-      .filter(Boolean);
-
-    return {
-      id: projectId ?? generateUUID(),
-      name: projectName ?? 'Untitled',
-      createdAt: createdAt ?? new Date().toISOString(),
-      updatedAt: updatedAt ?? new Date().toISOString(),
-      pads: padsJSON
-    } as ProjectExport;
+  const exportProjectToJSON = useCallback(() => {
+    return exportToJSON(store, urlToExternalUrl);
   }, [store, urlToExternalUrl]);
 
-  const exportToJSONString = useCallback(() => {
-    const json = exportToJSON();
-    return JSON.stringify(json);
-  }, [exportToJSON]);
+  const exportProjectToJSONString = useCallback(() => {
+    return exportToJSONString(store, urlToExternalUrl);
+  }, [store, urlToExternalUrl]);
 
-  const exportToURLString = useCallback(() => {
-    const { context } = store.getSnapshot();
-
-    const { projectId, projectName, createdAt, updatedAt, pads } = context;
-
-    const padsURL = pads
-      .map((pad) => exportPadToURLString(pad, urlToExternalUrl))
-      .filter(Boolean);
-
-    return `${projectId}|${projectName}|${createdAt}|${updatedAt}|${padsURL.join('|')}`;
+  const exportProjectToURLString = useCallback(() => {
+    return exportToURLString(store, urlToExternalUrl);
   }, [store, urlToExternalUrl]);
 
   const importFromJSONString = useCallback(
@@ -191,9 +171,9 @@ export const useProjects = () => {
     createNewProject,
     loadProject,
     saveProject,
-    exportToJSON,
-    exportToJSONString,
-    exportToURLString,
+    exportToJSON: exportProjectToJSON,
+    exportToJSONString: exportProjectToJSONString,
+    exportToURLString: exportProjectToURLString,
     importFromJSONString,
     getAllProjectDetails
   };

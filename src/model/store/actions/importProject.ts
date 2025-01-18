@@ -1,5 +1,5 @@
 import { createLog } from '@helpers/log';
-import { generateUUID } from '@helpers/uuid';
+import { generateShortUUID } from '@helpers/uuid';
 import { importPadFromJSON } from '../../pad';
 import { initialContext } from '../store';
 import { ImportProjectAction, StoreContext } from '../types';
@@ -21,7 +21,7 @@ export const importProject = (
 
   const newContext: StoreContext = {
     ...initialContext,
-    projectId: data.id ?? generateUUID(),
+    projectId: data.id ?? generateShortUUID(),
     projectName: data.name ?? 'Untitled',
     selectedPadId: undefined,
     createdAt: data.createdAt ?? new Date().toISOString(),

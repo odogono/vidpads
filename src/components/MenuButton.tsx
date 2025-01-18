@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react';
 
-import { ChevronDown, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 import {
   Button,
@@ -62,14 +62,15 @@ export const MenuButton = () => {
       <Dropdown
         classNames={{
           base: 'before:bg-default-200', // change arrow background
-          content: 'py-1 px-1 border border-default-200 bg-background' // simplified background
+          content:
+            'py-1 px-1 border border-default-200 bg-background text-foreground' // simplified background
         }}
       >
         <DropdownTrigger>
           <Button
+            isIconOnly
             variant='flat'
-            className='bg-white/10 hover:bg-white/20'
-            endContent={<ChevronDown className='h-4 w-4' />}
+            className=' bg-slate-700 hover:bg-slate-600'
           >
             <Menu />
           </Button>
