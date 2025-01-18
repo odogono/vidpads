@@ -15,7 +15,11 @@ export const useWindowUrl = () => {
   const events = useEvents();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { projectId: currentProjectId, loadProject } = useProjects();
+  const {
+    projectId: currentProjectId,
+    projectName: currentProjectName,
+    loadProject
+  } = useProjects();
 
   // handle the path changing
   useEffect(() => {
@@ -38,6 +42,12 @@ export const useWindowUrl = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams, loadProject]);
+
+  useEffect(() => {
+    if (currentProjectName) {
+      document.title = `ODGN Vidpads - ${currentProjectName}`;
+    }
+  }, [currentProjectName]);
 
   const handleProjectCreated = useCallback(
     ({ projectId }: { projectId: string }) => {

@@ -72,7 +72,7 @@ export const exportPadToJSON = (
   return {
     id,
     source: urlToExternalUrlMap[source.url] ?? source.url,
-    operations: ops.length > 0 ? ops : undefined
+    operations: ops?.length > 0 ? ops : undefined
   };
 };
 
