@@ -9,7 +9,7 @@ export const BinComponent = () => {
   return (
     <div
       id='bin-container'
-      className='absolute left-1/2 -translate-x-1/2 top-[420px] z-50'
+      className='absolute left-1/2 -translate-x-1/2 top-[30vh] z-50'
     >
       <div
         className={`

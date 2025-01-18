@@ -5,8 +5,21 @@ import { Media, MediaYouTube } from '@model/types';
 
 const log = createLog('youtube');
 
-export const isYouTubeUrl = (url: string): boolean => {
+export const isYouTubeUrl = (url?: string): boolean => {
+  if (!url) return false;
   return url.includes('youtube.com') || url.includes('youtu.be');
+};
+
+export const isYouTubeVideoId = (videoId?: string): boolean => {
+  if (!videoId) return false;
+
+  // YouTube video IDs are 11 characters long and contain only:
+  // - uppercase and lowercase letters (A-Z, a-z)
+  // - digits (0-9)
+  // - hyphens (-)
+  // - underscores (_)
+  const youtubeIdPattern = /^[A-Za-z0-9_-]{11}$/;
+  return youtubeIdPattern.test(videoId);
 };
 
 export const getYoutubeUrlFromMedia = (media: Media): string | undefined => {
@@ -14,7 +27,7 @@ export const getYoutubeUrlFromMedia = (media: Media): string | undefined => {
     media.mimeType.startsWith('video/youtube') &&
     (media as MediaYouTube).videoId
   ) {
-    return `https://m.youtube.com/watch?v=${(media as MediaYouTube).videoId}`;
+    return `https://youtu.be/${(media as MediaYouTube).videoId}`;
   }
   return undefined;
 };
@@ -114,9 +127,9 @@ export const getYouTubeMetadata = async (
 ): Promise<MediaYouTube | null> => {
   try {
     // Extract video ID from URL
-    const videoId = extractVideoId(url);
+    const videoId = isYouTubeVideoId(url) ? url : extractVideoId(url);
     if (!videoId) {
-      throw new Error('Invalid YouTube URL');
+      throw new Error(`Invalid YouTube URL ${url}`);
     }
 
     return fetchFromOEmbed(videoId);

@@ -26,7 +26,7 @@ export interface SaveProjectModalProps {
 }
 
 export const SaveProjectModal = ({ ref }: SaveProjectModalProps) => {
-  const { isOpen, onOpen, onClose } = useModalState();
+  const { isOpen, onOpen, onClose: onCloseModal } = useModalState();
   const { saveProject, projectName } = useProjects();
   const [name, setName] = useState(projectName);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,14 +41,14 @@ export const SaveProjectModal = ({ ref }: SaveProjectModalProps) => {
 
       setIsSaving(true);
       await saveProject(name);
-      onClose();
+      onCloseModal();
     } catch (error) {
       log.error('Failed to save project:', error);
       // Handle error (show toast, etc)
     } finally {
       setIsSaving(false);
     }
-  }, [saveProject, name, onClose]);
+  }, [saveProject, name, onCloseModal]);
 
   useImperativeHandle(ref, () => ({
     onOpen
@@ -57,7 +57,7 @@ export const SaveProjectModal = ({ ref }: SaveProjectModalProps) => {
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={onCloseModal}
       backdrop='blur'
       className='bg-background text-foreground'
     >
