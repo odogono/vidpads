@@ -27,7 +27,7 @@ import {
 } from './types';
 import { usePlayers } from './usePlayers';
 
-const log = createLog('player/container');
+const log = createLog('player/container', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();
@@ -182,14 +182,13 @@ export const PlayerContainer = () => {
     handlePlayerNotReady
   ]);
 
-  useRenderingTrace('PlayerContainer', {
-    pads,
-    players,
-    events,
-    store,
-    padUrlStr
-  });
-  // log.debug('pads:', padUrlStr);
+  // useRenderingTrace('PlayerContainer', {
+  //   pads,
+  //   players,
+  //   events,
+  //   store,
+  //   padUrlStr
+  // });
 
   return (
     <>

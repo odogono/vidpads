@@ -3,6 +3,7 @@
 import { PadContainer } from '@components/PadContainer';
 import { useFullScreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
+import { useWindowUrl } from '@hooks/useWindowUrl';
 import { BinComponent } from './Bin';
 import { Controls } from './Controls';
 import { FullScreenButton } from './FullScreenButton';
@@ -10,6 +11,8 @@ import { MenuButton } from './MenuButton';
 import { PlayerContainer } from './Player/Container';
 
 export const Main = () => {
+  useWindowUrl();
+
   const { isFullscreen, setFullscreen } = useFullScreen();
 
   return (

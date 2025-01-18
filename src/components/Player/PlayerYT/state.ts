@@ -10,7 +10,7 @@ import { PlayerPlay, PlayerStop } from '../types';
 import { PlayerStateToString, PlayerYTStateToString } from './helpers';
 import { PlayerState, PlayerYTState } from './types';
 
-const log = createLog('player/yt/state');
+const log = createLog('player/yt/state', ['debug']);
 
 type PlayerStateChangeAction = {
   type: 'playerStateChange';
