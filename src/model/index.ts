@@ -17,7 +17,7 @@ import {
 import { StoreType } from '@model/store/types';
 import { MediaImage, MediaVideo, MediaYouTube } from '@model/types';
 
-const log = createLog('model/api');
+const log = createLog('model/api', ['debug']);
 
 export interface AddFileToPadProps {
   file: File;
@@ -158,7 +158,7 @@ export const addFileToPad = async ({
 
     return media;
   } catch (error) {
-    log.error('Failed to read media metadata:', error);
+    log.debug('[addFileToPad] Failed to read media metadata:', error);
     return null;
   }
 };

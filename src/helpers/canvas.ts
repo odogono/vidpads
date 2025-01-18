@@ -14,30 +14,19 @@ export const extractVideoThumbnail = async (
     const video = document.createElement('video');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    const url = URL.createObjectURL(file);
 
     const cleanup = () => {
       video.onseeked = null;
+      video.pause();
       video.src = '';
       video.currentTime = 0;
-      video.pause();
       video.remove();
       canvas.remove();
+      URL.revokeObjectURL(url);
     };
 
-    // safari seems to better cope with a FileReader
-    // rather than using URL.createObjectURL - despite
-    // the fact the former uses more memory
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      video.src = e.target?.result as string;
-    };
-
-    reader.onerror = (e) => {
-      log.error('[extractVideoThumbnail] reader.error', e);
-      cleanup();
-      reject(e);
-    };
-    reader.readAsDataURL(file);
+    video.src = url;
 
     video.onseeked = () => {
       const { imageData, error } = onVideoSeek({ video, canvas, ctx, size });
@@ -46,6 +35,7 @@ export const extractVideoThumbnail = async (
         reject(error);
       } else {
         cleanup();
+        log.debug('[extractVideoThumbnail] imageData', imageData);
         resolve(imageData);
       }
     };

@@ -74,6 +74,7 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
       }, 5000);
 
       video.onerror = () => {
+        log.debug('[getMediaMetadata] video.onerror');
         clearTimeout(timeoutId);
         cleanup();
         reject(new Error('Failed to load video'));
