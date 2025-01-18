@@ -21,8 +21,14 @@ export const addOrReplacePad = (
     pads[padIndex] = pad;
   }
 
-  return {
-    ...context,
-    pads
-  };
+  return update(context, { pads });
 };
+
+export const update = (
+  context: StoreContext,
+  additional: Partial<StoreContext>
+) => ({
+  ...context,
+  ...additional,
+  updatedAt: new Date().toISOString()
+});
