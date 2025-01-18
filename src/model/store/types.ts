@@ -35,12 +35,6 @@ export type SetPadMediaAction = {
   media: Media;
 };
 
-export type ApplyPadDropAction = {
-  type: 'applyPadDrop';
-  sourcePadId: string;
-  targetPadId: string;
-};
-
 export type ClearPadAction = {
   type: 'clearPad';
   padId: string;
@@ -51,11 +45,6 @@ export type CopyPadAction = {
   copySourceOnly?: boolean;
   sourcePadId: string;
   targetPadId: string;
-};
-
-export type PlayPadAction = {
-  type: 'playPad';
-  padId: string;
 };
 
 export type SetEditActiveAction = {
@@ -116,10 +105,8 @@ export type Actions =
   | UpdateStartTimeAction
   | UpdatePadSourceAction
   | SetPadMediaAction
-  | ApplyPadDropAction
   | ClearPadAction
   | CopyPadAction
-  | PlayPadAction
   | SetEditActiveAction
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
@@ -145,11 +132,6 @@ export type StoreInitialisedEvent = {
   type: 'storeInitialised';
 };
 
-export type PlayPadEvent = {
-  type: 'playPad';
-  pad: Pad;
-};
-
 export type IsEditActiveEvent = {
   type: 'isEditActive';
   isEditActive: boolean;
@@ -159,7 +141,6 @@ export type EmittedEvents =
   | PadUpdatedEvent
   | StartTimeUpdatedEvent
   | StoreInitialisedEvent
-  | PlayPadEvent
   | IsEditActiveEvent;
 
 export type Emit = { emit: (event: EmittedEvents) => void };

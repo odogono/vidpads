@@ -1,4 +1,5 @@
 import { StoreContext, UpdateProjectAction } from '../types';
+import { update } from './helpers';
 
 export const updateProject = (
   context: StoreContext,
@@ -8,11 +9,10 @@ export const updateProject = (
 
   const { id, name, createdAt, updatedAt } = project;
 
-  return {
-    ...context,
+  return update(context, {
     projectId: id,
     projectName: name,
     createdAt,
     updatedAt
-  };
+  });
 };

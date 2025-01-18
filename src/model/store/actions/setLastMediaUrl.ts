@@ -1,13 +1,7 @@
 import { SetLastMediaUrlAction, StoreContext } from '../types';
+import { update } from './helpers';
 
 export const setLastMediaUrl = (
   context: StoreContext,
   event: SetLastMediaUrlAction
-): StoreContext => {
-  const { url } = event;
-
-  return {
-    ...context,
-    lastMediaUrl: url
-  };
-};
+): StoreContext => update(context, { lastMediaUrl: event.url });

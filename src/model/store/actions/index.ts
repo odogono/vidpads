@@ -10,13 +10,12 @@ import type {
   UpdatePadSourceAction,
   UpdateStartTimeAction
 } from '../types';
-import { addOrReplacePad, findPadById } from './helpers';
+import { addOrReplacePad, findPadById, update } from './helpers';
 
 // const log = createLog('store/actions');
 
 export { clearPad } from './clearPad';
 export { copyPad } from './copyPad';
-export { playPad } from './playPad';
 export { applyTrimToPad } from './applyTrimToPad';
 export { newProject } from './newProject';
 export { setPadMedia } from './setPadMedia';
@@ -47,11 +46,10 @@ export const setSelectedPadId = (
   const { padId } = event;
   const isEditActive = !padId ? false : context.isEditActive;
 
-  return {
-    ...context,
+  return update(context, {
     isEditActive,
     selectedPadId: padId
-  };
+  });
 };
 
 export const setPadIsOneShot = (
@@ -118,12 +116,5 @@ export const updateStartTime = (
   const startTime = new Date().toISOString();
   emit({ type: 'startTimeUpdated', startTime });
 
-  return {
-    ...context,
-    startTime
-  };
-};
-
-export const applyPadDrop = (context: StoreContext): StoreContext => {
-  return context;
+  return update(context, { startTime });
 };

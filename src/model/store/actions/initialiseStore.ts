@@ -1,5 +1,6 @@
 import { createLog } from '@helpers/log';
 import { Emit, InitialiseStoreAction, StoreContext } from '../types';
+import { update } from './helpers';
 
 const log = createLog('store/actions/initialiseStore');
 
@@ -12,8 +13,5 @@ export const initialiseStore = (
 
   emit({ type: 'storeInitialised' });
 
-  return {
-    ...context,
-    isInitial: false
-  };
+  return update(context, { isInitial: false });
 };
