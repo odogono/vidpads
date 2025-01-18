@@ -1,7 +1,7 @@
 import { createLog } from '@helpers/log';
 import { IvLoadPolicy, PlayerState, Rel } from './types';
 
-const log = createLog('youtubeapi');
+const log = createLog('youtubeapi', ['debug']);
 
 const loadYouTubeApi = async () => {
   if (window.YT) {

@@ -74,10 +74,10 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
 
-      log.debug('[stopVideo]', player.odgnId, {
-        player,
-        state: PlayerStateToString(player.getPlayerState())
-      });
+      // log.debug('[stopVideo]', player.odgnId, {
+      //   player,
+      //   state: PlayerStateToString(player.getPlayerState())
+      // });
       try {
         player.pauseVideo();
       } catch {

@@ -217,12 +217,12 @@ export const usePlayerYTState = ({
           contextPlayerState !== PlayerState.BUFFERING &&
           contextPlayerState !== PlayerState.PLAYING
         ) {
-          log.debug(
-            'player state changed from',
-            PlayerStateToString(contextPlayerState),
-            'to',
-            PlayerStateToString(playerState)
-          );
+          // log.debug(
+          //   'player state changed from',
+          //   PlayerStateToString(contextPlayerState),
+          //   'to',
+          //   PlayerStateToString(playerState)
+          // );
           events.emit('player:playing', {
             url: mediaUrl,
             padId: playerPadId,

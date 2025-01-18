@@ -115,11 +115,13 @@ export const usePlayerYTEvents = ({
       // and we need to set it to the video duration
       if (interval && interval.end === -1) {
         interval.end = player.getDuration();
+
         events.emit('media:duration-update', {
           mediaUrl,
           duration: player.getDuration()
         });
       }
+
       handlePlayerStateChange(player.getPlayerState(), player);
     },
     [handlePlayerStateChange, interval, mediaUrl, events]
@@ -148,7 +150,7 @@ export const usePlayerYTEvents = ({
   const handleReady = useCallback(
     (e: PlayerReady) => {
       if (!doesPlayerEventMatch(e, playerPadId)) return;
-      log.debug('player ready', e);
+      // log.debug('player ready', e);
       setIsReady(true);
     },
     [playerPadId]

@@ -23,7 +23,7 @@ import {
   useSuspenseQuery
 } from '@tanstack/react-query';
 import { QUERY_KEY_STATE } from '../constants';
-import { getMediaType } from '../helpers';
+import { getMediaIdFromUrl, getMediaType } from '../helpers';
 
 const log = createLog('db/api');
 
@@ -272,6 +272,8 @@ export const updateMetadataDuration = async (
 ): Promise<void> => {
   const db = await openDB();
 
+  const id = getMediaIdFromUrl(mediaUrl);
+
   return new Promise((resolve, reject) => {
     const { metadata, transaction } = idbOpenTransaction(
       db,
@@ -279,10 +281,19 @@ export const updateMetadataDuration = async (
       'readwrite'
     );
 
-    const request = metadata.get(mediaUrl);
+    if (!id) {
+      reject(new Error(`Invalid media URL ${mediaUrl}`));
+    }
+
+    const request = metadata.get(id!);
 
     request.onsuccess = () => {
       const result = request.result;
+      if (!result) {
+        log.debug('updateMetadataDuration', mediaUrl, 'not found', {
+          duration
+        });
+      }
       result.duration = duration;
       metadata.put(result);
     };
@@ -761,16 +772,6 @@ export const deletePadThumbnail = async (padId: string): Promise<string> => {
       resolve(padId);
     };
   });
-};
-
-// Add this helper function to parse media URLs
-const getMediaIdFromUrl = (url: string): string | null => {
-  if (typeof url !== 'string') {
-    log.warn('[getMediaIdFromUrl] Invalid media URL format:', url);
-    return null;
-  }
-  const match = url.match(/^vidpads:\/\/media\/(.+)$/);
-  return match ? match[1] : null;
 };
 
 // Add this new function to get thumbnail by URL

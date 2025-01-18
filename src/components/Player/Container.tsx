@@ -118,7 +118,7 @@ export const PlayerContainer = () => {
   }, []);
 
   const handlePlayerStopped = useCallback((e: PlayerStopped) => {
-    log.debug('❤️ player:stopped', e);
+    // log.debug('❤️ player:stopped', e);
 
     const stack = playingStackRef.current;
 

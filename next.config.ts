@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  async headers() {
+  output: 'export',
+  headers: async () => {
     // Only apply headers in development
     if (process.env.NODE_ENV === 'development') {
       return [
@@ -10,18 +11,18 @@ const nextConfig: NextConfig = {
           headers: [
             {
               key: 'Cross-Origin-Embedder-Policy',
-              value: 'unsafe-none',
+              value: 'unsafe-none'
             },
             {
               key: 'Cross-Origin-Opener-Policy',
-              value: 'same-origin',
-            },
-          ],
-        },
+              value: 'same-origin'
+            }
+          ]
+        }
       ];
     }
     return []; // Return empty array in production
-  },
+  }
 };
 
 export default nextConfig;

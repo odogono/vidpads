@@ -22,7 +22,7 @@ export const PadContainer = () => {
   } = useHelpers();
 
   return (
-    <div id='pad-container' className='flex mt-4 w-full flex-grow bg-red-800'>
+    <div id='pad-container' className='flex mt-4 w-full flex-grow bg-slate-500'>
       <input
         type='file'
         ref={fileInputRef}
