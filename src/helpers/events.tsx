@@ -52,12 +52,15 @@ export type EventEmitterEvents = {
 
   'project:created': {
     projectId: string;
+    projectName: string;
   };
   'project:loaded': {
     projectId: string;
+    projectName: string;
   };
   'project:saved': {
     projectId: string;
+    projectName: string;
   };
 };
 

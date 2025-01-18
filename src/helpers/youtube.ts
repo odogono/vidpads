@@ -1,5 +1,6 @@
 import { createLog } from '@helpers/log';
 import { Media, MediaYouTube } from '@model/types';
+import { isYouTubeMetadata } from './metadata';
 
 // import { parseISO8601Duration } from './datetime';
 
@@ -28,6 +29,15 @@ export const getYoutubeUrlFromMedia = (media: Media): string | undefined => {
     (media as MediaYouTube).videoId
   ) {
     return `https://youtu.be/${(media as MediaYouTube).videoId}`;
+  }
+  return undefined;
+};
+
+export const getYoutubeVideoIdFromMedia = (
+  media: Media
+): string | undefined => {
+  if (isYouTubeMetadata(media)) {
+    return (media as MediaYouTube).videoId;
   }
   return undefined;
 };
