@@ -259,7 +259,7 @@ export const saveUrlData = async ({
     };
 
     transaction.oncomplete = () => {
-      log.debug('Video data saved successfully');
+      // log.debug('Video data saved successfully');
       closeDB(db);
       resolve();
     };

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
 import {
@@ -28,6 +29,7 @@ const log = createLog('model/useProjects');
 
 export const useProjects = () => {
   const { store } = useStore();
+  const events = useEvents();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
   const { metadata, urlToExternalUrl } = useMetadata();
@@ -48,9 +50,33 @@ export const useProjects = () => {
         )
       );
 
+      events.emit('project:loaded', { projectId: data.id });
+
       return true;
     },
-    [queryClient, deleteAllPadThumbnails, store, addUrlToPad]
+    [queryClient, deleteAllPadThumbnails, store, addUrlToPad, events]
+  );
+
+  const exportProjectToJSON = useCallback(() => {
+    return exportToJSON(store, urlToExternalUrl);
+  }, [store, urlToExternalUrl]);
+
+  const exportProjectToJSONString = useCallback(() => {
+    return exportToJSONString(store, urlToExternalUrl);
+  }, [store, urlToExternalUrl]);
+
+  const exportProjectToURLString = useCallback(() => {
+    return exportToURLString(store, urlToExternalUrl);
+  }, [store, urlToExternalUrl]);
+
+  const importFromJSONString = useCallback(
+    async (json: string) => {
+      const jsonObject = JSON.parse(json) as ProjectExport;
+      log.debug('Importing project:', jsonObject);
+
+      await loadProjectFromJSON(jsonObject);
+    },
+    [loadProjectFromJSON]
   );
 
   const loadProject = useCallback(
@@ -60,15 +86,17 @@ export const useProjects = () => {
       const project = await dbLoadProject(projectId);
 
       if (!project) {
-        log.error('Project not found:', projectId);
+        log.warn('Project not found:', projectId);
         return false;
       }
 
       await loadProjectFromJSON(project);
 
+      events.emit('project:loaded', { projectId });
+
       return true;
     },
-    [loadProjectFromJSON]
+    [events, loadProjectFromJSON]
   );
 
   const createNewProject = useCallback(async () => {
@@ -78,13 +106,17 @@ export const useProjects = () => {
 
     await deleteAllPadThumbnails();
 
+    const projectId = store.getSnapshot().context.projectId;
+
+    events.emit('project:created', { projectId: projectId! });
+
     return true;
-  }, [store, queryClient, deleteAllPadThumbnails]);
+  }, [store, queryClient, deleteAllPadThumbnails, events]);
 
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
     mutationFn: async ({ projectName }: { projectName: string }) => {
-      const data = exportToJSON();
+      const data = exportToJSON(store, urlToExternalUrl);
 
       const saveData = {
         ...data,
@@ -142,28 +174,6 @@ export const useProjects = () => {
       return [];
     }
   }, [queryClient]);
-
-  const exportProjectToJSON = useCallback(() => {
-    return exportToJSON(store, urlToExternalUrl);
-  }, [store, urlToExternalUrl]);
-
-  const exportProjectToJSONString = useCallback(() => {
-    return exportToJSONString(store, urlToExternalUrl);
-  }, [store, urlToExternalUrl]);
-
-  const exportProjectToURLString = useCallback(() => {
-    return exportToURLString(store, urlToExternalUrl);
-  }, [store, urlToExternalUrl]);
-
-  const importFromJSONString = useCallback(
-    async (json: string) => {
-      const jsonObject = JSON.parse(json) as ProjectExport;
-      log.debug('Importing project:', jsonObject);
-
-      await loadProjectFromJSON(jsonObject);
-    },
-    [loadProjectFromJSON]
-  );
 
   return {
     projectId,

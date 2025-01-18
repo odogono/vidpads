@@ -49,6 +49,16 @@ export type EventEmitterEvents = {
     mediaUrl: string;
     duration: number;
   };
+
+  'project:created': {
+    projectId: string;
+  };
+  'project:loaded': {
+    projectId: string;
+  };
+  'project:saved': {
+    projectId: string;
+  };
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;

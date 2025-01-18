@@ -10,7 +10,7 @@ import { PlayerState } from './types';
 import { usePlayerYTEvents } from './useEvents';
 import { destroyPlayer, initializePlayer } from './youtube';
 
-const log = createLog('player/yt');
+const log = createLog('player/yt', ['debug']);
 
 export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const events = useEvents();
