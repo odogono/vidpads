@@ -250,11 +250,12 @@ export const applyPadTrimOperation = (
   const existingTrimOperation = getPadOperation(pad, OperationType.Trim);
 
   if (!existingTrimOperation) {
+    const operations = pad.pipeline?.operations ?? [];
     return {
       ...pad,
       pipeline: {
         ...pad.pipeline,
-        operations: [...pad.pipeline.operations, newOp]
+        operations: [...operations, newOp]
       }
     };
   }
