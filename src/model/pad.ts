@@ -219,9 +219,13 @@ export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
 };
 
 export const getPadStartAndEndTime = (
-  pad: Pad,
+  pad: Pad | undefined,
   defaultTo?: Interval | undefined
 ): Interval | undefined => {
+  if (!pad) {
+    return defaultTo;
+  }
+
   const trimOperation = getPadOperation(pad, OperationType.Trim) as
     | TrimOperation
     | undefined;

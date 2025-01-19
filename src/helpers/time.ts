@@ -38,3 +38,66 @@ export const timeStringToMicroSeconds = (timeStr: string): number =>
  */
 export const microSecondsToTimeString = (microSeconds: number): string =>
   secondsToTimeString(microSeconds / 1000000);
+
+export const formatTimeToString = (timeInSeconds: number) => {
+  // Handle negative numbers
+  const isNegative = timeInSeconds < 0;
+  timeInSeconds = Math.abs(timeInSeconds);
+
+  // Calculate components
+  const minutes = Math.floor(timeInSeconds / 60);
+  const seconds = Math.floor(timeInSeconds % 60);
+  const milliseconds = Math.floor((timeInSeconds % 1) * 1000);
+
+  // Format components with padding
+  const minutesStr = minutes.toString().padStart(2, '0');
+  const secondsStr = seconds.toString().padStart(2, '0');
+  const millisecondsStr = milliseconds.toString().padStart(3, '0');
+
+  // Combine with sign if negative
+  return `${isNegative ? '-' : ''}${minutesStr}:${secondsStr}:${millisecondsStr}`;
+};
+
+export const formatTimeStringToSeconds = (timeString: string) => {
+  // try and parse just as a number first
+  const number = Number(timeString);
+  if (!isNaN(number)) {
+    return number;
+  }
+
+  // Check if the string matches the expected format
+  const regex = /^(-)?(\d{1,}):(\d{1,}):(\d{1,})$/;
+  const match = timeString.match(regex);
+
+  if (!match) {
+    throw new Error(
+      'Invalid time format. Expected format: MM:SS:MS (e.g., 00:01:240 or -01:02:500)'
+    );
+  }
+
+  // Extract components from matched groups
+  const [, negative, minutesStr, secondsStr, millisecondsStr] = match;
+
+  // Convert strings to numbers
+  const minutes = parseInt(minutesStr, 10);
+  const seconds = parseInt(secondsStr, 10);
+  const milliseconds = parseInt(millisecondsStr, 10);
+
+  // Validate ranges
+  if (seconds >= 60) {
+    throw new Error('Seconds must be less than 60');
+  }
+  if (milliseconds >= 1000) {
+    throw new Error('Milliseconds must be less than 1000');
+  }
+
+  // Calculate total seconds
+  let totalSeconds = minutes * 60 + seconds + milliseconds / 1000;
+
+  // Apply negative sign if present
+  if (negative) {
+    totalSeconds = -totalSeconds;
+  }
+
+  return totalSeconds;
+};
