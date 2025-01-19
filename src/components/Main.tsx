@@ -24,8 +24,9 @@ export const Main = () => {
         }`}
       >
         <header
-          className={`flex justify-end p-4 w-full mx-auto ${isFullscreen ? 'hidden' : ''}`}
+          className={`flex justify-between p-4 w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
         >
+          <div className='text-white text-xl font-bold'>ODGN VO-1</div>
           <MenuButton />
         </header>
 

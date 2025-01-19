@@ -70,7 +70,12 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   const handleStartChange = useCallback(
     (value: number) => {
       setStart(value);
-      handleStartAndEndTimeChange(value, end);
+      if (end < value) {
+        setEnd(value + 1);
+        endTimeRef.current?.setValue(value + 1);
+      }
+
+      handleStartAndEndTimeChange(value, end + 1);
     },
     [handleStartAndEndTimeChange, end]
   );

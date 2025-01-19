@@ -4,7 +4,7 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
       <div className='w-screen h-screen flex justify-center items-center p-5 box-border'>
         <div
           className={`
-            bg-white 
+            bg-slate-700 
             border-2 
             border-gray-700 
             rounded-2xl 
