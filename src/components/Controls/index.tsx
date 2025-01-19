@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive, usePad } from '@model/store/selectors';
 import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
+import { NumericInterval } from './NumericInterval';
 import { StartEndSlider } from './StartEndSlider';
 import { ControlsLoading } from './loading';
 
@@ -85,7 +86,8 @@ export const ControlsLoaded = () => {
         </div>
       </CardHeader>
       <CardBody>
-        <StartEndSlider isEditActive={true} pad={pad} />
+        {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
+        <NumericInterval pad={pad} />
       </CardBody>
       <DeleteModal ref={modalRef} />
     </Card>
