@@ -36,6 +36,11 @@ export interface PlayerStopped extends PlayerEvent {
   time: number;
 }
 
+export interface PlayerTimeUpdate extends PlayerEvent {
+  time: number;
+  duration: number;
+}
+
 export interface PlayerPlay extends PlayerEvent {
   start?: number;
   end?: number;
@@ -59,6 +64,7 @@ export interface PlayerNotReady extends PlayerEvent {
 
 export interface PlayerStop extends PlayerEvent {
   time: number;
+  all?: boolean;
 }
 
 export interface PlayerSeek extends PlayerEvent {

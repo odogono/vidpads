@@ -67,6 +67,12 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     [mediaUrl, playerPadId]
   );
 
+  const stopImmediate = useCallback(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    player.pauseVideo();
+  }, [playerRef]);
+
   const stopVideo = useCallback(
     ({ url, padId }: PlayerStop) => {
       const player = playerRef.current;
@@ -131,7 +137,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     endTimeRef,
     playVideo,
     stopVideo,
-    seekVideo
+    seekVideo,
+    stopImmediate
   });
 
   useEffect(() => {

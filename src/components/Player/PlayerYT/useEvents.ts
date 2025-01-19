@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -37,6 +37,7 @@ export interface UsePlayerYTEventsProps {
   playVideo: (props: PlayerYTPlay) => void;
   stopVideo: (props: PlayerYTStop) => void;
   seekVideo: (props: PlayerYTSeek) => void;
+  stopImmediate: () => void;
 }
 
 export const usePlayerYTEvents = ({
@@ -45,11 +46,15 @@ export const usePlayerYTEvents = ({
   isLoopedRef,
   playVideo,
   stopVideo,
-  seekVideo
+  seekVideo,
+  stopImmediate
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
   const { getPadInterval } = usePadDetails();
   const [interval] = useState(() => getPadInterval(playerPadId));
+  const isBufferingRef = useRef(false);
+  const animationRef = useRef<number | null>(null);
+  const playerRef = useRef<YTPlayer | null>(null);
 
   const { handlePlayerStateChange } = usePlayerYTState({
     intervals: interval ? [interval] : [],
@@ -127,15 +132,67 @@ export const usePlayerYTEvents = ({
     [handlePlayerStateChange, interval, mediaUrl, events]
   );
 
+  const updateTimeTracking = useCallback(() => {
+    // if (isBufferingRef.current) {
+    //   return;
+    // }
+    const time = playerRef.current?.getCurrentTime();
+    const duration = playerRef.current?.getDuration();
+    // log.debug('updateTimeTracking', time, duration);
+    if (time !== undefined && duration !== undefined) {
+      events.emit('player:time-update', {
+        url: mediaUrl,
+        padId: playerPadId,
+        time,
+        duration
+      });
+    }
+
+    if (animationRef.current !== null) {
+      animationRef.current = requestAnimationFrame(updateTimeTracking);
+    }
+  }, [mediaUrl, playerPadId, events]);
+
+  const startTimeTracking = useCallback(
+    (player: YTPlayer) => {
+      if (animationRef.current !== null) {
+        return;
+      }
+      playerRef.current = player;
+      animationRef.current = requestAnimationFrame(updateTimeTracking);
+    },
+    [updateTimeTracking]
+  );
+
+  const stopTimeTracking = useCallback(() => {
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+  }, []);
+
   const onPlayerStateChange = useCallback(
     (player: YTPlayer, state: PlayerState) => {
-      if (state === PlayerState.ENDED) {
-        handleEnded(player);
+      switch (state) {
+        case PlayerState.PLAYING:
+          isBufferingRef.current = false;
+          break;
+        case PlayerState.BUFFERING:
+          isBufferingRef.current = true;
+          startTimeTracking(player);
+          break;
+        case PlayerState.PAUSED:
+          stopTimeTracking();
+          break;
+        case PlayerState.ENDED:
+          stopTimeTracking();
+          handleEnded(player);
+          break;
       }
 
       handlePlayerStateChange(state, player);
     },
-    [handleEnded, handlePlayerStateChange]
+    [handleEnded, handlePlayerStateChange, startTimeTracking, stopTimeTracking]
   );
 
   const onPlayerError = useCallback(
@@ -175,16 +232,20 @@ export const usePlayerYTEvents = ({
       isReady ? seekVideo(e as PlayerSeek) : undefined;
     const evtExtractThumbnail = (e: PlayerEvent) =>
       isReady ? extractThumbnail(e as PlayerExtractThumbnail) : undefined;
+    const evtStopAll = () => (isReady ? stopImmediate() : undefined);
 
     events.on('video:start', evtPlayVideo);
     events.on('video:stop', evtStopVideo);
+    events.on('player:stop-all', evtStopAll);
     events.on('video:seek', evtSeekVideo);
     events.on('video:extract-thumbnail', evtExtractThumbnail);
     events.on('player:ready', handleReady);
     events.on('player:not-ready', handleNotReady);
     return () => {
+      stopTimeTracking();
       events.off('video:start', evtPlayVideo);
       events.off('video:stop', evtStopVideo);
+      events.off('player:stop-all', evtStopAll);
       events.off('video:seek', evtSeekVideo);
       events.off('video:extract-thumbnail', evtExtractThumbnail);
       events.off('player:ready', handleReady);
@@ -198,7 +259,9 @@ export const usePlayerYTEvents = ({
     isReady,
     playVideo,
     seekVideo,
-    stopVideo
+    stopVideo,
+    stopTimeTracking,
+    stopImmediate
   ]);
 
   return {

@@ -46,6 +46,15 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
       if (padId) {
         events.emit('pad:touchdown', { padId });
       }
+
+      if (code === 'Escape') {
+        events.emit('player:stop-all', {
+          url: '',
+          padId: '',
+          time: 0,
+          all: true
+        });
+      }
     },
     [events, isEnabled]
   );
