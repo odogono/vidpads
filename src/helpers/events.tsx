@@ -13,7 +13,8 @@ import {
   PlayerSeek,
   PlayerStop,
   PlayerStopped,
-  PlayerThumbnailExtracted
+  PlayerThumbnailExtracted,
+  PlayerTimeUpdate
 } from '@components/Player/types';
 
 export type EventEmitterEvents = {
@@ -44,6 +45,9 @@ export type EventEmitterEvents = {
 
   'player:playing': PlayerPlaying;
   'player:stopped': PlayerStopped;
+  'player:time-update': PlayerTimeUpdate;
+
+  'player:stop-all': PlayerStop;
 
   'media:duration-update': {
     mediaUrl: string;

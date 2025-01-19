@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useImperativeHandle, useState } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
@@ -7,21 +7,38 @@ import { Input } from '@nextui-org/react';
 
 const log = createLog('TimeInput');
 
+export interface TimeInputRef {
+  setValue: (value: number) => void;
+  getValue: () => number;
+}
 interface TimeInputProps {
+  ref?: React.RefObject<TimeInputRef | null>;
   initialValue: number;
   description: string;
+  isDisabled?: boolean;
   onChange?: (value: number) => void;
 }
 
 export const TimeInput = ({
+  ref,
   initialValue,
   description,
+  isDisabled,
   onChange
 }: TimeInputProps) => {
   const { setIsEnabled: setKeyboardEnabled } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
     formatTimeToString(initialValue)
   );
+
+  useImperativeHandle(ref, () => ({
+    setValue: (value: number) => {
+      setInputValue(formatTimeToString(value));
+    },
+    getValue: () => {
+      return formatTimeStringToSeconds(inputValue);
+    }
+  }));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -35,9 +52,17 @@ export const TimeInput = ({
     }
   };
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setKeyboardEnabled(false);
+    // select the text
+    (e.target as HTMLInputElement).select();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
+      // unfocus the input
+      (e.target as HTMLInputElement).blur();
     }
   };
 
@@ -50,6 +75,7 @@ export const TimeInput = ({
       description={description}
       labelPlacement={'outside-left'}
       type='text'
+      isDisabled={isDisabled}
       value={inputValue}
       onChange={handleInput}
       onKeyDown={handleKeyDown}
@@ -57,7 +83,7 @@ export const TimeInput = ({
         handleChange(e);
         setKeyboardEnabled(true);
       }}
-      onFocus={() => setKeyboardEnabled(false)}
+      onFocus={handleFocus}
     />
   );
 };

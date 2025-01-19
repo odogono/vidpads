@@ -54,6 +54,8 @@ export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
       if (!pad || url !== padSourceUrl) return;
       const { start, end } = { start: 0, end: 100, ...additional };
       // log.debug('[handleThumbnailExtracted]', pad.id, start, end);
+
+      // todo: this shouldn't be done here
       await applyPadTrimOperation({
         pad,
         start,

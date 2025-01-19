@@ -77,6 +77,12 @@ export const LocalPlayer = ({
     [videoRef, mediaUrl, playerPadId]
   );
 
+  const stopAll = useCallback(() => {
+    if (!videoRef.current) return;
+    videoRef.current.pause();
+    isPlayingRef.current = false;
+  }, [videoRef]);
+
   const seekVideo = useCallback(
     ({ time, url, padId }: PlayerSeek) => {
       // log.debug('[seekVideo]', id, time, { time, url, mediaUrl: mediaUrl });
@@ -165,16 +171,18 @@ export const LocalPlayer = ({
 
   useEffect(() => {
     events.on('video:start', playVideo);
-    events.on('video:stop', stopVideo);
+    events.on('video:stop', stopAll);
+    events.on('player:stop-all', stopVideo);
     events.on('video:seek', seekVideo);
     events.on('video:extract-thumbnail', extractThumbnail);
     return () => {
       events.off('video:start', playVideo);
-      events.off('video:stop', stopVideo);
+      events.off('video:stop', stopAll);
+      events.off('player:stop-all', stopVideo);
       events.off('video:seek', seekVideo);
       events.off('video:extract-thumbnail', extractThumbnail);
     };
-  }, [events, extractThumbnail, playVideo, seekVideo, stopVideo]);
+  }, [events, extractThumbnail, playVideo, seekVideo, stopVideo, stopAll]);
 
   // runs on mount to set the initial value
   useEffect(() => {
