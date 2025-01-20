@@ -108,7 +108,6 @@ export const LocalPlayer = ({
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
       if (!videoRef.current) return;
-      log.debug('stopVideo', id, padId);
       stopTimeTracking();
       videoRef.current.pause();
       isPlayingRef.current = false;
@@ -118,7 +117,6 @@ export const LocalPlayer = ({
 
   const stopAll = useCallback(() => {
     if (!videoRef.current) return;
-    log.debug('stopAll', id, playerPadId);
     stopTimeTracking();
     videoRef.current.pause();
     isPlayingRef.current = false;
@@ -141,12 +139,12 @@ export const LocalPlayer = ({
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
 
-      log.debug('[extractThumbnail]', { padId, time, requestId });
+      // log.debug('[extractThumbnail]', { padId, time, requestId });
       extractVideoThumbnailFromVideo({
         video: videoRef.current,
         frameTime: time
       }).then((thumbnail) => {
-        log.debug('[extractThumbnail] extracted', { padId, time, requestId });
+        // log.debug('[extractThumbnail] extracted', { padId, time, requestId });
         events.emit('video:thumbnail-extracted', {
           url,
           padId,
@@ -215,14 +213,14 @@ export const LocalPlayer = ({
 
   useEffect(() => {
     events.on('video:start', playVideo);
-    events.on('video:stop', stopAll);
-    events.on('player:stop-all', stopVideo);
+    events.on('video:stop', stopVideo);
+    events.on('player:stop-all', stopAll);
     events.on('video:seek', seekVideo);
     events.on('video:extract-thumbnail', extractThumbnail);
     return () => {
       events.off('video:start', playVideo);
-      events.off('video:stop', stopAll);
-      events.off('player:stop-all', stopVideo);
+      events.off('video:stop', stopVideo);
+      events.off('player:stop-all', stopAll);
       events.off('video:seek', seekVideo);
       events.off('video:extract-thumbnail', extractThumbnail);
     };
