@@ -4,10 +4,7 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { isYouTubeMetadata } from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
-import {
-  getYoutubeUrlFromMedia,
-  getYoutubeVideoIdFromMedia
-} from '@helpers/youtube';
+import { getYoutubeVideoIdFromMedia } from '@helpers/youtube';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
@@ -19,7 +16,7 @@ import {
   useSuspenseQuery
 } from '@tanstack/react-query';
 import { QUERY_KEY_METADATA } from '../constants';
-import { Media, MediaVideo } from '../types';
+import { Media } from '../types';
 
 const log = createLog('model/useMetadata');
 
@@ -58,7 +55,15 @@ export const useMetadata = () => {
         return acc;
       }, {} as InternalToExternalUrlMap);
 
-      return { metadata, urlToMetadata, urlToExternalUrl };
+      const urlToDuration = metadata.reduce(
+        (acc, media) => {
+          acc[media.url] = media.duration;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
+      return { metadata, urlToMetadata, urlToExternalUrl, urlToDuration };
     }
   });
 
@@ -87,9 +92,13 @@ export const useMetadata = () => {
     (event: { mediaUrl: string; duration: number }) => {
       const { mediaUrl, duration } = event;
 
+      // prevent redundant updates
+      if (data.urlToDuration?.[mediaUrl] === duration) {
+        return;
+      }
       updateMetadataDuration({ mediaUrl, duration });
     },
-    [updateMetadataDuration]
+    [updateMetadataDuration, data]
   );
 
   useEffect(() => {

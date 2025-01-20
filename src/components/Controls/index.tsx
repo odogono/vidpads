@@ -88,7 +88,7 @@ export const ControlsLoaded = () => {
       </CardHeader>
       <CardBody>
         {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
-        <NumericInterval pad={pad} />
+        <NumericInterval pad={pad} selectedPadId={selectedPadId} />
       </CardBody>
       <DeleteModal ref={modalRef} />
     </Card>

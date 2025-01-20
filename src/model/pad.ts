@@ -1,3 +1,4 @@
+import { roundNumberToDecimalPlaces } from '@helpers/number';
 import {
   Interval,
   Operation,
@@ -131,7 +132,7 @@ export const exportOperationToURLString = (
 
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
-    return `${operation.type},${trimNumberToDecimalPlaces(start, 2)},${trimNumberToDecimalPlaces(end, 2)}`;
+    return `${operation.type},${roundNumberToDecimalPlaces(start)},${roundNumberToDecimalPlaces(end)}`;
   }
 
   throw new Error(`Unsupported operation type: ${operation.type}`);
@@ -164,8 +165,8 @@ export const exportOperationToJSON = (
     const { start, end } = operation as TrimOperation;
     return {
       type: operation.type,
-      start: trimNumberToDecimalPlaces(start, 2),
-      end: trimNumberToDecimalPlaces(end, 2)
+      start: roundNumberToDecimalPlaces(start),
+      end: roundNumberToDecimalPlaces(end)
     } as TrimOperation;
   }
 
@@ -196,14 +197,10 @@ export const exportOperationToURL = (
 
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
-    return `${operation.type}:${trimNumberToDecimalPlaces(start, 2)}:${trimNumberToDecimalPlaces(end, 2)}`;
+    return `${operation.type}:${roundNumberToDecimalPlaces(start)}:${roundNumberToDecimalPlaces(end)}`;
   }
 
   return '';
-};
-
-const trimNumberToDecimalPlaces = (number: number, places: number): number => {
-  return Math.round(number * Math.pow(10, places)) / Math.pow(10, places);
 };
 
 export const exportToURL = (pad: Pad): string => {
@@ -247,8 +244,8 @@ export const applyPadTrimOperation = (
 ): Pad => {
   const newOp: TrimOperation = {
     type: OperationType.Trim,
-    start,
-    end
+    start: roundNumberToDecimalPlaces(start),
+    end: roundNumberToDecimalPlaces(end)
   };
 
   const existingTrimOperation = getPadOperation(pad, OperationType.Trim);
