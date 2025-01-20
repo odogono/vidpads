@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import {
-  PlayerNotReady,
-  PlayerReady,
   PlayerThumbnailExtracted,
   PlayerTimeUpdate
 } from '@components/Player/types';
@@ -16,7 +14,7 @@ import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 import { TimeInput, TimeInputRef } from './timeInput';
 
-const log = createLog('NumericInterval');
+const log = createLog('NumericInterval', ['debug']);
 
 export interface NumericIntervalProps {
   pad: Pad | undefined;
@@ -27,7 +25,6 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   const startTimeRef = useRef<TimeInputRef | null>(null);
   const endTimeRef = useRef<TimeInputRef | null>(null);
   const inputTimeRef = useRef<TimeInputRef | null>(null);
-  // const isPlayerReadyRef = useRef<boolean>(false);
   const applyPadTrimOperation = usePadTrimOperation();
 
   const padSourceUrl = getPadSourceUrl(pad);
@@ -37,12 +34,13 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
     end: duration
   })!;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleStartAndEndTimeChange = useCallback(
     debounce(async (start: number, end: number) => {
       if (!pad) return;
       const padSourceUrl = getPadSourceUrl(pad);
       if (!padSourceUrl) return;
-      // log.debug('handleStartAndEndTimeChange', start, end);
+      log.debug('handleStartAndEndTimeChange', start, end);
       // grab a new thumbnail with the new start time
       events.emit('video:extract-thumbnail', {
         url: padSourceUrl,
@@ -57,11 +55,6 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
     }, 500),
     [events, pad]
   );
-
-  // const debouncedHandleStartAndEndTimeChange = debounce(
-  //   handleStartAndEndTimeChange,
-  //   1000
-  // );
 
   const handleThumbnailExtracted = useCallback(
     async ({ url, thumbnail, additional }: PlayerThumbnailExtracted) => {
@@ -114,24 +107,6 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
     [handleStartAndEndTimeChange]
   );
 
-  // const handlePlayerReady = useCallback(
-  //   (e: PlayerReady) => {
-  //     // log.debug('handlePlayerReady', e.padId, pad?.id);
-  //     if (e.padId !== pad?.id) return;
-  //     isPlayerReadyRef.current = true;
-  //   },
-  //   [pad]
-  // );
-
-  // const handlePlayerNotReady = useCallback(
-  //   (e: PlayerNotReady) => {
-  //     if (e.padId !== pad?.id) return;
-  //     inputTimeRef.current?.setValue(0);
-  //     isPlayerReadyRef.current = false;
-  //   },
-  //   [pad]
-  // );
-
   const handlePlayerTimeUpdate = useCallback(
     (e: PlayerTimeUpdate) => {
       // log.debug('handlePlayerTimeUpdate', e.time, isPlayerReadyRef.current);
@@ -143,13 +118,9 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   );
 
   useEffect(() => {
-    // events.on('player:ready', handlePlayerReady);
-    // events.on('player:not-ready', handlePlayerNotReady);
     events.on('player:time-update', handlePlayerTimeUpdate);
     events.on('video:thumbnail-extracted', handleThumbnailExtracted);
     return () => {
-      // events.off('player:ready', handlePlayerReady);
-      // events.off('player:not-ready', handlePlayerNotReady);
       events.off('player:time-update', handlePlayerTimeUpdate);
       events.off('video:thumbnail-extracted', handleThumbnailExtracted);
     };

@@ -1,11 +1,9 @@
 import { useEffect, useImperativeHandle, useState } from 'react';
 
-import { ChevronDown, ChevronUp } from 'lucide-react';
-
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
-import { Button, ButtonGroup, Input } from '@nextui-org/react';
+import { Input } from '@nextui-org/react';
 
 const log = createLog('TimeInput');
 

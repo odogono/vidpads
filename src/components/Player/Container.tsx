@@ -5,10 +5,8 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
-import { useStore } from '@model/store/useStore';
 import { Interval } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRenderingTrace } from '../../hooks/useRenderingTrace';
 import { Player } from './Player';
 import {
   getPlayerDataState,
@@ -31,11 +29,10 @@ const log = createLog('player/container', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();
-  const { store } = useStore();
   const playingStackRef = useRef<string[]>([]);
   const queryClient = useQueryClient();
 
-  const { pads, padUrlStr, players } = usePlayers();
+  const { pads, players } = usePlayers();
 
   const handlePadTouchdown = useCallback(
     ({ padId }: { padId: string }) => {
