@@ -38,7 +38,7 @@ export const Main = () => {
         >
           <div
             id='player-wrapper'
-            className='relative w-full h-full overflow-hidden'
+            className='relative w-full h-full overflow-hidden bg-slate-500 rounded-lg'
           >
             <PlayerContainer />
           </div>

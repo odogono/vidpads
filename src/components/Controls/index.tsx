@@ -58,7 +58,7 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <Card className='mt-4 min-h-[8vh] bg-gray-800'>
+    <Card className='mt-4 min-h-[8vh] bg-slate-500 rounded-lg'>
       <CardHeader className='flex justify-between items-center'>
         <div className='flex items-center gap-2'>
           <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>
@@ -88,7 +88,7 @@ export const ControlsLoaded = () => {
       </CardHeader>
       <CardBody>
         {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
-        <NumericInterval pad={pad} selectedPadId={selectedPadId} />
+        <NumericInterval pad={pad} />
       </CardBody>
       <DeleteModal ref={modalRef} />
     </Card>
