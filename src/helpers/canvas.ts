@@ -88,17 +88,13 @@ const onVideoSeek = ({
   canvas,
   ctx,
   size
-  // resolve,
-  // reject
 }: {
   video: HTMLVideoElement;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D | null;
   size: number;
-  // resolve: (value: string) => void;
-  // reject: (reason?: unknown) => void;
 }) => {
-  log.debug('onVideoSeek');
+  // log.debug('onVideoSeek');
 
   if (!ctx) {
     return { error: new Error('Could not get canvas context') };

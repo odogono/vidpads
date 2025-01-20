@@ -19,7 +19,7 @@ import {
   useSuspenseQuery
 } from '@tanstack/react-query';
 import { QUERY_KEY_METADATA } from '../constants';
-import { Media } from '../types';
+import { Media, MediaVideo } from '../types';
 
 const log = createLog('model/useMetadata');
 
@@ -107,15 +107,6 @@ export const useMetadata = () => {
 };
 
 export const useMetadataByUrl = (url: string | undefined) => {
-  // const queryClient = useQueryClient();
-
-  // Invalidate the cache when pad changes
-  // useEffect(() => {
-  //   if (url) {
-  //     invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, url]]);
-  //   }
-  // }, [url, queryClient]);
-
   const { data } = useSuspenseQuery({
     queryKey: [QUERY_KEY_METADATA, url],
     queryFn: async () => {
@@ -127,5 +118,7 @@ export const useMetadataByUrl = (url: string | undefined) => {
     }
   });
 
-  return data;
+  const duration = data?.duration ?? -1;
+
+  return { duration, metadata: data };
 };

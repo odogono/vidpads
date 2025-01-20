@@ -59,6 +59,10 @@ export const formatTimeToString = (timeInSeconds: number) => {
 };
 
 export const formatTimeStringToSeconds = (timeString: string) => {
+  if (!timeString) {
+    // todo: get rid of throwing errors
+    throw new Error('Invalid time string');
+  }
   // try and parse just as a number first
   const number = Number(timeString);
   if (!isNaN(number)) {

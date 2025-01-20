@@ -14,6 +14,7 @@ export interface TimeInputRef {
 interface TimeInputProps {
   ref?: React.RefObject<TimeInputRef | null>;
   initialValue: number;
+  defaultValue?: number | undefined;
   description: string;
   isDisabled?: boolean;
   onChange?: (value: number) => void;
@@ -22,6 +23,7 @@ interface TimeInputProps {
 export const TimeInput = ({
   ref,
   initialValue,
+  defaultValue,
   description,
   isDisabled,
   onChange
@@ -49,6 +51,8 @@ export const TimeInput = ({
       onChange?.(newValue);
     } catch {
       log.debug('Invalid time format', input);
+      setInputValue(formatTimeToString(defaultValue ?? 0));
+      onChange?.(defaultValue ?? 0);
     }
   };
 

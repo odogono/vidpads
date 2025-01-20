@@ -3,7 +3,8 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
-import { useEditActive, usePad } from '@model/store/selectors';
+import { useEditActive } from '@model/hooks/useEditActive';
+import { usePad } from '@model/hooks/usePad';
 import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
 import { NumericInterval } from './NumericInterval';
 import { StartEndSlider } from './StartEndSlider';
