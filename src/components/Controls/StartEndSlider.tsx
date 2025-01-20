@@ -26,10 +26,10 @@ export interface StartEndSliderProps {
 export const StartEndSlider = ({ isEditActive, pad }: StartEndSliderProps) => {
   const events = useEvents();
   const padSourceUrl = getPadSourceUrl(pad);
-  const metadata = useMetadataByUrl(padSourceUrl);
+  const { duration } = useMetadataByUrl(padSourceUrl);
   const applyPadTrimOperation = usePadTrimOperation();
 
-  const videoDuration = metadata?.duration ?? 100;
+  const videoDuration = duration;
 
   const handleStartAndEndTimeChange = useCallback(
     async (start: number, end: number) => {

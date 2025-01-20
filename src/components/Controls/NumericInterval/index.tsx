@@ -8,6 +8,7 @@ import {
 } from '@components/Player/types';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
@@ -28,6 +29,9 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   const inputTimeRef = useRef<TimeInputRef | null>(null);
   const isPlayerReadyRef = useRef<boolean>(false);
   const applyPadTrimOperation = usePadTrimOperation();
+
+  const padSourceUrl = getPadSourceUrl(pad);
+  const { duration } = useMetadataByUrl(padSourceUrl);
 
   const handleStartAndEndTimeChange = useCallback(
     async (start: number, end: number) => {
@@ -70,12 +74,15 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   const handleStartChange = useCallback(
     (value: number) => {
       setStart(value);
+      let newEnd = end;
+
       if (end < value) {
-        setEnd(value + 1);
-        endTimeRef.current?.setValue(value + 1);
+        newEnd = value + 1;
+        setEnd(newEnd);
+        endTimeRef.current?.setValue(newEnd);
       }
 
-      handleStartAndEndTimeChange(value, end + 1);
+      handleStartAndEndTimeChange(value, newEnd);
     },
     [handleStartAndEndTimeChange, end]
   );
@@ -149,18 +156,21 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
       <TimeInput
         ref={startTimeRef}
         initialValue={start}
+        defaultValue={0}
         description='Start'
         onChange={handleStartChange}
       />
       <TimeInput
         ref={inputTimeRef}
         initialValue={0}
+        defaultValue={0}
         description='Time'
         isDisabled={true}
       />
       <TimeInput
         ref={endTimeRef}
         initialValue={end}
+        defaultValue={duration}
         description='End'
         onChange={handleEndChange}
       />
