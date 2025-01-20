@@ -19,7 +19,7 @@ import {
   exportToURLString,
   urlStringToProject
 } from '@model/export';
-import { useCurrentProject } from '@model/store/selectors';
+import { useCurrentProject } from '@model/hooks/useCurrentProject';
 import { useStore } from '@model/store/useStore';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

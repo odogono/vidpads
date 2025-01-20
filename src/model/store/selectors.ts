@@ -27,23 +27,6 @@ export const getPadsBySourceUrl = (
 export const getSelectedPadId = (store: StoreType): string | undefined =>
   store.getSnapshot().context.selectedPadId ?? undefined;
 
-export const getSelectedPadSourceUrl = (
-  store: StoreType
-): string | undefined => {
-  const selectedPadId = getSelectedPadId(store);
-  if (!selectedPadId) return undefined;
-  return getPadSourceUrl(getPadById(store, selectedPadId));
-};
-
-export const getSelectedPadStartAndEndTime = (store: StoreType): Interval => {
-  const defaultInterval: Interval = { start: 0, end: Number.MAX_SAFE_INTEGER };
-  const selectedPadId = getSelectedPadId(store);
-  if (!selectedPadId) return defaultInterval;
-  const pad = getPadById(store, selectedPadId);
-  if (!pad) return defaultInterval;
-  return getPadStartAndEndTime(pad, defaultInterval) as Interval;
-};
-
 export const getPadsWithMedia = (store: StoreType) => {
   const { pads } = store.getSnapshot().context;
   return pads.filter((pad) => getPadSourceUrl(pad));
@@ -52,24 +35,6 @@ export const getPadsWithMedia = (store: StoreType) => {
 export const getAllMedia = (store: StoreType) => {
   const padsWithMedia = getPadsWithMedia(store);
   return padsWithMedia.map((pad) => getPadSourceUrl(pad));
-};
-
-export const useEditActive = () => {
-  const { store } = useStore();
-
-  const setEditActive = useCallback(
-    (isEditActive: boolean) => {
-      store.send({ type: 'setEditActive', isEditActive });
-    },
-    [store]
-  );
-
-  const isEditActive = useSelector(
-    store,
-    (state) => state.context.isEditActive
-  );
-
-  return { isEditActive, setEditActive };
 };
 
 /**
@@ -92,71 +57,6 @@ export const useSelectedPadId = () => {
   );
 
   return { selectedPadId, setSelectedPadId };
-};
-
-/**
- * A hook that returns either the pad specified by the
- * padId or the currently selected pad
- *
- * @param padId
- * @returns
- */
-export const usePad = (padId?: string) => {
-  const { store } = useStore();
-
-  const selectedPadId = useSelector(
-    store,
-    (state) => state.context.selectedPadId
-  );
-
-  if (!padId && selectedPadId) {
-    padId = selectedPadId;
-  }
-
-  const pad = useSelector(store, (state) =>
-    state.context.pads.find((pad) => pad.id === padId)
-  );
-
-  const setPadIsOneShot = useCallback(
-    (padId: string, isOneShot: boolean) => {
-      if (pad) {
-        store.send({ type: 'setPadIsOneShot', padId, isOneShot });
-      }
-    },
-    [pad, store]
-  );
-
-  const setPadIsLooped = useCallback(
-    (padId: string, isLooped: boolean) => {
-      if (pad) {
-        store.send({ type: 'setPadIsLooped', padId, isLooped });
-      }
-    },
-    [pad, store]
-  );
-
-  const isLooped = pad?.isLooped;
-  const isPadOneShot = pad?.isOneShot;
-
-  return {
-    isLooped,
-    isPadOneShot,
-    pad,
-    selectedPadId,
-    setPadIsOneShot,
-    setPadIsLooped,
-    store
-  };
-};
-
-export const useCurrentProject = () => {
-  const { store } = useStore();
-  // safety tip: dont fetch multiple keys with useSelector, it causes a nextjs
-  // infinite re-render error
-  const projectId = useSelector(store, (state) => state.context.projectId);
-  const projectName = useSelector(store, (state) => state.context.projectName);
-
-  return { projectId, projectName };
 };
 
 export const useLastMediaUrl = () => {
