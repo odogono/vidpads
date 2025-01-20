@@ -1,9 +1,11 @@
-import { useImperativeHandle, useState } from 'react';
+import { useEffect, useImperativeHandle, useState } from 'react';
+
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
-import { Input } from '@nextui-org/react';
+import { Button, ButtonGroup, Input } from '@nextui-org/react';
 
 const log = createLog('TimeInput');
 
@@ -15,9 +17,11 @@ interface TimeInputProps {
   ref?: React.RefObject<TimeInputRef | null>;
   initialValue: number;
   defaultValue?: number | undefined;
+  range?: [number, number];
   description: string;
   isDisabled?: boolean;
   onChange?: (value: number) => void;
+  showIncrementButtons?: boolean;
 }
 
 export const TimeInput = ({
@@ -26,15 +30,22 @@ export const TimeInput = ({
   defaultValue,
   description,
   isDisabled,
-  onChange
+  onChange,
+  range
 }: TimeInputProps) => {
   const { setIsEnabled: setKeyboardEnabled } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
     formatTimeToString(initialValue)
   );
 
+  useEffect(() => {
+    // log.debug('TimeInput', description, initialValue);
+    setInputValue(formatTimeToString(initialValue));
+  }, [initialValue]);
+
   useImperativeHandle(ref, () => ({
     setValue: (value: number) => {
+      // if (description === 'Start') log.debug('ref.setValue', value);
       setInputValue(formatTimeToString(value));
     },
     getValue: () => {
@@ -44,9 +55,10 @@ export const TimeInput = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
+    // log.debug('handleChange', input);
     try {
       const newValue = formatTimeStringToSeconds(input);
-      log.debug('handleChange', input, newValue);
+      log.debug('handleChange', input, newValue, formatTimeToString(newValue));
       setInputValue(formatTimeToString(newValue));
       onChange?.(newValue);
     } catch {
@@ -54,12 +66,6 @@ export const TimeInput = ({
       setInputValue(formatTimeToString(defaultValue ?? 0));
       onChange?.(defaultValue ?? 0);
     }
-  };
-
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    setKeyboardEnabled(false);
-    // select the text
-    (e.target as HTMLInputElement).select();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -71,23 +77,52 @@ export const TimeInput = ({
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // log.debug('handleInput', e.target.value);
     setInputValue(e.target.value);
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
+    e.preventDefault(); // Prevent page scrolling
+    if (isDisabled) return;
+
+    const [min, max] = range ? range : [0, 100];
+
+    const currentSeconds = formatTimeStringToSeconds(inputValue);
+    const delta = e.deltaY < 0 ? 0.01 : -0.01;
+    const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
+
+    // log.debug('handleWheel', { currentSeconds, newValue, min, max });
+    setInputValue(formatTimeToString(newValue));
+    onChange?.(newValue);
+    (e.target as HTMLInputElement).blur();
+  };
+
+  // if (description === 'Start') log.debug('TimeInput', inputValue);
+
   return (
-    <Input
-      description={description}
-      labelPlacement={'outside-left'}
-      type='text'
-      isDisabled={isDisabled}
-      value={inputValue}
-      onChange={handleInput}
-      onKeyDown={handleKeyDown}
-      onBlur={(e) => {
-        handleChange(e);
-        setKeyboardEnabled(true);
-      }}
-      onFocus={handleFocus}
-    />
+    <div className='flex items-center gap-0'>
+      <Input
+        description={description}
+        labelPlacement={'outside-left'}
+        type='text'
+        isDisabled={isDisabled}
+        value={inputValue}
+        onChange={handleInput}
+        onKeyDown={handleKeyDown}
+        onBlur={(e) => {
+          handleChange(e);
+          setKeyboardEnabled(true);
+        }}
+        onFocus={(e) => {
+          setKeyboardEnabled(false);
+          (e.target as HTMLInputElement).select();
+        }}
+        onWheel={handleWheel}
+        classNames={{
+          base: 'rounded-r-none',
+          input: 'cursor-ns-resize'
+        }}
+      />
+    </div>
   );
 };

@@ -33,9 +33,44 @@ export const LocalPlayer = ({
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
   const isLoopedRef = useRef(false);
   const isPlayingRef = useRef(false);
+  const animationRef = useRef<number | null>(null);
   const mediaUrl = media.url;
 
   useVideoLoader(media as MediaVideo, videoRef);
+
+  const updateTimeTracking = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const time = video.currentTime;
+    const duration = video.duration;
+    // log.debug('updateTimeTracking', time, duration);
+    if (time !== undefined && duration !== undefined) {
+      events.emit('player:time-update', {
+        url: mediaUrl,
+        padId: playerPadId,
+        time,
+        duration
+      });
+    }
+
+    if (animationRef.current !== null) {
+      animationRef.current = requestAnimationFrame(updateTimeTracking);
+    }
+  }, [mediaUrl, playerPadId, events]);
+
+  const startTimeTracking = useCallback(() => {
+    if (animationRef.current !== null) {
+      return;
+    }
+    animationRef.current = requestAnimationFrame(updateTimeTracking);
+  }, [updateTimeTracking]);
+
+  const stopTimeTracking = useCallback(() => {
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+  }, []);
 
   const playVideo = useCallback(
     ({ start, end, isLoop, url, padId }: PlayerPlay) => {
@@ -44,6 +79,7 @@ export const LocalPlayer = ({
       if (padId !== playerPadId) return;
 
       if (isPlayingRef.current && isLoopedRef.current) {
+        stopTimeTracking();
         videoRef.current.pause();
         isPlayingRef.current = false;
         return;
@@ -62,8 +98,9 @@ export const LocalPlayer = ({
       videoRef.current.currentTime = startTime;
       isPlayingRef.current = true;
       videoRef.current.play();
+      startTimeTracking();
     },
-    [mediaUrl, playerPadId]
+    [mediaUrl, playerPadId, startTimeTracking, stopTimeTracking]
   );
 
   const stopVideo = useCallback(
@@ -71,17 +108,21 @@ export const LocalPlayer = ({
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
       if (!videoRef.current) return;
+      log.debug('stopVideo', id, padId);
+      stopTimeTracking();
       videoRef.current.pause();
       isPlayingRef.current = false;
     },
-    [videoRef, mediaUrl, playerPadId]
+    [videoRef, mediaUrl, playerPadId, stopTimeTracking]
   );
 
   const stopAll = useCallback(() => {
     if (!videoRef.current) return;
+    log.debug('stopAll', id, playerPadId);
+    stopTimeTracking();
     videoRef.current.pause();
     isPlayingRef.current = false;
-  }, [videoRef]);
+  }, [videoRef, stopTimeTracking]);
 
   const seekVideo = useCallback(
     ({ time, url, padId }: PlayerSeek) => {
@@ -95,22 +136,24 @@ export const LocalPlayer = ({
   );
 
   const extractThumbnail = useCallback(
-    ({ time, url, padId, additional }: PlayerExtractThumbnail) => {
+    ({ time, url, padId, additional, requestId }: PlayerExtractThumbnail) => {
       if (!videoRef.current) return;
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
 
-      // log.debug('[extractThumbnail]', id, time);
+      log.debug('[extractThumbnail]', { padId, time, requestId });
       extractVideoThumbnailFromVideo({
         video: videoRef.current,
         frameTime: time
       }).then((thumbnail) => {
+        log.debug('[extractThumbnail] extracted', { padId, time, requestId });
         events.emit('video:thumbnail-extracted', {
           url,
           padId,
           time,
           thumbnail,
-          additional
+          additional,
+          requestId: `LocalPlayer:${requestId}`
         });
       });
     },
@@ -126,6 +169,7 @@ export const LocalPlayer = ({
   }, [events, mediaUrl, playerPadId]);
 
   const handlePaused = useCallback(() => {
+    // log.debug('handlePaused', id, playerPadId);
     events.emit('player:stopped', {
       url: mediaUrl,
       padId: playerPadId,
@@ -138,7 +182,6 @@ export const LocalPlayer = ({
     if (!video) return;
     if (video.currentTime >= endTimeRef.current) {
       if (isLoopedRef.current) {
-        // log.debug('[handleTimeUpdate] looping', id, startTimeRef.current);
         video.currentTime = startTimeRef.current;
       } else {
         stopVideo({
@@ -148,8 +191,9 @@ export const LocalPlayer = ({
         });
       }
     }
+
     // log.debug('[handleTimeUpdate]', id, video.currentTime);
-  }, [stopVideo, mediaUrl, playerPadId]);
+  }, [mediaUrl, playerPadId, stopVideo]);
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;

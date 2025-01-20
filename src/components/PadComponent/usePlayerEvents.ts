@@ -64,7 +64,7 @@ export const usePlayerEvents = (pad: Pad) => {
     if (url) {
       const isReady = getPlayerReadyInCache(queryClient, url, pad.id);
       setIsPlayerReady(isReady);
-      if (pad.id === 'a1') log.debug('🎉 useEffect', pad.id, { url, isReady });
+      // if (pad.id === 'a1') log.debug('🎉 useEffect', pad.id, { url, isReady });
     }
 
     events.on('player:ready', handlePlayerReady);

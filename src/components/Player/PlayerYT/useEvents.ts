@@ -66,7 +66,7 @@ export const usePlayerYTEvents = ({
 
   const handleEnded = useCallback(
     (player: YTPlayer) => {
-      log.debug('ended', mediaUrl);
+      // log.debug('ended', mediaUrl);
       if (isLoopedRef.current) {
         playVideo({
           url: mediaUrl,
@@ -84,7 +84,8 @@ export const usePlayerYTEvents = ({
   );
 
   const extractThumbnail = useCallback(
-    ({ time, url, additional }: PlayerExtractThumbnail) => {
+    ({ padId, time, url, additional, requestId }: PlayerExtractThumbnail) => {
+      if (padId !== playerPadId) return;
       // sadly, extracting the thumbnail at the current time is not possible
       // with the YouTube API. So the event is emitted anyway to ensure
       // the start and end times are persisted
@@ -92,7 +93,8 @@ export const usePlayerYTEvents = ({
         url,
         time,
         additional,
-        padId: playerPadId
+        padId: playerPadId,
+        requestId: `YTPlayer:${requestId}`
       });
     },
     [events, playerPadId]

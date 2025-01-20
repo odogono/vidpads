@@ -26,6 +26,7 @@ export interface PlayerEvent {
   url: string;
   padId: string;
   additional?: PlayerAdditional;
+  requestId?: string;
 }
 
 export interface PlayerPlaying extends PlayerEvent {

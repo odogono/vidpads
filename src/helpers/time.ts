@@ -47,7 +47,7 @@ export const formatTimeToString = (timeInSeconds: number) => {
   // Calculate components
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = Math.floor(timeInSeconds % 60);
-  const milliseconds = Math.floor((timeInSeconds % 1) * 1000);
+  const milliseconds = Math.round((timeInSeconds % 1) * 1000);
 
   // Format components with padding
   const minutesStr = minutes.toString().padStart(2, '0');
@@ -85,7 +85,7 @@ export const formatTimeStringToSeconds = (timeString: string) => {
   // Convert strings to numbers
   const minutes = parseInt(minutesStr, 10);
   const seconds = parseInt(secondsStr, 10);
-  const milliseconds = parseInt(millisecondsStr, 10);
+  const milliseconds = parseInt(millisecondsStr.padEnd(3, '0'), 10);
 
   // Validate ranges
   if (seconds >= 60) {
