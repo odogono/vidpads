@@ -6,6 +6,7 @@ import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
 import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
+import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
 import { StartEndSlider } from './StartEndSlider';
 import { ControlsLoading } from './loading';
@@ -88,7 +89,8 @@ export const ControlsLoaded = () => {
       </CardHeader>
       <CardBody>
         {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
-        <NumericInterval pad={pad} />
+        {/* <NumericInterval pad={pad} /> */}
+        <IntervalSlider pad={pad} />
       </CardBody>
       <DeleteModal ref={modalRef} />
     </Card>
