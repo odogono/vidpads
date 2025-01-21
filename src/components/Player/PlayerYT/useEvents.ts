@@ -12,6 +12,7 @@ import {
   PlayerSeek,
   PlayerStop
 } from '../types';
+import type { PlayerReturn } from './index';
 import { usePlayerYTState } from './state';
 import { PlayerState } from './types';
 
@@ -34,9 +35,9 @@ export interface UsePlayerYTEventsProps {
   isLoopedRef: RefObject<boolean>;
   startTimeRef: RefObject<number>;
   endTimeRef: RefObject<number>;
-  playVideo: (props: PlayerYTPlay) => void;
-  stopVideo: (props: PlayerYTStop) => void;
-  seekVideo: (props: PlayerYTSeek) => void;
+  playVideo: (props: PlayerYTPlay) => PlayerReturn | undefined;
+  stopVideo: (props: PlayerYTStop) => PlayerReturn | undefined;
+  seekVideo: (props: PlayerYTSeek) => PlayerReturn | undefined;
   stopImmediate: () => void;
 }
 
@@ -224,14 +225,28 @@ export const usePlayerYTEvents = ({
     [playerPadId]
   );
 
+  const handleSeek = useCallback(
+    (e: PlayerSeek) => {
+      if (!isReady) return;
+      const result = seekVideo(e);
+      if (result === undefined) return;
+      const [time, duration] = result;
+      events.emit('player:time-update', {
+        url: mediaUrl,
+        padId: playerPadId,
+        time,
+        duration
+      });
+    },
+    [isReady, seekVideo, mediaUrl, playerPadId, events]
+  );
+
   useEffect(() => {
     // prevent start/stop/seek/... from triggering before the player is ready
     const evtPlayVideo = (e: PlayerEvent) =>
       isReady ? playVideo(e as PlayerPlay) : undefined;
     const evtStopVideo = (e: PlayerEvent) =>
       isReady ? stopVideo(e as PlayerStop) : undefined;
-    const evtSeekVideo = (e: PlayerEvent) =>
-      isReady ? seekVideo(e as PlayerSeek) : undefined;
     const evtExtractThumbnail = (e: PlayerEvent) =>
       isReady ? extractThumbnail(e as PlayerExtractThumbnail) : undefined;
     const evtStopAll = () => (isReady ? stopImmediate() : undefined);
@@ -239,7 +254,7 @@ export const usePlayerYTEvents = ({
     events.on('video:start', evtPlayVideo);
     events.on('video:stop', evtStopVideo);
     events.on('player:stop-all', evtStopAll);
-    events.on('video:seek', evtSeekVideo);
+    events.on('video:seek', handleSeek);
     events.on('video:extract-thumbnail', evtExtractThumbnail);
     events.on('player:ready', handleReady);
     events.on('player:not-ready', handleNotReady);
@@ -248,7 +263,7 @@ export const usePlayerYTEvents = ({
       events.off('video:start', evtPlayVideo);
       events.off('video:stop', evtStopVideo);
       events.off('player:stop-all', evtStopAll);
-      events.off('video:seek', evtSeekVideo);
+      events.off('video:seek', handleSeek);
       events.off('video:extract-thumbnail', evtExtractThumbnail);
       events.off('player:ready', handleReady);
       events.off('player:not-ready', handleNotReady);
@@ -263,7 +278,8 @@ export const usePlayerYTEvents = ({
     seekVideo,
     stopVideo,
     stopTimeTracking,
-    stopImmediate
+    stopImmediate,
+    handleSeek
   ]);
 
   return {

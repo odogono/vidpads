@@ -10,10 +10,12 @@ import {
 } from 'react';
 
 import { createLog } from '@helpers/log';
+import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
+import { useTouch } from './useTouch';
 
 const log = createLog('IntervalSlider');
 
@@ -38,11 +40,15 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
     end: duration
   })!;
 
+  // const setPlayerTime = useCallback((time: number) => {
+  //   canvasRef.current?.setTime(time);
+  // }, []);
+
   const handleTimeUpdate = useCallback((time: number) => {
     canvasRef.current?.setTime(time);
   }, []);
 
-  useControlsEvents({
+  const { handleSeek } = useControlsEvents({
     pad,
     onTimeUpdate: handleTimeUpdate
   });
@@ -55,6 +61,7 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
         intervalStart={padStart}
         intervalEnd={padEnd}
         duration={duration}
+        onSeek={handleSeek}
       />
     </div>
   );
@@ -71,6 +78,7 @@ interface IntervalCanvasProps {
   duration: number;
   time: number | null;
   ref: React.Ref<IntervalCanvasRef>;
+  onSeek: (time: number, inProgress: boolean) => void;
 }
 
 const handleWidth = 20;
@@ -81,20 +89,37 @@ const IntervalCanvas = ({
   intervalEnd,
   duration,
   time,
-  ref
+  ref,
+  onSeek
 }: IntervalCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const timeRef = useRef<number | null>(time);
   const imageDataRef = useRef<ImageData | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [dimensions, setDimensions] = useState<DOMRect>(new DOMRect());
   const [trackArea, setTrackArea] = useState<Rect>({
     x: 0,
     y: 0,
     width: 0,
     height: 0
   });
+
+  const handleTouch = useCallback(
+    (x: number, isTouching: boolean) => {
+      const scale = duration / trackArea.width;
+      const time = roundNumberToDecimalPlaces(
+        Math.min(duration, Math.max(0, (x - trackArea.x) * scale))
+      );
+
+      onSeek(time, false);
+
+      // log.debug('handleTouch', { x, time, duration });
+    },
+    [duration, onSeek, trackArea.width, trackArea.x]
+  );
+
+  const touchHandlers = useTouch({ dimensions, onTouch: handleTouch });
 
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -107,7 +132,7 @@ const IntervalCanvas = ({
       const rect = container.getBoundingClientRect();
       canvas.width = rect.width;
       canvas.height = rect.height;
-      setDimensions({ width: rect.width, height: rect.height });
+      setDimensions(rect);
       setTrackArea({
         x: handleWidth,
         y: intervalBorderWidth,
@@ -199,11 +224,19 @@ const IntervalCanvas = ({
   }, [render]);
 
   return (
-    <div ref={containerRef} className='relative w-full h-full bg-slate-900'>
+    <div
+      ref={containerRef}
+      className='pointer-events-none relative w-full h-full bg-slate-900'
+    >
       <canvas
         ref={canvasRef}
-        className='absolute w-full h-full '
-        style={{ imageRendering: 'pixelated' }}
+        className='absolute w-full h-full'
+        style={{
+          imageRendering: 'pixelated',
+          touchAction: 'none',
+          pointerEvents: 'auto'
+        }}
+        {...touchHandlers}
       />
     </div>
   );

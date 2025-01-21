@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { useRenderingTrace } from '@hooks/useRenderingTrace';
 import { MediaYouTube } from '@model/types';
 import { PlayerPlay, PlayerProps, PlayerSeek, PlayerStop } from '../types';
 import { PlayerStateToString } from './helpers';
@@ -10,10 +8,11 @@ import { PlayerState } from './types';
 import { usePlayerYTEvents } from './useEvents';
 import { destroyPlayer, initializePlayer } from './youtube';
 
+export type PlayerReturn = [number, number]; // [currentTime, duration]
+
 const log = createLog('player/yt', ['debug']);
 
 export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
-  const events = useEvents();
   const containerRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
@@ -63,6 +62,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
 
       player.seekTo(startTime, true);
       player.playVideo();
+
+      return [player.getCurrentTime(), player.getDuration()];
     },
     [mediaUrl, playerPadId]
   );
@@ -89,12 +90,13 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       } catch {
         log.debug('[stopVideo] ⚠️ error pausing video');
       }
+      return [player.getCurrentTime(), player.getDuration()];
     },
     [mediaUrl, playerPadId]
   );
 
   const seekVideo = useCallback(
-    ({ url, time, inProgress, padId }: PlayerSeek) => {
+    ({ url, time, inProgress, padId, requesterId }: PlayerSeek) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
@@ -104,11 +106,11 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       // and then set it to true again after the seek is complete
       const allowSeekAhead = !inProgress;
       try {
-        // log.debug('[seekVideo]', {
-        //   time,
-        //   allowSeekAhead,
-        //   requesterId
-        // });
+        log.debug('[seekVideo]', {
+          time,
+          allowSeekAhead,
+          requesterId
+        });
         player.seekTo(time, allowSeekAhead);
       } catch {
         // todo - caused by another play request coming in while the player is still loading
@@ -118,6 +120,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
           state: PlayerStateToString(player.getPlayerState())
         });
       }
+      return [player.getCurrentTime(), player.getDuration()];
     },
     [mediaUrl, playerPadId]
   );
@@ -192,7 +195,6 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       }
     };
   }, [
-    events,
     onPlayerCreated,
     onPlayerDestroyed,
     onPlayerError,

@@ -28,6 +28,20 @@ export const useControlsEvents = ({
   // const inputTimeRef = useRef<TimeInputRef | null>(null);
   const applyPadTrimOperation = usePadTrimOperation();
 
+  const handleSeek = useCallback(
+    (time: number, inProgress: boolean = true) => {
+      if (!pad) return;
+      events.emit('video:seek', {
+        url: getPadSourceUrl(pad)!,
+        padId: pad.id,
+        time,
+        inProgress,
+        requesterId: 'useControlsEvents'
+      });
+    },
+    [pad, events]
+  );
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleIntervalChange = useCallback(
     debounce(async (start: number, end: number) => {
@@ -88,6 +102,7 @@ export const useControlsEvents = ({
   }, [events, handlePlayerTimeUpdate, handleThumbnailExtracted]);
 
   return {
+    handleSeek,
     handleIntervalChange
   };
 };
