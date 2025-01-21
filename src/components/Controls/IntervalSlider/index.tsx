@@ -15,6 +15,7 @@ import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
+import { HandleLeft, HandleRight } from './handles';
 import { useTouch } from './useTouch';
 
 const log = createLog('IntervalSlider');
@@ -48,7 +49,7 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
     canvasRef.current?.setTime(time);
   }, []);
 
-  const { handleSeek } = useControlsEvents({
+  const { handleSeek, handleIntervalChange } = useControlsEvents({
     pad,
     onTimeUpdate: handleTimeUpdate
   });
@@ -62,6 +63,7 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
         intervalEnd={padEnd}
         duration={duration}
         onSeek={handleSeek}
+        onIntervalChange={handleIntervalChange}
       />
     </div>
   );
@@ -79,6 +81,7 @@ interface IntervalCanvasProps {
   time: number | null;
   ref: React.Ref<IntervalCanvasRef>;
   onSeek: (time: number, inProgress: boolean) => void;
+  onIntervalChange: (start: number, end: number) => void;
 }
 
 const handleWidth = 20;
@@ -90,7 +93,8 @@ const IntervalCanvas = ({
   duration,
   time,
   ref,
-  onSeek
+  onSeek,
+  onIntervalChange
 }: IntervalCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -155,6 +159,16 @@ const IntervalCanvas = ({
     return () => resizeObserver.disconnect();
   }, []);
 
+  const intervalStartX = useMemo(() => {
+    const scale = trackArea.width / duration;
+    return trackArea.x + Math.round(intervalStart * scale);
+  }, [trackArea.width, duration, intervalStart, trackArea.x]);
+
+  const intervalEndX = useMemo(() => {
+    const scale = trackArea.width / duration;
+    return trackArea.x + Math.round(intervalEnd * scale);
+  }, [trackArea.width, duration, intervalEnd, trackArea.x]);
+
   useImperativeHandle(ref, () => ({
     render: render,
     setTime: (time: number) => {
@@ -175,26 +189,17 @@ const IntervalCanvas = ({
       height: trackHeight
     } = trackArea;
 
-    const scale = trackWidth / duration;
-    const intervalStartX = trackX + Math.round(intervalStart * scale);
-    const intervalEndX = trackX + Math.round(intervalEnd * scale);
-
-    // Fill the interval area
-    // const startX = trackX + Math.round((trackWidth / duration) * intervalStart);
-    // const endX = trackY + Math.round((trackWidth / duration) * intervalEnd);
-
-    // Draw the current time line
     const lineX =
       trackX + Math.round((trackWidth / duration) * (timeRef.current ?? 0));
-    // drawLine(lineX, 0, lineX, height);
 
-    // drawLine(0, height / 2, width, height / 2);
-
-    // ctx.putImageData(imageData, 0, 0);
     // log.debug('render', { intervalStartX, intervalEndX, width, duration });
 
     ctx.imageSmoothingEnabled = false;
     ctx.lineWidth = 1;
+
+    // draw the track
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(trackX, trackY, trackWidth, trackHeight);
 
     // draw the interval
     ctx.fillStyle = 'lightblue';
@@ -212,16 +217,43 @@ const IntervalCanvas = ({
     //   height
     // });
 
+    // Draw the current time line
     ctx.strokeStyle = 'red';
     ctx.beginPath();
     ctx.moveTo(lineX + 0.5, trackY);
     ctx.lineTo(lineX + 0.5, trackY + trackHeight);
     ctx.stroke();
-  }, [dimensions, duration, intervalStart, intervalEnd, trackArea]);
+  }, [dimensions, trackArea, duration, intervalStartX, intervalEndX]);
 
   useEffect(() => {
     render();
   }, [render]);
+
+  const handleLeftDrag = useCallback(
+    (deltaX: number) => {
+      const scale = duration / trackArea.width;
+      const newStart = roundNumberToDecimalPlaces(
+        Math.max(0, Math.min(intervalEnd - 1, intervalStart + deltaX * scale))
+      );
+      // log.debug('handleLeftDrag', { newStart, intervalStart });
+      // onSeek(newStart, true);
+
+      onIntervalChange(newStart, intervalEnd);
+    },
+    [duration, trackArea.width, intervalEnd, intervalStart, onIntervalChange]
+  );
+
+  const handleRightDrag = useCallback(
+    (deltaX: number) => {
+      const scale = duration / trackArea.width;
+      const newEnd = Math.max(
+        intervalStart + 1,
+        Math.min(duration, intervalEnd + deltaX * scale)
+      );
+      // onSeek(newEnd, true);
+    },
+    [duration, trackArea.width, intervalStart, intervalEnd, onSeek]
+  );
 
   return (
     <div
@@ -237,6 +269,18 @@ const IntervalCanvas = ({
           pointerEvents: 'auto'
         }}
         {...touchHandlers}
+      />
+      <HandleLeft
+        x={intervalStartX}
+        width={handleWidth}
+        height={dimensions.height}
+        onDrag={handleLeftDrag}
+      />
+      <HandleRight
+        x={intervalEndX}
+        width={handleWidth}
+        height={dimensions.height}
+        onDrag={handleRightDrag}
       />
     </div>
   );

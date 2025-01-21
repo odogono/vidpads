@@ -5,7 +5,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
-import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Button, Card, CardBody, CardHeader, Tooltip } from '@nextui-org/react';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
 import { StartEndSlider } from './StartEndSlider';
@@ -59,41 +59,52 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <Card className='mt-4 min-h-[8vh] bg-slate-500 rounded-lg'>
-      <CardHeader className='flex justify-between items-center'>
-        <div className='flex items-center gap-2'>
-          <h3 className='font-semibold text-foreground/90'>{selectedPadId}</h3>
+    <>
+      <Card className='mt-4 min-h-[8vh] bg-slate-500 rounded-lg'>
+        <div
+          className='absolute w-20 h-8 bg-white text-black text-center flex items-center justify-center'
+          style={{ top: 40, left: 300, zIndex: 1000, borderRadius: 10 }}
+        >
+          00:00:000
         </div>
-        <div className='flex gap-2'>
-          <PadStateButton
-            label='One Shot'
-            onPress={handleOneShot}
-            isActive={pad?.isOneShot ?? false}
-          />
-          <PadStateButton
-            label='Loop'
-            onPress={handleLooped}
-            isActive={pad?.isLooped ?? false}
-          />
-          <PadStateButton
-            label='Edit'
-            onPress={handleEdit}
-            isActive={isEditActive ?? false}
-          />
-          <PadStateButton
-            label='Delete'
-            onPress={() => modalRef.current?.onOpen()}
-            isActive={selectedPadId !== undefined}
-          />
-        </div>
-      </CardHeader>
-      <CardBody>
-        {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
-        {/* <NumericInterval pad={pad} /> */}
-        <IntervalSlider pad={pad} />
-      </CardBody>
-      <DeleteModal ref={modalRef} />
-    </Card>
+        <CardHeader className='flex justify-between items-center'>
+          <div className='flex items-center gap-2'>
+            <h3 className='font-semibold text-foreground/90'>
+              {selectedPadId}
+            </h3>
+          </div>
+          <div className='flex gap-2'>
+            <PadStateButton
+              label='One Shot'
+              onPress={handleOneShot}
+              isActive={pad?.isOneShot ?? false}
+            />
+            <PadStateButton
+              label='Loop'
+              onPress={handleLooped}
+              isActive={pad?.isLooped ?? false}
+            />
+            <PadStateButton
+              label='Edit'
+              onPress={handleEdit}
+              isActive={isEditActive ?? false}
+            />
+            <PadStateButton
+              label='Delete'
+              onPress={() => modalRef.current?.onOpen()}
+              isActive={selectedPadId !== undefined}
+            />
+          </div>
+        </CardHeader>
+        <CardBody>
+          {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
+          {/* <NumericInterval pad={pad} /> */}
+
+          <IntervalSlider pad={pad} />
+        </CardBody>
+        <DeleteModal ref={modalRef} />
+      </Card>
+    </>
   );
 };
 

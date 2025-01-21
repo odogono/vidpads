@@ -42,6 +42,7 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       e.preventDefault();
+      e.currentTarget.setPointerCapture(e.pointerId);
       const x = e.clientX - dimensions.left;
       xRef.current = x;
       debouncedOnTouch(x, true);
@@ -68,6 +69,7 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       e.preventDefault();
+      e.currentTarget.releasePointerCapture(e.pointerId);
       // log.debug('Pointer up:', e.clientX - dimensions.left);
       setIsTouching(false);
       debouncedOnTouch(xRef.current, false);
@@ -94,6 +96,16 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
     [dimensions, debouncedOnTouch, isTouching]
   );
 
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.01 : -0.01;
+      xRef.current += delta;
+      debouncedOnTouch(xRef.current, true);
+    },
+    [debouncedOnTouch, xRef]
+  );
+
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent<HTMLCanvasElement>) => {
       e.preventDefault();
@@ -109,6 +121,7 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
     onPointerMove: handlePointerMove,
     onPointerUp: handlePointerUp,
     onTouchMove: handleTouchMove,
-    onTouchEnd: handleTouchEnd
+    onTouchEnd: handleTouchEnd,
+    onWheel: handleWheel
   };
 };
