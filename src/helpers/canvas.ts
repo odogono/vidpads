@@ -78,7 +78,7 @@ export const extractVideoThumbnailFromVideo = async ({
       }
     };
 
-    log.debug('[extractVideoThumbnailFromVideo] seek', frameTime);
+    // log.debug('[extractVideoThumbnailFromVideo] seek', frameTime);
     video.currentTime = frameTime;
   });
 };

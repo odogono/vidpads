@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { debounce } from '@helpers/debounce';
 import { createLog } from '@helpers/log';
 
 const log = createLog('intervalSlider/handles');
@@ -8,11 +9,14 @@ export interface HandleProps {
   x?: number;
   width?: number;
   height?: number;
+  maxX?: number;
   onDrag?: (deltaX: number) => void;
+  onSeek?: (newStart: number, inProgress: boolean) => void;
+  direction: 'left' | 'right';
 }
 
 interface UseEventsProps {
-  onDrag: (deltaX: number) => void;
+  onDrag: (deltaX: number, doSeek?: boolean) => void;
   onDragEnd: () => void;
 }
 
@@ -28,7 +32,7 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
     startXRef.current = e.clientX;
     xRef.current = e.clientX;
     setIsTouching(true);
-    log.debug('Pointer down');
+    // log.debug('Pointer down', { clientX: e.clientX });
   }, []);
 
   const handlePointerUp = useCallback(
@@ -37,7 +41,7 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
       startXRef.current = 0;
       xRef.current = 0;
       setIsTouching(false);
-      log.debug('Pointer up');
+      // log.debug('Pointer up');
       onDragEnd?.();
     },
     [onDragEnd]
@@ -47,30 +51,30 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isTouching) return;
 
-      const deltaX = e.clientX - startXRef.current;
+      const deltaX = e.clientX - xRef.current;
       xRef.current = e.clientX;
 
       onDrag(deltaX);
       // log.debug('Pointer move', { deltaX });
     },
-    [isTouching, startXRef, onDrag]
+    [isTouching, onDrag]
   );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
       if (!isTouching) return;
-      const deltaX = e.touches[0].clientX - startXRef.current;
+      const deltaX = e.touches[0].clientX - xRef.current;
       xRef.current = e.touches[0].clientX;
 
       onDrag(deltaX);
     },
-    [isTouching, startXRef, onDrag]
+    [isTouching, xRef, onDrag]
   );
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.touches[0].identifier);
-    log.debug('Touch start');
+    // log.debug('Touch start');
     setIsTouching(true);
   }, []);
 
@@ -78,16 +82,23 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
     (e: React.TouchEvent) => {
       e.preventDefault();
       e.currentTarget.releasePointerCapture(e.touches[0].identifier);
-      log.debug('Touch end');
+      // log.debug('Touch end');
       setIsTouching(false);
       onDragEnd?.();
     },
     [onDragEnd]
   );
 
-  const handleWheel = useCallback(() => {
-    log.debug('Wheel');
-  }, []);
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.01 : -0.01;
+      // log.debug('Wheel', { delta });
+      onDrag(delta, false);
+      onDragEnd?.();
+    },
+    [onDrag, onDragEnd]
+  );
 
   return {
     handlers: {
@@ -97,32 +108,39 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
       onTouchStart: handleTouchStart,
       onTouchEnd: handleTouchEnd,
       onTouchMove: handleTouchMove,
-      onWheel: handleWheel
+      onWheel: debounce(handleWheel, 10)
     }
   };
 };
 
-export const HandleLeft = ({
+export const Handle = ({
   x = 0,
   width = 0,
   height = 0,
-  onDrag
+  onDrag,
+  onSeek,
+  direction,
+  maxX = 0
 }: HandleProps) => {
-  const [delta, setDelta] = useState(0);
+  // const [delta, setDelta] = useState(0);
+  const [localX, setLocalX] = useState(x);
 
   const handleDrag = useCallback(
-    (deltaX: number) => {
-      setDelta(deltaX);
-      onDrag?.(deltaX);
+    (deltaX: number, doSeek: boolean = true) => {
+      setLocalX(localX + deltaX);
+      // log.debug('[handleDrag]', { localX, newLocalX: localX + deltaX });
+      if (doSeek) onSeek?.(localX + deltaX, true);
     },
-    [onDrag]
+    [onSeek, localX]
   );
   const handleDragEnd = useCallback(() => {
-    setDelta(0);
-  }, []);
+    onDrag?.(localX);
+    // setDelta(0);
+    // setDelta(0);
+  }, [localX, onDrag]);
 
   useEffect(() => {
-    setDelta(0);
+    setLocalX(x);
   }, [x]);
 
   const { handlers } = useEvents({
@@ -130,52 +148,25 @@ export const HandleLeft = ({
     onDragEnd: handleDragEnd
   });
 
-  // Update ref when onDrag changes
-  // useEffect(() => {
-  //   onDragRef.current = onDrag;
-  // }, [onDrag, onDragRef]);
+  const left =
+    direction === 'left'
+      ? Math.max(0, localX - width)
+      : Math.min(maxX + width, localX);
+  const borderRadius = direction === 'left' ? '5px 0 0 5px' : '0 5px 5px 0';
 
+  // if (direction === 'right')
+  //   log.debug('[handle]', { x, delta, xd: x + delta, maxX });
   return (
     <div
       {...handlers}
       className='absolute pointer-events-auto cursor-ew-resize'
       style={{
-        left: x - width + delta,
+        left,
         backgroundColor: 'gold',
         width,
         height,
-        border: '1px solid black',
-        borderRadius: '5px 0 0 5px'
-      }}
-    ></div>
-  );
-};
-
-export const HandleRight = ({
-  x = 0,
-  width = 0,
-  height = 0,
-  onDrag
-}: HandleProps) => {
-  const handleDrag = useCallback(
-    (deltaX: number) => {
-      onDrag?.(deltaX);
-    },
-    [onDrag]
-  );
-
-  const { handlers } = useEvents({ onDrag: handleDrag });
-
-  return (
-    <div
-      {...handlers}
-      className='absolute pointer-events-auto cursor-ew-resize'
-      style={{
-        left: x,
-        backgroundColor: 'gold',
-        width,
-        height,
-        borderRadius: '0 5px 5px 0'
+        // border: '1px solid black',
+        borderRadius
       }}
     ></div>
   );
