@@ -138,9 +138,17 @@ const IntervalCanvas = ({
 
       onSeek(time, false);
 
+      if (time < intervalStart) {
+        setIntervalStartX(x);
+        onIntervalChange(time, intervalEnd);
+      } else if (time > intervalEnd) {
+        setIntervalEndX(x);
+        onIntervalChange(intervalStart, time);
+      }
+
       // log.debug('handleTouch', { x, time, duration });
     },
-    [onSeek, xToInterval]
+    [intervalEnd, intervalStart, onIntervalChange, onSeek, xToInterval]
   );
 
   const touchHandlers = useTouch({ dimensions, onTouch: handleTouch });
@@ -246,28 +254,33 @@ const IntervalCanvas = ({
 
   const handleLeftSeek = useCallback(
     (newX: number) => {
-      log.debug('[handleLeftSeek]', { newX });
+      log.debug('[handleLeftSeek]', { newX, intervalEndX });
+
       const time = xToInterval(newX);
-      setIntervalStartX(newX);
       onSeek(time, false);
+
+      // if (newX > intervalEndX) {
+      //   setIntervalEndX(newX);
+      //   return;
+      // }
+
+      setIntervalStartX(newX);
     },
-    [xToInterval, onSeek]
+    [intervalEndX, xToInterval, onSeek]
   );
 
   const handleLeftDragEnd = useCallback(
     (newX: number) => {
-      // log.debug('[handleLeftDrag]', {
-      //   intervalStartX,
-      //   oldX: intervalToX(intervalStart),
-      //   newX
-      // });
+      const time = xToInterval(newX);
 
-      const newStart = xToInterval(newX);
+      // if (time > intervalEnd) {
 
-      log.debug('[handleLeftDragEnd]', { newStart });
+      // }
+
+      // log.debug('[handleLeftDragEnd]', { time, newX });
       setIntervalStartX(newX);
       // onSeek(newStart, false);
-      onIntervalChange(newStart, intervalEnd);
+      onIntervalChange(time, intervalEnd);
     },
     [xToInterval, onIntervalChange, intervalEnd]
   );
@@ -313,15 +326,37 @@ const IntervalCanvas = ({
         direction='left'
         x={intervalStartX}
         width={handleWidth}
-        maxX={trackArea.x + trackArea.width}
+        minX={trackArea.x}
+        maxX={intervalEndX}
         height={dimensions.height}
         onDrag={handleLeftDragEnd}
         onSeek={handleLeftSeek}
       />
+      <div
+        className='absolute'
+        style={{
+          backgroundColor: '#DAA520',
+          top: 0,
+          left: intervalStartX,
+          width: intervalEndX - intervalStartX,
+          height: intervalBorderWidth
+        }}
+      ></div>
+      <div
+        className='absolute'
+        style={{
+          backgroundColor: '#DAA520',
+          top: trackArea.y + trackArea.height,
+          left: intervalStartX,
+          width: intervalEndX - intervalStartX,
+          height: intervalBorderWidth
+        }}
+      ></div>
       <Handle
         direction='right'
         x={intervalEndX}
         width={handleWidth}
+        minX={intervalStartX}
         maxX={trackArea.x + trackArea.width}
         height={dimensions.height}
         onDrag={handleRightDragEnd}

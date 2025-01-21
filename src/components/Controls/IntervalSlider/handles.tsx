@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { debounce } from '@helpers/debounce';
+import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
+import { Tooltip } from '@nextui-org/react';
 
 const log = createLog('intervalSlider/handles');
 
@@ -9,6 +11,7 @@ export interface HandleProps {
   x?: number;
   width?: number;
   height?: number;
+  minX?: number;
   maxX?: number;
   onDrag?: (deltaX: number) => void;
   onSeek?: (newStart: number, inProgress: boolean) => void;
@@ -21,6 +24,7 @@ interface UseEventsProps {
 }
 
 const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
+  const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
   // const [startX, setStartX] = useState<number | null>(null);
   const startXRef = useRef<number>(0);
@@ -89,16 +93,19 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
     [onDragEnd]
   );
 
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.01 : -0.01;
-      // log.debug('Wheel', { delta });
-      onDrag(delta, false);
-      onDragEnd?.();
-    },
-    [onDrag, onDragEnd]
-  );
+  // const handleWheel = useCallback(
+  //   (e: React.WheelEvent) => {
+  //     e.preventDefault();
+
+  //     const amount = isShiftKeyDown() ? 0.1 : 0.01;
+  //     const delta = e.deltaY < 0 ? amount : -amount;
+  //     // const { scrollLeft, scrollTop } = e.target as HTMLElement;
+  //     // log.debug('Wheel', e);
+  //     onDrag(delta, false);
+  //     onDragEnd?.();
+  //   },
+  //   [isShiftKeyDown, onDrag, onDragEnd]
+  // );
 
   return {
     handlers: {
@@ -107,8 +114,9 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
       onPointerMove: handlePointerMove,
       onTouchStart: handleTouchStart,
       onTouchEnd: handleTouchEnd,
-      onTouchMove: handleTouchMove,
-      onWheel: debounce(handleWheel, 10)
+      onTouchMove: handleTouchMove
+      // todo - not working very well once moved close to bounds
+      // onWheel: handleWheel
     }
   };
 };
@@ -120,6 +128,7 @@ export const Handle = ({
   onDrag,
   onSeek,
   direction,
+  minX = 0,
   maxX = 0
 }: HandleProps) => {
   // const [delta, setDelta] = useState(0);
@@ -127,11 +136,12 @@ export const Handle = ({
 
   const handleDrag = useCallback(
     (deltaX: number, doSeek: boolean = true) => {
-      setLocalX(localX + deltaX);
+      const newLocalX = Math.min(maxX, Math.max(minX, localX + deltaX));
+      setLocalX(newLocalX);
       // log.debug('[handleDrag]', { localX, newLocalX: localX + deltaX });
-      if (doSeek) onSeek?.(localX + deltaX, true);
+      if (doSeek) onSeek?.(newLocalX, true);
     },
-    [onSeek, localX]
+    [onSeek, localX, maxX, minX]
   );
   const handleDragEnd = useCallback(() => {
     onDrag?.(localX);
@@ -150,19 +160,18 @@ export const Handle = ({
 
   const left =
     direction === 'left'
-      ? Math.max(0, localX - width)
+      ? Math.min(maxX, Math.max(minX - width, localX - width))
       : Math.min(maxX + width, localX);
   const borderRadius = direction === 'left' ? '5px 0 0 5px' : '0 5px 5px 0';
 
-  // if (direction === 'right')
-  //   log.debug('[handle]', { x, delta, xd: x + delta, maxX });
+  // if (direction === 'left') log.debug('[handle]', { x, localX, maxX });
   return (
     <div
       {...handlers}
       className='absolute pointer-events-auto cursor-ew-resize'
       style={{
         left,
-        backgroundColor: 'gold',
+        backgroundColor: '#DAA520',
         width,
         height,
         // border: '1px solid black',

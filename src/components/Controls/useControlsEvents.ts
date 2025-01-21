@@ -60,7 +60,7 @@ export const useControlsEvents = ({
           end
         }
       });
-    }, 500),
+    }, 100),
     [events, pad]
   );
 
