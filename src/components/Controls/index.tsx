@@ -85,7 +85,7 @@ export const ControlsLoaded = () => {
               isActive={pad?.isLooped ?? false}
             />
             <PadStateButton
-              label='Edit'
+              label='Numeric'
               onPress={handleEdit}
               isActive={isEditActive ?? false}
             />
@@ -97,10 +97,11 @@ export const ControlsLoaded = () => {
           </div>
         </CardHeader>
         <CardBody>
-          {/* <StartEndSlider isEditActive={true} pad={pad} /> */}
-          {/* <NumericInterval pad={pad} /> */}
-
-          <IntervalSlider pad={pad} />
+          {isEditActive ? (
+            <NumericInterval pad={pad} />
+          ) : (
+            <IntervalSlider pad={pad} />
+          )}
         </CardBody>
         <DeleteModal ref={modalRef} />
       </Card>
