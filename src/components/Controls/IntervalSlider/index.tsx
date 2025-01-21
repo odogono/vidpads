@@ -10,12 +10,12 @@ import {
 } from 'react';
 
 import { createLog } from '@helpers/log';
-import { roundNumberToDecimalPlaces } from '@helpers/number';
+import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
-import { HandleLeft, HandleRight } from './handles';
+import { Handle } from './handles';
 import { useTouch } from './useTouch';
 
 const log = createLog('IntervalSlider');
@@ -109,18 +109,38 @@ const IntervalCanvas = ({
     height: 0
   });
 
+  const intervalToX = useCallback(
+    (time: number) => time * (trackArea.width / duration) + trackArea.x,
+    [duration, trackArea.width, trackArea.x]
+  );
+  const xToInterval = useCallback(
+    (x: number) => roundDP((x - trackArea.x) * (duration / trackArea.width)),
+    [duration, trackArea.width, trackArea.x]
+  );
+
+  const [intervalStartX, setIntervalStartX] = useState(() =>
+    intervalToX(intervalStart)
+  );
+  const [intervalEndX, setIntervalEndX] = useState(() =>
+    intervalToX(intervalEnd)
+  );
+
+  useEffect(() => {
+    // convert time to local coordinate
+    // log.debug('useEffect', { intervalStart, x: intervalToX(intervalStart) });
+    setIntervalStartX(intervalToX(intervalStart));
+    setIntervalEndX(intervalToX(intervalEnd));
+  }, [intervalStart, intervalEnd, intervalToX]);
+
   const handleTouch = useCallback(
     (x: number, isTouching: boolean) => {
-      const scale = duration / trackArea.width;
-      const time = roundNumberToDecimalPlaces(
-        Math.min(duration, Math.max(0, (x - trackArea.x) * scale))
-      );
+      const time = xToInterval(x);
 
       onSeek(time, false);
 
       // log.debug('handleTouch', { x, time, duration });
     },
-    [duration, onSeek, trackArea.width, trackArea.x]
+    [onSeek, xToInterval]
   );
 
   const touchHandlers = useTouch({ dimensions, onTouch: handleTouch });
@@ -159,16 +179,6 @@ const IntervalCanvas = ({
     return () => resizeObserver.disconnect();
   }, []);
 
-  const intervalStartX = useMemo(() => {
-    const scale = trackArea.width / duration;
-    return trackArea.x + Math.round(intervalStart * scale);
-  }, [trackArea.width, duration, intervalStart, trackArea.x]);
-
-  const intervalEndX = useMemo(() => {
-    const scale = trackArea.width / duration;
-    return trackArea.x + Math.round(intervalEnd * scale);
-  }, [trackArea.width, duration, intervalEnd, trackArea.x]);
-
   useImperativeHandle(ref, () => ({
     render: render,
     setTime: (time: number) => {
@@ -189,10 +199,14 @@ const IntervalCanvas = ({
       height: trackHeight
     } = trackArea;
 
-    const lineX =
-      trackX + Math.round((trackWidth / duration) * (timeRef.current ?? 0));
+    const lineX = intervalToX(timeRef.current ?? 0);
 
-    // log.debug('render', { intervalStartX, intervalEndX, width, duration });
+    // log.debug('render', {
+    //   lineX,
+    //   time: timeRef.current,
+    //   intervalStartX,
+    //   intervalEndX
+    // });
 
     ctx.imageSmoothingEnabled = false;
     ctx.lineWidth = 1;
@@ -223,37 +237,62 @@ const IntervalCanvas = ({
     ctx.moveTo(lineX + 0.5, trackY);
     ctx.lineTo(lineX + 0.5, trackY + trackHeight);
     ctx.stroke();
-  }, [dimensions, trackArea, duration, intervalStartX, intervalEndX]);
+  }, [dimensions, trackArea, intervalToX, intervalStartX, intervalEndX]);
 
+  // render on mount
   useEffect(() => {
-    render();
+    requestAnimationFrame(render);
   }, [render]);
 
-  const handleLeftDrag = useCallback(
-    (deltaX: number) => {
-      const scale = duration / trackArea.width;
-      const newStart = roundNumberToDecimalPlaces(
-        Math.max(0, Math.min(intervalEnd - 1, intervalStart + deltaX * scale))
-      );
-      // log.debug('handleLeftDrag', { newStart, intervalStart });
-      // onSeek(newStart, true);
+  const handleLeftSeek = useCallback(
+    (newX: number) => {
+      log.debug('[handleLeftSeek]', { newX });
+      const time = xToInterval(newX);
+      setIntervalStartX(newX);
+      onSeek(time, false);
+    },
+    [xToInterval, onSeek]
+  );
 
+  const handleLeftDragEnd = useCallback(
+    (newX: number) => {
+      // log.debug('[handleLeftDrag]', {
+      //   intervalStartX,
+      //   oldX: intervalToX(intervalStart),
+      //   newX
+      // });
+
+      const newStart = xToInterval(newX);
+
+      log.debug('[handleLeftDragEnd]', { newStart });
+      setIntervalStartX(newX);
+      // onSeek(newStart, false);
       onIntervalChange(newStart, intervalEnd);
     },
-    [duration, trackArea.width, intervalEnd, intervalStart, onIntervalChange]
+    [xToInterval, onIntervalChange, intervalEnd]
   );
 
-  const handleRightDrag = useCallback(
-    (deltaX: number) => {
-      const scale = duration / trackArea.width;
-      const newEnd = Math.max(
-        intervalStart + 1,
-        Math.min(duration, intervalEnd + deltaX * scale)
-      );
-      // onSeek(newEnd, true);
+  const handleRightSeek = useCallback(
+    (newX: number) => {
+      const time = xToInterval(newX);
+      setIntervalEndX(newX);
+      onSeek(time, false);
     },
-    [duration, trackArea.width, intervalStart, intervalEnd, onSeek]
+    [xToInterval, onSeek]
   );
+
+  const handleRightDragEnd = useCallback(
+    (newX: number) => {
+      const newEnd = xToInterval(newX);
+
+      setIntervalEndX(newX);
+      onSeek(intervalStart, false);
+      onIntervalChange(intervalStart, newEnd);
+    },
+    [xToInterval, onSeek, onIntervalChange, intervalStart]
+  );
+
+  // log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
 
   return (
     <div
@@ -270,17 +309,23 @@ const IntervalCanvas = ({
         }}
         {...touchHandlers}
       />
-      <HandleLeft
+      <Handle
+        direction='left'
         x={intervalStartX}
         width={handleWidth}
+        maxX={trackArea.x + trackArea.width}
         height={dimensions.height}
-        onDrag={handleLeftDrag}
+        onDrag={handleLeftDragEnd}
+        onSeek={handleLeftSeek}
       />
-      <HandleRight
+      <Handle
+        direction='right'
         x={intervalEndX}
         width={handleWidth}
+        maxX={trackArea.x + trackArea.width}
         height={dimensions.height}
-        onDrag={handleRightDrag}
+        onDrag={handleRightDragEnd}
+        onSeek={handleRightSeek}
       />
     </div>
   );

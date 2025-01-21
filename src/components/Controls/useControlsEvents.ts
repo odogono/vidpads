@@ -13,7 +13,7 @@ import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 
-const log = createLog('useControlsEvents');
+const log = createLog('useControlsEvents', ['debug']);
 
 export interface UseControlsEventsProps {
   pad: Pad | undefined;
