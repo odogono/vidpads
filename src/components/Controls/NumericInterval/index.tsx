@@ -1,17 +1,13 @@
-import { useCallback, useEffect, useRef } from 'react';
+'use client';
 
-import {
-  PlayerThumbnailExtracted,
-  PlayerTimeUpdate
-} from '@components/Player/types';
-import { debounce } from '@helpers/debounce';
-import { useEvents } from '@helpers/events';
+import { useCallback, useRef } from 'react';
+
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
-import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
+import { useControlsEvents } from '../useControlsEvents';
 import { TimeInput, TimeInputRef } from './timeInput';
 
 const log = createLog('NumericInterval', ['debug']);
@@ -21,11 +17,9 @@ export interface NumericIntervalProps {
 }
 
 export const NumericInterval = ({ pad }: NumericIntervalProps) => {
-  const events = useEvents();
   const startTimeRef = useRef<TimeInputRef | null>(null);
   const endTimeRef = useRef<TimeInputRef | null>(null);
   const inputTimeRef = useRef<TimeInputRef | null>(null);
-  const applyPadTrimOperation = usePadTrimOperation();
 
   const padSourceUrl = getPadSourceUrl(pad);
   const { duration } = useMetadataByUrl(padSourceUrl);
@@ -34,50 +28,17 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
     end: duration
   })!;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleStartAndEndTimeChange = useCallback(
-    debounce(async (start: number, end: number) => {
-      if (!pad) return;
-      const padSourceUrl = getPadSourceUrl(pad);
-      if (!padSourceUrl) return;
-      log.debug('handleStartAndEndTimeChange', start, end);
-      // grab a new thumbnail with the new start time
-      events.emit('video:extract-thumbnail', {
-        url: padSourceUrl,
-        time: start,
-        padId: pad.id,
-        requestId: `NumericInterval:${pad.id}`,
-        additional: {
-          start,
-          end
-        }
-      });
-    }, 500),
-    [events, pad]
-  );
-
-  const handleThumbnailExtracted = useCallback(
-    async ({ url, thumbnail, additional }: PlayerThumbnailExtracted) => {
-      if (!pad) return;
-      const padSourceUrl = getPadSourceUrl(pad);
-      if (!padSourceUrl || url !== padSourceUrl) return;
-      const { start, end } = { start: 0, end: 100, ...additional };
-      // log.debug('[handleThumbnailExtracted]', pad.id, {
-      //   start,
-      //   end,
-      //   requestId
-      // });
-
-      // todo: this shouldn't be done here
-      await applyPadTrimOperation({
-        pad,
-        start,
-        end,
-        thumbnail
-      });
+  const handleTimeUpdate = useCallback(
+    (time: number) => {
+      inputTimeRef.current?.setValue(time);
     },
-    [applyPadTrimOperation, pad]
+    [inputTimeRef]
   );
+
+  const { handleIntervalChange } = useControlsEvents({
+    pad,
+    onTimeUpdate: handleTimeUpdate
+  });
 
   const handleStartChange = useCallback(
     (value: number) => {
@@ -92,9 +53,9 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         endTimeRef.current?.setValue(newEnd);
       }
 
-      handleStartAndEndTimeChange(value, newEnd);
+      handleIntervalChange(value, newEnd);
     },
-    [handleStartAndEndTimeChange, duration]
+    [handleIntervalChange, duration]
   );
 
   const handleEndChange = useCallback(
@@ -102,29 +63,10 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
       value = roundNumberToDecimalPlaces(value);
       const start = startTimeRef.current?.getValue();
       if (start === undefined) return;
-      handleStartAndEndTimeChange(start, value);
+      handleIntervalChange(start, value);
     },
-    [handleStartAndEndTimeChange]
+    [handleIntervalChange]
   );
-
-  const handlePlayerTimeUpdate = useCallback(
-    (e: PlayerTimeUpdate) => {
-      // log.debug('handlePlayerTimeUpdate', e.time, isPlayerReadyRef.current);
-      if (e.padId !== pad?.id) return;
-      // if (!isPlayerReadyRef.current) return;
-      inputTimeRef.current?.setValue(e.time);
-    },
-    [pad]
-  );
-
-  useEffect(() => {
-    events.on('player:time-update', handlePlayerTimeUpdate);
-    events.on('video:thumbnail-extracted', handleThumbnailExtracted);
-    return () => {
-      events.off('player:time-update', handlePlayerTimeUpdate);
-      events.off('video:thumbnail-extracted', handleThumbnailExtracted);
-    };
-  }, [events, handlePlayerTimeUpdate, handleThumbnailExtracted]);
 
   return (
     <div className='flex flex-row gap-2'>
