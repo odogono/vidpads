@@ -17,7 +17,7 @@ import {
 
 type LocalPlayerProps = PlayerProps;
 
-const log = createLog('player/local');
+const log = createLog('player/local', ['debug']);
 
 export const LocalPlayer = ({
   id,
@@ -124,13 +124,23 @@ export const LocalPlayer = ({
 
   const seekVideo = useCallback(
     ({ time, url, padId }: PlayerSeek) => {
-      // log.debug('[seekVideo]', id, time, { time, url, mediaUrl: mediaUrl });
       if (!videoRef.current) return;
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
+      log.debug('[seekVideo]', id, time, { time, url, mediaUrl: mediaUrl });
       videoRef.current.currentTime = time;
+
+      const duration = videoRef.current.duration;
+      const playerTime = videoRef.current.currentTime;
+
+      events.emit('player:time-update', {
+        url: mediaUrl,
+        padId: playerPadId,
+        time: playerTime,
+        duration
+      });
     },
-    [mediaUrl, playerPadId]
+    [mediaUrl, playerPadId, id, events]
   );
 
   const extractThumbnail = useCallback(
