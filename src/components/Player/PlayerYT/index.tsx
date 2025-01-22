@@ -6,6 +6,7 @@ import {
   PlayerPlay,
   PlayerProps,
   PlayerSeek,
+  PlayerSetPlaybackRate,
   PlayerSetVolume,
   PlayerStop
 } from '../types';
@@ -34,7 +35,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   // });
 
   const playVideo = useCallback(
-    ({ url, padId, start, end, isLoop, volume }: PlayerPlay) => {
+    ({ url, padId, start, end, isLoop, volume, playbackRate }: PlayerPlay) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
@@ -56,7 +57,9 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         start: startTime,
         end: endTime,
         isLoop,
-        volume: setVolume
+        volume: setVolume,
+        playbackRate,
+        playbackRates: player.getAvailablePlaybackRates()
       });
 
       if (setVolume === 0) {
@@ -64,6 +67,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       } else {
         player.unMute();
         player.setVolume(setVolume);
+        player.setPlaybackRate(playbackRate ?? 1);
       }
 
       player.seekTo(startTime, true);
@@ -143,6 +147,19 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     [mediaUrl, playerPadId]
   );
 
+  const setPlaybackRate = useCallback(
+    ({ url, padId, rate }: PlayerSetPlaybackRate) => {
+      const player = playerRef.current;
+      if (!player) return;
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
+      player.setPlaybackRate(rate);
+      const playerRate = player.getPlaybackRate();
+      log.debug('[setPlaybackRate]', { rate, playerRate });
+    },
+    [mediaUrl, playerPadId]
+  );
+
   // takes care of preparing the player on mount for playback
   const {
     onPlayerCreated,
@@ -160,7 +177,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     stopVideo,
     seekVideo,
     stopImmediate,
-    setVolume
+    setVolume,
+    setPlaybackRate
   });
 
   useEffect(() => {

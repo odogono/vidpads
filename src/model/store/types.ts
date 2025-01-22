@@ -76,6 +76,12 @@ export type ApplyTrimToPadAction = {
   end: number;
 };
 
+export type ApplyPlaybackRateToPadAction = {
+  type: 'applyPlaybackRateToPad';
+  padId: string;
+  rate: number;
+};
+
 export type ApplyVolumeToPadAction = {
   type: 'applyVolumeToPad';
   padId: string;
@@ -130,7 +136,8 @@ export type Actions =
   | SetLastMediaUrlAction
   | SetLastImportUrlAction
   | ApplyVolumeToPadAction
-  | ApplyVolumeEnvelopeToPadAction;
+  | ApplyVolumeEnvelopeToPadAction
+  | ApplyPlaybackRateToPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

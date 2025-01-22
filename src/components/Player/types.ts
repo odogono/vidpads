@@ -48,10 +48,15 @@ export interface PlayerPlay extends PlayerEvent {
   isLoop?: boolean;
   isOneShot?: boolean;
   volume?: number;
+  playbackRate?: number;
 }
 
 export interface PlayerSetVolume extends PlayerEvent {
   volume: number;
+}
+
+export interface PlayerSetPlaybackRate extends PlayerEvent {
+  rate: number;
 }
 
 export interface PlayerReady extends PlayerEvent {

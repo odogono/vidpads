@@ -5,54 +5,59 @@ import { useCallback, useRef } from 'react';
 import { useTooltip } from '@components/Tooltip/useTooltip';
 import { useEvents } from '@helpers/events';
 // import { createLog } from '@helpers/log';
-import { getPadSourceUrl, getPadVolume } from '@model/pad';
+import { getPadPlaybackRate, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { Dial } from '.';
 
-interface VolumeDialProps {
+interface PlaybackRateDialProps {
   pad: Pad | undefined;
-  setPadVolume: (padId: string, volume: number) => void;
+  setPadPlaybackRate: (padId: string, rate: number) => void;
 }
 
 // const log = createLog('dial');
 
-export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
+export const PlaybackRateDial = ({
+  pad,
+  setPadPlaybackRate
+}: PlaybackRateDialProps) => {
   const events = useEvents();
   const { setToolTip, hideToolTip } = useTooltip();
-  const padVolume = getPadVolume(pad, 1);
+  const playbackRate = getPadPlaybackRate(pad, 1);
   const padSourceUrl = getPadSourceUrl(pad);
   const ref = useRef<HTMLDivElement | null>(null);
 
   const handleDoubleTouch = useCallback(() => {
     if (!padSourceUrl || !pad?.id) return;
-    const volume = 1;
+    const rate = 1;
 
-    events.emit('player:set-volume', {
+    events.emit('player:set-playback-rate', {
       url: padSourceUrl,
       padId: pad?.id,
-      volume
+      rate
     });
 
-    setPadVolume(pad?.id, volume);
-  }, [events, pad?.id, padSourceUrl, setPadVolume]);
+    setPadPlaybackRate(pad?.id, rate);
+  }, [events, pad?.id, padSourceUrl, setPadPlaybackRate]);
 
   const handleValueChange = useCallback(
     (value: number) => {
       if (!padSourceUrl || !pad?.id) return;
 
-      events.emit('player:set-volume', {
+      const rate = value; //roundNumberToDecimalPlaces(value, 1);
+
+      events.emit('player:set-playback-rate', {
         url: padSourceUrl,
         padId: pad?.id,
-        volume: value
+        rate
       });
 
-      setPadVolume(pad?.id, value);
+      setPadPlaybackRate(pad?.id, rate);
 
       const rect = ref.current?.getBoundingClientRect();
       if (!rect) return;
-      setToolTip(value, [rect.x + 10, rect.y - 40]);
+      setToolTip(rate, [rect.x + 10, rect.y - 40]);
     },
-    [events, padSourceUrl, pad?.id, setPadVolume, setToolTip]
+    [events, padSourceUrl, pad?.id, setPadPlaybackRate, setToolTip]
   );
 
   const handleValueChangeEnd = useCallback(() => {
@@ -63,11 +68,9 @@ export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
     <Dial
       ref={ref as React.RefObject<HTMLDivElement>}
       size='w-12'
-      defaultValue={1}
-      minValue={0}
-      maxValue={1}
-      step={0.001}
-      value={padVolume}
+      minValue={0.1}
+      maxValue={2}
+      value={Math.min(5, Math.max(0.1, playbackRate))}
       onChange={handleValueChange}
       onChangeEnd={handleValueChangeEnd}
       onDoubleTouch={handleDoubleTouch}

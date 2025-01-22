@@ -3,6 +3,7 @@ import {
   Operation,
   OperationExport,
   OperationType,
+  PlaybackRateOperation,
   TrimOperation,
   VolumeKeyPoint,
   VolumeOperation
@@ -15,6 +16,14 @@ export const exportOperationToJSON = (
     return undefined;
   }
 
+  if (operation.type === OperationType.PlaybackRate) {
+    const { rate } = operation as PlaybackRateOperation;
+    return {
+      type: operation.type,
+      rate: roundDP(rate)
+    } as PlaybackRateOperation;
+  }
+
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
     return {
@@ -22,7 +31,9 @@ export const exportOperationToJSON = (
       start: roundDP(start),
       end: roundDP(end)
     } as TrimOperation;
-  } else if (operation.type === OperationType.Volume) {
+  }
+
+  if (operation.type === OperationType.Volume) {
     const { envelope } = operation as VolumeOperation;
     return {
       type: operation.type,
@@ -43,10 +54,21 @@ export const importOperationFromJSON = (
     return undefined;
   }
 
+  if (operation.type === OperationType.PlaybackRate) {
+    const { rate } = operation as PlaybackRateOperation;
+    return {
+      type: OperationType.PlaybackRate,
+      rate,
+      preservePitch: true
+    } as PlaybackRateOperation;
+  }
+
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
     return { type: OperationType.Trim, start, end } as TrimOperation;
-  } else if (operation.type === OperationType.Volume) {
+  }
+
+  if (operation.type === OperationType.Volume) {
     const { envelope } = operation as VolumeOperation;
     return {
       type: OperationType.Volume,
@@ -60,26 +82,16 @@ export const importOperationFromJSON = (
   return undefined;
 };
 
-// export const exportOperationToURLString = (
-//   operation: Operation | undefined
-// ): string | undefined => {
-//   if (!operation) {
-//     return undefined;
-//   }
-
-//   if (operation.type === OperationType.Trim) {
-//     const { start, end } = operation as TrimOperation;
-//     return `${operation.type},${roundDP(start)},${roundDP(end)}`;
-//   }
-
-//   throw new Error(`Unsupported operation type: ${operation.type}`);
-// };
-
 export const exportOperationToURL = (
   operation: Operation | undefined
 ): string | undefined => {
   if (!operation) {
     return '';
+  }
+
+  if (operation.type === OperationType.PlaybackRate) {
+    const { rate } = operation as PlaybackRateOperation;
+    return `${operation.type}:${roundDP(rate)}`;
   }
 
   if (operation.type === OperationType.Trim) {
@@ -98,6 +110,15 @@ export const importOperationFromURL = (
   urlString: string
 ): OperationExport | undefined => {
   const [type, ...rest] = urlString.split(':');
+
+  if (type === OperationType.PlaybackRate) {
+    const [rate] = rest;
+    return {
+      type: OperationType.PlaybackRate,
+      rate: parseFloat(rate),
+      preservePitch: true
+    } as PlaybackRateOperation;
+  }
 
   if (type === OperationType.Trim) {
     const [start, end] = rest;

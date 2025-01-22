@@ -5,6 +5,8 @@ import { useCallback } from 'react';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
 
+export type UsePadResult = ReturnType<typeof usePad>;
+
 /**
  * A hook that returns either the pad specified by the
  * padId or the currently selected pad
@@ -55,6 +57,15 @@ export const usePad = (padId?: string) => {
     [pad, store]
   );
 
+  const setPadPlaybackRate = useCallback(
+    (padId: string, rate: number) => {
+      if (pad) {
+        store.send({ type: 'applyPlaybackRateToPad', padId, rate });
+      }
+    },
+    [pad, store]
+  );
+
   const isLooped = pad?.isLooped;
   const isPadOneShot = pad?.isOneShot;
 
@@ -66,6 +77,7 @@ export const usePad = (padId?: string) => {
     setPadIsOneShot,
     setPadIsLooped,
     setPadVolume,
+    setPadPlaybackRate,
     store
   };
 };

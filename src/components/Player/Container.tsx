@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import {
+  getPadPlaybackRate,
   getPadSourceUrl,
   getPadStartAndEndTime,
   getPadVolume
@@ -56,6 +57,8 @@ export const PlayerContainer = () => {
         end: Number.MAX_SAFE_INTEGER
       }) as Interval;
       const volume = getPadVolume(pad, 1);
+      const playbackRate = getPadPlaybackRate(pad, 1);
+
       events.emit('video:start', {
         url: mediaUrl,
         padId: pad.id,
@@ -63,7 +66,8 @@ export const PlayerContainer = () => {
         isLoop,
         start,
         end,
-        volume
+        volume,
+        playbackRate
       });
     },
     [events, pads]

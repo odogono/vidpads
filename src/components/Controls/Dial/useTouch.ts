@@ -3,25 +3,36 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard';
-// import { createLog } from '@helpers/log';
-import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
+import { createLog } from '@helpers/log';
 
-// const log = createLog('dial/useTouch');
+const log = createLog('dial/useTouch');
 
 export interface UseTouchProps {
   value: number;
+  minValue: number;
+  maxValue: number;
   onTouch: (x: number, isTouching: boolean) => void;
   onTouchEnd?: (x: number) => void;
+  onDoubleTouch?: () => void;
 }
 
 type Pos = [number, number];
 type TouchElement = HTMLDivElement;
 
-export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
+export const useTouch = ({
+  value,
+  minValue = 0,
+  maxValue = 1,
+  onTouch,
+  onTouchEnd,
+  onDoubleTouch
+}: UseTouchProps) => {
   const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
 
   const startPositionRef = useRef<Pos>([0, 0]);
+  const lastTouchTimeRef = useRef<number>(0);
+  const DOUBLE_TOUCH_DELAY = 300; // milliseconds
 
   const callTouch = useCallback(
     ([x, y]: Pos) => {
@@ -31,11 +42,11 @@ export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
       startPositionRef.current = [x, y];
 
       const newValue = value + deltaY / 100 + deltaX / 1000;
-      const normalizedValue = Math.max(0, Math.min(1, newValue));
+      const normalizedValue = Math.max(minValue, Math.min(maxValue, newValue));
 
       onTouch(normalizedValue, true);
     },
-    [onTouch, value]
+    [onTouch, value, minValue, maxValue]
   );
 
   const handleTouchStart = useCallback(
@@ -44,9 +55,17 @@ export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
       const touch = e.touches[0];
       startPositionRef.current = [touch.clientX, touch.clientY];
 
+      const now = Date.now();
+      const timeSinceLastTouch = now - lastTouchTimeRef.current;
+
+      if (timeSinceLastTouch < DOUBLE_TOUCH_DELAY) {
+        onDoubleTouch?.();
+      }
+
+      lastTouchTimeRef.current = now;
       setIsTouching(true);
     },
-    [setIsTouching]
+    [setIsTouching, onDoubleTouch]
   );
 
   const handlePointerDown = useCallback(
@@ -54,9 +73,18 @@ export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
       e.preventDefault();
       e.currentTarget.setPointerCapture(e.pointerId);
       startPositionRef.current = [e.clientX, e.clientY];
+
+      const now = Date.now();
+      const timeSinceLastTouch = now - lastTouchTimeRef.current;
+
+      if (timeSinceLastTouch < DOUBLE_TOUCH_DELAY) {
+        onDoubleTouch?.();
+      }
+
+      lastTouchTimeRef.current = now;
       setIsTouching(true);
     },
-    [setIsTouching]
+    [setIsTouching, onDoubleTouch]
   );
 
   const handlePointerMove = useCallback(
@@ -96,12 +124,13 @@ export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
       const amount = isShiftKeyDown() ? 0.1 : 0.01;
       const delta = e.deltaY < 0 ? amount : -amount;
 
-      const newX = roundDP(Math.max(0, Math.min(1, value + delta)));
-      // log.debug('[handleWheel]', { value, newX });
+      const newValue = Math.max(minValue, Math.min(maxValue, value + delta));
 
-      onTouch(newX, true);
+      // log.debug('[handleWheel]', { value, newValue, deltaY: e.deltaY, delta });
+
+      onTouch(newValue, true);
     },
-    [onTouch, isShiftKeyDown, value]
+    [isShiftKeyDown, minValue, maxValue, value, onTouch]
   );
 
   const handleTouchEnd = useCallback(
