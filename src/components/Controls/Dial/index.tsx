@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 
 import { createLog } from '@helpers/log';
+import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { cn } from '@helpers/tailwind';
 import { useTouch } from './useTouch';
 
@@ -11,8 +12,13 @@ interface DialProps {
   value?: number;
   className?: string;
   size?: string;
+  defaultValue?: number;
+  minValue?: number;
+  maxValue?: number;
+  step?: number;
   onChange?: (value: number) => void;
   onChangeEnd?: (value: number) => void;
+  onDoubleTouch?: () => void;
 }
 
 const log = createLog('dial');
@@ -22,25 +28,51 @@ export const Dial = ({
   className,
   size = 'w-8',
   value = 0,
+  minValue = 0,
+  maxValue = 1,
   onChange,
-  onChangeEnd
+  onChangeEnd,
+  onDoubleTouch
 }: DialProps) => {
   const startAngle = -135;
+  const endAngle = 135;
+
+  // 5 -> 1
+  // 0.1 -> 0
+  const valueToRange = useCallback(
+    (value: number) => (value - minValue) / (maxValue - minValue),
+    [minValue, maxValue]
+  );
+
+  const rangeToValue = useCallback(
+    (value: number) => roundDP(value * (maxValue - minValue) + minValue, 2),
+    [minValue, maxValue]
+  );
+
+  const valueToAngle = useCallback(
+    (value: number) =>
+      ((endAngle - startAngle) / (maxValue - minValue)) * (value - minValue),
+    [startAngle, endAngle, minValue, maxValue]
+  );
 
   const handleTouch = useCallback(
     (value: number) => {
-      onChange?.(value);
+      const normalisedValue = rangeToValue(value);
+      onChange?.(normalisedValue);
     },
-    [onChange]
+    [onChange, rangeToValue]
   );
 
   const touchHandlers = useTouch({
     onTouch: handleTouch,
     onTouchEnd: onChangeEnd,
-    value
+    onDoubleTouch,
+    value: valueToRange(value),
+    minValue: 0,
+    maxValue: 1
   });
 
-  const angle = value * 270;
+  const angle = valueToAngle(value);
 
   return (
     <div

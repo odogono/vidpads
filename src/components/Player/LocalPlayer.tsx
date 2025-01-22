@@ -12,6 +12,7 @@ import {
   PlayerProps,
   PlayerReadyState,
   PlayerSeek,
+  PlayerSetPlaybackRate,
   PlayerSetVolume,
   PlayerStop
 } from './types';
@@ -74,7 +75,7 @@ export const LocalPlayer = ({
   }, []);
 
   const playVideo = useCallback(
-    ({ start, end, isLoop, url, padId }: PlayerPlay) => {
+    ({ start, end, isLoop, url, padId, volume, playbackRate }: PlayerPlay) => {
       if (!videoRef.current) return;
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
@@ -95,8 +96,11 @@ export const LocalPlayer = ({
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
       isLoopedRef.current = isLoop ?? false;
-      // log.debug('[playVideo]', id, startTime);
+
+      videoRef.current.playbackRate = playbackRate ?? 1;
+      videoRef.current.volume = volume ?? 1;
       videoRef.current.currentTime = startTime;
+
       isPlayingRef.current = true;
       videoRef.current.play();
       startTimeTracking();
@@ -150,6 +154,16 @@ export const LocalPlayer = ({
       if (!videoRef.current) return;
 
       videoRef.current.volume = volume;
+    },
+    [mediaUrl, playerPadId]
+  );
+
+  const setPlaybackRate = useCallback(
+    ({ url, padId, rate }: PlayerSetPlaybackRate) => {
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
+      if (!videoRef.current) return;
+      videoRef.current.playbackRate = rate;
     },
     [mediaUrl, playerPadId]
   );
@@ -239,6 +253,7 @@ export const LocalPlayer = ({
     events.on('video:seek', seekVideo);
     events.on('video:extract-thumbnail', extractThumbnail);
     events.on('player:set-volume', setVolume);
+    events.on('player:set-playback-rate', setPlaybackRate);
     return () => {
       events.off('video:start', playVideo);
       events.off('video:stop', stopVideo);
@@ -246,8 +261,18 @@ export const LocalPlayer = ({
       events.off('video:seek', seekVideo);
       events.off('video:extract-thumbnail', extractThumbnail);
       events.off('player:set-volume', setVolume);
+      events.off('player:set-playback-rate', setPlaybackRate);
     };
-  }, [events, extractThumbnail, playVideo, seekVideo, stopVideo, stopAll]);
+  }, [
+    events,
+    extractThumbnail,
+    playVideo,
+    seekVideo,
+    stopVideo,
+    stopAll,
+    setPlaybackRate,
+    setVolume
+  ]);
 
   // runs on mount to set the initial value
   useEffect(() => {

@@ -8,6 +8,7 @@ import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
 import { Card, CardBody, CardHeader } from '@nextui-org/react';
+import { PlaybackRateDial } from './Dial/PlaybackRateDial';
 import { VolumeDial } from './Dial/VolumeDial';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
@@ -23,7 +24,8 @@ export const ControlsLoaded = () => {
     setPadIsLooped,
     setPadIsOneShot,
     selectedPadId,
-    setPadVolume
+    setPadVolume,
+    setPadPlaybackRate
   } = usePad();
   const { isEditActive, setEditActive } = useEditActive();
   const modalRef = useRef<DeleteModalRef | null>(null);
@@ -73,6 +75,10 @@ export const ControlsLoaded = () => {
           </div>
           <div className='flex gap-2'>
             <VolumeDial pad={pad} setPadVolume={setPadVolume} />
+            <PlaybackRateDial
+              pad={pad}
+              setPadPlaybackRate={setPadPlaybackRate}
+            />
             <PadStateButton
               label='One Shot'
               onPress={handleOneShot}

@@ -2,6 +2,7 @@ import {
   Interval,
   OperationType,
   Pad,
+  PlaybackRateOperation,
   TrimOperation,
   VolumeOperation
 } from './types';
@@ -76,6 +77,25 @@ export const getPadStartAndEndTime = (
     start: trimOperation.start,
     end: trimOperation.end
   };
+};
+
+export const getPadPlaybackRate = (
+  pad: Pad | undefined,
+  defaultTo: number = 1
+): number => {
+  if (!pad) {
+    return defaultTo;
+  }
+
+  const operation = getPadOperation(pad, OperationType.PlaybackRate);
+
+  if (!operation) {
+    return defaultTo;
+  }
+
+  const { rate } = operation as PlaybackRateOperation;
+
+  return rate;
 };
 
 export const getPadOperation = (pad: Pad, type: OperationType) => {

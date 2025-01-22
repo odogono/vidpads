@@ -14,6 +14,7 @@ import { addOrReplacePad, findPadById, update } from './helpers';
 
 // const log = createLog('store/actions');
 
+export { applyPlaybackRateToPad } from './applyPlaybackRateToPad';
 export { applyTrimToPad } from './applyTrimToPad';
 export { applyVolumeToPad } from './applyVolumeToPad';
 export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';

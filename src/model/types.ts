@@ -24,7 +24,8 @@ export const OperationType = {
   Trim: 'trim',
   AddEffect: 'addEffect',
   AddTransition: 'addTransition',
-  Volume: 'volume'
+  Volume: 'volume',
+  PlaybackRate: 'playbackRate'
 } as const;
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
@@ -36,6 +37,12 @@ export interface Operation {
 export interface SourceOperation extends Operation {
   type: typeof OperationType.Source;
   url: string;
+}
+
+export interface PlaybackRateOperation extends Operation {
+  type: typeof OperationType.PlaybackRate;
+  rate: number;
+  preservePitch: boolean;
 }
 
 export interface TrimOperation extends Operation {
