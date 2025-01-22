@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { useTooltip } from '@components/Tooltip/useTooltip';
 import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadVolume } from '@model/pad';
 import { Pad } from '@model/types';
 import { Dial } from '.';
@@ -14,7 +14,7 @@ interface VolumeDialProps {
   setPadVolume: (padId: string, volume: number) => void;
 }
 
-const log = createLog('dial');
+// const log = createLog('dial');
 
 export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
   const events = useEvents();

@@ -3,10 +3,10 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 
-const log = createLog('dial/useTouch');
+// const log = createLog('dial/useTouch');
 
 export interface UseTouchProps {
   value: number;
@@ -21,7 +21,6 @@ export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
   const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
 
-  // const valueRef = useRef<number>(0);
   const startPositionRef = useRef<Pos>([0, 0]);
 
   const callTouch = useCallback(
