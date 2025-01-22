@@ -6,6 +6,7 @@ import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
 import { Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Dial } from './Dial';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
 import { PadStateButton } from './PadStateButton';
@@ -79,6 +80,7 @@ export const ControlsLoaded = () => {
             </h3>
           </div>
           <div className='flex gap-2'>
+            <Dial size='w-12' />
             <PadStateButton
               label='One Shot'
               onPress={handleOneShot}

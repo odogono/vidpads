@@ -2,11 +2,11 @@
 
 import { useCallback, useRef, useState } from 'react';
 
-import { debounce } from '@helpers/debounce';
 import { useKeyboard } from '@helpers/keyboard';
-import { createLog } from '@helpers/log';
 
-const log = createLog('intervalSlider/useTouch');
+// import { createLog } from '@helpers/log';
+
+// const log = createLog('intervalSlider/useTouch');
 
 export interface UseTouchProps {
   dimensions: DOMRect;
@@ -106,8 +106,10 @@ export const useTouch = ({
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLCanvasElement>) => {
       e.preventDefault();
+      const { deltaY } = e;
+      if (deltaY === 0) return;
       const amount = isShiftKeyDown() ? 0.1 : 0.01;
-      const delta = e.deltaY < 0 ? amount : -amount;
+      const delta = deltaY < 0 ? amount : -amount;
       xRef.current += delta;
       debouncedOnTouch(xRef.current, true);
     },
