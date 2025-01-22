@@ -5,14 +5,19 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
-import { Button, Card, CardBody, CardHeader, Tooltip } from '@nextui-org/react';
+import { Card, CardBody, CardHeader } from '@nextui-org/react';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
-import { StartEndSlider } from './StartEndSlider';
+import { PadStateButton } from './PadStateButton';
+import { Tooltip, TooltipProps } from './Tooltip';
 import { ControlsLoading } from './loading';
 
 export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const [toolTipProps, setToolTipProps] = useState<TooltipProps>({
+    time: 0,
+    x: -1
+  });
   const {
     isLooped,
     isPadOneShot,
@@ -44,6 +49,10 @@ export const ControlsLoaded = () => {
     setPadIsLooped(pad.id, !isLooped);
   }, [pad, isLooped, setPadIsLooped]);
 
+  const handlePositionChange = useCallback((time: number, x: number) => {
+    setToolTipProps({ time, x });
+  }, []);
+
   if (!isMounted) {
     return null;
   }
@@ -61,12 +70,8 @@ export const ControlsLoaded = () => {
   return (
     <>
       <Card className='mt-4 min-h-[8vh] bg-slate-500 rounded-lg'>
-        <div
-          className='absolute w-20 h-8 bg-white text-black text-center flex items-center justify-center'
-          style={{ top: 40, left: 300, zIndex: 1000, borderRadius: 10 }}
-        >
-          00:00:000
-        </div>
+        <Tooltip {...toolTipProps} />
+
         <CardHeader className='flex justify-between items-center'>
           <div className='flex items-center gap-2'>
             <h3 className='font-semibold text-foreground/90'>
@@ -100,7 +105,7 @@ export const ControlsLoaded = () => {
           {isEditActive ? (
             <NumericInterval pad={pad} />
           ) : (
-            <IntervalSlider pad={pad} />
+            <IntervalSlider pad={pad} onTimeChange={handlePositionChange} />
           )}
         </CardBody>
         <DeleteModal ref={modalRef} />
@@ -114,31 +119,5 @@ export const Controls = () => {
     <Suspense fallback={<ControlsLoading />}>
       <ControlsLoaded />
     </Suspense>
-  );
-};
-
-const PadStateButton = ({
-  label,
-  onPress,
-  isActive
-}: {
-  label: string;
-  onPress: () => void;
-  isActive: boolean;
-}) => {
-  return (
-    <Button
-      className={
-        isActive
-          ? 'bg-primary border-default-200'
-          : 'text-foreground border-default-200'
-      }
-      onPress={onPress}
-      color='primary'
-      variant={isActive ? 'solid' : 'flat'}
-      radius='full'
-    >
-      {label}
-    </Button>
   );
 };

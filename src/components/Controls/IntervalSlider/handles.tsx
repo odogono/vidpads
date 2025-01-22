@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { debounce } from '@helpers/debounce';
-import { useKeyboard } from '@helpers/keyboard';
-import { createLog } from '@helpers/log';
-import { Tooltip } from '@nextui-org/react';
+// import { createLog } from '@helpers/log';
 
-const log = createLog('intervalSlider/handles');
+// const log = createLog('intervalSlider/handles');
 
 export interface HandleProps {
   x?: number;
@@ -24,12 +21,9 @@ interface UseEventsProps {
 }
 
 const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
-  const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
-  // const [startX, setStartX] = useState<number | null>(null);
   const startXRef = useRef<number>(0);
   const xRef = useRef<number>(0);
-  // const onDragRef = useRef<((deltaX: number) => void) | undefined>(undefined);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -131,7 +125,6 @@ export const Handle = ({
   minX = 0,
   maxX = 0
 }: HandleProps) => {
-  // const [delta, setDelta] = useState(0);
   const [localX, setLocalX] = useState(x);
 
   const handleDrag = useCallback(
@@ -145,8 +138,6 @@ export const Handle = ({
   );
   const handleDragEnd = useCallback(() => {
     onDrag?.(localX);
-    // setDelta(0);
-    // setDelta(0);
   }, [localX, onDrag]);
 
   useEffect(() => {
@@ -164,19 +155,19 @@ export const Handle = ({
       : Math.min(maxX + width, localX);
   const borderRadius = direction === 'left' ? '5px 0 0 5px' : '0 5px 5px 0';
 
-  // if (direction === 'left') log.debug('[handle]', { x, localX, maxX });
   return (
     <div
       {...handlers}
-      className='absolute pointer-events-auto cursor-ew-resize'
+      className='absolute pointer-events-auto cursor-ew-resize flex items-center justify-center'
       style={{
         left,
         backgroundColor: '#DAA520',
         width,
         height,
-        // border: '1px solid black',
         borderRadius
       }}
-    ></div>
+    >
+      <div className='border-l-1 border-r-1 border-black w-1 h-6' />
+    </div>
   );
 };

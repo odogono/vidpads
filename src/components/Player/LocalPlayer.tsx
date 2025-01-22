@@ -131,12 +131,11 @@ export const LocalPlayer = ({
       videoRef.current.currentTime = time;
 
       const duration = videoRef.current.duration;
-      const playerTime = videoRef.current.currentTime;
 
       events.emit('player:time-update', {
         url: mediaUrl,
         padId: playerPadId,
-        time: playerTime,
+        time,
         duration
       });
     },
