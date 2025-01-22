@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { debounce } from '@helpers/debounce';
+import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
 
 const log = createLog('intervalSlider/useTouch');
@@ -10,14 +11,19 @@ const log = createLog('intervalSlider/useTouch');
 export interface UseTouchProps {
   dimensions: DOMRect;
   onTouch: (x: number, isTouching: boolean) => void;
+  onTouchEnd: (x: number) => void;
 }
 
-export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
+export const useTouch = ({
+  dimensions,
+  onTouch,
+  onTouchEnd
+}: UseTouchProps) => {
+  const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
   const xRef = useRef<number>(0);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedOnTouch = useCallback(debounce(onTouch, 1), [onTouch]);
+  const debouncedOnTouch = onTouch; //useCallback(debounce(onTouch, 1), [onTouch]);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<HTMLCanvasElement>) => {
@@ -46,7 +52,7 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
       const x = e.clientX - dimensions.left;
       xRef.current = x;
       debouncedOnTouch(x, true);
-      // log.debug('Pointer down:', e.clientX - dimensions.left);
+      // log.debug('Pointer down:', e.clientX, x, dimensions.left);
       setIsTouching(true);
     },
     [dimensions, debouncedOnTouch, setIsTouching]
@@ -73,8 +79,9 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
       // log.debug('Pointer up:', e.clientX - dimensions.left);
       setIsTouching(false);
       debouncedOnTouch(xRef.current, false);
+      onTouchEnd?.(xRef.current);
     },
-    [debouncedOnTouch, setIsTouching]
+    [debouncedOnTouch, setIsTouching, onTouchEnd]
   );
 
   const handleTouchMove = useCallback(
@@ -99,11 +106,12 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLCanvasElement>) => {
       e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.01 : -0.01;
+      const amount = isShiftKeyDown() ? 0.1 : 0.01;
+      const delta = e.deltaY < 0 ? amount : -amount;
       xRef.current += delta;
       debouncedOnTouch(xRef.current, true);
     },
-    [debouncedOnTouch, xRef]
+    [debouncedOnTouch, xRef, isShiftKeyDown]
   );
 
   const handleTouchEnd = useCallback(
@@ -111,8 +119,9 @@ export const useTouch = ({ dimensions, onTouch }: UseTouchProps) => {
       e.preventDefault();
       setIsTouching(false);
       debouncedOnTouch(xRef.current, false);
+      onTouchEnd?.(xRef.current);
     },
-    [debouncedOnTouch, setIsTouching]
+    [debouncedOnTouch, setIsTouching, onTouchEnd]
   );
 
   return {
