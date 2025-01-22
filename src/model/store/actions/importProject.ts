@@ -1,8 +1,8 @@
 import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
-import { importPadFromJSON } from '../../pad';
-import { initialContext } from '../store';
-import { ImportProjectAction, StoreContext } from '../types';
+import { importPadFromJSON } from '@model/serialise/pad';
+import { initialContext } from '@model/store/store';
+import { ImportProjectAction, StoreContext } from '@model/store/types';
 import { addOrReplacePad } from './helpers';
 
 const log = createLog('store/actions/importProject');

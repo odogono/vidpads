@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 
 import { createLog } from '@helpers/log';
-import { exportToURLString, urlStringToProject } from '@model/export';
 import { InternalToExternalUrlMap } from '@model/hooks/useMetadata';
+import { exportToURLString, urlStringToProject } from '@model/serialise/store';
 import { StoreContextType, StoreType } from '@model/store/types';
 import { OperationType, Pad, TrimOperation } from '@model/types';
 import {
@@ -94,7 +94,7 @@ describe.skip('exportToURLString', () => {
                     type: OperationType.Trim,
                     start: 1.23,
                     end: 4.56
-                  }
+                  } as TrimOperation
                 ]
               }
             }
@@ -107,8 +107,7 @@ describe.skip('exportToURLString', () => {
 
     log.debug(result);
 
-    const [version, projectId, projectName, createTime, updateTime, padData] =
-      result.split('|');
+    const [version, projectId, projectName, padData] = result.split('|');
 
     expect(version).toBe('1');
     expect(projectId).toBe('test-project');
