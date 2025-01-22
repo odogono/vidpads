@@ -13,10 +13,9 @@ import { IntervalCanvas, IntervalCanvasRef } from './IntervalCanvas';
 
 export interface IntervalSliderProps {
   pad: Pad | undefined;
-  onTimeChange?: (time: number, x: number) => void;
 }
 
-export const IntervalSlider = ({ pad, onTimeChange }: IntervalSliderProps) => {
+export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
   const timeRef = useRef<number | null>(null);
   const canvasRef = useRef<IntervalCanvasRef>(null);
   const padSourceUrl = getPadSourceUrl(pad);
@@ -45,7 +44,6 @@ export const IntervalSlider = ({ pad, onTimeChange }: IntervalSliderProps) => {
         duration={duration}
         onSeek={handleSeek}
         onIntervalChange={handleIntervalChange}
-        onTimeChange={onTimeChange}
       />
     </div>
   );

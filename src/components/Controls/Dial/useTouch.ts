@@ -11,13 +11,13 @@ const log = createLog('dial/useTouch');
 export interface UseTouchProps {
   value: number;
   onTouch: (x: number, isTouching: boolean) => void;
-  // onTouchEnd: (x: number) => void;
+  onTouchEnd?: (x: number) => void;
 }
 
 type Pos = [number, number];
 type TouchElement = HTMLDivElement;
 
-export const useTouch = ({ value, onTouch }: UseTouchProps) => {
+export const useTouch = ({ value, onTouch, onTouchEnd }: UseTouchProps) => {
   const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
 
@@ -74,8 +74,9 @@ export const useTouch = ({ value, onTouch }: UseTouchProps) => {
       e.preventDefault();
       e.currentTarget.releasePointerCapture(e.pointerId);
       setIsTouching(false);
+      onTouchEnd?.(value);
     },
-    [setIsTouching]
+    [setIsTouching, value, onTouchEnd]
   );
 
   const handleTouchMove = useCallback(
@@ -108,8 +109,9 @@ export const useTouch = ({ value, onTouch }: UseTouchProps) => {
     (e: React.TouchEvent<TouchElement>) => {
       e.preventDefault();
       setIsTouching(false);
+      onTouchEnd?.(value);
     },
-    [setIsTouching]
+    [setIsTouching, value, onTouchEnd]
   );
 
   return {

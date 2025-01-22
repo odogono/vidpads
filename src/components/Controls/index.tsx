@@ -2,11 +2,11 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
+import { useTooltip } from '@components/Tooltip/useTooltip';
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
 import { Card, CardBody, CardHeader } from '@nextui-org/react';
-import { Dial } from './Dial';
 import { VolumeDial } from './Dial/VolumeDial';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
@@ -31,7 +31,7 @@ export const ControlsLoaded = () => {
   } = usePad();
   const { isEditActive, setEditActive } = useEditActive();
   const modalRef = useRef<DeleteModalRef | null>(null);
-
+  // const { setToolTip, hideToolTip } = useTooltip();
   // used to prevent hydration error
   // since selectedPadId is undefined on the server
   useEffect(() => {
@@ -52,10 +52,6 @@ export const ControlsLoaded = () => {
     setPadIsLooped(pad.id, !isLooped);
   }, [pad, isLooped, setPadIsLooped]);
 
-  const handlePositionChange = useCallback((time: number, x: number) => {
-    setToolTipProps({ time, x });
-  }, []);
-
   if (!isMounted) {
     return null;
   }
@@ -73,8 +69,6 @@ export const ControlsLoaded = () => {
   return (
     <>
       <Card className='mt-4 min-h-[8vh] bg-slate-500 rounded-lg'>
-        <Tooltip {...toolTipProps} />
-
         <CardHeader className='flex justify-between items-center'>
           <div className='flex items-center gap-2'>
             <h3 className='font-semibold text-foreground/90'>
@@ -109,7 +103,7 @@ export const ControlsLoaded = () => {
           {isEditActive ? (
             <NumericInterval pad={pad} />
           ) : (
-            <IntervalSlider pad={pad} onTimeChange={handlePositionChange} />
+            <IntervalSlider pad={pad} />
           )}
         </CardBody>
         <DeleteModal ref={modalRef} />

@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
+import { useTooltip } from '@components/Tooltip/useTooltip';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { getPadSourceUrl, getPadVolume } from '@model/pad';
@@ -17,8 +18,10 @@ const log = createLog('dial');
 
 export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
   const events = useEvents();
+  const { setToolTip, hideToolTip } = useTooltip();
   const padVolume = getPadVolume(pad, 1);
   const padSourceUrl = getPadSourceUrl(pad);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const handleValueChange = useCallback(
     (value: number) => {
@@ -31,11 +34,27 @@ export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
       });
 
       setPadVolume(pad?.id, value);
+
+      const rect = ref.current?.getBoundingClientRect();
+      if (!rect) return;
+      setToolTip(value, [rect.x + 10, rect.y - 40]);
     },
-    [events, padSourceUrl, pad?.id, setPadVolume]
+    [events, padSourceUrl, pad?.id, setPadVolume, setToolTip]
   );
+
+  const handleValueChangeEnd = useCallback(() => {
+    hideToolTip();
+  }, [hideToolTip]);
 
   // log.debug('[VolumeDial]', { pad: pad?.id, volume: padVolume });
 
-  return <Dial size='w-12' value={padVolume} onChange={handleValueChange} />;
+  return (
+    <Dial
+      ref={ref as React.RefObject<HTMLDivElement>}
+      size='w-12'
+      value={padVolume}
+      onChange={handleValueChange}
+      onChangeEnd={handleValueChangeEnd}
+    />
+  );
 };
