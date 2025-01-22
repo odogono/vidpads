@@ -52,7 +52,7 @@ export const useTouch = ({
       const x = e.clientX - dimensions.left;
       xRef.current = x;
       debouncedOnTouch(x, true);
-      // log.debug('Pointer down:', e.clientX, x, dimensions.left);
+      // console.log('Pointer down:', e.clientX, x, dimensions.left);
       setIsTouching(true);
     },
     [dimensions, debouncedOnTouch, setIsTouching]
@@ -62,12 +62,12 @@ export const useTouch = ({
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       e.preventDefault();
       if (!isTouching) return;
-      const x = e.clientX - dimensions.left;
+      const x = Math.max(0, e.clientX - dimensions.left);
       if (xRef.current !== x) {
         debouncedOnTouch(x, true);
         xRef.current = x;
       }
-      // log.debug('Pointer move:', e.clientX - dimensions.left);
+      // console.log('Pointer move:', x, dimensions.right);
     },
     [dimensions, debouncedOnTouch, isTouching]
   );

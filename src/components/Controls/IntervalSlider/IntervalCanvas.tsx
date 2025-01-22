@@ -8,6 +8,7 @@ import {
   useState
 } from 'react';
 
+import { useTooltip } from '@components/Tooltip/useTooltip';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Pad } from '@model/types';
@@ -41,7 +42,6 @@ export interface IntervalCanvasProps {
   ref: React.Ref<IntervalCanvasRef>;
   onSeek: (time: number, inProgress: boolean) => void;
   onIntervalChange: (start: number, end: number) => void;
-  onTimeChange?: (time: number, x: number) => void;
 }
 
 const handleWidth = 20;
@@ -54,9 +54,9 @@ export const IntervalCanvas = ({
   time,
   ref,
   onSeek,
-  onIntervalChange,
-  onTimeChange
+  onIntervalChange
 }: IntervalCanvasProps) => {
+  const { setToolTip: setToolTipInt, hideToolTip } = useTooltip();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const timeRef = useRef<number | null>(time);
@@ -87,15 +87,25 @@ export const IntervalCanvas = ({
     intervalToX(intervalEnd)
   );
 
+  const setToolTip = useCallback(
+    (time: number, x: number) => {
+      setToolTipInt(time, [
+        dimensions.left + x - handleWidth / 2,
+        dimensions.top - 40
+      ]);
+    },
+    [dimensions, setToolTipInt]
+  );
+
   useEffect(() => {
     // convert time to local coordinate
-    log.debug('useEffect', { intervalStart, x: intervalToX(intervalStart) });
     setIntervalStartX(intervalToX(intervalStart));
     setIntervalEndX(intervalToX(intervalEnd));
   }, [intervalStart, intervalEnd, intervalToX]);
 
   const handleTouch = useCallback(
     (x: number) => {
+      x = Math.min(trackArea.x + trackArea.width, Math.max(trackArea.x, x));
       const time = xToInterval(x);
 
       onSeek(time, false);
@@ -108,22 +118,28 @@ export const IntervalCanvas = ({
         onIntervalChange(intervalStart, time);
       }
 
-      onTimeChange?.(time, x);
+      // const rect = canvasRef.current?.getBoundingClientRect();
+      // if (!rect) return;
+      // onTimeChange?.(time, dimensions.left + x);
+      setToolTip(time, x);
     },
     [
-      intervalEnd,
-      intervalStart,
-      onIntervalChange,
-      onSeek,
+      trackArea.x,
+      trackArea.width,
       xToInterval,
-      onTimeChange
+      onSeek,
+      intervalStart,
+      intervalEnd,
+      setToolTip,
+      onIntervalChange
     ]
   );
 
   const handleTouchEnd = useCallback(() => {
-    onTimeChange?.(0, -1);
+    // onTimeChange?.(0, -1);
+    hideToolTip();
     // log.debug('[handleTouchEnd]', { x: -1 });
-  }, [onTimeChange]);
+  }, [hideToolTip]);
 
   const touchHandlers = useTouch({
     dimensions,
@@ -233,9 +249,9 @@ export const IntervalCanvas = ({
       onSeek(time, false);
 
       setIntervalStartX(newX);
-      onTimeChange?.(time, newX);
+      setToolTip(time, newX);
     },
-    [xToInterval, onSeek, onTimeChange]
+    [xToInterval, onSeek, setToolTip]
   );
 
   const handleLeftDragEnd = useCallback(
@@ -246,9 +262,9 @@ export const IntervalCanvas = ({
       setIntervalStartX(newX);
       // onSeek(newStart, false);
       onIntervalChange(time, intervalEnd);
-      onTimeChange?.(time, -1);
+      hideToolTip();
     },
-    [xToInterval, onIntervalChange, intervalEnd, onTimeChange]
+    [xToInterval, onIntervalChange, intervalEnd, hideToolTip]
   );
 
   const handleRightSeek = useCallback(
@@ -256,9 +272,9 @@ export const IntervalCanvas = ({
       const time = xToInterval(newX);
       setIntervalEndX(newX);
       onSeek(time, false);
-      onTimeChange?.(time, newX);
+      setToolTip(time, newX);
     },
-    [xToInterval, onSeek, onTimeChange]
+    [xToInterval, onSeek, setToolTip]
   );
 
   const handleRightDragEnd = useCallback(
@@ -268,9 +284,9 @@ export const IntervalCanvas = ({
       setIntervalEndX(newX);
       onSeek(intervalStart, false);
       onIntervalChange(intervalStart, newEnd);
-      onTimeChange?.(0, -1);
+      hideToolTip();
     },
-    [xToInterval, onSeek, onIntervalChange, intervalStart, onTimeChange]
+    [xToInterval, onSeek, onIntervalChange, intervalStart, hideToolTip]
   );
 
   // log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
