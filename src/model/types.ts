@@ -51,7 +51,7 @@ export type VolumeKeyPoint = {
 
 export interface VolumeOperation extends Operation {
   type: typeof OperationType.Volume;
-  volume: VolumeKeyPoint[];
+  envelope: VolumeKeyPoint[];
 }
 
 export interface Pipeline {

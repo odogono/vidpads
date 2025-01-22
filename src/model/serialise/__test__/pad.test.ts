@@ -1,0 +1,168 @@
+import {
+  OperationType,
+  Pad,
+  PadExport,
+  TrimOperation,
+  VolumeOperation
+} from '@model/types';
+import {
+  exportPadToJSON,
+  exportPadToURLString,
+  importPadFromJSON,
+  importPadFromURLString
+} from '../pad';
+
+describe('pad serialization', () => {
+  const simplePad: Pad = {
+    id: 'pad1',
+    pipeline: {
+      source: {
+        type: OperationType.Source,
+        url: 'https://example.com/video.mp4'
+      },
+      operations: []
+    }
+  };
+
+  const complexPad: Pad = {
+    id: 'pad2',
+    pipeline: {
+      source: {
+        type: OperationType.Source,
+        url: 'https://example.com/video.mp4'
+      },
+      operations: [
+        {
+          type: OperationType.Trim,
+          start: 0,
+          end: 10
+        } as TrimOperation,
+        {
+          type: OperationType.Volume,
+          envelope: [
+            { time: 0, value: 1 },
+            { time: 5, value: 0.5 }
+          ]
+        } as VolumeOperation
+      ]
+    }
+  };
+
+  describe('JSON serialization', () => {
+    it('should export a simple pad to JSON', () => {
+      const exported = exportPadToJSON(simplePad);
+      expect(exported).toEqual({
+        id: 'pad1',
+        source: 'https://example.com/video.mp4'
+      });
+    });
+
+    it('should export a complex pad to JSON', () => {
+      const exported = exportPadToJSON(complexPad);
+      expect(exported).toEqual({
+        id: 'pad2',
+        source: 'https://example.com/video.mp4',
+        operations: [
+          {
+            type: OperationType.Trim,
+            start: 0,
+            end: 10
+          },
+          {
+            type: OperationType.Volume,
+            envelope: [
+              { time: 0, value: 1 },
+              { time: 5, value: 0.5 }
+            ]
+          }
+        ]
+      });
+    });
+
+    it('should import a pad from JSON', () => {
+      const padExport: PadExport = {
+        id: 'pad1',
+        source: 'https://example.com/video.mp4',
+        operations: [
+          {
+            type: OperationType.Trim,
+            start: 0,
+            end: 10
+          } as TrimOperation
+        ]
+      };
+
+      const imported = importPadFromJSON({
+        pad: padExport,
+        options: { importSource: true }
+      });
+      expect(imported).toEqual({
+        id: 'pad1',
+        pipeline: {
+          source: {
+            type: OperationType.Source,
+            url: 'https://example.com/video.mp4'
+          },
+          operations: [
+            {
+              type: OperationType.Trim,
+              start: 0,
+              end: 10
+            }
+          ]
+        }
+      });
+    });
+
+    it('should handle undefined pad when importing', () => {
+      const imported = importPadFromJSON({ pad: undefined });
+      expect(imported).toBeUndefined();
+    });
+  });
+
+  describe('URL string serialization', () => {
+    it('should export a simple pad to URL string', () => {
+      const exported = exportPadToURLString(simplePad);
+      expect(exported).toBe('pad1[https%3A%2F%2Fexample.com%2Fvideo.mp4[');
+    });
+
+    it('should export a complex pad to URL string', () => {
+      const exported = exportPadToURLString(complexPad);
+      expect(exported).toBe(
+        'pad2[https%3A%2F%2Fexample.com%2Fvideo.mp4[trim:0:10+volume:0:1:5:0.5'
+      );
+    });
+
+    it('should import a pad from URL string', () => {
+      const urlString =
+        'pad1[https%3A%2F%2Fexample.com%2Fvideo.mp4[trim:0:10+volume:0:1:5:0.5';
+      const imported = importPadFromURLString(urlString);
+      expect(imported).toEqual({
+        id: 'pad1',
+        source: 'https://example.com/video.mp4',
+        operations: [
+          {
+            type: OperationType.Trim,
+            start: 0,
+            end: 10
+          },
+          {
+            type: OperationType.Volume,
+            envelope: [
+              { time: 0, value: 1 },
+              { time: 5, value: 0.5 }
+            ]
+          }
+        ]
+      });
+    });
+
+    it('should handle URL mapping when exporting', () => {
+      const urlMap = {
+        'https://example.com/video.mp4': 'https://cdn.example.com/video.mp4'
+      };
+      const exported = exportPadToURLString(simplePad, urlMap);
+      expect(exported).toBe('pad1[https%3A%2F%2Fcdn.example.com%2Fvideo.mp4[');
+    });
+  });
+});

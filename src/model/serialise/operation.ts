@@ -1,41 +1,12 @@
-import { roundNumberToDecimalPlaces } from '@helpers/number';
+import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import {
   Operation,
   OperationExport,
   OperationType,
-  TrimOperation
+  TrimOperation,
+  VolumeKeyPoint,
+  VolumeOperation
 } from '@model/types';
-
-export const exportOperationToURLString = (
-  operation: Operation | undefined
-): string | undefined => {
-  if (!operation) {
-    return undefined;
-  }
-
-  if (operation.type === OperationType.Trim) {
-    const { start, end } = operation as TrimOperation;
-    return `${operation.type},${roundNumberToDecimalPlaces(start)},${roundNumberToDecimalPlaces(end)}`;
-  }
-
-  throw new Error(`Unsupported operation type: ${operation.type}`);
-};
-
-export const importOperationFromURL = (
-  urlString: string
-): OperationExport | undefined => {
-  const [type, start, end] = urlString.split(',');
-
-  if (type === OperationType.Trim) {
-    return {
-      type: OperationType.Trim,
-      start: parseFloat(start),
-      end: parseFloat(end)
-    } as TrimOperation;
-  }
-
-  return undefined;
-};
 
 export const exportOperationToJSON = (
   operation: Operation | undefined
@@ -48,9 +19,18 @@ export const exportOperationToJSON = (
     const { start, end } = operation as TrimOperation;
     return {
       type: operation.type,
-      start: roundNumberToDecimalPlaces(start),
-      end: roundNumberToDecimalPlaces(end)
+      start: roundDP(start),
+      end: roundDP(end)
     } as TrimOperation;
+  } else if (operation.type === OperationType.Volume) {
+    const { envelope } = operation as VolumeOperation;
+    return {
+      type: operation.type,
+      envelope: envelope.map((e) => ({
+        time: roundDP(e.time),
+        value: roundDP(e.value)
+      }))
+    } as VolumeOperation;
   }
 
   return undefined;
@@ -66,10 +46,34 @@ export const importOperationFromJSON = (
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
     return { type: OperationType.Trim, start, end } as TrimOperation;
+  } else if (operation.type === OperationType.Volume) {
+    const { envelope } = operation as VolumeOperation;
+    return {
+      type: OperationType.Volume,
+      envelope: envelope.map((e) => ({
+        time: e.time,
+        value: e.value
+      }))
+    } as VolumeOperation;
   }
 
   return undefined;
 };
+
+// export const exportOperationToURLString = (
+//   operation: Operation | undefined
+// ): string | undefined => {
+//   if (!operation) {
+//     return undefined;
+//   }
+
+//   if (operation.type === OperationType.Trim) {
+//     const { start, end } = operation as TrimOperation;
+//     return `${operation.type},${roundDP(start)},${roundDP(end)}`;
+//   }
+
+//   throw new Error(`Unsupported operation type: ${operation.type}`);
+// };
 
 export const exportOperationToURL = (
   operation: Operation | undefined
@@ -80,8 +84,54 @@ export const exportOperationToURL = (
 
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
-    return `${operation.type}:${roundNumberToDecimalPlaces(start)}:${roundNumberToDecimalPlaces(end)}`;
+    return `${operation.type}:${roundDP(start)}:${roundDP(end)}`;
+  }
+  if (operation.type === OperationType.Volume) {
+    const { envelope } = operation as VolumeOperation;
+    return `${operation.type}:${envelope.map((e) => `${roundDP(e.time)}:${roundDP(e.value)}`).join(':')}`;
   }
 
   return '';
+};
+
+export const importOperationFromURL = (
+  urlString: string
+): OperationExport | undefined => {
+  const [type, ...rest] = urlString.split(':');
+
+  if (type === OperationType.Trim) {
+    const [start, end] = rest;
+    return {
+      type: OperationType.Trim,
+      start: parseFloat(start),
+      end: parseFloat(end)
+    } as TrimOperation;
+  }
+
+  if (type === OperationType.Volume) {
+    const values = rest.map((v) => parseFloat(v));
+
+    const [envelope] = values.reduce(
+      ([acc, time], v, index) => {
+        if (index % 2 === 0) {
+          return [acc, v];
+        }
+
+        acc.push({
+          time: time,
+          value: v
+        });
+
+        return [acc, 0];
+      },
+      [[] as VolumeKeyPoint[], 0]
+    );
+
+    return {
+      type: OperationType.Volume,
+      envelope: envelope
+    } as VolumeOperation;
+  }
+
+  return undefined;
 };

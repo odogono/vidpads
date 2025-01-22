@@ -19,7 +19,7 @@ export const applyVolumeToPad = (
 
   const newOp: VolumeOperation = {
     type: OperationType.Volume,
-    volume: [
+    envelope: [
       {
         value: volume,
         time: 0

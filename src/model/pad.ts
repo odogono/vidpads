@@ -39,13 +39,13 @@ export const getPadVolume = (pad: Pad | undefined, defaultTo: number = 1) => {
     return defaultTo;
   }
 
-  const { volume } = operation as VolumeOperation;
+  const { envelope } = operation as VolumeOperation;
 
-  if (!volume || volume.length === 0) {
+  if (!envelope || envelope.length === 0) {
     return defaultTo;
   }
 
-  const lastVolume = volume[volume.length - 1];
+  const lastVolume = envelope[envelope.length - 1];
 
   return lastVolume.value;
 };
