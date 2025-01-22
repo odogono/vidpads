@@ -25,7 +25,7 @@ export const applyVolumeEnvelopeToPad = (
 
   const newOp: VolumeOperation = {
     type: OperationType.Volume,
-    volume: newEnvelope
+    envelope: newEnvelope
   };
 
   // replace the old volume operation with the new one
