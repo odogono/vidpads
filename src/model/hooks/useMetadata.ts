@@ -9,8 +9,6 @@ import { getYoutubeVideoIdFromMedia } from '@helpers/youtube';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
-  updateMetadataAvailablePlaybackRates as dbUpdateMetadataAvailablePlaybackRates,
-  updateMetadataDuration as dbUpdateMetadataDuration,
   updateMetadataProperty as dbUpdateMetadataProperty
 } from '@model/db/api';
 import {
@@ -139,51 +137,60 @@ export const useMetadata = () => {
     }
   });
 
-  const handleMediaDurationUpdate = useCallback(
-    (event: { mediaUrl: string; duration: number }) => {
-      const { mediaUrl, duration } = event;
+  // const handleMediaDurationUpdate = useCallback(
+  //   (event: { mediaUrl: string; duration: number }) => {
+  //     const { mediaUrl, duration } = event;
+
+  //     // prevent redundant updates
+  //     if (data.urlToDuration?.[mediaUrl] === duration) {
+  //       return;
+  //     }
+  //     updateMetadataProperty({
+  //       mediaUrl,
+  //       property: 'duration',
+  //       value: duration
+  //     });
+  //   },
+  //   [updateMetadataProperty, data]
+  // );
+
+  const handleMediaPropertyUpdate = useCallback(
+    (event: {
+      mediaUrl: string;
+      property: keyof Media | keyof MediaYouTube;
+      value: unknown;
+    }) => {
+      const { mediaUrl, property, value } = event;
 
       // prevent redundant updates
-      if (data.urlToDuration?.[mediaUrl] === duration) {
-        return;
+      if (property === 'playbackRates') {
+        if (
+          isObjectEqual(data.urlToPlaybackRates?.[mediaUrl], value as number[])
+        ) {
+          return;
+        }
       }
+      if (property === 'duration') {
+        if (data.urlToDuration?.[mediaUrl] === (value as number)) {
+          return;
+        }
+      }
+
       updateMetadataProperty({
         mediaUrl,
-        property: 'duration',
-        value: duration
-      });
-    },
-    [updateMetadataProperty, data]
-  );
-
-  const handleAvailablePlaybackRates = useCallback(
-    (event: { mediaUrl: string; rates: number[] }) => {
-      const { mediaUrl, rates } = event;
-
-      // prevent redundant updates
-      if (isObjectEqual(data.urlToPlaybackRates?.[mediaUrl], rates)) {
-        return;
-      }
-      updateMetadataProperty({
-        mediaUrl,
-        property: 'playbackRates',
-        value: rates
+        property,
+        value
       });
     },
     [updateMetadataProperty, data]
   );
 
   useEffect(() => {
-    events.on('media:duration-update', handleMediaDurationUpdate);
-    events.on('media:available-playback-rates', handleAvailablePlaybackRates);
+    events.on('media:property-update', handleMediaPropertyUpdate);
     return () => {
-      events.off('media:duration-update', handleMediaDurationUpdate);
-      events.off(
-        'media:available-playback-rates',
-        handleAvailablePlaybackRates
-      );
+      events.off('media:property-update', handleMediaPropertyUpdate);
     };
-  }, [events, handleMediaDurationUpdate, handleAvailablePlaybackRates]);
+  }, [events, handleMediaPropertyUpdate]);
 
   return {
     metadata: data?.metadata,

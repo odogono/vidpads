@@ -305,91 +305,91 @@ export const updateMetadataProperty = async (
   });
 };
 
-export const updateMetadataDuration = async (
-  mediaUrl: string,
-  duration: number
-): Promise<void> => {
-  const db = await openDB();
+// export const updateMetadataDuration = async (
+//   mediaUrl: string,
+//   duration: number
+// ): Promise<void> => {
+//   const db = await openDB();
 
-  return new Promise((resolve, reject) => {
-    const { metadata, transaction } = idbOpenTransaction(
-      db,
-      ['metadata'],
-      'readwrite'
-    );
+//   return new Promise((resolve, reject) => {
+//     const { metadata, transaction } = idbOpenTransaction(
+//       db,
+//       ['metadata'],
+//       'readwrite'
+//     );
 
-    if (!mediaUrl) {
-      reject(new Error(`Invalid media URL ${mediaUrl}`));
-    }
+//     if (!mediaUrl) {
+//       reject(new Error(`Invalid media URL ${mediaUrl}`));
+//     }
 
-    const request = metadata.get(mediaUrl);
+//     const request = metadata.get(mediaUrl);
 
-    request.onsuccess = () => {
-      const result = request.result;
-      if (!result) {
-        return reject(
-          new Error(`updateMetadataDuration not found for ${mediaUrl}`)
-        );
-      }
-      result.duration = duration;
-      metadata.put(result);
-      // log.debug('updated duration', mediaUrl, result);
-    };
+//     request.onsuccess = () => {
+//       const result = request.result;
+//       if (!result) {
+//         return reject(
+//           new Error(`updateMetadataDuration not found for ${mediaUrl}`)
+//         );
+//       }
+//       result.duration = duration;
+//       metadata.put(result);
+//       // log.debug('updated duration', mediaUrl, result);
+//     };
 
-    transaction.onerror = () => {
-      log.error('Error updating metadata duration:', transaction.error);
-      reject(transaction.error);
-    };
+//     transaction.onerror = () => {
+//       log.error('Error updating metadata duration:', transaction.error);
+//       reject(transaction.error);
+//     };
 
-    transaction.oncomplete = () => {
-      closeDB(db);
-      resolve();
-    };
-  });
-};
+//     transaction.oncomplete = () => {
+//       closeDB(db);
+//       resolve();
+//     };
+//   });
+// };
 
-export const updateMetadataAvailablePlaybackRates = async (
-  mediaUrl: string,
-  rates: number[]
-): Promise<void> => {
-  const db = await openDB();
+// export const updateMetadataAvailablePlaybackRates = async (
+//   mediaUrl: string,
+//   rates: number[]
+// ): Promise<void> => {
+//   const db = await openDB();
 
-  return new Promise((resolve, reject) => {
-    const { metadata, transaction } = idbOpenTransaction(
-      db,
-      ['metadata'],
-      'readwrite'
-    );
+//   return new Promise((resolve, reject) => {
+//     const { metadata, transaction } = idbOpenTransaction(
+//       db,
+//       ['metadata'],
+//       'readwrite'
+//     );
 
-    const request = metadata.get(mediaUrl);
+//     const request = metadata.get(mediaUrl);
 
-    request.onsuccess = () => {
-      const result = request.result;
-      if (!result) {
-        return reject(
-          new Error(
-            `updateMetadataAvailablePlaybackRates not found for ${mediaUrl}`
-          )
-        );
-      }
-      result.playbackRates = rates;
-      metadata.put(result);
-    };
+//     request.onsuccess = () => {
+//       const result = request.result;
+//       if (!result) {
+//         return reject(
+//           new Error(
+//             `updateMetadataAvailablePlaybackRates not found for ${mediaUrl}`
+//           )
+//         );
+//       }
+//       result.playbackRates = rates;
+//       metadata.put(result);
+//     };
 
-    transaction.onerror = () => {
-      log.error(
-        'Error updating metadata available playback rates:',
-        transaction.error
-      );
-      reject(transaction.error);
-    };
+//     transaction.onerror = () => {
+//       log.error(
+//         'Error updating metadata available playback rates:',
+//         transaction.error
+//       );
+//       reject(transaction.error);
+//     };
 
-    transaction.oncomplete = () => {
-      closeDB(db);
-      resolve();
-    };
-  });
-};
+//     transaction.oncomplete = () => {
+//       closeDB(db);
+//       resolve();
+//     };
+//   });
+// };
 
 export interface SaveVideoDataProps {
   file: File;

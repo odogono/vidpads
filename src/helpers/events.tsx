@@ -18,6 +18,7 @@ import {
   PlayerThumbnailExtracted,
   PlayerTimeUpdate
 } from '@components/Player/types';
+import { Media, MediaYouTube } from '../model/types';
 
 export type EventEmitterEvents = {
   'pad:touchdown': {
@@ -54,14 +55,20 @@ export type EventEmitterEvents = {
   'player:set-volume': PlayerSetVolume;
   'player:set-playback-rate': PlayerSetPlaybackRate;
 
-  'media:duration-update': {
-    mediaUrl: string;
-    duration: number;
-  };
+  // 'media:duration-update': {
+  //   mediaUrl: string;
+  //   duration: number;
+  // };
 
-  'media:available-playback-rates': {
+  // 'media:available-playback-rates': {
+  //   mediaUrl: string;
+  //   rates: number[];
+  // };
+
+  'media:property-update': {
     mediaUrl: string;
-    rates: number[];
+    property: keyof Media | keyof MediaYouTube;
+    value: unknown;
   };
 
   'project:created': {
