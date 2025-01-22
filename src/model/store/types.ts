@@ -1,4 +1,4 @@
-import type { Media, Pad, ProjectExport } from '@model/types';
+import type { Media, Pad, ProjectExport, VolumeKeyPoint } from '@model/types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
@@ -76,6 +76,18 @@ export type ApplyTrimToPadAction = {
   end: number;
 };
 
+export type ApplyVolumeToPadAction = {
+  type: 'applyVolumeToPad';
+  padId: string;
+  volume: number;
+};
+
+export type ApplyVolumeEnvelopeToPadAction = {
+  type: 'applyVolumeEnvelopeToPad';
+  padId: string;
+  envelope: VolumeKeyPoint[];
+};
+
 export type NewProjectAction = {
   type: 'newProject';
 };
@@ -116,7 +128,9 @@ export type Actions =
   | ImportProjectAction
   | UpdateProjectAction
   | SetLastMediaUrlAction
-  | SetLastImportUrlAction;
+  | SetLastImportUrlAction
+  | ApplyVolumeToPadAction
+  | ApplyVolumeEnvelopeToPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

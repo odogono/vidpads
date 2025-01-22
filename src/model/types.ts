@@ -23,7 +23,8 @@ export const OperationType = {
   Resize: 'resize',
   Trim: 'trim',
   AddEffect: 'addEffect',
-  AddTransition: 'addTransition'
+  AddTransition: 'addTransition',
+  Volume: 'volume'
 } as const;
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
@@ -41,6 +42,16 @@ export interface TrimOperation extends Operation {
   type: typeof OperationType.Trim;
   start: number;
   end: number;
+}
+
+export type VolumeKeyPoint = {
+  time: number;
+  value: number;
+};
+
+export interface VolumeOperation extends Operation {
+  type: typeof OperationType.Volume;
+  volume: VolumeKeyPoint[];
 }
 
 export interface Pipeline {
