@@ -46,8 +46,6 @@ export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
     hideToolTip();
   }, [hideToolTip]);
 
-  // log.debug('[VolumeDial]', { pad: pad?.id, volume: padVolume });
-
   return (
     <Dial
       ref={ref as React.RefObject<HTMLDivElement>}

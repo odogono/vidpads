@@ -2,7 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import { useTooltip } from '@components/Tooltip/useTooltip';
+import toast from 'react-hot-toast';
+
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { useEditActive } from '@model/hooks/useEditActive';
 import { usePad } from '@model/hooks/usePad';
@@ -11,15 +12,10 @@ import { VolumeDial } from './Dial/VolumeDial';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
 import { PadStateButton } from './PadStateButton';
-import { Tooltip, TooltipProps } from './Tooltip';
 import { ControlsLoading } from './loading';
 
 export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const [toolTipProps, setToolTipProps] = useState<TooltipProps>({
-    time: 0,
-    x: -1
-  });
   const {
     isLooped,
     isPadOneShot,
@@ -31,7 +27,6 @@ export const ControlsLoaded = () => {
   } = usePad();
   const { isEditActive, setEditActive } = useEditActive();
   const modalRef = useRef<DeleteModalRef | null>(null);
-  // const { setToolTip, hideToolTip } = useTooltip();
   // used to prevent hydration error
   // since selectedPadId is undefined on the server
   useEffect(() => {
@@ -40,6 +35,7 @@ export const ControlsLoaded = () => {
 
   const handleEdit = useCallback(() => {
     setEditActive(!isEditActive);
+    toast.success(isEditActive ? 'Slider' : 'Numeric');
   }, [isEditActive, setEditActive]);
 
   const handleOneShot = useCallback(() => {

@@ -1,9 +1,12 @@
+import { Toaster } from 'react-hot-toast';
+
 import { Tooltip } from '@components/Tooltip';
 
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <Tooltip />
+      <Toaster />
       <div className='min-h-screen w-screen bg-sky-200 flex justify-center items-center overflow-hidden'>
         <div className='w-screen h-screen flex justify-center items-center p-5 box-border'>
           <div
