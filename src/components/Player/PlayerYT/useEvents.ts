@@ -130,15 +130,17 @@ export const usePlayerYTEvents = ({
       if (interval && interval.end === -1) {
         interval.end = player.getDuration();
 
-        events.emit('media:duration-update', {
+        events.emit('media:property-update', {
           mediaUrl,
-          duration: player.getDuration()
+          property: 'duration',
+          value: player.getDuration()
         });
       }
 
-      events.emit('media:available-playback-rates', {
+      events.emit('media:property-update', {
         mediaUrl,
-        rates: player.getAvailablePlaybackRates()
+        property: 'playbackRates',
+        value: player.getAvailablePlaybackRates()
       });
 
       handlePlayerStateChange(player.getPlayerState(), player);
