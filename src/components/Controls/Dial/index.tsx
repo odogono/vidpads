@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 import { createLog } from '@helpers/log';
 import { cn } from '@helpers/tailwind';
@@ -10,28 +10,32 @@ interface DialProps {
   value?: number;
   className?: string;
   size?: string;
+  onChange?: (value: number) => void;
 }
 
 const log = createLog('dial');
 
-export const Dial = ({ className, size = 'w-8', value = 0 }: DialProps) => {
+export const Dial = ({
+  className,
+  size = 'w-8',
+  value = 0,
+  onChange
+}: DialProps) => {
   const startAngle = -135;
 
-  const [dialValue, setDialValue] = useState(value);
-
-  const handleTouch = useCallback((value: number) => {
-    // log.debug('handleTouch', value);
-    setDialValue(value);
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {}, []);
+  const handleTouch = useCallback(
+    (value: number) => {
+      onChange?.(value);
+    },
+    [onChange]
+  );
 
   const touchHandlers = useTouch({
     onTouch: handleTouch,
-    onTouchEnd: handleTouchEnd
+    value
   });
 
-  const angle = dialValue * 270;
+  const angle = value * 270;
 
   return (
     <div

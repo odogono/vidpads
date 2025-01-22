@@ -4,7 +4,11 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
+import {
+  getPadSourceUrl,
+  getPadStartAndEndTime,
+  getPadVolume
+} from '@model/pad';
 import { Interval } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Player } from './Player';
@@ -51,13 +55,15 @@ export const PlayerContainer = () => {
         start: 0,
         end: Number.MAX_SAFE_INTEGER
       }) as Interval;
+      const volume = getPadVolume(pad, 1);
       events.emit('video:start', {
         url: mediaUrl,
         padId: pad.id,
         isOneShot,
         isLoop,
         start,
-        end
+        end,
+        volume
       });
     },
     [events, pads]

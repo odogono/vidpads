@@ -2,10 +2,7 @@
 
 import { useCallback } from 'react';
 
-import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
-import { StoreType } from '@model/store/types';
 import { useStore } from '@model/store/useStore';
-import { Interval, Pad } from '@model/types';
 import { useSelector } from '@xstate/store/react';
 
 /**
@@ -49,6 +46,15 @@ export const usePad = (padId?: string) => {
     [pad, store]
   );
 
+  const setPadVolume = useCallback(
+    (padId: string, volume: number) => {
+      if (pad) {
+        store.send({ type: 'applyVolumeToPad', padId, volume });
+      }
+    },
+    [pad, store]
+  );
+
   const isLooped = pad?.isLooped;
   const isPadOneShot = pad?.isOneShot;
 
@@ -59,6 +65,7 @@ export const usePad = (padId?: string) => {
     selectedPadId,
     setPadIsOneShot,
     setPadIsLooped,
+    setPadVolume,
     store
   };
 };

@@ -50,6 +50,10 @@ export interface PlayerPlay extends PlayerEvent {
   volume?: number;
 }
 
+export interface PlayerSetVolume extends PlayerEvent {
+  volume: number;
+}
+
 export interface PlayerReady extends PlayerEvent {
   state: number;
   // duration: number;

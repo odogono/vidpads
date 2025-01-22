@@ -10,6 +10,7 @@ import {
   PlayerPlay,
   PlayerReady,
   PlayerSeek,
+  PlayerSetVolume,
   PlayerStop
 } from '../types';
 import type { PlayerReturn } from './index';
@@ -39,6 +40,7 @@ export interface UsePlayerYTEventsProps {
   stopVideo: (props: PlayerYTStop) => PlayerReturn | undefined;
   seekVideo: (props: PlayerYTSeek) => PlayerReturn | undefined;
   stopImmediate: () => void;
+  setVolume: (props: PlayerSetVolume) => void;
 }
 
 export const usePlayerYTEvents = ({
@@ -48,7 +50,8 @@ export const usePlayerYTEvents = ({
   playVideo,
   stopVideo,
   seekVideo,
-  stopImmediate
+  stopImmediate,
+  setVolume
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
   const { getPadInterval } = usePadDetails();
@@ -250,6 +253,8 @@ export const usePlayerYTEvents = ({
     const evtExtractThumbnail = (e: PlayerEvent) =>
       isReady ? extractThumbnail(e as PlayerExtractThumbnail) : undefined;
     const evtStopAll = () => (isReady ? stopImmediate() : undefined);
+    const evtSetVolume = (e: PlayerSetVolume) =>
+      isReady ? setVolume(e) : undefined;
 
     events.on('video:start', evtPlayVideo);
     events.on('video:stop', evtStopVideo);
@@ -258,6 +263,7 @@ export const usePlayerYTEvents = ({
     events.on('video:extract-thumbnail', evtExtractThumbnail);
     events.on('player:ready', handleReady);
     events.on('player:not-ready', handleNotReady);
+    events.on('player:set-volume', evtSetVolume);
     return () => {
       stopTimeTracking();
       events.off('video:start', evtPlayVideo);
@@ -267,6 +273,7 @@ export const usePlayerYTEvents = ({
       events.off('video:extract-thumbnail', evtExtractThumbnail);
       events.off('player:ready', handleReady);
       events.off('player:not-ready', handleNotReady);
+      events.off('player:set-volume', evtSetVolume);
     };
   }, [
     events,
@@ -279,7 +286,8 @@ export const usePlayerYTEvents = ({
     stopVideo,
     stopTimeTracking,
     stopImmediate,
-    handleSeek
+    handleSeek,
+    setVolume
   ]);
 
   return {
