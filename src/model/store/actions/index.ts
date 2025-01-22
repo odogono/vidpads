@@ -14,16 +14,18 @@ import { addOrReplacePad, findPadById, update } from './helpers';
 
 // const log = createLog('store/actions');
 
+export { applyTrimToPad } from './applyTrimToPad';
+export { applyVolumeToPad } from './applyVolumeToPad';
+export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';
 export { copyPad } from './copyPad';
-export { applyTrimToPad } from './applyTrimToPad';
-export { newProject } from './newProject';
-export { setPadMedia } from './setPadMedia';
 export { importProject } from './importProject';
-export { updateProject } from './updateProject';
 export { initialiseStore } from './initialiseStore';
+export { newProject } from './newProject';
 export { setLastMediaUrl } from './setLastMediaUrl';
 export { setLastImportUrl } from './setLastImportUrl';
+export { setPadMedia } from './setPadMedia';
+export { updateProject } from './updateProject';
 
 export const setEditActive = (
   context: StoreContext,
