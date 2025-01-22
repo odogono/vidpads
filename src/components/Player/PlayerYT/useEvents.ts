@@ -136,6 +136,11 @@ export const usePlayerYTEvents = ({
         });
       }
 
+      events.emit('media:available-playback-rates', {
+        mediaUrl,
+        rates: player.getAvailablePlaybackRates()
+      });
+
       handlePlayerStateChange(player.getPlayerState(), player);
     },
     [handlePlayerStateChange, interval, mediaUrl, events]

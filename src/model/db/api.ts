@@ -266,6 +266,45 @@ export const saveUrlData = async ({
   });
 };
 
+export const updateMetadataProperty = async (
+  mediaUrl: string,
+  property: keyof Media | keyof MediaYouTube,
+  value: unknown
+): Promise<void> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const { metadata, transaction } = idbOpenTransaction(
+      db,
+      ['metadata'],
+      'readwrite'
+    );
+
+    const request = metadata.get(mediaUrl);
+
+    request.onsuccess = () => {
+      const result = request.result;
+      if (!result) {
+        return reject(
+          new Error(`updateMetadataProperty not found for ${mediaUrl}`)
+        );
+      }
+      result[property] = value;
+      metadata.put(result);
+    };
+
+    transaction.onerror = () => {
+      log.error('Error updating metadata property:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+      resolve();
+    };
+  });
+};
+
 export const updateMetadataDuration = async (
   mediaUrl: string,
   duration: number
@@ -299,6 +338,49 @@ export const updateMetadataDuration = async (
 
     transaction.onerror = () => {
       log.error('Error updating metadata duration:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+      resolve();
+    };
+  });
+};
+
+export const updateMetadataAvailablePlaybackRates = async (
+  mediaUrl: string,
+  rates: number[]
+): Promise<void> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const { metadata, transaction } = idbOpenTransaction(
+      db,
+      ['metadata'],
+      'readwrite'
+    );
+
+    const request = metadata.get(mediaUrl);
+
+    request.onsuccess = () => {
+      const result = request.result;
+      if (!result) {
+        return reject(
+          new Error(
+            `updateMetadataAvailablePlaybackRates not found for ${mediaUrl}`
+          )
+        );
+      }
+      result.playbackRates = rates;
+      metadata.put(result);
+    };
+
+    transaction.onerror = () => {
+      log.error(
+        'Error updating metadata available playback rates:',
+        transaction.error
+      );
       reject(transaction.error);
     };
 

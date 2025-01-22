@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
+import { isObjectEqual } from '@helpers/diff';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { isYouTubeMetadata } from '@helpers/metadata';
@@ -8,7 +9,9 @@ import { getYoutubeVideoIdFromMedia } from '@helpers/youtube';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   getMediaData as dbGetMediaData,
-  updateMetadataDuration as dbUpdateMetadataDuration
+  updateMetadataAvailablePlaybackRates as dbUpdateMetadataAvailablePlaybackRates,
+  updateMetadataDuration as dbUpdateMetadataDuration,
+  updateMetadataProperty as dbUpdateMetadataProperty
 } from '@model/db/api';
 import {
   useMutation,
@@ -16,7 +19,7 @@ import {
   useSuspenseQuery
 } from '@tanstack/react-query';
 import { QUERY_KEY_METADATA } from '../constants';
-import { Media } from '../types';
+import { Media, MediaYouTube } from '../types';
 
 const log = createLog('model/useMetadata');
 
@@ -63,27 +66,75 @@ export const useMetadata = () => {
         {} as Record<string, number>
       );
 
-      return { metadata, urlToMetadata, urlToExternalUrl, urlToDuration };
+      const urlToPlaybackRates = metadata.reduce(
+        (acc, media) => {
+          if (isYouTubeMetadata(media)) {
+            const rates = (media as MediaYouTube).playbackRates;
+            if (rates && rates.length > 0) {
+              acc[media.url] = rates;
+            }
+          }
+          return acc;
+        },
+        {} as Record<string, number[]>
+      );
+
+      return {
+        metadata,
+        urlToMetadata,
+        urlToExternalUrl,
+        urlToDuration,
+        urlToPlaybackRates
+      };
     }
   });
 
-  const { mutateAsync: updateMetadataDuration } = useMutation({
+  // const { mutateAsync: updateMetadataDuration } = useMutation({
+  //   mutationFn: async ({
+  //     mediaUrl,
+  //     duration
+  //   }: {
+  //     mediaUrl: string;
+  //     duration: number;
+  //   }) => {
+  //     try {
+  //       await dbUpdateMetadataDuration(mediaUrl, duration);
+  //     } catch (error) {
+  //       log.warn('updateMetadataDuration error', error, mediaUrl, duration);
+  //       return null;
+  //     }
+  //   },
+  //   onSuccess: (_, { mediaUrl, duration }) => {
+  //     log.debug('updated duration', mediaUrl, duration);
+  //     invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaUrl]]);
+  //   }
+  // });
+
+  const { mutateAsync: updateMetadataProperty } = useMutation({
     mutationFn: async ({
       mediaUrl,
-      duration
+      property,
+      value
     }: {
       mediaUrl: string;
-      duration: number;
+      property: keyof Media | keyof MediaYouTube;
+      value: unknown;
     }) => {
       try {
-        await dbUpdateMetadataDuration(mediaUrl, duration);
+        await dbUpdateMetadataProperty(mediaUrl, property, value);
       } catch (error) {
-        log.warn('updateMetadataDuration error', error, mediaUrl, duration);
+        log.warn(
+          'updateMetadataProperty error',
+          error,
+          mediaUrl,
+          property,
+          value
+        );
         return null;
       }
     },
-    onSuccess: (_, { mediaUrl, duration }) => {
-      log.debug('updated duration', mediaUrl, duration);
+    onSuccess: (_, { mediaUrl, property, value }) => {
+      log.debug('updated property', mediaUrl, property, value);
       invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaUrl]]);
     }
   });
@@ -96,17 +147,43 @@ export const useMetadata = () => {
       if (data.urlToDuration?.[mediaUrl] === duration) {
         return;
       }
-      updateMetadataDuration({ mediaUrl, duration });
+      updateMetadataProperty({
+        mediaUrl,
+        property: 'duration',
+        value: duration
+      });
     },
-    [updateMetadataDuration, data]
+    [updateMetadataProperty, data]
+  );
+
+  const handleAvailablePlaybackRates = useCallback(
+    (event: { mediaUrl: string; rates: number[] }) => {
+      const { mediaUrl, rates } = event;
+
+      // prevent redundant updates
+      if (isObjectEqual(data.urlToPlaybackRates?.[mediaUrl], rates)) {
+        return;
+      }
+      updateMetadataProperty({
+        mediaUrl,
+        property: 'playbackRates',
+        value: rates
+      });
+    },
+    [updateMetadataProperty, data]
   );
 
   useEffect(() => {
     events.on('media:duration-update', handleMediaDurationUpdate);
+    events.on('media:available-playback-rates', handleAvailablePlaybackRates);
     return () => {
       events.off('media:duration-update', handleMediaDurationUpdate);
+      events.off(
+        'media:available-playback-rates',
+        handleAvailablePlaybackRates
+      );
     };
-  }, [events, handleMediaDurationUpdate]);
+  }, [events, handleMediaDurationUpdate, handleAvailablePlaybackRates]);
 
   return {
     metadata: data?.metadata,

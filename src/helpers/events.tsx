@@ -59,6 +59,11 @@ export type EventEmitterEvents = {
     duration: number;
   };
 
+  'media:available-playback-rates': {
+    mediaUrl: string;
+    rates: number[];
+  };
+
   'project:created': {
     projectId: string;
     projectName: string;

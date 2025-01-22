@@ -126,6 +126,7 @@ export interface MediaYouTube extends Media {
     standard?: Thumbnail;
     high?: Thumbnail;
   };
+  playbackRates: number[];
 }
 
 export interface ProjectExport {
