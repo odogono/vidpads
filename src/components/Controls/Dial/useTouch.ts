@@ -4,22 +4,24 @@ import { useCallback, useRef, useState } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
+import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 
 const log = createLog('dial/useTouch');
 
 export interface UseTouchProps {
+  value: number;
   onTouch: (x: number, isTouching: boolean) => void;
-  onTouchEnd: (x: number) => void;
+  // onTouchEnd: (x: number) => void;
 }
 
 type Pos = [number, number];
 type TouchElement = HTMLDivElement;
 
-export const useTouch = ({ onTouch, onTouchEnd }: UseTouchProps) => {
+export const useTouch = ({ value, onTouch }: UseTouchProps) => {
   const { isShiftKeyDown } = useKeyboard();
   const [isTouching, setIsTouching] = useState(false);
 
-  const valueRef = useRef<number>(0);
+  // const valueRef = useRef<number>(0);
   const startPositionRef = useRef<Pos>([0, 0]);
 
   const callTouch = useCallback(
@@ -27,17 +29,14 @@ export const useTouch = ({ onTouch, onTouchEnd }: UseTouchProps) => {
       const [startX, startY] = startPositionRef.current;
       const deltaX = x - startX;
       const deltaY = y - startY;
+      startPositionRef.current = [x, y];
 
-      // get the distance from the center
-      const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-      const maxDistance = 100;
-      const value = distance / maxDistance;
-
-      const normalizedValue = Math.max(0, Math.min(1, value));
+      const newValue = value + deltaY / 100 + deltaX / 1000;
+      const normalizedValue = Math.max(0, Math.min(1, newValue));
 
       onTouch(normalizedValue, true);
     },
-    [onTouch]
+    [onTouch, value]
   );
 
   const handleTouchStart = useCallback(
@@ -97,23 +96,20 @@ export const useTouch = ({ onTouch, onTouchEnd }: UseTouchProps) => {
       const amount = isShiftKeyDown() ? 0.1 : 0.01;
       const delta = e.deltaY < 0 ? amount : -amount;
 
-      const newX = Math.max(0, Math.min(1, valueRef.current + delta));
+      const newX = roundDP(Math.max(0, Math.min(1, value + delta)));
+      // log.debug('[handleWheel]', { value, newX });
 
-      valueRef.current = newX;
-
-      onTouch(valueRef.current, true);
+      onTouch(newX, true);
     },
-    [onTouch, isShiftKeyDown]
+    [onTouch, isShiftKeyDown, value]
   );
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent<TouchElement>) => {
       e.preventDefault();
       setIsTouching(false);
-      // onTouch(xRef.current, false);
-      // onTouchEnd?.(xRef.current);
     },
-    [onTouch, setIsTouching, onTouchEnd]
+    [setIsTouching]
   );
 
   return {

@@ -47,7 +47,13 @@ export const getPadVolume = (pad: Pad | undefined, defaultTo: number = 1) => {
 
   const lastVolume = envelope[envelope.length - 1];
 
-  return lastVolume.value;
+  const { value } = lastVolume;
+
+  if (value === undefined || value === null || isNaN(value)) {
+    return defaultTo;
+  }
+
+  return value;
 };
 
 export const getPadStartAndEndTime = (

@@ -12,6 +12,7 @@ import {
   PlayerProps,
   PlayerReadyState,
   PlayerSeek,
+  PlayerSetVolume,
   PlayerStop
 } from './types';
 
@@ -142,6 +143,17 @@ export const LocalPlayer = ({
     [mediaUrl, playerPadId, id, events]
   );
 
+  const setVolume = useCallback(
+    ({ url, padId, volume }: PlayerSetVolume) => {
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
+      if (!videoRef.current) return;
+
+      videoRef.current.volume = volume;
+    },
+    [mediaUrl, playerPadId]
+  );
+
   const extractThumbnail = useCallback(
     ({ time, url, padId, additional, requestId }: PlayerExtractThumbnail) => {
       if (!videoRef.current) return;
@@ -226,12 +238,14 @@ export const LocalPlayer = ({
     events.on('player:stop-all', stopAll);
     events.on('video:seek', seekVideo);
     events.on('video:extract-thumbnail', extractThumbnail);
+    events.on('player:set-volume', setVolume);
     return () => {
       events.off('video:start', playVideo);
       events.off('video:stop', stopVideo);
       events.off('player:stop-all', stopAll);
       events.off('video:seek', seekVideo);
       events.off('video:extract-thumbnail', extractThumbnail);
+      events.off('player:set-volume', setVolume);
     };
   }, [events, extractThumbnail, playVideo, seekVideo, stopVideo, stopAll]);
 

@@ -11,6 +11,7 @@ import {
   PlayerPlaying,
   PlayerReady,
   PlayerSeek,
+  PlayerSetVolume,
   PlayerStop,
   PlayerStopped,
   PlayerThumbnailExtracted,
@@ -48,6 +49,8 @@ export type EventEmitterEvents = {
   'player:time-update': PlayerTimeUpdate;
 
   'player:stop-all': PlayerStop;
+
+  'player:set-volume': PlayerSetVolume;
 
   'media:duration-update': {
     mediaUrl: string;

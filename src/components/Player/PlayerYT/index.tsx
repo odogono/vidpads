@@ -2,7 +2,13 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
 import { MediaYouTube } from '@model/types';
-import { PlayerPlay, PlayerProps, PlayerSeek, PlayerStop } from '../types';
+import {
+  PlayerPlay,
+  PlayerProps,
+  PlayerSeek,
+  PlayerSetVolume,
+  PlayerStop
+} from '../types';
 import { PlayerStateToString } from './helpers';
 import { PlayerState } from './types';
 import { usePlayerYTEvents } from './useEvents';
@@ -10,7 +16,7 @@ import { destroyPlayer, initializePlayer } from './youtube';
 
 export type PlayerReturn = [number, number]; // [currentTime, duration]
 
-const log = createLog('player/yt', ['debug']);
+const log = createLog('player/yt', ['debug', 'error']);
 
 export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -34,7 +40,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
 
-      const setVolume = volume ?? 100;
+      const setVolume = (volume ?? 1) * 100;
 
       const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
       const endTime =
@@ -63,7 +69,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       player.seekTo(startTime, true);
       player.playVideo();
 
-      return [player.getCurrentTime(), player.getDuration()];
+      return [player.getCurrentTime(), player.getDuration()] as PlayerReturn;
     },
     [mediaUrl, playerPadId]
   );
@@ -90,7 +96,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       } catch {
         log.debug('[stopVideo] ⚠️ error pausing video');
       }
-      return [player.getCurrentTime(), player.getDuration()];
+      return [player.getCurrentTime(), player.getDuration()] as PlayerReturn;
     },
     [mediaUrl, playerPadId]
   );
@@ -120,7 +126,19 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
           state: PlayerStateToString(player.getPlayerState())
         });
       }
-      return [player.getCurrentTime(), player.getDuration()];
+      return [player.getCurrentTime(), player.getDuration()] as PlayerReturn;
+    },
+    [mediaUrl, playerPadId]
+  );
+
+  const setVolume = useCallback(
+    ({ url, padId, volume }: PlayerSetVolume) => {
+      const player = playerRef.current;
+      if (!player) return;
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
+      log.debug('[setVolume]', { volume });
+      player.setVolume(volume * 100);
     },
     [mediaUrl, playerPadId]
   );
@@ -141,7 +159,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     playVideo,
     stopVideo,
     seekVideo,
-    stopImmediate
+    stopImmediate,
+    setVolume
   });
 
   useEffect(() => {
