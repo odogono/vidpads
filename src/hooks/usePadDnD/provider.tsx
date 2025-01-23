@@ -19,7 +19,13 @@ const ACCEPTED_FILE_TYPES = [
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const { addFileToPad, clearPad, copyPadToPad } = usePadOperations();
+  const {
+    addFileToPad,
+    clearPad,
+    copyPadToPad,
+    cutPadToClipboard,
+    copyPadToClipboard
+  } = usePadOperations();
   const onDragStart = useCallback((id: string) => {
     setDraggingPadId(id);
   }, []);
@@ -33,7 +39,8 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
       e.preventDefault();
       setDragOverId(id);
 
-      const isBin = id === 'bin';
+      const isBin =
+        id === 'bin' || id === 'cut' || id === 'copy' || id === 'delete';
 
       // Check if this is a pad being dragged
       const isPadDrag = e.dataTransfer.types.includes('application/pad-id');
@@ -75,15 +82,25 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
       log.debug('handleDrop', sourcePadId, targetId);
 
       if (sourcePadId) {
-        if (targetId === 'bin') {
+        if (targetId === 'delete') {
           await clearPad(sourcePadId);
+          return;
+        }
+
+        if (targetId === 'cut') {
+          await cutPadToClipboard(sourcePadId);
+          return;
+        }
+
+        if (targetId === 'copy') {
+          await copyPadToClipboard(sourcePadId);
           return;
         }
 
         if (sourcePadId !== targetId) {
           await copyPadToPad({ sourcePadId, targetPadId: targetId });
+          return;
         }
-        return;
       }
 
       // Handle file drop (existing code)
@@ -98,7 +115,13 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
         log.info(`Processed file ${file.name} for pad ${targetId}`);
       }
     },
-    [addFileToPad, clearPad, copyPadToPad]
+    [
+      addFileToPad,
+      clearPad,
+      copyPadToPad,
+      cutPadToClipboard,
+      copyPadToClipboard
+    ]
   );
 
   return (

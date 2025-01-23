@@ -20,7 +20,8 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
   const [url, setUrl] = useState(lastMediaUrl ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addFileToPad, addUrlToPad } = usePadOperations();
+  const { addFileToPad, addUrlToPad, pastePadFromClipboard } =
+    usePadOperations();
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
 
   const handleUrlSubmit = async () => {
@@ -65,6 +66,13 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
     return 'Please enter a valid URL';
   }, []);
 
+  const handlePaste = useCallback(async () => {
+    if (activeIndex) {
+      await pastePadFromClipboard({ targetPadId: activeIndex });
+      ref.current?.onClose();
+    }
+  }, [activeIndex, pastePadFromClipboard, ref]);
+
   return (
     <CommonModal
       ref={ref}
@@ -83,13 +91,18 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
         Select File
       </Button>
       {!isEnteringUrl ? (
-        <Button
-          onPress={() => setIsEnteringUrl(true)}
-          className='w-full'
-          variant='bordered'
-        >
-          Enter URL
-        </Button>
+        <>
+          <Button
+            onPress={() => setIsEnteringUrl(true)}
+            className='w-full'
+            variant='bordered'
+          >
+            Enter URL
+          </Button>
+          <Button onPress={handlePaste} className='w-full' color='primary'>
+            Paste
+          </Button>
+        </>
       ) : (
         <div className='flex flex-col gap-2'>
           <Input

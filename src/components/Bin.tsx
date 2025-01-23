@@ -1,10 +1,13 @@
+import { ClipboardCopy, ClipboardX } from 'lucide-react';
+
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 
 export const BinComponent = () => {
   const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
     usePadDnD();
-  const isDraggingOver = dragOverId === 'bin';
+  const isDraggingOver =
+    dragOverId === 'cut' || dragOverId === 'copy' || dragOverId === 'delete';
 
   return (
     <div
@@ -13,7 +16,7 @@ export const BinComponent = () => {
     >
       <div
         className={`
-        w-[400px] h-[200px] rounded-lg cursor-pointer relative
+        w-[50vw] h-[15vh] rounded-lg cursor-pointer relative
         flex items-center justify-center
         shadow-[0_0_15px_rgba(0,0,0,0.5)]
         transition-all duration-300 ease-in-out
@@ -24,16 +27,50 @@ export const BinComponent = () => {
         }
         ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
       `}
-        onDragOver={(e) => onDragOver(e, 'bin')}
-        onDragLeave={() => onDragLeave('bin')}
-        onDrop={(e) => onDrop(e, 'bin')}
+        // onDragOver={(e) => onDragOver(e, 'bin')}
+        // onDragLeave={() => onDragLeave('bin')}
+        // onDrop={(e) => onDrop(e, 'bin')}
       >
-        <TrashIcon
-          className={`
-          w-24 h-24 transition-all duration-300
-          ${isDraggingOver ? 'text-red-500 scale-110' : 'text-gray-400'}
+        <div
+          className='w-full h-full flex items-center justify-center'
+          onDragOver={(e) => onDragOver(e, 'cut')}
+          onDragLeave={() => onDragLeave('cut')}
+          onDrop={(e) => onDrop(e, 'cut')}
+        >
+          <ClipboardX
+            className={`
+          w-[7vw] h-[7vh] transition-all duration-300
+          ${dragOverId === 'cut' ? 'text-gray-100 scale-150' : 'text-gray-400'}
         `}
-        />
+          />
+        </div>
+        <div
+          className=' w-full h-full flex items-center justify-center'
+          onDragOver={(e) => onDragOver(e, 'copy')}
+          onDragLeave={() => onDragLeave('copy')}
+          onDrop={(e) => onDrop(e, 'copy')}
+        >
+          <ClipboardCopy
+            className={`
+          w-[7vw] h-[7vh] transition-all duration-300
+          ${dragOverId === 'copy' ? 'text-gray-100 scale-150' : 'text-gray-400'}
+        `}
+          />
+        </div>
+
+        <div
+          className=' w-full h-full flex items-center justify-center'
+          onDragOver={(e) => onDragOver(e, 'delete')}
+          onDragLeave={() => onDragLeave('delete')}
+          onDrop={(e) => onDrop(e, 'delete')}
+        >
+          <TrashIcon
+            className={`
+          w-[7vw] h-[7vh] transition-all duration-300
+          ${dragOverId === 'delete' ? 'text-red-500 scale-150' : 'text-gray-400'}
+        `}
+          />
+        </div>
       </div>
     </div>
   );

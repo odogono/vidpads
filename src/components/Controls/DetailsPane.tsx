@@ -27,32 +27,18 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
 
   const handleCut = useCallback(async () => {
     if (!pad) return;
-    const success = await cutPadToClipboard(pad.id);
-    if (success) {
-      toast.success(`Cut ${pad.id}`);
-    } else {
-      toast.error('Failed to cut');
-    }
+    await cutPadToClipboard(pad.id);
   }, [pad, cutPadToClipboard]);
   const handleCopy = useCallback(async () => {
     if (!pad) return;
 
-    const success = await copyPadToClipboard(pad.id);
-    if (success) {
-      toast.success(`Copied ${pad.id}`);
-    } else {
-      toast.error('Failed to copy');
-    }
+    await copyPadToClipboard(pad.id);
   }, [pad, copyPadToClipboard]);
+
   const handlePaste = useCallback(async () => {
     if (!pad) return;
 
-    const success = await pastePadFromClipboard({ targetPadId: pad.id });
-    if (success) {
-      toast.success(`Pasted to ${pad.id}`);
-    } else {
-      toast.error('Failed to paste');
-    }
+    await pastePadFromClipboard({ targetPadId: pad.id });
   }, [pad, pastePadFromClipboard]);
 
   useEffect(() => {
