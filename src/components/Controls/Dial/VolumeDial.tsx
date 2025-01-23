@@ -61,6 +61,7 @@ export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
 
   return (
     <Dial
+      label='Volume'
       ref={ref as React.RefObject<HTMLDivElement>}
       size='w-12'
       defaultValue={1}

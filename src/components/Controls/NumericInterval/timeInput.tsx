@@ -3,7 +3,7 @@ import { useEffect, useImperativeHandle, useState } from 'react';
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
-import { Input } from '@nextui-org/react';
+import { cn } from '@nextui-org/react';
 
 const log = createLog('TimeInput');
 
@@ -98,29 +98,30 @@ export const TimeInput = ({
   // if (description === 'Start') log.debug('TimeInput', inputValue);
 
   return (
-    <div className='flex items-center gap-0'>
-      <Input
-        description={description}
-        labelPlacement={'outside-left'}
-        type='text'
-        isDisabled={isDisabled}
-        value={inputValue}
-        onChange={handleInput}
-        onKeyDown={handleKeyDown}
-        onBlur={(e) => {
-          handleChange(e);
-          setKeyboardEnabled(true);
-        }}
-        onFocus={(e) => {
-          setKeyboardEnabled(false);
-          (e.target as HTMLInputElement).select();
-        }}
-        onWheel={handleWheel}
-        classNames={{
-          base: 'rounded-r-none',
-          input: 'cursor-ns-resize'
-        }}
-      />
+    <div className='time-input'>
+      <div className='flex items-center gap-2'>
+        <input
+          className={cn(
+            `rounded-r-none cursor-ns-resize bg-default-100 px-3 py-1 text-sm min-h-unit-8 border-medium border-default-200 outline-none w-[7.5rem] font-mono`,
+            'hover:border-default-400 ',
+            isDisabled ? 'bg-gray-800 text-gray-500' : ''
+          )}
+          type='text'
+          disabled={isDisabled}
+          value={inputValue}
+          onChange={handleInput}
+          onKeyDown={handleKeyDown}
+          onBlur={(e) => {
+            handleChange(e);
+            setKeyboardEnabled(true);
+          }}
+          onFocus={(e) => {
+            setKeyboardEnabled(false);
+            e.target.select();
+          }}
+          onWheel={handleWheel}
+        />
+      </div>
     </div>
   );
 };

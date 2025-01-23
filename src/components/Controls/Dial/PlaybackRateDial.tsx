@@ -66,6 +66,7 @@ export const PlaybackRateDial = ({
 
   return (
     <Dial
+      label='Rate'
       ref={ref as React.RefObject<HTMLDivElement>}
       size='w-12'
       minValue={0.1}
