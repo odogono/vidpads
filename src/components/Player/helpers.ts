@@ -1,3 +1,4 @@
+import { QUERY_KEY_PLAYER_READY } from '@model/constants';
 import { QueryClient } from '@tanstack/react-query';
 
 export const hidePlayer = (padId: string) => {
@@ -84,7 +85,10 @@ export const setPlayerReadyInCache = (
   padId: string,
   isReady: boolean
 ) => {
-  queryClient.setQueryData(['player:ready', `${mediaUrl}-${padId}`], isReady);
+  queryClient.setQueryData(
+    [QUERY_KEY_PLAYER_READY, `${mediaUrl}-${padId}`],
+    isReady
+  );
 };
 
 export const getPlayerReadyInCache = (
@@ -92,5 +96,8 @@ export const getPlayerReadyInCache = (
   mediaUrl: string,
   padId: string
 ) => {
-  return !!queryClient.getQueryData(['player:ready', `${mediaUrl}-${padId}`]);
+  return !!queryClient.getQueryData([
+    QUERY_KEY_PLAYER_READY,
+    `${mediaUrl}-${padId}`
+  ]);
 };
