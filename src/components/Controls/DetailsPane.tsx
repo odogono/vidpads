@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import {
   ClipboardCopy,
@@ -8,23 +8,65 @@ import {
   ClipboardX,
   Trash2
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
+import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
 import { Button, Input, cn } from '@nextui-org/react';
+import { usePadOperations } from '../../model/hooks/usePadOperations';
 import { PaneProps } from './types';
 
-export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
-  const { pad, selectedPadId } = usePad();
+const log = createLog('DetailsPane');
 
-  const handleCut = useCallback(() => {
+export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
+  const { pad, selectedPadId, setPadPlayEnabled, setPadSelectSourceEnabled } =
+    usePad();
+
+  const {
+    cutPadToClipboard,
+    copyPadToClipboard,
+    clearPad,
+    pastePadFromClipboard
+  } = usePadOperations();
+
+  const handleCut = useCallback(async () => {
     if (!pad) return;
-  }, [pad]);
-  const handleCopy = useCallback(() => {
+    const success = await cutPadToClipboard(pad.id);
+    if (success) {
+      toast.success(`Cut ${pad.id}`);
+    } else {
+      toast.error('Failed to cut');
+    }
+  }, [pad, cutPadToClipboard]);
+  const handleCopy = useCallback(async () => {
     if (!pad) return;
-  }, [pad]);
-  const handlePaste = useCallback(() => {
+
+    const success = await copyPadToClipboard(pad.id);
+    if (success) {
+      toast.success(`Copied ${pad.id}`);
+    } else {
+      toast.error('Failed to copy');
+    }
+  }, [pad, copyPadToClipboard]);
+  const handlePaste = useCallback(async () => {
     if (!pad) return;
-  }, [pad]);
+
+    const success = await pastePadFromClipboard({ targetPadId: pad.id });
+    if (success) {
+      toast.success(`Pasted to ${pad.id}`);
+    } else {
+      toast.error('Failed to paste');
+    }
+  }, [pad, pastePadFromClipboard]);
+
+  useEffect(() => {
+    setPadPlayEnabled(false);
+    setPadSelectSourceEnabled(false);
+    return () => {
+      setPadPlayEnabled(true);
+      setPadSelectSourceEnabled(true);
+    };
+  }, [setPadPlayEnabled, setPadSelectSourceEnabled]);
 
   if (!selectedPadId) {
     return (

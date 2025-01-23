@@ -68,11 +68,11 @@ export const ControlsLoaded = () => {
       <div className='text-sm text-foreground/90 flex'>{selectedPadId}</div>
 
       {selectedControlPane === 'state' && (
-        <StatePane showDeleteModal={showDeleteModal} />
+        <StatePane showDeleteModal={showDeleteModal} isVisible={true} />
       )}
       {selectedControlPane === 'interval' && <IntervalPane />}
       {selectedControlPane === 'details' && (
-        <DetailsPane showDeleteModal={showDeleteModal} />
+        <DetailsPane showDeleteModal={showDeleteModal} isVisible={true} />
       )}
 
       <DeleteModal ref={modalRef} />

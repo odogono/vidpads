@@ -41,7 +41,9 @@ export const isYouTubeMetadata = (metadata: Media): boolean => {
   // );
 };
 
-export const getUrlMetadata = async (url: string): Promise<Media | null> => {
+export const getUrlMetadata = async (url?: string): Promise<Media | null> => {
+  if (!url) return null;
+
   if (isYouTubeUrl(url) || isYouTubeVideoId(url)) {
     return getYouTubeMetadata(url);
   }

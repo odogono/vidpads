@@ -3,7 +3,6 @@
 import { useCallback } from 'react';
 
 import { usePad } from '@model/hooks/usePad';
-import { Card, CardHeader } from '@nextui-org/react';
 import { PlaybackRateDial } from './Dial/PlaybackRateDial';
 import { VolumeDial } from './Dial/VolumeDial';
 import { PadStateButton } from './PadStateButton';

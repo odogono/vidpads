@@ -14,11 +14,25 @@ const log = createLog('model/usePads');
 export const usePads = () => {
   const { store, isReady } = useStore();
   const pads = useSelector(store, (state) => state.context.pads) ?? [];
+  const isPadPlayEnabled = useSelector(
+    store,
+    (state) => state.context.isPadPlayEnabled ?? true
+  );
+  const isPadSelectSourceEnabled = useSelector(
+    store,
+    (state) => state.context.isPadSelectSourceEnabled ?? true
+  );
   const selectedPadId = useSelector(
     store,
     (state) => state.context.selectedPadId
   );
-  return { pads, isReady, selectedPadId };
+  return {
+    pads,
+    isReady,
+    selectedPadId,
+    isPadPlayEnabled,
+    isPadSelectSourceEnabled
+  };
 };
 
 export const usePadsExtended = () => {
@@ -35,11 +49,6 @@ export const usePadsExtended = () => {
       : null;
     return { selectedPad, selectedPadSourceUrl, selectedPadStartAndEndTime };
   }, [pads, selectedPadId]);
-
-  // Sort pads using natural sort to handle numbers correctly
-  // const sortedPads = pads.sort((a, b) => {
-  //   return a.id.localeCompare(b.id, undefined, { numeric: true });
-  // });
 
   const padsWithMedia = useMemo(
     () => pads.filter((pad) => getPadSourceUrl(pad)),

@@ -76,6 +76,7 @@ export interface Project {
 
 export interface Pad {
   id: string;
+  label?: string;
   isSelected?: boolean;
   isOneShot?: boolean;
   isLooped?: boolean;
