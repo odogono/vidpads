@@ -2,6 +2,7 @@
 
 import {
   idbCreateObjectStore,
+  idbDeleteDB,
   idbDeleteRange,
   idbOpen,
   idbOpenTransaction
@@ -84,6 +85,8 @@ export const openDB = (): Promise<IDBDatabase> => {
 export const closeDB = (db: IDBDatabase) => {
   db.close();
 };
+
+export const deleteDB = () => idbDeleteDB(DB_NAME);
 
 export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
   const db = await openDB();

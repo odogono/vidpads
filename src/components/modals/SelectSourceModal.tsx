@@ -3,7 +3,6 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
-import { isYouTubeUrl } from '@helpers/youtube';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
