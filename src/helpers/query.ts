@@ -8,3 +8,7 @@ export const invalidateQueryKeys = (
     queryKey.map((key) => queryClient.invalidateQueries({ queryKey: key }))
   );
 };
+
+export const invalidateAllQueries = (queryClient: QueryClient) => {
+  return queryClient.invalidateQueries();
+};

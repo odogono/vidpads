@@ -12,6 +12,8 @@ import {
   DropdownSection,
   DropdownTrigger
 } from '@nextui-org/react';
+import { CommonModalRef } from './modals/CommonModal';
+import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import {
   ExportProjectModal,
   ExportProjectModalRef
@@ -36,6 +38,7 @@ export const MenuButton = () => {
   const saveProjectModalRef = useRef<SaveProjectModalRef | null>(null);
   const exportProjectModalRef = useRef<ExportProjectModalRef | null>(null);
   const importProjectModalRef = useRef<ImportProjectModalRef | null>(null);
+  const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
 
   const handleNewProject = useCallback(() => {
     newProjectModalRef.current?.onOpen();
@@ -56,6 +59,10 @@ export const MenuButton = () => {
   const handleImportProject = useCallback(() => {
     importProjectModalRef.current?.onOpen();
   }, [importProjectModalRef]);
+
+  const handleDeleteEverything = useCallback(() => {
+    deleteEverythingModalRef.current?.onOpen();
+  }, [deleteEverythingModalRef]);
 
   return (
     <>
@@ -88,6 +95,8 @@ export const MenuButton = () => {
               handleExportProject();
             } else if (key === 'import-project') {
               handleImportProject();
+            } else if (key === 'delete-everything') {
+              handleDeleteEverything();
             }
           }}
           classNames={{
@@ -104,6 +113,8 @@ export const MenuButton = () => {
 
           <DropdownItem key='export-project'>Export Project</DropdownItem>
 
+          <DropdownItem key='delete-everything'>Delete Everything</DropdownItem>
+
           <DropdownSection showDivider aria-label='About'>
             <DropdownItem key='about'>About</DropdownItem>
           </DropdownSection>
@@ -114,6 +125,7 @@ export const MenuButton = () => {
       <SaveProjectModal ref={saveProjectModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
       <ImportProjectModal ref={importProjectModalRef} />
+      <DeleteEverythingModal ref={deleteEverythingModalRef} />
     </>
   );
 };

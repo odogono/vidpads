@@ -12,8 +12,7 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader,
-  Snippet
+  ModalHeader
 } from '@nextui-org/react';
 import { CopyButton } from '../CopyButton';
 import { useModalState } from './useModalState';

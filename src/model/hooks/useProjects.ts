@@ -9,6 +9,7 @@ import {
   QUERY_KEY_STATE
 } from '@model/constants';
 import {
+  deleteDB as dbDeleteDB,
   getAllProjectDetails as dbGetAllProjectDetails,
   loadProject as dbLoadProject,
   saveProject as dbSaveProject
@@ -146,6 +147,11 @@ export const useProjects = () => {
     return true;
   }, [store, queryClient, deleteAllPadThumbnails, events]);
 
+  const deleteEverything = useCallback(async () => {
+    await dbDeleteDB();
+    await createNewProject();
+  }, [createNewProject]);
+
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
     mutationFn: async ({ projectName }: { projectName: string }) => {
@@ -219,6 +225,7 @@ export const useProjects = () => {
     exportToURLString: exportProjectToURLString,
     importFromJSONString,
     importFromURLString,
-    getAllProjectDetails
+    getAllProjectDetails,
+    deleteEverything
   };
 };

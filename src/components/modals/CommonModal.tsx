@@ -16,7 +16,7 @@ import { useModalState } from './useModalState';
 const log = createLog('CommonModal', ['debug']);
 
 export interface CommonModalRef {
-  onOpen: (props: unknown) => void;
+  onOpen: (props?: unknown) => void;
   onClose: () => void;
 }
 
@@ -24,7 +24,7 @@ export interface CommonModalBase {
   ref: React.RefObject<CommonModalRef | null>;
 }
 
-export type OnOpenProps = (props: unknown) => void;
+export type OnOpenProps = (props?: unknown) => void;
 
 export interface CommonModalProps extends CommonModalBase {
   title: string;

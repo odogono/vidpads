@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from 'react';
 
 import {
+  Bomb,
   ClipboardCopy,
   ClipboardPaste,
   ClipboardX,
@@ -12,8 +13,8 @@ import { toast } from 'react-hot-toast';
 
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
+import { usePadOperations } from '@model/hooks/usePadOperations';
 import { Button, Input, cn } from '@nextui-org/react';
-import { usePadOperations } from '../../model/hooks/usePadOperations';
 import { PaneProps } from './types';
 
 const log = createLog('DetailsPane');
@@ -22,12 +23,8 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const { pad, selectedPadId, setPadPlayEnabled, setPadSelectSourceEnabled } =
     usePad();
 
-  const {
-    cutPadToClipboard,
-    copyPadToClipboard,
-    clearPad,
-    pastePadFromClipboard
-  } = usePadOperations();
+  const { cutPadToClipboard, copyPadToClipboard, pastePadFromClipboard } =
+    usePadOperations();
 
   const handleCut = useCallback(async () => {
     if (!pad) return;
@@ -117,7 +114,15 @@ const OpButton = ({
       >
         {children}
       </Button>
-      <div className='text-xs text-foreground/90 mt-2'>{label}</div>
+      <div
+        className='text-xs text-foreground/90 mt-2'
+        style={{
+          fontSize: '0.6rem',
+          lineHeight: '0.75rem'
+        }}
+      >
+        {label}
+      </div>
     </div>
   );
 };
