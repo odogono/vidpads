@@ -7,7 +7,7 @@ import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 
 export const PadContainer = () => {
-  const { pads } = usePads();
+  const { pads, isPadSelectSourceEnabled, isPadPlayEnabled } = usePads();
 
   const modalRef = useRef<CommonModalRef | null>(null);
 
@@ -27,7 +27,12 @@ export const PadContainer = () => {
         {pads.map((pad) => (
           <div key={pad.id} className='w-full h-full min-h-[4vh]'>
             <Suspense key={pad.id} fallback={<PadLoadingComponent />}>
-              <PadComponent pad={pad} onEmptyPadTouch={handlePadTouch} />
+              <PadComponent
+                pad={pad}
+                onEmptyPadTouch={handlePadTouch}
+                isPlayEnabled={isPadPlayEnabled}
+                isSelectSourceEnabled={isPadSelectSourceEnabled}
+              />
             </Suspense>
           </div>
         ))}

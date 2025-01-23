@@ -9,6 +9,22 @@ export interface StoreContextType {
   isEditActive?: boolean;
   selectedControlPane?: 'state' | 'interval' | 'tempo' | 'details';
   selectedPadId?: string | null;
+
+  // whether keyboard can trigger a player
+  isKeyboardPlayEnabled?: boolean;
+
+  // whether midi can trigger a player
+  isMidiPlayEnabled?: boolean;
+
+  // whether the map midi mode is enabled
+  isMidiMappingEnabled?: boolean;
+
+  // whether pads can trigger a player
+  isPadPlayEnabled?: boolean;
+
+  // whether pressing on an empty pad opens the selector
+  isPadSelectSourceEnabled?: boolean;
+
   lastMediaUrl?: string | null;
   lastImportUrl?: string | null;
   pads: Pad[];
@@ -124,6 +140,23 @@ export type SetSelectedControlPaneAction = {
   pane: 'state' | 'interval' | 'tempo' | 'details';
 };
 
+export type SetPadPlayEnabledAction = {
+  type: 'setPadPlayEnabled';
+  isEnabled: boolean;
+};
+
+export type SetPadSelectSourceEnabledAction = {
+  type: 'setPadSelectSourceEnabled';
+  isEnabled: boolean;
+};
+
+export type ApplyPadAction = {
+  type: 'applyPad';
+  pad: Pad;
+  targetPadId: string;
+  copySourceOnly?: boolean;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -144,7 +177,10 @@ export type Actions =
   | ApplyVolumeToPadAction
   | ApplyVolumeEnvelopeToPadAction
   | ApplyPlaybackRateToPadAction
-  | SetSelectedControlPaneAction;
+  | SetSelectedControlPaneAction
+  | SetPadPlayEnabledAction
+  | SetPadSelectSourceEnabledAction
+  | ApplyPadAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

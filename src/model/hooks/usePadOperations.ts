@@ -1,6 +1,9 @@
+import { useCallback } from 'react';
+
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
+import { getYouTubeThumbnail } from '@helpers/youtube';
 import {
   AddFileToPadProps,
   AddUrlToPadProps,
@@ -8,25 +11,35 @@ import {
   addFileToPad,
   addUrlToPad
 } from '@model';
-import { QUERY_KEY_METADATA, QUERY_KEY_PAD_THUMBNAIL } from '@model/constants';
+import {
+  QUERY_KEY_METADATA,
+  QUERY_KEY_PAD_THUMBNAIL,
+  VOKeys
+} from '@model/constants';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
   deleteMediaData as dbDeleteMediaData,
-  deletePadThumbnail as dbDeletePadThumbnail
+  deletePadThumbnail as dbDeletePadThumbnail,
+  saveUrlData as dbSaveUrlData,
+  setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { Pad } from '@model/types';
+import { MediaYouTube, Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getUrlMetadata } from '../../helpers/metadata';
+import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
+import { useMetadata } from './useMetadata';
 
-const log = createLog('model/api');
+const log = createLog('model/usePadOperations');
 
 export const usePadOperations = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
   const { isShiftKeyDown } = useKeyboard();
+  const { urlToExternalUrl } = useMetadata();
 
   const { mutateAsync: deletePadMediaOp } = useMutation({
     mutationFn: async (pad: Pad) => {
@@ -124,6 +137,128 @@ export const usePadOperations = () => {
     }
   });
 
+  const copyPadOp = useCallback(
+    async (padId: string) => {
+      const pad = getPadById(store, padId);
+      if (!pad) {
+        log.debug('[copyPad] Pad not found:', padId);
+        return false;
+      }
+
+      const urlString = exportPadToClipboard(pad, urlToExternalUrl);
+      if (!urlString) {
+        log.debug('[copyPad] could not export pad:', padId);
+        return false;
+      }
+
+      await navigator.clipboard.writeText(urlString);
+
+      return true;
+      // copyPadToPadOp({ sourcePadId: pad.id, targetPadId: pad.id });
+    },
+    [store, urlToExternalUrl]
+  );
+
+  const pastePadOp = useCallback(
+    async ({ targetPadId }: { targetPadId: string }) => {
+      const clipboard = await navigator.clipboard.readText();
+
+      const sourcePad = importPadFromClipboard(clipboard);
+      if (!sourcePad) {
+        log.debug('[pastePad] could not import pad:', clipboard);
+        return false;
+      }
+
+      const targetPad = getPadById(store, targetPadId);
+      if (!targetPad) {
+        log.warn('[pastePad] Pad not found:', targetPadId);
+        return false;
+      }
+
+      const sourcePadUrl = getPadSourceUrl(sourcePad);
+
+      if (!sourcePadUrl) {
+        log.debug('[pastePad] No source url found for incoming pad');
+        log.debug('[pastePad] pad:', sourcePad);
+        return false;
+      }
+
+      const media = await getUrlMetadata(sourcePadUrl);
+
+      if (!media) {
+        log.debug('[pastePad] No metadata found for url:', sourcePadUrl);
+        return false;
+      }
+
+      const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
+
+      if (!thumbnail) {
+        log.debug('[pastePad] No thumbnail found for url:', sourcePadUrl);
+        return false;
+      }
+
+      await dbSaveUrlData({
+        media: media as MediaYouTube,
+        thumbnail
+      });
+
+      // clear the target pad
+      await deletePadMediaOp(targetPad);
+
+      store.send({
+        type: 'applyPad',
+        pad: sourcePad,
+        targetPadId,
+        copySourceOnly: isShiftKeyDown()
+      });
+
+      log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
+
+      await dbSetPadThumbnail(targetPad.id, thumbnail);
+
+      // Update the store with the tile's video ID
+      store.send({
+        type: 'setPadMedia',
+        padId: targetPad.id,
+        media
+      });
+
+      invalidateQueryKeys(queryClient, [
+        [QUERY_KEY_METADATA, sourcePadUrl],
+        [QUERY_KEY_PAD_THUMBNAIL, targetPad.id],
+        VOKeys.pad(targetPad.id),
+        VOKeys.metadata(sourcePadUrl)
+      ] as readonly string[][]);
+
+      return true;
+    },
+    [deletePadMediaOp, isShiftKeyDown, queryClient, store]
+  );
+
+  const { mutateAsync: cutPadOp } = useMutation({
+    mutationFn: async (padId: string) => {
+      const pad = getPadById(store, padId);
+      if (!pad) {
+        log.debug('[cutPad] Pad not found:', padId);
+        return false;
+      }
+
+      if (!(await copyPadOp(padId))) {
+        log.debug('[cutPad] could not copy pad:', padId);
+        return false;
+      }
+
+      await deletePadMediaOp(pad);
+
+      store.send({
+        type: 'clearPad',
+        padId
+      });
+
+      return true;
+    }
+  });
+
   const { mutateAsync: clearPadOp } = useMutation({
     mutationFn: async (padId: string) => {
       const pad = getPadById(store, padId);
@@ -155,6 +290,9 @@ export const usePadOperations = () => {
     addUrlToPad: addUrlToPadOp,
     copyPadToPad: copyPadToPadOp,
     clearPad: clearPadOp,
-    deleteAllPadThumbnails
+    deleteAllPadThumbnails,
+    copyPadToClipboard: copyPadOp,
+    cutPadToClipboard: cutPadOp,
+    pastePadFromClipboard: pastePadOp
   };
 };

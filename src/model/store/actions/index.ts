@@ -1,19 +1,16 @@
-// import { createLog } from '@helpers/log';
 import { OperationType, Pad } from '@model/types';
 import type {
   Emit,
   SetEditActiveAction,
   SetPadIsLoopedAction,
   SetPadIsOneShotAction,
-  SetSelectedPadIdAction,
   StoreContext,
   UpdatePadSourceAction,
   UpdateStartTimeAction
 } from '../types';
 import { addOrReplacePad, findPadById, update } from './helpers';
 
-// const log = createLog('store/actions');
-
+export { applyPad } from './applyPad';
 export { applyPlaybackRateToPad } from './applyPlaybackRateToPad';
 export { applyTrimToPad } from './applyTrimToPad';
 export { applyVolumeToPad } from './applyVolumeToPad';
@@ -26,8 +23,11 @@ export { newProject } from './newProject';
 export { setLastMediaUrl } from './setLastMediaUrl';
 export { setLastImportUrl } from './setLastImportUrl';
 export { setPadMedia } from './setPadMedia';
-export { updateProject } from './updateProject';
+export { setPadPlayEnabled } from './setPadPlayEnabled';
+export { setPadSelectSourceEnabled } from './setPadSelectSourceEnabled';
 export { setSelectedControlPane } from './setControlPane';
+export { setSelectedPadId } from './setSelectedPadId';
+export { updateProject } from './updateProject';
 
 export const setEditActive = (
   context: StoreContext,
@@ -41,19 +41,6 @@ export const setEditActive = (
     ...context,
     isEditActive
   };
-};
-
-export const setSelectedPadId = (
-  context: StoreContext,
-  event: SetSelectedPadIdAction
-): StoreContext => {
-  const { padId } = event;
-  const isEditActive = !padId ? false : context.isEditActive;
-
-  return update(context, {
-    isEditActive,
-    selectedPadId: padId
-  });
 };
 
 export const setPadIsOneShot = (

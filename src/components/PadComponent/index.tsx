@@ -3,6 +3,8 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
+import { VolumeOff } from 'lucide-react';
+
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
@@ -16,6 +18,8 @@ import { useNullImage } from './useNullImage';
 import { usePlayerEvents } from './usePlayerEvents';
 
 export interface PadComponentProps {
+  isPlayEnabled: boolean;
+  isSelectSourceEnabled: boolean;
   pad: Pad;
   onEmptyPadTouch: (padId: string) => void;
 }
@@ -25,7 +29,12 @@ const isMouseEvent = (e: GeneralTouchEvent) => e.type.includes('mouse');
 
 const log = createLog('PadComponent');
 
-export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
+export const PadComponent = ({
+  isPlayEnabled,
+  isSelectSourceEnabled,
+  pad,
+  onEmptyPadTouch
+}: PadComponentProps) => {
   const events = useEvents();
   const elementRef = useRef<HTMLDivElement>(null);
   const { thumbnail } = usePadThumbnail(pad);
@@ -53,11 +62,11 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
   }, [isDragging, removeGhost]);
 
   const handleTouchStart = useCallback(() => {
-    if (isPlayerReady) {
+    if (isPlayerReady && isPlayEnabled) {
       events.emit('pad:touchdown', { padId: pad.id });
     }
     setSelectedPadId(pad.id);
-  }, [events, pad, setSelectedPadId, isPlayerReady]);
+  }, [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled]);
 
   const handleTouchMove = useCallback(
     (e: GeneralTouchEvent) => {
@@ -80,10 +89,10 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
 
     // Only trigger tap if we didn't drag
     if (!isDragging) {
-      if (!thumbnail) {
+      if (!thumbnail && isSelectSourceEnabled) {
         onEmptyPadTouch(pad.id);
       } else {
-        if (isPlayerReady) {
+        if (isPlayerReady && isPlayEnabled) {
           events.emit('pad:touchup', { padId: pad.id });
         }
       }
@@ -99,7 +108,9 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
     events,
     removeGhost,
     setDraggingPadId,
-    isPlayerReady
+    isPlayerReady,
+    isPlayEnabled,
+    isSelectSourceEnabled
   ]);
 
   const handleDragStart = useCallback(
@@ -188,14 +199,6 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
 
   const isReady = !!thumbnail ? isPlayerReady : true;
 
-  // if (pad.id === 'a1') {
-  //   log.debug('render', pad.id, {
-  //     isReady,
-  //     isPlayerReady,
-  //     thumbnail: !!thumbnail
-  //   });
-  // }
-
   return (
     <div
       ref={elementRef}
@@ -228,6 +231,14 @@ export const PadComponent = ({ pad, onEmptyPadTouch }: PadComponentProps) => {
           ${isPlayerPlaying ? 'animate-opacity-pulse' : 'opacity-0'}
         `}
       ></span>
+      {pad.label && (
+        <span className='absolute bottom-2 left-1/2 -translate-x-1/2 rounded-lg text-xs bg-white/40 p-2 text-gray-50 select-none whitespace-nowrap text-ellipsis overflow-hidden max-w-[90%] text-center'>
+          {pad.label}
+        </span>
+      )}
+      <span className='absolute bottom-2 left-2 text-xs text-gray-400 select-none'>
+        {!isPlayEnabled && <VolumeOff size={12} />}
+      </span>
       <span className='absolute bottom-2 right-2 text-xs text-gray-400 select-none'>
         {pad.id}
       </span>
