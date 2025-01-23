@@ -270,10 +270,14 @@ export const saveUrlData = async ({
 };
 
 export const updateMetadataProperty = async (
-  mediaUrl: string,
+  mediaUrl: string | undefined,
   property: keyof Media | keyof MediaYouTube,
   value: unknown
 ): Promise<void> => {
+  if (!mediaUrl) {
+    return;
+  }
+
   const db = await openDB();
 
   return new Promise((resolve, reject) => {

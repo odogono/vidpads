@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { usePlayersState } from '@model/hooks/usePlayersState';
 import {
   getPadPlaybackRate,
   getPadSourceUrl,
@@ -30,12 +31,13 @@ import {
 } from './types';
 import { usePlayers } from './usePlayers';
 
-const log = createLog('player/container', ['debug']);
+const log = createLog('player/container');
 
 export const PlayerContainer = () => {
   const events = useEvents();
   const playingStackRef = useRef<string[]>([]);
   const queryClient = useQueryClient();
+  const { players: playersState } = usePlayersState();
 
   const { pads, players } = usePlayers();
 
@@ -151,6 +153,12 @@ export const PlayerContainer = () => {
     },
     [queryClient]
   );
+
+  useEffect(() => {
+    for (const player of playersState.values()) {
+      log.debug('❤️ player:ready cache', player);
+    }
+  }, [playersState]);
 
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {

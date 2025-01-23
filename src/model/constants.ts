@@ -10,7 +10,7 @@ export const QUERY_KEY_PLAYER_READY = 'player-ready';
 
 // todo - move to using these keys instead of the above
 export const VOKeys = {
-  all: ['vo'] as const,
+  all: ['odgnVO'] as const,
 
   store: () => [...VOKeys.all, 'store'] as const,
 
@@ -25,5 +25,10 @@ export const VOKeys = {
   metadata: (mediaUrl: string) => [...VOKeys.allMetadata(), mediaUrl] as const,
 
   players: () => [...VOKeys.all, 'player'] as const,
-  player: (playerId: string) => [...VOKeys.players(), playerId] as const
+  player: (playerId: string) => [...VOKeys.players(), playerId] as const,
+
+  updatePlayer: (playerId: string) =>
+    [...VOKeys.players(), playerId, 'update'] as const,
+  deletePlayer: (playerId: string) =>
+    [...VOKeys.players(), playerId, 'delete'] as const
 };
