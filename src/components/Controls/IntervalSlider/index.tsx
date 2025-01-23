@@ -37,7 +37,7 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
   });
 
   return (
-    <div id='interval-slider' className='w-full h-[60%]  bg-white'>
+    <div id='interval-slider' className='w-full h-[60%] min-h-[44px] bg-white'>
       <IntervalCanvas
         ref={canvasRef}
         time={timeRef.current ?? padStart}
