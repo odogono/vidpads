@@ -7,17 +7,18 @@ import { ArrowDownUp } from 'lucide-react';
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { usePad } from '@model/hooks/usePad';
 import { Button, Card, CardHeader, cn } from '@nextui-org/react';
+import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
 import { StatePane } from './StatePane';
 import { ControlsLoading } from './loading';
 
 // Add this type definition at the top of the file, after the imports
-type PaneState = 'state' | 'interval' | 'tempo' | 'settings';
+type PaneState = 'state' | 'interval' | 'tempo' | 'details';
 
 export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
   const { selectedPadId } = usePad();
-  const [selectedPane, setSelectedPane] = useState<PaneState>('interval');
+  const [selectedPane, setSelectedPane] = useState<PaneState>('details');
 
   const modalRef = useRef<DeleteModalRef | null>(null);
   // used to prevent hydration error
@@ -38,8 +39,8 @@ export const ControlsLoaded = () => {
         case 'interval':
           return 'state';
         case 'tempo':
-          return 'settings';
-        case 'settings':
+          return 'details';
+        case 'details':
           return 'state';
         default:
           return 'state';
@@ -62,37 +63,37 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <>
-      <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row gap-4'>
-        <div className='switcher rounded-lg p-1  flex flex-row'>
-          <Button
-            isIconOnly
-            aria-label='State'
-            onPress={cycleToNextState}
-            className={cn(
-              'w-full h-full aspect-square bg-slate-400 hover:bg-slate-300 text-black'
-            )}
-          >
-            <ArrowDownUp />
-          </Button>
-          <div className='switcher-indicator m-4 flex flex-col gap-2'>
-            <Indicator isActive={selectedPane === 'state'} />
-            <Indicator isActive={selectedPane === 'interval'} />
-            <Indicator isActive={selectedPane === 'tempo'} />
-            <Indicator isActive={selectedPane === 'settings'} />
-          </div>
+    <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row gap-2'>
+      <div className='switcher rounded-lg  flex flex-row'>
+        <Button
+          isIconOnly
+          aria-label='State'
+          onPress={cycleToNextState}
+          className={cn(
+            'w-full h-full aspect-square bg-slate-400 hover:bg-slate-300 text-black'
+          )}
+        >
+          <ArrowDownUp />
+        </Button>
+        <div className='switcher-indicator m-2 flex flex-col gap-2 justify-center'>
+          <Indicator isActive={selectedPane === 'state'} />
+          <Indicator isActive={selectedPane === 'interval'} />
+          <Indicator isActive={selectedPane === 'details'} />
+          <Indicator isActive={selectedPane === 'tempo'} />
         </div>
-
-        {selectedPane === 'state' && (
-          <StatePane showDeleteModal={showDeleteModal} />
-        )}
-        {selectedPane === 'interval' && <IntervalPane />}
-        {/* {selectedPane === 'tempo' && <TempoPane />}
-        {selectedPane === 'settings' && <SettingsPane />} */}
-
-        <DeleteModal ref={modalRef} />
       </div>
-    </>
+      <div className='text-sm text-foreground/90 flex'>{selectedPadId}</div>
+
+      {selectedPane === 'state' && (
+        <StatePane showDeleteModal={showDeleteModal} />
+      )}
+      {selectedPane === 'interval' && <IntervalPane />}
+      {selectedPane === 'details' && (
+        <DetailsPane showDeleteModal={showDeleteModal} />
+      )}
+
+      <DeleteModal ref={modalRef} />
+    </div>
   );
 };
 
