@@ -34,11 +34,8 @@ export const isImageMetadata = (metadata: Media): boolean => {
   return metadata.mimeType.startsWith('image/');
 };
 
-export const isYouTubeMetadata = (metadata: Media): boolean => {
-  return metadata.mimeType.startsWith('video/youtube');
-  // return (
-  //   metadata.url.includes('youtube.com') || metadata.url.includes('youtu.be')
-  // );
+export const isYouTubeMetadata = (metadata?: Media): boolean => {
+  return metadata?.mimeType.startsWith('video/youtube') ?? false;
 };
 
 export const getUrlMetadata = async (url?: string): Promise<Media | null> => {

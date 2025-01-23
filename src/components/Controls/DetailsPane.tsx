@@ -3,7 +3,6 @@
 import { useCallback, useEffect } from 'react';
 
 import {
-  Bomb,
   ClipboardCopy,
   ClipboardPaste,
   ClipboardX,

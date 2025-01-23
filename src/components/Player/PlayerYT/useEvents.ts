@@ -3,6 +3,7 @@ import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadDetails } from '@model/hooks/usePads';
+import { usePlayerState } from '@model/hooks/usePlayersState';
 import {
   PlayerEvent,
   PlayerExtractThumbnail,
@@ -18,7 +19,7 @@ import type { PlayerReturn } from './index';
 import { usePlayerYTState } from './state';
 import { PlayerState } from './types';
 
-const log = createLog('player/yt/events');
+const log = createLog('player/yt/events', ['debug']);
 
 type PlayerYTEvents = {
   player: YTPlayer;
@@ -62,6 +63,10 @@ export const usePlayerYTEvents = ({
   const isBufferingRef = useRef(false);
   const animationRef = useRef<number | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
+  const {
+    onPlayerUpdate: cOnPlayerUpdate,
+    onPlayerDestroyed: cOnPlayerDestroyed
+  } = usePlayerState(playerPadId, mediaUrl);
 
   const { handlePlayerStateChange } = usePlayerYTState({
     intervals: interval ? [interval] : [],
@@ -118,34 +123,43 @@ export const usePlayerYTEvents = ({
     (player: YTPlayer) => {
       // log.debug('[onPlayerDestroyed]', player.odgnId);
       handlePlayerStateChange(PlayerState.DESTROYED, player);
+      cOnPlayerDestroyed();
     },
-    [handlePlayerStateChange]
+    [handlePlayerStateChange, cOnPlayerDestroyed]
   );
 
   // called when the YTPlayer has indicated it is ready
   const onPlayerReady = useCallback(
     (player: YTPlayer) => {
+      const duration = player.getDuration();
       // check the interval end time - its possible that it is invalid
       // and we need to set it to the video duration
       if (interval && interval.end === -1) {
-        interval.end = player.getDuration();
+        interval.end = duration;
 
-        events.emit('media:property-update', {
-          mediaUrl,
-          property: 'duration',
-          value: player.getDuration()
-        });
+        // events.emit('media:property-update', {
+        //   mediaUrl,
+        //   property: 'duration',
+        //   value: interval.end
+        // });
       }
 
-      events.emit('media:property-update', {
-        mediaUrl,
-        property: 'playbackRates',
-        value: player.getAvailablePlaybackRates()
+      log.debug('onPlayerReady duration', duration);
+
+      cOnPlayerUpdate({
+        duration: duration,
+        playbackRates: player.getAvailablePlaybackRates()
       });
+
+      // events.emit('media:property-update', {
+      //   mediaUrl,
+      //   property: 'playbackRates',
+      //   value: player.getAvailablePlaybackRates()
+      // });
 
       handlePlayerStateChange(player.getPlayerState(), player);
     },
-    [handlePlayerStateChange, interval, mediaUrl, events]
+    [handlePlayerStateChange, interval, cOnPlayerUpdate]
   );
 
   const updateTimeTracking = useCallback(() => {
@@ -225,17 +239,19 @@ export const usePlayerYTEvents = ({
       if (!doesPlayerEventMatch(e, playerPadId)) return;
       // log.debug('player ready', e);
       setIsReady(true);
+      cOnPlayerUpdate({ isReady: true });
     },
-    [playerPadId]
+    [playerPadId, cOnPlayerUpdate]
   );
 
   const handleNotReady = useCallback(
     (e: PlayerNotReady) => {
       if (!doesPlayerEventMatch(e, playerPadId)) return;
-      log.debug('player not ready?', e);
+      // log.debug('player not ready?', e);
       setIsReady(false);
+      cOnPlayerUpdate({ isReady: false });
     },
-    [playerPadId]
+    [playerPadId, cOnPlayerUpdate]
   );
 
   const handleSeek = useCallback(

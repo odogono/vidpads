@@ -5,6 +5,7 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { usePadDetails } from '@model/hooks/usePads';
+import { usePlayerState } from '@model/hooks/usePlayersState';
 import { MediaVideo } from '@model/types';
 import {
   PlayerExtractThumbnail,
@@ -37,6 +38,10 @@ export const LocalPlayer = ({
   const isPlayingRef = useRef(false);
   const animationRef = useRef<number | null>(null);
   const mediaUrl = media.url;
+  const {
+    onPlayerUpdate: cOnPlayerUpdate,
+    onPlayerDestroyed: cOnPlayerDestroyed
+  } = usePlayerState(playerPadId, mediaUrl);
 
   useVideoLoader(media as MediaVideo, videoRef);
 
@@ -239,12 +244,18 @@ export const LocalPlayer = ({
 
     log.debug('❤️ player:ready', mediaUrl, playerPadId);
 
+    cOnPlayerUpdate({
+      isReady: true,
+      duration: video.duration,
+      playbackRates: [0.25, 0.5, 1, 1.5, 2]
+    });
+
     events.emit('player:ready', {
       url: mediaUrl,
       padId: playerPadId,
       state: PlayerReadyState.HAVE_METADATA
     });
-  }, [events, mediaUrl, playerPadId, showControls]);
+  }, [events, mediaUrl, playerPadId, showControls, cOnPlayerUpdate]);
 
   useEffect(() => {
     events.on('video:start', playVideo);
@@ -262,8 +273,11 @@ export const LocalPlayer = ({
       events.off('video:extract-thumbnail', extractThumbnail);
       events.off('player:set-volume', setVolume);
       events.off('player:set-playback-rate', setPlaybackRate);
+
+      cOnPlayerDestroyed();
     };
   }, [
+    cOnPlayerDestroyed,
     events,
     extractThumbnail,
     playVideo,

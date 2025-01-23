@@ -43,7 +43,7 @@ export const useMetadata = () => {
   const { mutateAsync: updateMetadataProperty } = useMutation({
     mutationFn: updateMetadataPropertyMutation,
     onSuccess: (_, { mediaUrl, property, value }) => {
-      log.debug('updated property', mediaUrl, property, value);
+      // log.debug('updated property', mediaUrl, property, value);
       invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaUrl]]);
 
       // update the all metadata query data
@@ -111,6 +111,7 @@ export const useMetadata = () => {
   );
 
   useEffect(() => {
+    // todo: no longer needed
     events.on('media:property-update', handleMediaPropertyUpdate);
     return () => {
       events.off('media:property-update', handleMediaPropertyUpdate);
