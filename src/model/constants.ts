@@ -5,3 +5,25 @@ export const QUERY_KEY_STATE = 'store-state';
 export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
 export const QUERY_KEY_FFMPEG = 'ffmpeg';
 export const QUERY_KEY_METADATA = 'metadata';
+export const QUERY_KEY_PLAYER = 'player';
+export const QUERY_KEY_PLAYER_READY = 'player-ready';
+
+// todo - move to using these keys instead of the above
+export const VOKeys = {
+  all: ['vo'] as const,
+
+  store: () => [...VOKeys.all, 'store'] as const,
+
+  projects: () => [...VOKeys.all, 'projects'] as const,
+  project: (projectId: string) => [...VOKeys.projects(), projectId] as const,
+
+  pads: () => [...VOKeys.all, 'pad'] as const,
+  pad: (padId: string) => [...VOKeys.pads(), padId] as const,
+  padThumbnail: (padId: string) => [...VOKeys.pad(padId), 'thumbnail'] as const,
+
+  allMetadata: () => [...VOKeys.all, 'metadata'] as const,
+  metadata: (mediaUrl: string) => [...VOKeys.allMetadata(), mediaUrl] as const,
+
+  players: () => [...VOKeys.all, 'player'] as const,
+  player: (playerId: string) => [...VOKeys.players(), playerId] as const
+};
