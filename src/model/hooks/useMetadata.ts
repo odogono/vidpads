@@ -37,122 +37,40 @@ export const useMetadata = () => {
 
   const { data } = useSuspenseQuery({
     queryKey: [QUERY_KEY_METADATA],
-    queryFn: async () => {
-      const metadata = isMounted ? await dbGetAllMediaMetaData() : [];
-      // log.debug('queryFn', metadata.length, { isMounted });
-
-      const urlToMetadata = new Map<string, Media>();
-      metadata.forEach((m) => urlToMetadata.set(m.url, m));
-
-      const urlToExternalUrl = metadata.reduce((acc, media) => {
-        if (isYouTubeMetadata(media)) {
-          const ytUrl = getYoutubeVideoIdFromMedia(media);
-          if (ytUrl) {
-            acc[media.url] = ytUrl;
-          }
-        } else {
-          acc[media.url] = media.url;
-        }
-        return acc;
-      }, {} as InternalToExternalUrlMap);
-
-      const urlToDuration = metadata.reduce(
-        (acc, media) => {
-          acc[media.url] = media.duration;
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-      const urlToPlaybackRates = metadata.reduce(
-        (acc, media) => {
-          if (isYouTubeMetadata(media)) {
-            const rates = (media as MediaYouTube).playbackRates;
-            if (rates && rates.length > 0) {
-              acc[media.url] = rates;
-            }
-          }
-          return acc;
-        },
-        {} as Record<string, number[]>
-      );
-
-      return {
-        metadata,
-        urlToMetadata,
-        urlToExternalUrl,
-        urlToDuration,
-        urlToPlaybackRates
-      };
-    }
+    queryFn: () => getAllMetadata(isMounted)
   });
 
-  // const { mutateAsync: updateMetadataDuration } = useMutation({
-  //   mutationFn: async ({
-  //     mediaUrl,
-  //     duration
-  //   }: {
-  //     mediaUrl: string;
-  //     duration: number;
-  //   }) => {
-  //     try {
-  //       await dbUpdateMetadataDuration(mediaUrl, duration);
-  //     } catch (error) {
-  //       log.warn('updateMetadataDuration error', error, mediaUrl, duration);
-  //       return null;
-  //     }
-  //   },
-  //   onSuccess: (_, { mediaUrl, duration }) => {
-  //     log.debug('updated duration', mediaUrl, duration);
-  //     invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaUrl]]);
-  //   }
-  // });
-
   const { mutateAsync: updateMetadataProperty } = useMutation({
-    mutationFn: async ({
-      mediaUrl,
-      property,
-      value
-    }: {
-      mediaUrl: string;
-      property: keyof Media | keyof MediaYouTube;
-      value: unknown;
-    }) => {
-      try {
-        await dbUpdateMetadataProperty(mediaUrl, property, value);
-      } catch (error) {
-        log.warn(
-          'updateMetadataProperty error',
-          error,
-          mediaUrl,
-          property,
-          value
-        );
-        return null;
-      }
-    },
+    mutationFn: updateMetadataPropertyMutation,
     onSuccess: (_, { mediaUrl, property, value }) => {
       log.debug('updated property', mediaUrl, property, value);
       invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, mediaUrl]]);
+
+      // update the all metadata query data
+      queryClient.setQueryData(
+        [QUERY_KEY_METADATA],
+        (oldData: GetAllMetadataResult) => {
+          if (oldData) {
+            const media = oldData.urlToMetadata.get(mediaUrl);
+            if (media) {
+              const updatedMedia = { ...media, [property]: value };
+              oldData = {
+                ...oldData,
+                urlToMetadata: oldData.urlToMetadata.set(mediaUrl, updatedMedia)
+              };
+            }
+            if (property === 'duration') {
+              oldData.urlToDuration[mediaUrl] = value as number;
+            }
+            if (property === 'playbackRates') {
+              oldData.urlToPlaybackRates[mediaUrl] = value as number[];
+            }
+          }
+          return oldData;
+        }
+      );
     }
   });
-
-  // const handleMediaDurationUpdate = useCallback(
-  //   (event: { mediaUrl: string; duration: number }) => {
-  //     const { mediaUrl, duration } = event;
-
-  //     // prevent redundant updates
-  //     if (data.urlToDuration?.[mediaUrl] === duration) {
-  //       return;
-  //     }
-  //     updateMetadataProperty({
-  //       mediaUrl,
-  //       property: 'duration',
-  //       value: duration
-  //     });
-  //   },
-  //   [updateMetadataProperty, data]
-  // );
 
   const handleMediaPropertyUpdate = useCallback(
     (event: {
@@ -161,6 +79,8 @@ export const useMetadata = () => {
       value: unknown;
     }) => {
       const { mediaUrl, property, value } = event;
+
+      // log.debug('[handleMediaPropertyUpdate]', { mediaUrl, property, value });
 
       // prevent redundant updates
       if (property === 'playbackRates') {
@@ -176,6 +96,11 @@ export const useMetadata = () => {
         }
       }
 
+      log.debug('[handleMediaPropertyUpdate] updating', {
+        mediaUrl,
+        property,
+        value
+      });
       updateMetadataProperty({
         mediaUrl,
         property,
@@ -214,4 +139,73 @@ export const useMetadataByUrl = (url: string | undefined) => {
   const duration = data?.duration ?? -1;
 
   return { duration, metadata: data };
+};
+
+type GetAllMetadataResult = Awaited<ReturnType<typeof getAllMetadata>>;
+
+const getAllMetadata = async (isMounted: boolean) => {
+  const metadata = isMounted ? await dbGetAllMediaMetaData() : [];
+  // log.debug('queryFn', metadata.length, { isMounted });
+
+  const urlToMetadata = new Map<string, Media>();
+  metadata.forEach((m) => urlToMetadata.set(m.url, m));
+
+  const urlToExternalUrl = metadata.reduce((acc, media) => {
+    if (isYouTubeMetadata(media)) {
+      const ytUrl = getYoutubeVideoIdFromMedia(media);
+      if (ytUrl) {
+        acc[media.url] = ytUrl;
+      }
+    } else {
+      acc[media.url] = media.url;
+    }
+    return acc;
+  }, {} as InternalToExternalUrlMap);
+
+  const urlToDuration = metadata.reduce(
+    (acc, media) => {
+      acc[media.url] = media.duration;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const urlToPlaybackRates = metadata.reduce(
+    (acc, media) => {
+      if (isYouTubeMetadata(media)) {
+        const rates = (media as MediaYouTube).playbackRates;
+        if (rates && rates.length > 0) {
+          acc[media.url] = rates;
+        }
+      }
+      return acc;
+    },
+    {} as Record<string, number[]>
+  );
+
+  return {
+    metadata,
+    urlToMetadata,
+    urlToExternalUrl,
+    urlToDuration,
+    urlToPlaybackRates
+  };
+};
+
+const updateMetadataPropertyMutation = async ({
+  mediaUrl,
+  property,
+  value
+}: {
+  mediaUrl: string;
+  property: keyof Media | keyof MediaYouTube;
+  value: unknown;
+}) => {
+  try {
+    log.debug('[updateMetadataProperty]', { mediaUrl, property, value });
+    await dbUpdateMetadataProperty(mediaUrl, property, value);
+  } catch (error) {
+    log.warn('updateMetadataProperty error', error, mediaUrl, property, value);
+    return null;
+  }
 };

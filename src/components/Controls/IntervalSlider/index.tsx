@@ -2,14 +2,14 @@
 
 import { useCallback, useRef } from 'react';
 
-// import { createLog } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
 import { IntervalCanvas, IntervalCanvasRef } from './IntervalCanvas';
 
-// const log = createLog('IntervalSlider');
+const log = createLog('IntervalSlider');
 
 export interface IntervalSliderProps {
   pad: Pad | undefined;
@@ -24,6 +24,8 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
     start: 0,
     end: duration
   })!;
+
+  // log.debug({ padStart, padEnd });
 
   const handleTimeUpdate = useCallback((time: number) => {
     canvasRef.current?.setTime(time);

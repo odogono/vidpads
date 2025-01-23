@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
@@ -36,6 +36,7 @@ export const Dial = ({
 }: DialProps) => {
   const startAngle = -135;
   const endAngle = 135;
+  const lastValue = useRef(value);
 
   // 5 -> 1
   // 0.1 -> 0
@@ -58,7 +59,11 @@ export const Dial = ({
   const handleTouch = useCallback(
     (value: number) => {
       const normalisedValue = rangeToValue(value);
-      onChange?.(normalisedValue);
+      if (lastValue.current !== normalisedValue) {
+        onChange?.(normalisedValue);
+        lastValue.current = normalisedValue;
+        // log.debug('[Dial]', normalisedValue);
+      }
     },
     [onChange, rangeToValue]
   );

@@ -75,6 +75,9 @@ export const IntervalCanvas = ({
     },
     [duration, trackArea.width, trackArea.x]
   );
+
+  // log.debug('[IntervalCanvas]', { intervalStart, intervalEnd, duration });
+
   const xToInterval = useCallback(
     (x: number) => roundDP((x - trackArea.x) * (duration / trackArea.width)),
     [duration, trackArea.width, trackArea.x]
@@ -167,6 +170,8 @@ export const IntervalCanvas = ({
         height: rect.height - intervalBorderWidth * 2
       };
       setTrackArea(area);
+
+      // log.debug('[updateCanvasSize]', { area, rect });
     };
 
     window.addEventListener('resize', updateCanvasSize);
@@ -199,8 +204,8 @@ export const IntervalCanvas = ({
     const lineX = intervalToX(timeRef.current ?? 0);
 
     // log.debug('render', {
-    //   lineX,
     //   time: timeRef.current,
+    //   lineX,
     //   intervalStartX,
     //   intervalEndX
     // });

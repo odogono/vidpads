@@ -117,7 +117,7 @@ describe.skip('exportToURLString', () => {
     const [padId, sourceUrl, operations] = padData.split('|');
     expect(padId).toBe('pad1');
     expect(sourceUrl).toBe('https://example.com/video1');
-    expect(operations).toBe('Trim,1.23,4.56');
+    expect(operations).toBe('trim:1.23:4.56');
   });
 });
 
@@ -157,7 +157,7 @@ describe('exportPadToURLString', () => {
 describe('importPadFromURLString', () => {
   it('should import project from URL string', async () => {
     const data =
-      '1|08978bb8|DJ%20Premier%20on%20the%20Wheels%20of%20Steel|1736858554520|1737221082587|a1[Sff7Kc77QAY[trim,178.7,207.7(a2[WeoCOdbAy3s[trim,166.6,208(a3[TgelVkHEKdw[trim,214,264.4(a4[xnI8JEW7Ty4[trim,176,191.2(a5[FNj-m_s0ngA[trim,13.3,24.3(a9[RDhkRQ2jY9Q[(a10[Sff7Kc77QAY[trim,33.3,35.9';
+      '1|08978bb8|DJ%20Premier%20on%20the%20Wheels%20of%20Steel|1736858554520|1737221082587|a1[Sff7Kc77QAY[trim:178.7:207.7(a2[WeoCOdbAy3s[trim:166.6:208(a3[TgelVkHEKdw[trim:214:264.4(a4[xnI8JEW7Ty4[trim:176:191.2(a5[FNj-m_s0ngA[trim:13.3:24.3(a9[RDhkRQ2jY9Q[(a10[Sff7Kc77QAY[trim:33.3:35.9';
 
     const project = urlStringToProject(data);
 
@@ -212,4 +212,13 @@ describe('importPadFromURLString', () => {
 
     expect(project).toEqual(json);
   });
+
+  // it.only('should decode this', () => {
+  //   const data =
+  //     '1|5bdf1e67|C.R.E.A.M.|1737286737694|1737289526155|a1[gp9uZjPaB4w[trim:0.42:5.81(a2[gp9uZjPaB4w[trim:18:20.1(a5[PBwAxmrE194[trim:22.9:25.9(a6[PBwAxmrE194[trim:86.6:91.7(a7[PBwAxmrE194[trim:219.74:224.85(a11[mFTpDtjkHV8[trim:47.1:49.03(a12[mFTpDtjkHV8[trim:175:230.85';
+
+  //   const project = urlStringToProject(data);
+
+  //   log.debug(JSON.stringify(project, null, 2));
+  // });
 });

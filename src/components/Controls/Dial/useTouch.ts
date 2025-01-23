@@ -118,7 +118,6 @@ export const useTouch = ({
 
   const handleWheel = useCallback(
     (e: React.WheelEvent<TouchElement>) => {
-      e.preventDefault();
       const { deltaY } = e;
       if (deltaY === 0) return;
       const amount = isShiftKeyDown() ? 0.1 : 0.01;
