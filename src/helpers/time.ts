@@ -50,7 +50,7 @@ export const formatTimeToString = (timeInSeconds: number) => {
   const milliseconds = Math.round((timeInSeconds % 1) * 1000);
 
   // Format components with padding
-  const minutesStr = minutes.toString().padStart(2, '0');
+  const minutesStr = minutes.toString().padStart(3, '0');
   const secondsStr = seconds.toString().padStart(2, '0');
   const millisecondsStr = milliseconds.toString().padStart(3, '0');
 

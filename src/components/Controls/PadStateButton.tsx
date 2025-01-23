@@ -13,8 +13,8 @@ export const PadStateButton = ({
     <Button
       className={
         isActive
-          ? 'bg-primary border-default-200'
-          : 'text-foreground border-default-200'
+          ? 'bg-slate-900 border-default-200'
+          : 'bg-slate-600 text-foreground border-default-200'
       }
       onPress={onPress}
       color='primary'

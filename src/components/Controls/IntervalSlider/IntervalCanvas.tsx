@@ -297,10 +297,10 @@ export const IntervalCanvas = ({
   // log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
 
   return (
-    <div className='pointer-events-none relative w-full h-full bg-slate-900'>
+    <div className='pointer-events-none relative w-full h-full bg-slate-800 rounded-sm'>
       <canvas
         ref={canvasRef}
-        className='absolute w-full h-full'
+        className='absolute w-full h-full '
         style={{
           imageRendering: 'pixelated',
           touchAction: 'none',
