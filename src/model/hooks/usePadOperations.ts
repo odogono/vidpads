@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import toast from 'react-hot-toast';
+
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
@@ -153,6 +155,8 @@ export const usePadOperations = () => {
 
       await navigator.clipboard.writeText(urlString);
 
+      toast.success(`Copied ${padId} to clipboard`);
+
       return true;
       // copyPadToPadOp({ sourcePadId: pad.id, targetPadId: pad.id });
     },
@@ -230,6 +234,8 @@ export const usePadOperations = () => {
         VOKeys.metadata(sourcePadUrl)
       ] as readonly string[][]);
 
+      toast.success(`Pasted ${targetPad.id} from clipboard`);
+
       return true;
     },
     [deletePadMediaOp, isShiftKeyDown, queryClient, store]
@@ -255,6 +261,8 @@ export const usePadOperations = () => {
         padId
       });
 
+      toast.success(`Cut ${padId} to clipboard`);
+
       return true;
     }
   });
@@ -273,6 +281,8 @@ export const usePadOperations = () => {
         type: 'clearPad',
         padId
       });
+
+      toast.success(`Cleared ${padId}`);
     }
   });
 
