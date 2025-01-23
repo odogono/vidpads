@@ -27,7 +27,7 @@ export const usePadTrimOperation = () => {
       await dbSetPadThumbnail(pad.id, thumbnail);
 
       // Invalidate the pad-thumbnail query to trigger a refetch
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id]
       });
     }
