@@ -27,6 +27,7 @@ export { setLastMediaUrl } from './setLastMediaUrl';
 export { setLastImportUrl } from './setLastImportUrl';
 export { setPadMedia } from './setPadMedia';
 export { updateProject } from './updateProject';
+export { setSelectedControlPane } from './setControlPane';
 
 export const setEditActive = (
   context: StoreContext,

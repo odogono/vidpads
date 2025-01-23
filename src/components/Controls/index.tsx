@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowDownUp } from 'lucide-react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
+import { useControlPane } from '@model/hooks/useControlPane';
 import { usePad } from '@model/hooks/usePad';
 import { Button, Card, CardHeader, cn } from '@nextui-org/react';
 import { DetailsPane } from './DetailsPane';
@@ -12,13 +13,12 @@ import { IntervalPane } from './IntervalPane';
 import { StatePane } from './StatePane';
 import { ControlsLoading } from './loading';
 
-// Add this type definition at the top of the file, after the imports
-type PaneState = 'state' | 'interval' | 'tempo' | 'details';
-
 export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
   const { selectedPadId } = usePad();
-  const [selectedPane, setSelectedPane] = useState<PaneState>('details');
+  // const [selectedPane, setSelectedPane] = useState<PaneState>('details');
+
+  const { selectedControlPane, cycleToNextControlPane } = useControlPane();
 
   const modalRef = useRef<DeleteModalRef | null>(null);
   // used to prevent hydration error
@@ -30,23 +30,6 @@ export const ControlsLoaded = () => {
   const showDeleteModal = useCallback(() => {
     modalRef.current?.onOpen();
   }, [modalRef]);
-
-  const cycleToNextState = useCallback(() => {
-    setSelectedPane((currentState) => {
-      switch (currentState) {
-        case 'state':
-          return 'interval';
-        case 'interval':
-          return 'state';
-        case 'tempo':
-          return 'details';
-        case 'details':
-          return 'state';
-        default:
-          return 'state';
-      }
-    });
-  }, []);
 
   if (!isMounted) {
     return null;
@@ -68,7 +51,7 @@ export const ControlsLoaded = () => {
         <Button
           isIconOnly
           aria-label='State'
-          onPress={cycleToNextState}
+          onPress={cycleToNextControlPane}
           className={cn(
             'w-full h-full aspect-square bg-slate-400 hover:bg-slate-300 text-black'
           )}
@@ -76,19 +59,19 @@ export const ControlsLoaded = () => {
           <ArrowDownUp />
         </Button>
         <div className='switcher-indicator m-2 flex flex-col gap-2 justify-center'>
-          <Indicator isActive={selectedPane === 'state'} />
-          <Indicator isActive={selectedPane === 'interval'} />
-          <Indicator isActive={selectedPane === 'details'} />
-          <Indicator isActive={selectedPane === 'tempo'} />
+          <Indicator isActive={selectedControlPane === 'state'} />
+          <Indicator isActive={selectedControlPane === 'interval'} />
+          <Indicator isActive={selectedControlPane === 'details'} />
+          <Indicator isActive={selectedControlPane === 'tempo'} />
         </div>
       </div>
       <div className='text-sm text-foreground/90 flex'>{selectedPadId}</div>
 
-      {selectedPane === 'state' && (
+      {selectedControlPane === 'state' && (
         <StatePane showDeleteModal={showDeleteModal} />
       )}
-      {selectedPane === 'interval' && <IntervalPane />}
-      {selectedPane === 'details' && (
+      {selectedControlPane === 'interval' && <IntervalPane />}
+      {selectedControlPane === 'details' && (
         <DetailsPane showDeleteModal={showDeleteModal} />
       )}
 

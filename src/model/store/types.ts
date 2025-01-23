@@ -7,6 +7,7 @@ export interface StoreContextType {
   isInitial: boolean;
   startTime: string;
   isEditActive?: boolean;
+  selectedControlPane?: 'state' | 'interval' | 'tempo' | 'details';
   selectedPadId?: string | null;
   lastMediaUrl?: string | null;
   lastImportUrl?: string | null;
@@ -118,6 +119,11 @@ export type SetLastImportUrlAction = {
   url: string;
 };
 
+export type SetSelectedControlPaneAction = {
+  type: 'setSelectedControlPane';
+  pane: 'state' | 'interval' | 'tempo' | 'details';
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -137,7 +143,8 @@ export type Actions =
   | SetLastImportUrlAction
   | ApplyVolumeToPadAction
   | ApplyVolumeEnvelopeToPadAction
-  | ApplyPlaybackRateToPadAction;
+  | ApplyPlaybackRateToPadAction
+  | SetSelectedControlPaneAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
