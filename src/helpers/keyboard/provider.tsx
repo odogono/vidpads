@@ -3,7 +3,7 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
-// import { createLog } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import { KeyboardContext } from './context';
 
 const KEY_PAD_MAP = {
@@ -25,22 +25,66 @@ const KEY_PAD_MAP = {
   KeyV: 'a16'
 };
 
-// const log = createLog('keyboard');
+const log = createLog('keyboard', ['debug']);
 
 export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
   const activeKeys = useRef<Set<string>>(new Set());
   const [isEnabled, setIsEnabled] = useState(true);
 
+  const clearActiveKeys = useCallback(() => {
+    activeKeys.current.forEach((code) => {
+      const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
+      if (padId) {
+        events.emit('pad:touchup', { padId });
+      }
+    });
+
+    activeKeys.current.clear();
+    log.debug('[keyboard] cleared all active keys');
+  }, [events]);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const { code } = e;
 
-      if (!isEnabled) return;
+      if (!isEnabled) {
+        log.debug('[keyboard] not enabled, ignoring keydown:', code);
+        return;
+      }
 
-      if (activeKeys.current.has(code)) return;
+      if (activeKeys.current.has(code)) {
+        log.debug(
+          '[keyboard] keydown already active:',
+          code,
+          activeKeys.current
+        );
+        return;
+      }
 
       activeKeys.current.add(code);
+
+      log.debug('[keyboard] keydown:', code, e.ctrlKey, e.metaKey);
+
+      if (e.ctrlKey || e.metaKey) {
+        if (code === 'KeyC') {
+          events.emit('cmd:copy');
+          activeKeys.current.delete(code);
+          return;
+        }
+
+        if (code === 'KeyX') {
+          events.emit('cmd:cut');
+          activeKeys.current.delete(code);
+          return;
+        }
+
+        if (code === 'KeyV') {
+          events.emit('cmd:paste');
+          activeKeys.current.delete(code);
+          return;
+        }
+      }
 
       const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
       if (padId) {
@@ -69,6 +113,8 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
 
       activeKeys.current.delete(code);
 
+      log.debug('[keyboard] keyup:', code);
+
       const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
       if (padId) {
         events.emit('pad:touchup', { padId });
@@ -76,6 +122,11 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
     },
     [events, isEnabled]
   );
+
+  const handleBlur = useCallback(() => {
+    if (!isEnabled) return;
+    clearActiveKeys();
+  }, [clearActiveKeys, isEnabled]);
 
   const isKeyDown = (key: string) => activeKeys.current.has(key);
   const isKeyUp = (key: string) => !activeKeys.current.has(key);
@@ -86,13 +137,15 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
     events.on('keyboard:enabled', setIsEnabled);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
       events.off('keyboard:enabled', setIsEnabled);
     };
-  }, [handleKeyDown, handleKeyUp, events]);
+  }, [handleKeyDown, handleKeyUp, handleBlur, events]);
 
   // log.debug('isEnabled', isEnabled);
 

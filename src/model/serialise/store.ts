@@ -19,17 +19,12 @@ const EXPORT_URL_VERSION = 1;
 
 export type ExportOptions = Record<string, unknown>;
 
-export const exportToJSON = (
-  store: StoreType,
-  urlToExternalUrl: InternalToExternalUrlMap
-): ProjectExport => {
+export const exportToJSON = (store: StoreType): ProjectExport => {
   const { context } = store.getSnapshot();
 
   const { projectId, projectName, createdAt, updatedAt, pads } = context;
 
-  const padsJSON = pads
-    .map((pad) => exportPadToJSON(pad, urlToExternalUrl))
-    .filter(Boolean);
+  const padsJSON = pads.map((pad) => exportPadToJSON(pad)).filter(Boolean);
 
   return {
     id: projectId ?? generateShortUUID(),
@@ -42,25 +37,17 @@ export const exportToJSON = (
   } as ProjectExport;
 };
 
-export const exportToJSONString = (
-  store: StoreType,
-  urlToExternalUrl: InternalToExternalUrlMap
-) => {
-  const json = exportToJSON(store, urlToExternalUrl);
+export const exportToJSONString = (store: StoreType) => {
+  const json = exportToJSON(store);
   return JSON.stringify(json);
 };
 
-export const exportToURLString = (
-  store: StoreType,
-  urlToExternalUrl: InternalToExternalUrlMap
-) => {
+export const exportToURLString = (store: StoreType) => {
   const { context } = store.getSnapshot();
 
   const { projectId, projectName, createdAt, updatedAt, pads } = context;
 
-  const padsURL = pads
-    .map((pad) => exportPadToURLString(pad, urlToExternalUrl))
-    .filter(Boolean);
+  const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
 
   const createTimeMs = createdAt ? new Date(createdAt).getTime() : 0;
   const updateTimeMs = updatedAt ? new Date(updatedAt).getTime() : 0;

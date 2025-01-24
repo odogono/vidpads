@@ -24,8 +24,8 @@ const defaultContext = {
 const log = createLog('export.test');
 
 const mockUrlMap: InternalToExternalUrlMap = {
-  'vidpads://media/vid1': 'https://example.com/video1',
-  'vidpads://media/vid2': 'https://example.com/video2?start=2.6'
+  'odgn-vo://media/vid1': 'https://example.com/video1',
+  'odgn-vo://media/vid2': 'https://example.com/video2?start=2.6'
 };
 
 describe.skip('exportToURLString', () => {
@@ -87,7 +87,7 @@ describe.skip('exportToURLString', () => {
               pipeline: {
                 source: {
                   type: OperationType.Source,
-                  url: 'vidpads://media/vid1'
+                  url: 'odgn-vo://media/vid1'
                 },
                 operations: [
                   {
@@ -128,7 +128,7 @@ describe('exportPadToURLString', () => {
       pipeline: {
         source: {
           type: OperationType.Source,
-          url: 'vidpads://media/vid2'
+          url: 'odgn-vo://media/vid2'
         },
         operations: [
           {

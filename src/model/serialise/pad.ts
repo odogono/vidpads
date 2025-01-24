@@ -8,7 +8,18 @@ import {
   Pad,
   PadExport
 } from '@model/types';
-import { getPadStartAndEndTime } from '../pad';
+import {
+  createPadUrl,
+  isYTMediaUrl,
+  parsePadUrl,
+  toMediaUrl
+} from '../../helpers/metadata';
+import {
+  createPad,
+  getPadStartAndEndTime,
+  setPadInterval,
+  setPadSource
+} from '../pad';
 import {
   exportOperationToJSON,
   exportOperationToURL,
@@ -53,10 +64,7 @@ export const importPadFromJSON = ({
   };
 };
 
-export const exportPadToJSON = (
-  pad: Pad,
-  urlToExternalUrlMap: Record<string, string> = {}
-): PadExport | undefined => {
+export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
   const { id, pipeline } = pad;
 
   const { source, operations } = pipeline;
@@ -71,16 +79,13 @@ export const exportPadToJSON = (
 
   return {
     id,
-    source: urlToExternalUrlMap[source.url] ?? source.url,
+    source: source.url,
     operations: ops?.length > 0 ? ops : undefined
   };
 };
 
-export const exportPadToURLString = (
-  pad: Pad,
-  urlToExternalUrlMap: Record<string, string> = {}
-): string | undefined => {
-  const json = exportPadToJSON(pad, urlToExternalUrlMap);
+export const exportPadToURLString = (pad: Pad): string | undefined => {
+  const json = exportPadToJSON(pad);
   if (!json) {
     return undefined;
   }
@@ -124,19 +129,16 @@ export const importPadFromURLString = (
   };
 };
 
-export const exportPadToClipboard = (
-  pad: Pad,
-  urlToExternalUrlMap: Record<string, string> = {}
-) => {
-  const json = exportPadToJSON(pad, urlToExternalUrlMap);
+export const exportPadToClipboard = (pad: Pad) => {
+  const json = exportPadToJSON(pad);
   if (!json) {
     return '';
   }
   const { source } = json;
 
-  const data = exportPadToURLString(pad, urlToExternalUrlMap);
+  const data = exportPadToURLString(pad);
 
-  if (isYouTubeVideoId(source)) {
+  if (isYTMediaUrl(source)) {
     const { start } = getPadStartAndEndTime(pad, {
       start: -1,
       end: -1
@@ -155,11 +157,7 @@ export const exportPadToClipboard = (
     return url.toString();
   }
 
-  const url = new URL(`odgn-vo://pad`);
-  if (data) {
-    url.searchParams.set('d', data);
-  }
-  return url.toString();
+  return createPadUrl({ data });
 };
 
 export const importPadFromClipboard = (
@@ -173,16 +171,42 @@ export const importPadFromClipboard = (
   if (isYouTubeUrl(urlString)) {
     const url = new URL(urlString);
     const data = url.searchParams.get('x-vop-data');
+    if (!data) {
+      const mediaUrl = toMediaUrl(urlString);
+      if (!mediaUrl) {
+        return undefined;
+      }
+
+      const pad = setPadSource(createPad('incoming'), mediaUrl);
+
+      const time = url.searchParams.get('t');
+
+      if (time) {
+        const interval = { start: parseInt(time), end: -1 };
+        return setPadInterval(pad, interval);
+      }
+
+      return pad;
+    }
     const imported = data ? importPadFromURLString(data) : undefined;
     return imported ? importPadFromJSON({ pad: imported, options }) : undefined;
   }
 
-  if (urlString.startsWith('odgn-vo://pad')) {
-    const url = new URL(urlString);
-    const data = url.searchParams.get('d');
-    const imported = data ? importPadFromURLString(data) : undefined;
+  const padUrlData = parsePadUrl(urlString);
+
+  if (padUrlData) {
+    const imported = padUrlData.data
+      ? importPadFromURLString(padUrlData.data)
+      : undefined;
     return imported ? importPadFromJSON({ pad: imported, options }) : undefined;
   }
+
+  // if (urlString.startsWith('odgn-vo://pad')) {
+  //   const url = new URL(urlString);
+  //   const data = url.searchParams.get('d');
+  //   const imported = data ? importPadFromURLString(data) : undefined;
+  //   return imported ? importPadFromJSON({ pad: imported, options }) : undefined;
+  // }
 
   return undefined;
 };

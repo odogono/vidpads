@@ -1,10 +1,11 @@
 import { createLog } from '@helpers/log';
+import { addOrReplacePadOperation } from '@model/pad';
 import {
   ApplyVolumeEnvelopeToPadAction,
   StoreContext
 } from '@model/store/types';
 import { OperationType, VolumeOperation } from '@model/types';
-import { addOrReplaceOperation, addOrReplacePad, findPadById } from './helpers';
+import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('store/actions/applyTrimToPad');
 
@@ -29,6 +30,6 @@ export const applyVolumeEnvelopeToPad = (
   };
 
   // replace the old volume operation with the new one
-  const newPad = addOrReplaceOperation(pad, newOp);
+  const newPad = addOrReplacePadOperation(pad, newOp);
   return addOrReplacePad(context, newPad);
 };

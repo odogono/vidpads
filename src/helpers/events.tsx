@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 import mitt, { Emitter } from 'mitt';
 
@@ -18,7 +18,10 @@ import {
   PlayerThumbnailExtracted,
   PlayerTimeUpdate
 } from '@components/Player/types';
+import { createLog } from '@helpers/log';
 import { Media, MediaYouTube } from '../model/types';
+
+const log = createLog('events');
 
 export type EventEmitterEvents = {
   'pad:touchdown': {
@@ -55,15 +58,9 @@ export type EventEmitterEvents = {
   'player:set-volume': PlayerSetVolume;
   'player:set-playback-rate': PlayerSetPlaybackRate;
 
-  // 'media:duration-update': {
-  //   mediaUrl: string;
-  //   duration: number;
-  // };
-
-  // 'media:available-playback-rates': {
-  //   mediaUrl: string;
-  //   rates: number[];
-  // };
+  'cmd:copy': undefined;
+  'cmd:cut': undefined;
+  'cmd:paste': undefined;
 
   'media:property-update': {
     mediaUrl: string;
@@ -98,6 +95,13 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
     const mittEvents = mitt<EventEmitterEvents>();
     setEmitter(mittEvents);
   }
+
+  // useEffect(() => {
+  //   emitter?.on('*', (e, ...args) => log.debug('[events] event:', e, ...args));
+  //   return () => {
+  //     emitter?.all.clear();
+  //   };
+  // }, [emitter]);
 
   return (
     <EventsContext.Provider value={emitter}>{children}</EventsContext.Provider>

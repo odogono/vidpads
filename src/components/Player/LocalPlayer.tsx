@@ -336,8 +336,6 @@ const useVideoLoader = (
   const blobUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // if (!isVidpadUrl(url)) return;
-
     const video = videoRef?.current;
     if (!video) return;
 

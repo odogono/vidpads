@@ -34,7 +34,6 @@ export const useProjects = () => {
   const events = useEvents();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
-  const { urlToExternalUrl } = useMetadata();
   const { deleteAllPadThumbnails } = usePadOperations();
   const { addUrlToPad } = usePadOperations();
 
@@ -89,16 +88,16 @@ export const useProjects = () => {
   );
 
   const exportProjectToJSON = useCallback(() => {
-    return exportToJSON(store, urlToExternalUrl);
-  }, [store, urlToExternalUrl]);
+    return exportToJSON(store);
+  }, [store]);
 
   const exportProjectToJSONString = useCallback(() => {
-    return exportToJSONString(store, urlToExternalUrl);
-  }, [store, urlToExternalUrl]);
+    return exportToJSONString(store);
+  }, [store]);
 
   const exportProjectToURLString = useCallback(() => {
-    return exportToURLString(store, urlToExternalUrl);
-  }, [store, urlToExternalUrl]);
+    return exportToURLString(store);
+  }, [store]);
 
   const importFromJSONString = useCallback(
     async (json: string) => {
@@ -155,7 +154,7 @@ export const useProjects = () => {
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
     mutationFn: async ({ projectName }: { projectName: string }) => {
-      const data = exportToJSON(store, urlToExternalUrl);
+      const data = exportToJSON(store);
 
       const saveData = {
         ...data,

@@ -10,7 +10,7 @@ import { PaneProps } from './types';
 
 export type StatePaneProps = PaneProps;
 
-export const StatePane = ({ showDeleteModal }: StatePaneProps) => {
+export const StatePane = () => {
   const {
     isLooped,
     isPadOneShot,
@@ -53,11 +53,6 @@ export const StatePane = ({ showDeleteModal }: StatePaneProps) => {
         label='Loop'
         onPress={handleLooped}
         isActive={pad?.isLooped ?? false}
-      />
-      <PadStateButton
-        label='Delete'
-        onPress={showDeleteModal}
-        isActive={selectedPadId !== undefined}
       />
     </div>
   );
