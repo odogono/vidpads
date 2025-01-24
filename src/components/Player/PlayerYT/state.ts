@@ -254,7 +254,7 @@ export const usePlayerYTState = ({
         padId: playerPadId,
         volume: 0,
         start,
-        end: Math.min(start + 1, end)
+        end: Math.min(start + 0.5, end)
       });
     },
     [mediaUrl, playVideo, playerPadId]

@@ -58,8 +58,8 @@ export const usePlayerYTEvents = ({
   setPlaybackRate
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
-  const { getPadInterval } = usePadDetails();
-  const [interval] = useState(() => getPadInterval(playerPadId));
+  const { getPadInterval } = usePadDetails(playerPadId);
+  const [interval] = useState(() => getPadInterval());
   const isBufferingRef = useRef(false);
   const animationRef = useRef<number | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);

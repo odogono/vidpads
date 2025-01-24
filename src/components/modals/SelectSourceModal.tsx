@@ -100,7 +100,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
             Enter URL
           </Button>
           <Button onPress={handlePaste} className='w-full' color='primary'>
-            Paste
+            Paste from clipboard
           </Button>
         </>
       ) : (

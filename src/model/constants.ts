@@ -18,6 +18,7 @@ export const VOKeys = {
   pads: () => [...VOKeys.all, 'pad'] as const,
   pad: (padId: string) => [...VOKeys.pads(), padId] as const,
   padThumbnail: (padId: string) => [...VOKeys.pad(padId), 'thumbnail'] as const,
+  padInterval: (padId: string) => [...VOKeys.pad(padId), 'interval'] as const,
 
   allMetadata: () => [...VOKeys.all, 'metadata'] as const,
   metadata: (mediaUrl: string) => [...VOKeys.allMetadata(), mediaUrl] as const,

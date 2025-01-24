@@ -34,6 +34,10 @@ import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
 
 const log = createLog('model/usePadOperations');
 
+export interface PadOperationsOptions {
+  showToast: boolean;
+}
+
 export const usePadOperations = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
@@ -140,22 +144,29 @@ export const usePadOperations = () => {
   });
 
   const copyPadOp = useCallback(
-    async (padId: string) => {
-      const pad = getPadById(store, padId);
+    async ({
+      sourcePadId,
+      showToast = true
+    }: Partial<PadOperationsOptions> & {
+      sourcePadId: string;
+    }) => {
+      const pad = getPadById(store, sourcePadId);
       if (!pad) {
-        log.debug('[copyPad] Pad not found:', padId);
+        log.debug('[copyPad] Pad not found:', sourcePadId);
         return false;
       }
 
       const urlString = exportPadToClipboard(pad);
       if (!urlString) {
-        log.debug('[copyPad] could not export pad:', padId);
+        log.debug('[copyPad] could not export pad:', sourcePadId);
         return false;
       }
 
       await navigator.clipboard.writeText(urlString);
 
-      toast.success(`Copied ${padId} to clipboard`);
+      if (showToast) {
+        toast.success(`Copied ${sourcePadId} to clipboard`);
+      }
 
       return true;
       // copyPadToPadOp({ sourcePadId: pad.id, targetPadId: pad.id });
@@ -164,7 +175,10 @@ export const usePadOperations = () => {
   );
 
   const pastePadOp = useCallback(
-    async ({ targetPadId }: { targetPadId: string }) => {
+    async ({
+      targetPadId,
+      showToast = true
+    }: Partial<PadOperationsOptions> & { targetPadId: string }) => {
       const clipboard = await navigator.clipboard.readText();
 
       const sourcePad = importPadFromClipboard(clipboard);
@@ -236,7 +250,9 @@ export const usePadOperations = () => {
         [...VOKeys.pad(targetPad.id)]
       ]);
 
-      toast.success(`Pasted ${targetPad.id} from clipboard`);
+      if (showToast) {
+        toast.success(`Pasted ${targetPad.id} from clipboard`);
+      }
 
       return true;
     },
@@ -244,15 +260,23 @@ export const usePadOperations = () => {
   );
 
   const { mutateAsync: cutPadOp } = useMutation({
-    mutationFn: async (padId: string) => {
-      const pad = getPadById(store, padId);
+    mutationFn: async ({
+      sourcePadId,
+      showToast = true
+    }: Partial<PadOperationsOptions> & { sourcePadId: string }) => {
+      const pad = getPadById(store, sourcePadId);
       if (!pad) {
-        log.debug('[cutPad] Pad not found:', padId);
+        log.debug('[cutPad] Pad not found:', sourcePadId);
         return false;
       }
 
-      if (!(await copyPadOp(padId))) {
-        log.debug('[cutPad] could not copy pad:', padId);
+      if (
+        !(await copyPadOp({
+          sourcePadId,
+          showToast: false
+        }))
+      ) {
+        log.debug('[cutPad] could not copy pad:', sourcePadId);
         return false;
       }
 
@@ -260,20 +284,25 @@ export const usePadOperations = () => {
 
       store.send({
         type: 'clearPad',
-        padId
+        padId: sourcePadId
       });
 
-      toast.success(`Cut ${padId} to clipboard`);
+      if (showToast) {
+        toast.success(`Cut ${sourcePadId} to clipboard`);
+      }
 
       return true;
     }
   });
 
   const { mutateAsync: clearPadOp } = useMutation({
-    mutationFn: async (padId: string) => {
-      const pad = getPadById(store, padId);
+    mutationFn: async ({
+      sourcePadId,
+      showToast = true
+    }: Partial<PadOperationsOptions> & { sourcePadId: string }) => {
+      const pad = getPadById(store, sourcePadId);
       if (!pad) {
-        log.warn('[clearPad] Pad not found:', padId);
+        log.warn('[clearPad] Pad not found:', sourcePadId);
         return false;
       }
 
@@ -281,10 +310,14 @@ export const usePadOperations = () => {
 
       store.send({
         type: 'clearPad',
-        padId
+        padId: sourcePadId
       });
 
-      toast.success(`Cleared ${padId}`);
+      if (showToast) {
+        toast.success(`Cleared ${sourcePadId}`);
+      }
+
+      return true;
     }
   });
 

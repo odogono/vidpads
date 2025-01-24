@@ -134,7 +134,7 @@ export const useMetadataByUrl = (url: string | undefined) => {
     }
   });
 
-  log.debug('[useMetadataByUrl] data', data);
+  // log.debug('[useMetadataByUrl] data', data);
 
   const duration = data?.duration ?? -1;
 
