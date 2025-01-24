@@ -13,7 +13,7 @@ import {
   addFileToPad,
   addUrlToPad
 } from '@model';
-import { QUERY_KEY_PAD_THUMBNAIL, VOKeys } from '@model/constants';
+import { VOKeys } from '@model/constants';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
@@ -62,7 +62,7 @@ export const usePadOperations = () => {
 
       await dbDeletePadThumbnail(pad.id);
 
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_PAD_THUMBNAIL, pad.id]]);
+      invalidateQueryKeys(queryClient, [[...VOKeys.padThumbnail(pad.id)]]);
 
       return pad;
     }
@@ -73,9 +73,8 @@ export const usePadOperations = () => {
       const media = await addFileToPad({ ...props, store });
       if (!media) return null;
 
-      // Invalidate the pad-thumbnail query to trigger a refetch
       invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+        [...VOKeys.padThumbnail(props.padId)],
 
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
@@ -92,7 +91,7 @@ export const usePadOperations = () => {
       if (!media) return null;
 
       invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_PAD_THUMBNAIL, props.padId],
+        [...VOKeys.padThumbnail(props.padId)],
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
         [...VOKeys.allMetadata()]
@@ -131,7 +130,7 @@ export const usePadOperations = () => {
       }
 
       invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_PAD_THUMBNAIL, targetPad.id]
+        [...VOKeys.padThumbnail(targetPad.id)]
       ]);
 
       store.send({
@@ -180,6 +179,14 @@ export const usePadOperations = () => {
       showToast = true
     }: Partial<PadOperationsOptions> & { targetPadId: string }) => {
       const clipboard = await navigator.clipboard.readText();
+
+      log.debug('[pastePad] clipboard:', clipboard, { targetPadId });
+
+      // if (clipboard) {
+      //   log.debug('[pastePad] query cache:', queryClient.getQueryCache());
+      //   toast.error('Paste aborted');
+      //   return false;
+      // }
 
       const sourcePad = importPadFromClipboard(clipboard);
       if (!sourcePad) {
@@ -246,7 +253,6 @@ export const usePadOperations = () => {
 
       invalidateQueryKeys(queryClient, [
         [...VOKeys.allMetadata()],
-        [QUERY_KEY_PAD_THUMBNAIL, targetPad.id],
         [...VOKeys.pad(targetPad.id)]
       ]);
 
@@ -326,7 +332,7 @@ export const usePadOperations = () => {
       await dbDeleteAllPadThumbnails();
     },
     onSuccess: () => {
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_PAD_THUMBNAIL]]);
+      invalidateQueryKeys(queryClient, [[...VOKeys.pads()]]);
     }
   });
 

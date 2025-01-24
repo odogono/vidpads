@@ -1,10 +1,8 @@
-export const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
+// export const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
 export const QUERY_KEY_PROJECT = 'project';
 export const QUERY_KEY_PROJECTS = 'projects';
 export const QUERY_KEY_STATE = 'store-state';
 export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
-export const QUERY_KEY_PLAYER = 'player';
-export const QUERY_KEY_PLAYER_READY = 'player-ready';
 
 // todo - move to using these keys instead of the above
 export const VOKeys = {
@@ -26,8 +24,10 @@ export const VOKeys = {
   players: () => [...VOKeys.all, 'player'] as const,
   player: (playerId: string) => [...VOKeys.players(), playerId] as const,
 
+  // mutation key
   updatePlayer: (playerId: string) =>
     [...VOKeys.players(), playerId, 'update'] as const,
+  // mutation key
   deletePlayer: (playerId: string) =>
     [...VOKeys.players(), playerId, 'delete'] as const
 };

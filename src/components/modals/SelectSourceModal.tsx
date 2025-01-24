@@ -2,12 +2,13 @@
 
 import { useCallback, useRef, useState } from 'react';
 
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { isValidSourceUrl } from '@helpers/metadata';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
 import { Button, Input } from '@nextui-org/react';
-import { isValidSourceUrl } from '../../helpers/metadata';
 import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 
 const log = createLog('SelectSourceModal');
@@ -15,13 +16,13 @@ const log = createLog('SelectSourceModal');
 export type SelectSourceModalProps = CommonModalBase;
 
 export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
+  const events = useEvents();
   const [isEnteringUrl, setIsEnteringUrl] = useState(false);
   const { ACCEPTED_FILE_TYPES } = usePadDnD();
   const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
   const [url, setUrl] = useState(lastMediaUrl ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addFileToPad, addUrlToPad, pastePadFromClipboard } =
-    usePadOperations();
+  const { addFileToPad, addUrlToPad } = usePadOperations();
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
 
   const handleUrlSubmit = async () => {
@@ -67,11 +68,12 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   }, []);
 
   const handlePaste = useCallback(async () => {
-    if (activeIndex) {
-      await pastePadFromClipboard({ targetPadId: activeIndex });
-      ref.current?.onClose();
-    }
-  }, [activeIndex, pastePadFromClipboard, ref]);
+    events.emit('cmd:paste');
+    // if (activeIndex) {
+    //   await pastePadFromClipboard({ targetPadId: activeIndex });
+    //   ref.current?.onClose();
+    // }
+  }, [events]);
 
   return (
     <CommonModal

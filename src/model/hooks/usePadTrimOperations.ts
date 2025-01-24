@@ -1,4 +1,4 @@
-import { QUERY_KEY_PAD_THUMBNAIL } from '@model/constants';
+import { VOKeys } from '@model/constants';
 import { setPadThumbnail as dbSetPadThumbnail } from '@model/db/api';
 import { useStore } from '@model/store/useStore';
 import { Pad } from '@model/types';
@@ -28,7 +28,7 @@ export const usePadTrimOperation = () => {
 
       // Invalidate the pad-thumbnail query to trigger a refetch
       await queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id]
+        queryKey: [...VOKeys.padThumbnail(pad.id)]
       });
     }
 

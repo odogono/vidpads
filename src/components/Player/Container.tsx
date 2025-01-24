@@ -12,13 +12,11 @@ import {
   getPadVolume
 } from '@model/pad';
 import { Interval } from '@model/types';
-import { useQueryClient } from '@tanstack/react-query';
 import { Player } from './Player';
 import {
   getPlayerDataState,
   hidePlayer,
   setPlayerDataState,
-  setPlayerReadyInCache,
   setPlayerZIndex,
   showPlayer
 } from './helpers';
@@ -36,8 +34,8 @@ const log = createLog('player/container', ['debug']);
 export const PlayerContainer = () => {
   const events = useEvents();
   const playingStackRef = useRef<string[]>([]);
-  const queryClient = useQueryClient();
-  const { players: playersState } = usePlayersState();
+
+  const { updatePlayer: updatePlayerState } = usePlayersState();
 
   const { pads, players } = usePlayers();
 
@@ -149,24 +147,24 @@ export const PlayerContainer = () => {
   const handlePlayerReady = useCallback(
     (e: PlayerReady) => {
       log.debug('❤️ player:ready', e);
-      setPlayerReadyInCache(queryClient, e.url, e.padId, true);
+      updatePlayerState({ padId: e.padId, mediaUrl: e.url, isReady: true });
     },
-    [queryClient]
+    [updatePlayerState]
   );
 
-  useEffect(() => {
-    for (const player of playersState.values()) {
-      log.debug('❤️ player:ready cache', player);
-    }
-  }, [playersState]);
+  // useEffect(() => {
+  //   for (const player of playersState.values()) {
+  //     log.debug('❤️ player:ready cache', player);
+  //   }
+  // }, [playersState]);
 
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {
       log.debug('❤️ player:not-ready', e);
       hidePlayer(e.padId);
-      setPlayerReadyInCache(queryClient, e.url, e.padId, false);
+      updatePlayerState({ padId: e.padId, mediaUrl: e.url, isReady: false });
     },
-    [queryClient]
+    [updatePlayerState]
   );
 
   useEffect(() => {

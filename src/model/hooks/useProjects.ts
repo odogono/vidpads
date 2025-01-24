@@ -148,8 +148,9 @@ export const useProjects = () => {
 
   const deleteEverything = useCallback(async () => {
     await dbDeleteDB();
+    queryClient.resetQueries();
     await createNewProject();
-  }, [createNewProject]);
+  }, [createNewProject, queryClient]);
 
   // Add mutation for saving project
   const saveProjectMutation = useMutation({

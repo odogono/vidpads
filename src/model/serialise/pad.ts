@@ -168,6 +168,15 @@ export const importPadFromClipboard = (
     return undefined;
   }
 
+  if (isYouTubeVideoId(urlString)) {
+    const mediaUrl = toMediaUrl(urlString);
+    if (!mediaUrl) {
+      return undefined;
+    }
+    const pad = setPadSource(createPad('incoming'), mediaUrl);
+    return pad;
+  }
+
   if (isYouTubeUrl(urlString)) {
     const url = new URL(urlString);
     const data = url.searchParams.get('x-vop-data');
