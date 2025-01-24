@@ -14,7 +14,7 @@ import {
   ModalFooter,
   ModalHeader
 } from '@nextui-org/react';
-import { CopyButton } from '../CopyButton';
+import { CopyButton } from './CopyButton';
 import { useModalState } from './useModalState';
 
 // const log = createLog('ExportProjectModal');

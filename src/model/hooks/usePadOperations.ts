@@ -29,6 +29,7 @@ import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
 import { Media, MediaYouTube, Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { readFromClipboard, writeToClipboard } from '../../helpers/clipboard';
 import { getUrlMetadata, isYouTubeMetadata } from '../../helpers/metadata';
 import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
 
@@ -161,7 +162,7 @@ export const usePadOperations = () => {
         return false;
       }
 
-      await navigator.clipboard.writeText(urlString);
+      await writeToClipboard(urlString);
 
       if (showToast) {
         toast.success(`Copied ${sourcePadId} to clipboard`);
@@ -178,7 +179,7 @@ export const usePadOperations = () => {
       targetPadId,
       showToast = true
     }: Partial<PadOperationsOptions> & { targetPadId: string }) => {
-      const clipboard = await navigator.clipboard.readText();
+      const clipboard = await readFromClipboard();
 
       log.debug('[pastePad] clipboard:', clipboard, { targetPadId });
 

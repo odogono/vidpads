@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 
-import { copyToClipboard } from '@helpers/copyToClipboard';
 import { createLog } from '@helpers/log';
 import { Button } from '@nextui-org/react';
+import { writeToClipboard } from '../../helpers/clipboard';
 
 export interface CopyButtonProps {
   text: string;
@@ -17,7 +17,7 @@ export const CopyButton = ({ text }: CopyButtonProps) => {
 
   const handleOnPress = async () => {
     try {
-      await copyToClipboard(text);
+      await writeToClipboard(text);
       setIsCopied(true);
       setTimeout(() => {
         setIsCopied(false);
