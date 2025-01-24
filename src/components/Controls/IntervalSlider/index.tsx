@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
 import { usePlayerState } from '@model/hooks/usePlayersState';
-import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
+import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
 import { IntervalCanvas, IntervalCanvasRef } from './IntervalCanvas';
@@ -23,7 +23,7 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
   const {
     player: { duration }
   } = usePlayerState(pad?.id, padSourceUrl);
-  const { start: padStart, end: padEnd } = getPadStartAndEndTime(pad, {
+  const { start: padStart, end: padEnd } = getPadInterval(pad, {
     start: 0,
     end: duration
   })!;

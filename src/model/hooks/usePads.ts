@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
-import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
+import { getPadInterval, getPadSourceUrl } from '../pad';
 import { Interval } from '../types';
 import { useMetadata } from './useMetadata';
 
@@ -45,7 +45,7 @@ export const usePadsExtended = () => {
       ? getPadSourceUrl(selectedPad)
       : null;
     const selectedPadStartAndEndTime = selectedPad
-      ? getPadStartAndEndTime(selectedPad)
+      ? getPadInterval(selectedPad)
       : null;
     return { selectedPad, selectedPadSourceUrl, selectedPadStartAndEndTime };
   }, [pads, selectedPadId]);
@@ -79,7 +79,7 @@ export const usePadDetails = () => {
         log.debug('getPadInterval', padId, 'not found');
         return undefined;
       }
-      return getPadStartAndEndTime(pad, { start: 0, end: -1 });
+      return getPadInterval(pad, { start: 0, end: -1 });
     },
     [store]
   );

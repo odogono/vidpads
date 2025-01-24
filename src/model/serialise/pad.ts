@@ -16,7 +16,7 @@ import {
 } from '../../helpers/metadata';
 import {
   createPad,
-  getPadStartAndEndTime,
+  getPadInterval,
   setPadInterval,
   setPadSource
 } from '../pad';
@@ -139,7 +139,7 @@ export const exportPadToClipboard = (pad: Pad) => {
   const data = exportPadToURLString(pad);
 
   if (isYTMediaUrl(source)) {
-    const { start } = getPadStartAndEndTime(pad, {
+    const { start } = getPadInterval(pad, {
       start: -1,
       end: -1
     }) as Interval;

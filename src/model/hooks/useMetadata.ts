@@ -134,12 +134,12 @@ export const useMetadataByUrl = (url: string | undefined) => {
     }
   });
 
+  log.debug('[useMetadataByUrl] data', data);
+
   const duration = data?.duration ?? -1;
 
   return { duration, metadata: data };
 };
-
-// type GetAllMetadataResult = Awaited<ReturnType<typeof getAllMetadata>>;
 
 const getAllMetadata = async (isMounted: boolean) => {
   const metadata = isMounted ? await dbGetAllMediaMetaData() : [];
@@ -147,20 +147,6 @@ const getAllMetadata = async (isMounted: boolean) => {
 
   const urlToMetadata = new Map<string, Media>();
   metadata.forEach((m) => urlToMetadata.set(m.url, m));
-
-  log.debug('[getAllMetadata] urlToMetadata', urlToMetadata);
-
-  // const urlToExternalUrl = metadata.reduce((acc, media) => {
-  //   if (isYouTubeMetadata(media)) {
-  //     const ytUrl = getYoutubeVideoIdFromMedia(media);
-  //     if (ytUrl) {
-  //       acc[media.url] = ytUrl;
-  //     }
-  //   } else {
-  //     acc[media.url] = media.url;
-  //   }
-  //   return acc;
-  // }, {} as InternalToExternalUrlMap);
 
   const urlToDuration = metadata.reduce(
     (acc, media) => {
@@ -192,20 +178,20 @@ const getAllMetadata = async (isMounted: boolean) => {
   };
 };
 
-const updateMetadataPropertyMutation = async ({
-  mediaUrl,
-  property,
-  value
-}: {
-  mediaUrl: string;
-  property: keyof Media | keyof MediaYouTube;
-  value: unknown;
-}) => {
-  try {
-    log.debug('[updateMetadataProperty]', { mediaUrl, property, value });
-    await dbUpdateMetadataProperty(mediaUrl, property, value);
-  } catch (error) {
-    log.warn('updateMetadataProperty error', error, mediaUrl, property, value);
-    return null;
-  }
-};
+// const updateMetadataPropertyMutation = async ({
+//   mediaUrl,
+//   property,
+//   value
+// }: {
+//   mediaUrl: string;
+//   property: keyof Media | keyof MediaYouTube;
+//   value: unknown;
+// }) => {
+//   try {
+//     log.debug('[updateMetadataProperty]', { mediaUrl, property, value });
+//     await dbUpdateMetadataProperty(mediaUrl, property, value);
+//   } catch (error) {
+//     log.warn('updateMetadataProperty error', error, mediaUrl, property, value);
+//     return null;
+//   }
+// };
