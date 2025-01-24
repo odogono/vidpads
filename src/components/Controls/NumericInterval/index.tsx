@@ -5,12 +5,12 @@ import { useCallback, useRef } from 'react';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
-import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
+import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
 import { TimeInput, TimeInputRef } from './timeInput';
 
-const log = createLog('NumericInterval', ['debug']);
+const log = createLog('NumericInterval');
 
 export interface NumericIntervalProps {
   pad: Pad | undefined;
@@ -23,10 +23,17 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
 
   const padSourceUrl = getPadSourceUrl(pad);
   const { duration } = useMetadataByUrl(padSourceUrl);
-  const { start: padStart, end: padEnd } = getPadStartAndEndTime(pad, {
+  const { start: padStart, end: padEnd } = getPadInterval(pad, {
     start: 0,
     end: duration
   })!;
+
+  log.debug('[NumericInterval] padSourceUrl', {
+    padSourceUrl,
+    duration,
+    padStart,
+    padEnd
+  });
 
   const handleTimeUpdate = useCallback(
     (time: number) => {

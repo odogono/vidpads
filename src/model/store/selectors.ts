@@ -3,8 +3,8 @@
 import { useCallback } from 'react';
 
 import { useSelector } from '@xstate/store/react';
-import { getPadSourceUrl, getPadStartAndEndTime } from '../pad';
-import { Interval, Pad } from '../types';
+import { getPadSourceUrl } from '../pad';
+import { Pad } from '../types';
 import { StoreType } from './types';
 import { useStore } from './useStore';
 

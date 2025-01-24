@@ -138,7 +138,7 @@ export const getPadVolume = (pad: Pad | undefined, defaultTo: number = 1) => {
   return value;
 };
 
-export const getPadStartAndEndTime = (
+export const getPadInterval = (
   pad: Pad | undefined,
   defaultTo?: Interval | undefined
 ): Interval | undefined => {
@@ -154,9 +154,19 @@ export const getPadStartAndEndTime = (
     return defaultTo;
   }
 
+  let { start, end } = trimOperation;
+
+  if (start === -1 && defaultTo?.start !== undefined) {
+    start = defaultTo.start;
+  }
+
+  if (end === -1 && defaultTo?.end !== undefined) {
+    end = defaultTo.end;
+  }
+
   return {
-    start: trimOperation.start,
-    end: trimOperation.end
+    start,
+    end
   };
 };
 

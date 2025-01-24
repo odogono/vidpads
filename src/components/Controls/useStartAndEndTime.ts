@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { getPadSourceUrl, getPadStartAndEndTime } from '@model/pad';
+import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Interval, Pad } from '@model/types';
 
 const log = createLog('useStartAndEndTime');
@@ -144,7 +144,7 @@ export const useStartAndEndTime = ({
 
   useEffect(() => {
     if (!pad || !isActive) return;
-    const { start, end } = getPadStartAndEndTime(pad, {
+    const { start, end } = getPadInterval(pad, {
       start: 0,
       end: duration
     }) as Interval;

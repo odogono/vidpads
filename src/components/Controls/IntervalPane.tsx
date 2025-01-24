@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { usePad } from '@model/hooks/usePad';
-import { Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Card, CardHeader } from '@nextui-org/react';
 import { IntervalSlider } from './IntervalSlider';
 import { NumericInterval } from './NumericInterval';
 
