@@ -61,6 +61,7 @@ export type EventEmitterEvents = {
   'cmd:copy': undefined;
   'cmd:cut': undefined;
   'cmd:paste': undefined;
+  'cmd:arrow': 'left' | 'right' | 'up' | 'down';
 
   'media:property-update': {
     mediaUrl: string;

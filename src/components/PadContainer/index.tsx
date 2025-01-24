@@ -2,17 +2,15 @@ import { Suspense, useCallback, useRef } from 'react';
 
 import { CommonModalRef } from '@components/modals/CommonModal';
 import { SelectSourceModal } from '@components/modals/SelectSourceModal';
-import { usePads } from '@model/hooks/usePads';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
-import { usePadEvents } from './usePadEvents';
+import { usePadContainerEvents } from './usePadContainerEvents';
 
 export const PadContainer = () => {
-  const { pads, isPadSelectSourceEnabled, isPadPlayEnabled } = usePads();
-
   const modalRef = useRef<CommonModalRef | null>(null);
 
-  usePadEvents();
+  const { pads, isPadSelectSourceEnabled, isPadPlayEnabled } =
+    usePadContainerEvents();
 
   const handlePadTouch = useCallback(
     (padId: string) => {

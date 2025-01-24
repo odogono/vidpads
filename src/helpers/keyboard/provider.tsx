@@ -25,7 +25,7 @@ const KEY_PAD_MAP = {
   KeyV: 'a16'
 };
 
-const log = createLog('keyboard', ['debug']);
+const log = createLog('keyboard');
 
 export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
@@ -50,6 +50,26 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
 
       if (!isEnabled) {
         log.debug('[keyboard] not enabled, ignoring keydown:', code);
+        return;
+      }
+
+      if (code === 'ArrowLeft') {
+        events.emit('cmd:arrow', 'left');
+        return;
+      }
+
+      if (code === 'ArrowRight') {
+        events.emit('cmd:arrow', 'right');
+        return;
+      }
+
+      if (code === 'ArrowUp') {
+        events.emit('cmd:arrow', 'up');
+        return;
+      }
+
+      if (code === 'ArrowDown') {
+        events.emit('cmd:arrow', 'down');
         return;
       }
 
