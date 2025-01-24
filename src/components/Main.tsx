@@ -9,6 +9,7 @@ import { Controls } from './Controls';
 import { FullScreenButton } from './FullScreenButton';
 import { MenuButton } from './MenuButton';
 import { PlayerContainer } from './Player/Container';
+import { ShareButton } from './ShareButton';
 
 export const Main = () => {
   useWindowUrl();
@@ -27,7 +28,10 @@ export const Main = () => {
           className={`flex justify-between p-4 w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
         >
           <div className='text-white text-xl font-bold'>ODGN VO-1</div>
-          <MenuButton />
+          <span>
+            <ShareButton />
+            <MenuButton />
+          </span>
         </header>
 
         <div

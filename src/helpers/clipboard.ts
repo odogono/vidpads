@@ -1,3 +1,6 @@
+export const readFromClipboard = async () =>
+  await navigator.clipboard.readText();
+
 /*! clipboard-copy. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* global DOMException */
 
@@ -46,7 +49,7 @@ const copyExecCommand = async (text: string) => {
   if (!success) throw makeError();
 };
 
-export const copyToClipboard = async (text: string) => {
+export const writeToClipboard = async (text: string) => {
   try {
     await copyClipboardApi(text);
   } catch (err) {
