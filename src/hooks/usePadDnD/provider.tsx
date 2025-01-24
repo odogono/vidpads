@@ -83,17 +83,17 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
 
       if (sourcePadId) {
         if (targetId === 'delete') {
-          await clearPad(sourcePadId);
+          await clearPad({ sourcePadId, showToast: true });
           return;
         }
 
         if (targetId === 'cut') {
-          await cutPadToClipboard(sourcePadId);
+          await cutPadToClipboard({ sourcePadId, showToast: true });
           return;
         }
 
         if (targetId === 'copy') {
-          await copyPadToClipboard(sourcePadId);
+          await copyPadToClipboard({ sourcePadId, showToast: true });
           return;
         }
 

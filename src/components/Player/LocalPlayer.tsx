@@ -29,7 +29,8 @@ export const LocalPlayer = ({
   media
 }: LocalPlayerProps) => {
   const events = useEvents();
-  const { getPadInterval } = usePadDetails();
+  const mediaUrl = media.url;
+  const { getPadInterval } = usePadDetails(playerPadId);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const readyCallbackRef = useRef<(() => void) | null>(null);
   const startTimeRef = useRef(0);
@@ -37,7 +38,6 @@ export const LocalPlayer = ({
   const isLoopedRef = useRef(false);
   const isPlayingRef = useRef(false);
   const animationRef = useRef<number | null>(null);
-  const mediaUrl = media.url;
   const {
     onPlayerUpdate: cOnPlayerUpdate,
     onPlayerDestroyed: cOnPlayerDestroyed
@@ -294,7 +294,7 @@ export const LocalPlayer = ({
     if (!video) return;
 
     // set the initial interval
-    const interval = getPadInterval(playerPadId) ?? {
+    const interval = getPadInterval() ?? {
       start: 0,
       end: video.duration
     };

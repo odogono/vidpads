@@ -3,9 +3,11 @@
 import { useCallback, useMemo } from 'react';
 
 import { createLog } from '@helpers/log';
+import { VOKeys } from '@model/constants';
+import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { useStore } from '@model/store/useStore';
+import { useQuery } from '@tanstack/react-query';
 import { useSelector } from '@xstate/store/react';
-import { getPadInterval, getPadSourceUrl } from '../pad';
 import { Interval } from '../types';
 import { useMetadata } from './useMetadata';
 
@@ -67,24 +69,27 @@ export const usePadsExtended = () => {
   };
 };
 
-export const usePadDetails = () => {
+export const usePadDetails = (padId: string) => {
   const { store } = useStore();
 
-  const getPadInterval = useCallback(
-    (padId: string): Interval | undefined => {
-      const pad = store
-        .getSnapshot()
-        .context.pads.find((pad) => pad.id === padId);
-      if (!pad) {
-        log.debug('getPadInterval', padId, 'not found');
-        return undefined;
-      }
-      return getPadInterval(pad, { start: 0, end: -1 });
-    },
-    [store]
-  );
+  // const getPadIntervalQuery = useQuery({
+  //   queryKey: VOKeys.padInterval(padId),
+  //   queryFn: () => getPadIntervalInternal(padId)
+  // });
+
+  // todo - use query
+  const getPadIntervalInternal = useCallback((): Interval | undefined => {
+    const pad = store
+      .getSnapshot()
+      .context.pads.find((pad) => pad.id === padId);
+    if (!pad) {
+      log.debug('getPadInterval', padId, 'not found');
+      return undefined;
+    }
+    return getPadInterval(pad, { start: 0, end: -1 });
+  }, [padId, store]);
 
   return {
-    getPadInterval
+    getPadInterval: getPadIntervalInternal
   };
 };

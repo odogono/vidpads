@@ -27,12 +27,12 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
 
   const handleCut = useCallback(async () => {
     if (!pad) return;
-    await cutPadToClipboard(pad.id);
+    await cutPadToClipboard({ sourcePadId: pad.id, showToast: true });
   }, [pad, cutPadToClipboard]);
   const handleCopy = useCallback(async () => {
     if (!pad) return;
 
-    await copyPadToClipboard(pad.id);
+    await copyPadToClipboard({ sourcePadId: pad.id, showToast: true });
   }, [pad, copyPadToClipboard]);
 
   const handlePaste = useCallback(async () => {

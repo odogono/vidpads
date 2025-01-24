@@ -145,7 +145,7 @@ export const exportPadToClipboard = (pad: Pad) => {
     }) as Interval;
 
     // build a url with the start time and and the data
-    const url = new URL(`https://youtu.be/${source}`);
+    const url = new URL(source);
 
     if (start !== -1) {
       url.searchParams.set('t', Math.round(start).toString());
