@@ -13,27 +13,24 @@ import {
   addFileToPad,
   addUrlToPad
 } from '@model';
-import {
-  QUERY_KEY_METADATA,
-  QUERY_KEY_PAD_THUMBNAIL,
-  VOKeys
-} from '@model/constants';
+import { QUERY_KEY_PAD_THUMBNAIL, VOKeys } from '@model/constants';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
   deleteMediaData as dbDeleteMediaData,
   deletePadThumbnail as dbDeletePadThumbnail,
+  getPadThumbnail as dbGetPadThumbnail,
+  getThumbnailFromUrl as dbGetThumbnailFromUrl,
   saveUrlData as dbSaveUrlData,
   setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { useStore } from '@model/store/useStore';
-import { MediaYouTube, Pad } from '@model/types';
+import { Media, MediaYouTube, Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUrlMetadata } from '../../helpers/metadata';
+import { getUrlMetadata, isYouTubeMetadata } from '../../helpers/metadata';
 import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
-import { useMetadata } from './useMetadata';
 
 const log = createLog('model/usePadOperations');
 
@@ -41,7 +38,6 @@ export const usePadOperations = () => {
   const { store } = useStore();
   const queryClient = useQueryClient();
   const { isShiftKeyDown } = useKeyboard();
-  const { urlToExternalUrl } = useMetadata();
 
   const { mutateAsync: deletePadMediaOp } = useMutation({
     mutationFn: async (pad: Pad) => {
@@ -57,7 +53,7 @@ export const usePadOperations = () => {
       if (pads.length === 1) {
         log.debug('[useDeletePadMedia] Deleting source data:', sourceUrl);
         await dbDeleteMediaData(sourceUrl);
-        invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, sourceUrl]]);
+        queryClient.invalidateQueries({ queryKey: VOKeys.metadata(sourceUrl) });
       }
 
       await dbDeletePadThumbnail(pad.id);
@@ -79,7 +75,7 @@ export const usePadOperations = () => {
 
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
-        [QUERY_KEY_METADATA]
+        [...VOKeys.allMetadata()]
       ]);
 
       return media;
@@ -95,7 +91,7 @@ export const usePadOperations = () => {
         [QUERY_KEY_PAD_THUMBNAIL, props.padId],
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
-        [QUERY_KEY_METADATA]
+        [...VOKeys.allMetadata()]
       ]);
 
       return media;
@@ -118,12 +114,16 @@ export const usePadOperations = () => {
       const sourcePad = getPadById(store, sourcePadId);
       const sourcePadUrl = getPadSourceUrl(sourcePad);
       if (sourcePadUrl) {
-        invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, sourcePadUrl]]);
+        queryClient.invalidateQueries({
+          queryKey: VOKeys.metadata(sourcePadUrl)
+        });
       }
 
       const targetPadUrl = getPadSourceUrl(targetPad);
       if (targetPadUrl) {
-        invalidateQueryKeys(queryClient, [[QUERY_KEY_METADATA, targetPadUrl]]);
+        queryClient.invalidateQueries({
+          queryKey: VOKeys.metadata(targetPadUrl)
+        });
       }
 
       invalidateQueryKeys(queryClient, [
@@ -147,7 +147,7 @@ export const usePadOperations = () => {
         return false;
       }
 
-      const urlString = exportPadToClipboard(pad, urlToExternalUrl);
+      const urlString = exportPadToClipboard(pad);
       if (!urlString) {
         log.debug('[copyPad] could not export pad:', padId);
         return false;
@@ -160,7 +160,7 @@ export const usePadOperations = () => {
       return true;
       // copyPadToPadOp({ sourcePadId: pad.id, targetPadId: pad.id });
     },
-    [store, urlToExternalUrl]
+    [store]
   );
 
   const pastePadOp = useCallback(
@@ -194,21 +194,26 @@ export const usePadOperations = () => {
         return false;
       }
 
-      const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
+      const thumbnail = await getThumbnailFromSourcePad(sourcePad, media);
 
       if (!thumbnail) {
         log.debug('[pastePad] No thumbnail found for url:', sourcePadUrl);
         return false;
       }
 
+      // clear the target pad
+      await deletePadMediaOp(targetPad);
+      log.debug('[pastePad] deleted target pad media:', targetPad.id);
+
       await dbSaveUrlData({
         media: media as MediaYouTube,
         thumbnail
       });
 
-      // clear the target pad
-      await deletePadMediaOp(targetPad);
+      log.debug('[pastePad] saved url data:', sourcePadUrl);
 
+      await dbSetPadThumbnail(targetPad.id, thumbnail);
+      log.debug('[pastePad] set pad thumbnail:', targetPad.id);
       store.send({
         type: 'applyPad',
         pad: sourcePad,
@@ -216,23 +221,20 @@ export const usePadOperations = () => {
         copySourceOnly: isShiftKeyDown()
       });
 
-      log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
-
-      await dbSetPadThumbnail(targetPad.id, thumbnail);
+      log.debug('[pastePad] applied pad:', targetPad.id);
 
       // Update the store with the tile's video ID
-      store.send({
-        type: 'setPadMedia',
-        padId: targetPad.id,
-        media
-      });
+      // store.send({
+      //   type: 'setPadMedia',
+      //   padId: targetPad.id,
+      //   media
+      // });
 
       invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_METADATA, sourcePadUrl],
+        [...VOKeys.allMetadata()],
         [QUERY_KEY_PAD_THUMBNAIL, targetPad.id],
-        VOKeys.pad(targetPad.id),
-        VOKeys.metadata(sourcePadUrl)
-      ] as readonly string[][]);
+        [...VOKeys.pad(targetPad.id)]
+      ]);
 
       toast.success(`Pasted ${targetPad.id} from clipboard`);
 
@@ -305,4 +307,30 @@ export const usePadOperations = () => {
     cutPadToClipboard: cutPadOp,
     pastePadFromClipboard: pastePadOp
   };
+};
+
+const getThumbnailFromSourcePad = async (sourcePad?: Pad, media?: Media) => {
+  if (!sourcePad || !media) {
+    return null;
+  }
+
+  // look for a local thumbnail
+  const sourcePadUrl = getPadSourceUrl(sourcePad);
+  const thumbnail =
+    (await dbGetPadThumbnail(sourcePad.id)) ??
+    (await dbGetThumbnailFromUrl(sourcePadUrl));
+
+  if (thumbnail) {
+    return thumbnail;
+  }
+
+  if (isYouTubeMetadata(media)) {
+    const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
+
+    if (thumbnail) {
+      return thumbnail;
+    }
+  }
+
+  return null;
 };

@@ -1,5 +1,8 @@
+import { toPadThumbnailUrl } from '../helpers/metadata';
+import { roundNumberToDecimalPlaces } from '../helpers/number';
 import {
   Interval,
+  Operation,
   OperationType,
   Pad,
   PlaybackRateOperation,
@@ -17,8 +20,86 @@ export const createPad = (id: string): Pad => {
   };
 };
 
+export const setPadSource = (
+  pad: Pad | undefined,
+  source: string
+): Pad | undefined => {
+  if (!pad) {
+    return pad;
+  }
+
+  return {
+    ...pad,
+    pipeline: {
+      ...pad.pipeline,
+      source: {
+        type: OperationType.Source,
+        url: source
+      }
+    }
+  };
+};
+
+export const setPadInterval = (
+  pad: Pad | undefined,
+  interval: Interval
+): Pad | undefined => {
+  if (!pad) {
+    return pad;
+  }
+
+  const { start, end } = { ...{ start: 0, end: -1 }, ...interval };
+
+  const newOp: TrimOperation = {
+    type: OperationType.Trim,
+    start: roundNumberToDecimalPlaces(start),
+    end: roundNumberToDecimalPlaces(end)
+  };
+
+  return addOrReplacePadOperation(pad, newOp);
+};
+
+/**
+ * Adds or replaces an operation in the pad's pipeline.
+ *
+ * @param pad - The pad to add or replace the operation in.
+ * @param operation - The operation to add or replace.
+ * @returns The new pipeline operations.
+ */
+export const addOrReplacePadOperation = (
+  pad: Pad | undefined,
+  operation: Operation
+): Pad | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  const operations = pad.pipeline.operations ?? [];
+
+  let isFound = false;
+  const newOperations = operations.reduce((acc, op) => {
+    if (op.type === operation.type) {
+      isFound = true;
+      return [...acc, operation];
+    }
+    return [...acc, op];
+  }, [] as Operation[]);
+
+  if (!isFound) {
+    newOperations.push(operation);
+  }
+
+  return {
+    ...pad,
+    pipeline: {
+      ...pad.pipeline,
+      operations: newOperations
+    }
+  };
+};
+
 export const exportToURL = (pad: Pad): string => {
-  return `vidpads://${pad.id}`;
+  return toPadThumbnailUrl(pad.id);
 };
 
 export const copyPad = (pad: Pad): Pad => {

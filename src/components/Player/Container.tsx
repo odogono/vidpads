@@ -31,7 +31,7 @@ import {
 } from './types';
 import { usePlayers } from './usePlayers';
 
-const log = createLog('player/container');
+const log = createLog('player/container', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();

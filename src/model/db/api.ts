@@ -23,8 +23,9 @@ import {
   useQueryClient,
   useSuspenseQuery
 } from '@tanstack/react-query';
+import { isValidMediaUrl, toPadThumbnailUrl } from '../../helpers/metadata';
 import { QUERY_KEY_STATE } from '../constants';
-import { getMediaIdFromUrl, getMediaType } from '../helpers';
+import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
 
@@ -757,7 +758,7 @@ export const setPadThumbnail = async (
   padId: string,
   thumbnail: string
 ): Promise<string> => {
-  const thumbnailId = `pad-${padId}-thumbnail`;
+  const thumbnailId = toPadThumbnailUrl(padId);
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -787,7 +788,7 @@ export const setPadThumbnail = async (
 export const getPadThumbnail = async (
   padId: string
 ): Promise<string | null> => {
-  const thumbnailId = `pad-${padId}-thumbnail`;
+  const thumbnailId = toPadThumbnailUrl(padId);
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -839,7 +840,7 @@ export const copyPadThumbnail = async (
 };
 
 export const deletePadThumbnail = async (padId: string): Promise<string> => {
-  const thumbnailId = `pad-${padId}-thumbnail`;
+  const thumbnailId = toPadThumbnailUrl(padId);
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -862,18 +863,12 @@ export const deletePadThumbnail = async (padId: string): Promise<string> => {
   });
 };
 
-// Add this new function to get thumbnail by URL
 export const getThumbnailFromUrl = async (
   url?: string | undefined
-): Promise<string | null> => {
-  if (!url) {
-    return null;
-  }
-
-  const mediaId = getMediaIdFromUrl(url);
-  if (!mediaId) {
-    log.warn('[getThumbnailFromUrl] Invalid media URL format:', url);
-    return null;
+): Promise<string | undefined> => {
+  if (!url || !isValidMediaUrl(url)) {
+    log.debug('[getThumbnailFromUrl] Invalid media URL:', url);
+    return undefined;
   }
 
   const db = await openDB();
@@ -884,7 +879,7 @@ export const getThumbnailFromUrl = async (
       ['thumbnails'],
       'readonly'
     );
-    const request = thumbnails.get(mediaId);
+    const request = thumbnails.get(url);
 
     request.onerror = () => {
       log.error('Error loading thumbnail:', request.error);

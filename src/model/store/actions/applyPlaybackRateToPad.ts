@@ -1,7 +1,8 @@
 import { createLog } from '@helpers/log';
+import { addOrReplacePadOperation } from '@model/pad';
 import { ApplyPlaybackRateToPadAction, StoreContext } from '@model/store/types';
 import { OperationType, PlaybackRateOperation } from '@model/types';
-import { addOrReplaceOperation, addOrReplacePad, findPadById } from './helpers';
+import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('store/actions/applyPlaybackRateToPad');
 
@@ -24,6 +25,6 @@ export const applyPlaybackRateToPad = (
   };
 
   // replace the old volume operation with the new one
-  const newPad = addOrReplaceOperation(pad, newOp);
+  const newPad = addOrReplacePadOperation(pad, newOp);
   return addOrReplacePad(context, newPad);
 };

@@ -227,9 +227,17 @@ export const usePlayerYTEvents = ({
 
   const onPlayerError = useCallback(
     (error: Error) => {
-      log.error('[onError]', mediaUrl, error);
+      log.debug('[onError]', mediaUrl, error);
+      stopTimeTracking();
+      stopVideo({
+        url: mediaUrl,
+        padId: playerPadId,
+        time: playerRef.current?.getCurrentTime() ?? 0
+      });
+      // setIsReady(false);
+      // cOnPlayerUpdate({ isReady: false });
     },
-    [mediaUrl]
+    [mediaUrl, playerPadId, stopTimeTracking, stopVideo]
   );
 
   const [isReady, setIsReady] = useState(false);

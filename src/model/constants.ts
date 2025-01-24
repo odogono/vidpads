@@ -3,8 +3,6 @@ export const QUERY_KEY_PROJECT = 'project';
 export const QUERY_KEY_PROJECTS = 'projects';
 export const QUERY_KEY_STATE = 'store-state';
 export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
-export const QUERY_KEY_FFMPEG = 'ffmpeg';
-export const QUERY_KEY_METADATA = 'metadata';
 export const QUERY_KEY_PLAYER = 'player';
 export const QUERY_KEY_PLAYER_READY = 'player-ready';
 

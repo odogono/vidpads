@@ -1,8 +1,9 @@
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
+import { addOrReplacePadOperation } from '@model/pad';
 import { ApplyTrimToPadAction, StoreContext } from '@model/store/types';
 import { OperationType, TrimOperation } from '@model/types';
-import { addOrReplaceOperation, addOrReplacePad, findPadById } from './helpers';
+import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('store/actions/applyTrimToPad');
 
@@ -25,7 +26,7 @@ export const applyTrimToPad = (
   };
 
   // replace the old trim operation with the new one
-  const newPad = addOrReplaceOperation(pad, newOp);
+  const newPad = addOrReplacePadOperation(pad, newOp);
 
   return addOrReplacePad(context, newPad);
 };

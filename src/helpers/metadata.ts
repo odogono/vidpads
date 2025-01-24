@@ -1,9 +1,84 @@
 import { createLog } from '@helpers/log';
 import type { Media, MediaImage, MediaVideo } from '@model/types';
+import { getMediaData } from '../model/db/api';
 import { generateFileId } from './file';
-import { getYouTubeMetadata, isYouTubeUrl, isYouTubeVideoId } from './youtube';
+import {
+  getYouTubeMetadata,
+  getYoutubeVideoIdFromUrl,
+  isYouTubeUrl,
+  isYouTubeVideoId
+} from './youtube';
 
 const log = createLog('metadata');
+
+export interface PadUrlData {
+  data: string | undefined;
+}
+
+const scheme = 'odgn-vo://';
+
+export const createPadUrl = ({ data }: PadUrlData) => {
+  const url = new URL(`odgn-vo://pad`);
+  if (data) {
+    url.searchParams.set('d', data);
+  }
+  return url.toString();
+};
+
+export const parsePadUrl = (
+  src: string | undefined
+): PadUrlData | undefined => {
+  if (!src) {
+    return undefined;
+  }
+
+  if (!src.startsWith('odgn-vo://pad')) {
+    return undefined;
+  }
+
+  const url = new URL(src);
+
+  const data = url.searchParams.get('d') ?? undefined;
+
+  return {
+    data
+  };
+};
+
+export const toPadThumbnailUrl = (padId: string): string => {
+  return `${scheme}pad/${padId}/thumbnail`;
+};
+
+export const toLocalFileMediaUrl = (fileId: string): string => {
+  return `${scheme}local/${fileId}`;
+};
+
+export const toYTMediaUrl = (src: string): string | undefined => {
+  const videoId = getYoutubeVideoIdFromUrl(src);
+  if (!videoId) {
+    return undefined;
+  }
+  return `https://youtu.be/${videoId}`;
+};
+
+export const isYTMediaUrl = (src?: string): boolean => isYouTubeUrl(src);
+
+export const toMediaUrl = (src: string): string | undefined => {
+  if (isYouTubeUrl(src)) {
+    return toYTMediaUrl(src);
+  }
+  return src;
+};
+
+export const isValidMediaUrl = (url?: string): boolean => {
+  if (!url) return false;
+
+  if (isYouTubeUrl(url)) {
+    return true;
+  }
+
+  return url.startsWith(scheme);
+};
 
 export const isValidSourceUrl = (url?: string): boolean => {
   if (!url) return false;
@@ -41,11 +116,17 @@ export const isYouTubeMetadata = (metadata?: Media): boolean => {
 export const getUrlMetadata = async (url?: string): Promise<Media | null> => {
   if (!url) return null;
 
+  const media = await getMediaData(url);
+
+  if (media) {
+    return media;
+  }
+
   if (isYouTubeUrl(url) || isYouTubeVideoId(url)) {
     return getYouTubeMetadata(url);
   }
 
-  log.warn('[getUrlMetadata] invalid url:', url);
+  log.debug('[getUrlMetadata] invalid url:', url);
 
   return null;
 };
@@ -81,7 +162,7 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
       video.onloadedmetadata = () => {
         clearTimeout(timeoutId);
         const metadata: MediaVideo = {
-          url: 'vidpads://media/' + fileId,
+          url: toLocalFileMediaUrl(fileId),
           fileId,
           width: video.videoWidth,
           height: video.videoHeight,
@@ -117,7 +198,7 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
     img.onload = () => {
       clearTimeout(timeoutId);
       const metadata: MediaImage = {
-        url: 'vidpads://media/' + fileId,
+        url: toLocalFileMediaUrl(fileId),
         fileId,
         width: img.width,
         height: img.height,

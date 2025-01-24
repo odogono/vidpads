@@ -1,6 +1,9 @@
-import { OperationType, Pad } from '@model/types';
+import { createLog } from '@helpers/log';
+import { setPadSource } from '@model/pad';
 import { SetPadMediaAction, StoreContext } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
+
+const log = createLog('actions/setPadMedia');
 
 export const setPadMedia = (
   context: StoreContext,
@@ -14,16 +17,12 @@ export const setPadMedia = (
 
   const { url } = media;
 
-  const newPad: Pad = {
-    ...pad,
-    pipeline: {
-      ...pad.pipeline,
-      source: {
-        type: OperationType.Source,
-        url
-      }
-    }
-  };
+  const newPad = setPadSource(pad, url);
+
+  if (!newPad) {
+    log.debug('setPadMedia', 'failed to set pad source', url);
+    return context;
+  }
 
   return addOrReplacePad(context, newPad);
 };

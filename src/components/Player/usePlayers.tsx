@@ -3,10 +3,10 @@
 import { useMemo, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
-import { QUERY_KEY_METADATA } from '@model/constants';
 import { usePadsExtended } from '@model/hooks/usePads';
 import { getPadSourceUrl } from '@model/pad';
 import { useQueryClient } from '@tanstack/react-query';
+import { VOKeys } from '../../model/constants';
 import { PlayerProps } from './types';
 
 const log = createLog('player/usePlayers');
@@ -35,9 +35,10 @@ export const usePlayers = () => {
         log.debug(
           '[usePlayers] no media:',
           pad.id,
-          media,
-          queryClient.getQueryData([QUERY_KEY_METADATA, url])
+          { url },
+          queryClient.getQueryData(VOKeys.metadata(url))
         );
+        log.debug('[usePlayers] urlToMetadata', urlToMetadata);
         return acc;
       }
 

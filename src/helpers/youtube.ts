@@ -1,15 +1,13 @@
 import { createLog } from '@helpers/log';
 import { Media, MediaYouTube } from '@model/types';
-import { isYouTubeMetadata } from './metadata';
+import { isYouTubeMetadata, toYTMediaUrl } from './metadata';
 
 // import { parseISO8601Duration } from './datetime';
 
 const log = createLog('youtube');
 
-export const isYouTubeUrl = (url?: string): boolean => {
-  if (!url) return false;
-  return url.includes('youtube.com') || url.includes('youtu.be');
-};
+export const isYouTubeUrl = (url?: string): boolean =>
+  extractVideoId(url) !== undefined;
 
 export const isYouTubeVideoId = (videoId?: string): boolean => {
   if (!videoId) return false;
@@ -31,6 +29,13 @@ export const getYoutubeUrlFromMedia = (media: Media): string | undefined => {
     return `https://youtu.be/${(media as MediaYouTube).videoId}`;
   }
   return undefined;
+};
+
+export const getYoutubeVideoIdFromUrl = (url?: string): string | undefined => {
+  if (!url) {
+    return undefined;
+  }
+  return isYouTubeVideoId(url) ? url : extractVideoId(url);
 };
 
 export const getYoutubeVideoIdFromMedia = (
@@ -78,7 +83,7 @@ export const getYoutubeVideoIdFromMedia = (
 
 //     const metadata: MediaYouTube = {
 //       id: videoData.id,
-//       url: 'vidpads://media/' + videoData.id,
+//       url: toYTMediaUrl(videoData.id),
 //       name: videoData.snippet.title,
 //       sizeInBytes: 0,
 //       mimeType: 'video/youtube',
@@ -112,8 +117,13 @@ const fetchFromOEmbed = async (
 
   const data = await response.json();
 
+  const ytUrl = toYTMediaUrl(videoId);
+  if (!ytUrl) {
+    throw new Error(`Failed to generate YouTube URL ${videoId}`);
+  }
+
   const metadata: MediaYouTube = {
-    url: 'vidpads://media/' + videoId,
+    url: ytUrl,
     name: data.title,
     sizeInBytes: -1,
     duration: -1,
@@ -126,7 +136,8 @@ const fetchFromOEmbed = async (
       }
     },
     width: data.width,
-    height: data.height
+    height: data.height,
+    playbackRates: []
   };
 
   return metadata;
@@ -175,7 +186,10 @@ export const getYouTubeThumbnail = async (
 };
 
 // Helper function to extract video ID from YouTube URL
-const extractVideoId = (url: string): string | null => {
+const extractVideoId = (url: string | undefined): string | undefined => {
+  if (!url) {
+    return undefined;
+  }
   // Handle youtube.com/shorts/VIDEO_ID format
   const shortsRegExp = /^.*youtube\.com\/shorts\/([^#&?]*).*/;
   const shortsMatch = url.match(shortsRegExp);
@@ -186,5 +200,5 @@ const extractVideoId = (url: string): string | null => {
   // Handle standard YouTube video URL formats
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
+  return match && match[2].length === 11 ? match[2] : undefined;
 };
