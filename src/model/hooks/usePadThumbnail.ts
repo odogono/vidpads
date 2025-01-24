@@ -1,11 +1,11 @@
-import { QUERY_KEY_PAD_THUMBNAIL } from '@model/constants';
+import { VOKeys } from '@model/constants';
 import { getPadThumbnail as dbGetPadThumbnail } from '@model/db/api';
 import { Pad } from '@model/types';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 export const usePadThumbnail = (pad: Pad) => {
   const { data: thumbnail } = useSuspenseQuery({
-    queryKey: [QUERY_KEY_PAD_THUMBNAIL, pad.id],
+    queryKey: [...VOKeys.padThumbnail(pad.id)],
     queryFn: async () => {
       try {
         return await dbGetPadThumbnail(pad.id);

@@ -5,11 +5,14 @@ import { SelectSourceModal } from '@components/modals/SelectSourceModal';
 import { usePads } from '@model/hooks/usePads';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
+import { usePadEvents } from './usePadEvents';
 
 export const PadContainer = () => {
   const { pads, isPadSelectSourceEnabled, isPadPlayEnabled } = usePads();
 
   const modalRef = useRef<CommonModalRef | null>(null);
+
+  usePadEvents();
 
   const handlePadTouch = useCallback(
     (padId: string) => {

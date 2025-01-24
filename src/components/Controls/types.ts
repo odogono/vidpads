@@ -1,4 +1,4 @@
 export interface PaneProps {
-  isVisible: boolean;
+  isVisible?: boolean;
   showDeleteModal: () => void;
 }

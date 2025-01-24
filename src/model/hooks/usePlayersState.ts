@@ -29,15 +29,11 @@ const defaultPlayer: PlayerHandler = {
   playbackRates: []
 };
 
-const log = createLog('model/hooks/usePlayers', ['debug']);
-
-const toPlayerId = (padId?: string, mediaUrl?: string) => {
-  return padId && mediaUrl ? `${padId}-${mediaUrl}` : undefined;
-};
+const log = createLog('model/hooks/usePlayersState', ['debug']);
 
 export const usePlayerState = (padId?: string, mediaUrl?: string) => {
   const queryClient = useQueryClient();
-  const playerId = toPlayerId(padId, mediaUrl);
+  const playerId = padId; // toPlayerId(padId, mediaUrl);
 
   const { data: player } = useQuery({
     queryKey: VOKeys.player(playerId ?? 'unknown'),
@@ -60,40 +56,9 @@ export const usePlayerState = (padId?: string, mediaUrl?: string) => {
 
   const { mutate: mutatePlayer } = useMutation({
     mutationKey: VOKeys.updatePlayer(playerId ?? 'unknown'),
-    mutationFn: async (updatedPlayer: Partial<PlayerHandler>) => {
-      if (player?.duration === -1 && updatedPlayer.duration !== -1) {
-        log.debug('[mutatePlayer]', 'updated duration', updatedPlayer.duration);
-        await dbUpdateMetadataProperty(
-          mediaUrl,
-          'duration',
-          updatedPlayer.duration
-        );
-      }
-      if (
-        player?.playbackRates &&
-        updatedPlayer.playbackRates &&
-        !isObjectEqual(player?.playbackRates, updatedPlayer.playbackRates)
-      ) {
-        log.debug(
-          '[mutatePlayer]',
-          'updated playbackRates',
-          updatedPlayer.playbackRates
-        );
-        await dbUpdateMetadataProperty(
-          mediaUrl,
-          'playbackRates',
-          updatedPlayer.playbackRates
-        );
-      }
-
-      const newPlayer: PlayerHandler = {
-        ...player,
-        ...updatedPlayer,
-        padId,
-        mediaUrl
-      } as PlayerHandler;
-      // log.debug('mutatePlayer', newPlayer);
-      return Promise.resolve(newPlayer);
+    mutationFn: (updatedPlayer: Partial<PlayerHandler>) => {
+      log.debug('[mutatePlayer]', 'update', { player, updatedPlayer });
+      return applyPlayerUpdate(player, updatedPlayer);
     },
     onSuccess: (player: PlayerHandler) => {
       if (!playerId) return;
@@ -163,6 +128,32 @@ export const usePlayersState = () => {
     initialData: new Map<string, PlayerHandler>()
   });
 
+  const { mutateAsync: updatePlayer } = useMutation({
+    mutationKey: VOKeys.updatePlayer('unknown'),
+    mutationFn: (updatedPlayer: Partial<PlayerHandler>) => {
+      log.debug('[mutatePlayer]', 'update', updatedPlayer);
+      const { padId } = updatedPlayer;
+      log.debug('[mutatePlayer]', 'padId', padId);
+      if (!padId) throw new Error('PadId is required');
+
+      const player = players.get(padId);
+      log.debug('[mutatePlayer]', 'player', { padId }, player);
+      if (!player) throw new Error('Player not found');
+      return applyPlayerUpdate(player, updatedPlayer);
+    },
+    onSuccess: (player: PlayerHandler) => {
+      if (!player) return;
+      queryClient.setQueryData(VOKeys.player(player.padId), player);
+
+      queryClient.setQueryData(VOKeys.players(), (previous: PlayerMap) => {
+        const newMap = new Map(previous);
+        newMap.set(player.padId, player);
+
+        return newMap;
+      });
+    }
+  });
+
   // const onPlayerUpdate = useCallback(
   //   (player: PlayerHandler) => {
   //     const playerId = toPlayerId(player.padId, player.mediaUrl);
@@ -198,8 +189,52 @@ export const usePlayersState = () => {
   // );
 
   return {
-    // onPlayerUpdate,
-    // onPlayerDestroyed,
+    updatePlayer,
     players
   };
+};
+
+const applyPlayerUpdate = async (
+  player: PlayerHandler | undefined,
+  updatedPlayer: Partial<PlayerHandler>
+): Promise<PlayerHandler> => {
+  if (!player) throw new Error('Player not found');
+  const { mediaUrl, padId } = { ...player, ...updatedPlayer };
+
+  if (!mediaUrl)
+    log.debug('[mutatePlayer]', 'no mediaUrl', { ...player, ...updatedPlayer });
+  if (!padId)
+    log.debug('[mutatePlayer]', 'no padId', { ...player, ...updatedPlayer });
+
+  if (player?.duration === -1 && updatedPlayer.duration !== -1) {
+    log.debug('[mutatePlayer]', 'updated duration', updatedPlayer.duration);
+    await dbUpdateMetadataProperty(
+      mediaUrl,
+      'duration',
+      updatedPlayer.duration
+    );
+  }
+  if (
+    player?.playbackRates &&
+    updatedPlayer.playbackRates &&
+    !isObjectEqual(player?.playbackRates, updatedPlayer.playbackRates)
+  ) {
+    log.debug(
+      '[mutatePlayer]',
+      'updated playbackRates',
+      updatedPlayer.playbackRates
+    );
+    await dbUpdateMetadataProperty(
+      mediaUrl,
+      'playbackRates',
+      updatedPlayer.playbackRates
+    );
+  }
+
+  const newPlayer: PlayerHandler = {
+    ...player,
+    ...updatedPlayer
+  } as PlayerHandler;
+  // log.debug('mutatePlayer', newPlayer);
+  return Promise.resolve(newPlayer);
 };

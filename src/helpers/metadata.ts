@@ -67,6 +67,11 @@ export const toMediaUrl = (src: string): string | undefined => {
   if (isYouTubeUrl(src)) {
     return toYTMediaUrl(src);
   }
+
+  if (isYouTubeVideoId(src)) {
+    return toYTMediaUrl(src);
+  }
+
   return src;
 };
 

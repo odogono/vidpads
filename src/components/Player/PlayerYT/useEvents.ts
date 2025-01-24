@@ -147,6 +147,8 @@ export const usePlayerYTEvents = ({
       log.debug('onPlayerReady duration', duration);
 
       cOnPlayerUpdate({
+        padId: playerPadId,
+        mediaUrl,
         duration: duration,
         playbackRates: player.getAvailablePlaybackRates()
       });
@@ -159,7 +161,7 @@ export const usePlayerYTEvents = ({
 
       handlePlayerStateChange(player.getPlayerState(), player);
     },
-    [handlePlayerStateChange, interval, cOnPlayerUpdate]
+    [interval, cOnPlayerUpdate, playerPadId, mediaUrl, handlePlayerStateChange]
   );
 
   const updateTimeTracking = useCallback(() => {
@@ -247,9 +249,9 @@ export const usePlayerYTEvents = ({
       if (!doesPlayerEventMatch(e, playerPadId)) return;
       // log.debug('player ready', e);
       setIsReady(true);
-      cOnPlayerUpdate({ isReady: true });
+      cOnPlayerUpdate({ padId: playerPadId, mediaUrl, isReady: true });
     },
-    [playerPadId, cOnPlayerUpdate]
+    [playerPadId, cOnPlayerUpdate, mediaUrl]
   );
 
   const handleNotReady = useCallback(
@@ -257,9 +259,9 @@ export const usePlayerYTEvents = ({
       if (!doesPlayerEventMatch(e, playerPadId)) return;
       // log.debug('player not ready?', e);
       setIsReady(false);
-      cOnPlayerUpdate({ isReady: false });
+      cOnPlayerUpdate({ padId: playerPadId, mediaUrl, isReady: false });
     },
-    [playerPadId, cOnPlayerUpdate]
+    [playerPadId, cOnPlayerUpdate, mediaUrl]
   );
 
   const handleSeek = useCallback(

@@ -8,38 +8,23 @@ import {
   ClipboardX,
   Trash2
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
-import { usePadOperations } from '@model/hooks/usePadOperations';
 import { Button, Input, cn } from '@nextui-org/react';
 import { PaneProps } from './types';
 
 const log = createLog('DetailsPane');
 
 export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
-  const { pad, selectedPadId, setPadPlayEnabled, setPadSelectSourceEnabled } =
+  const events = useEvents();
+  const { selectedPadId, setPadPlayEnabled, setPadSelectSourceEnabled } =
     usePad();
 
-  const { cutPadToClipboard, copyPadToClipboard, pastePadFromClipboard } =
-    usePadOperations();
-
-  const handleCut = useCallback(async () => {
-    if (!pad) return;
-    await cutPadToClipboard({ sourcePadId: pad.id, showToast: true });
-  }, [pad, cutPadToClipboard]);
-  const handleCopy = useCallback(async () => {
-    if (!pad) return;
-
-    await copyPadToClipboard({ sourcePadId: pad.id, showToast: true });
-  }, [pad, copyPadToClipboard]);
-
-  const handlePaste = useCallback(async () => {
-    if (!pad) return;
-
-    await pastePadFromClipboard({ targetPadId: pad.id });
-  }, [pad, pastePadFromClipboard]);
+  const handleCut = useCallback(() => events.emit('cmd:cut'), [events]);
+  const handleCopy = useCallback(() => events.emit('cmd:copy'), [events]);
+  const handlePaste = useCallback(() => events.emit('cmd:paste'), [events]);
 
   useEffect(() => {
     setPadPlayEnabled(false);
