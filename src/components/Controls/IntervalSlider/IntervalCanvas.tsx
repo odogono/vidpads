@@ -12,6 +12,7 @@ import { useTooltip } from '@components/Tooltip/useTooltip';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Pad } from '@model/types';
+import { Rect } from '@types';
 import { Handle } from './handles';
 import { useTouch } from './useTouch';
 
@@ -20,13 +21,6 @@ const log = createLog('IntervalCanvas');
 export interface IntervalSliderProps {
   pad: Pad | undefined;
   onTimeChange?: (time: number, x: number) => void;
-}
-
-interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 export interface IntervalCanvasRef {

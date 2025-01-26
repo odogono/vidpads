@@ -10,7 +10,7 @@ import { Pad } from '@model/types';
 import { useControlsEvents } from '../useControlsEvents';
 import { TimeInput, TimeInputRef } from './timeInput';
 
-const log = createLog('NumericInterval', ['debug']);
+const log = createLog('NumericInterval');
 
 export interface NumericIntervalProps {
   pad: Pad | undefined;

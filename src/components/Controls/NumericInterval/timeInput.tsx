@@ -26,7 +26,6 @@ export const TimeInput = ({
   ref,
   initialValue,
   defaultValue,
-  description,
   isDisabled,
   onChange,
   range
@@ -80,14 +79,15 @@ export const TimeInput = ({
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
-    e.preventDefault(); // Prevent page scrolling
     if (isDisabled) return;
 
     const [min, max] = range ? range : [0, 100];
 
     const currentSeconds = formatTimeStringToSeconds(inputValue);
+    log.debug('handleWheel', { currentSeconds, min, max });
     const delta = e.deltaY < 0 ? 0.01 : -0.01;
     const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
+    log.debug('handleWheel', { newValue });
 
     // log.debug('handleWheel', { currentSeconds, newValue, min, max });
     setInputValue(formatTimeToString(newValue));

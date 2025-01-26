@@ -25,7 +25,7 @@ const KEY_PAD_MAP = {
   KeyV: 'a16'
 };
 
-const log = createLog('keyboard');
+const log = createLog('keyboard', ['debug']);
 
 export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();

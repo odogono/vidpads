@@ -71,7 +71,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
     events.emit('cmd:paste');
     // if (activeIndex) {
     //   await pastePadFromClipboard({ targetPadId: activeIndex });
-    //   ref.current?.onClose();
+    ref.current?.onClose();
     // }
   }, [events]);
 

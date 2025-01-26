@@ -49,6 +49,12 @@
       ],
       "@model/*": [
         "./src/model/*"
+      ],
+      "@types": [
+        "./src/types/index.ts"
+      ],
+      "@types/*": [
+        "./src/types/*"
       ]
     }
   },
