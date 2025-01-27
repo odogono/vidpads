@@ -1,9 +1,15 @@
-export const PlayHead = () => {
+'use client';
+
+export interface PlayHeadProps {
+  position: number;
+}
+
+export const PlayHead = ({ position }: PlayHeadProps) => {
   return (
     <div
       className='absolute vo-seq-playhead w-[20px] h-full '
       style={{
-        left: `1px`,
+        left: `${1 + position}px`,
         cursor: 'ew-resize'
       }}
     >
