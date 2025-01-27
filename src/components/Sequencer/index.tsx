@@ -7,34 +7,43 @@ import { SequencerPad } from './SequencerPad';
 export const Sequencer = () => {
   const { pads } = usePads();
 
+  const padCount = pads.length;
+
   return (
     <div className='vo-seq flex mt-4 w-full flex-grow bg-slate-500 rounded-lg'>
       <div
         className='grid grid-cols-2 w-full'
         style={{
           gridTemplateColumns: `0.05fr 1fr`,
-          gridTemplateRows: `1fr repeat(${pads.length}, minmax(0, 1fr)) 0.5fr`
+          gridTemplateRows: `1fr repeat(${padCount}, minmax(0, 1fr)) 0.5fr`
         }}
       >
-        <div className='vo-seq-header bg-slate-800 col-span-1 flex justify-center items-center'></div>
+        <div className='relative vo-seq-header bg-slate-800 col-span-1 flex justify-center items-center'></div>
         {pads.map((pad, index) => (
-          <div
-            key={pad.id}
-            className=''
-            style={{ gridArea: `${index + 2}/1/auto/span 1` }}
-          >
-            <SequencerPad pad={pad} />
-          </div>
+          <>
+            <div
+              key={pad.id}
+              className=''
+              style={{ gridArea: `${index + 2}/1/auto/span 1` }}
+            >
+              <SequencerPad pad={pad} />
+            </div>
+            <div
+              key={`${pad.id}-divider`}
+              className='border-b-1 border-slate-600'
+              style={{ gridArea: `${index + 2}/2/auto/span 1` }}
+            />
+          </>
         ))}
         <div
           className='vo-seq-footer col-span-2'
-          style={{ gridArea: `${pads.length + 2}/1/auto/span 1` }}
+          style={{ gridArea: `${padCount + 2}/1/auto/span 1` }}
         ></div>
         <div
-          className='vo-seq-body-wrapper col-span-1 row-span-12 bg-slate-400 overflow-x-scroll'
-          style={{ gridRow: `span ${pads.length + 2}` }}
+          className='vo-seq-body-wrapper overflow-x-scroll'
+          style={{ gridColumn: `2/3`, gridRow: `1/${padCount + 3}` }}
         >
-          <SequencerBody />
+          <SequencerBody padCount={padCount} />
         </div>
       </div>
     </div>
