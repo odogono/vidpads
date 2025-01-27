@@ -10,18 +10,18 @@ export const useControlPane = () => {
 
   const selectedControlPane = useSelector(
     store,
-    (state) => state.context.selectedControlPane ?? 'details'
+    (state) => state.context.selectedControlPane ?? 'state'
   );
 
   const setSelectedControlPane = useCallback(
-    (pane: 'state' | 'interval' | 'tempo' | 'details') => {
+    (pane: 'state' | 'interval' | 'sequencer' | 'details') => {
       store.send({ type: 'setSelectedControlPane', pane });
     },
     [store]
   );
 
   const cycleToNextControlPane = useCallback(() => {
-    let nextPane: 'state' | 'interval' | 'tempo' | 'details' = 'state';
+    let nextPane: 'state' | 'interval' | 'sequencer' | 'details' = 'state';
     switch (selectedControlPane) {
       case 'state':
         nextPane = 'interval';
@@ -30,6 +30,9 @@ export const useControlPane = () => {
         nextPane = 'details';
         break;
       case 'details':
+        nextPane = 'sequencer';
+        break;
+      case 'sequencer':
         nextPane = 'state';
         break;
       default:

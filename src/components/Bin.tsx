@@ -10,10 +10,7 @@ export const BinComponent = () => {
     dragOverId === 'cut' || dragOverId === 'copy' || dragOverId === 'delete';
 
   return (
-    <div
-      id='bin-container'
-      className='absolute left-1/2 -translate-x-1/2 top-[30vh] z-50'
-    >
+    <div className='vo-bin-container absolute left-1/2 -translate-x-1/2 top-[30vh] z-50'>
       <div
         className={`
         w-[50vw] h-[15vh] rounded-lg cursor-pointer relative

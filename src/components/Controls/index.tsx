@@ -5,12 +5,13 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowDownUp } from 'lucide-react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
-import { useControlPane } from '@model/hooks/useControlPane';
 import { usePad } from '@model/hooks/usePad';
 import { Button, Card, CardHeader, cn } from '@nextui-org/react';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
+import { SequencerPane } from './SequencerPane';
 import { StatePane } from './StatePane';
+import { useControlPane } from './hooks/useControlPane';
 import { ControlsLoading } from './loading';
 
 export const ControlsLoaded = () => {
@@ -62,7 +63,7 @@ export const ControlsLoaded = () => {
           <Indicator isActive={selectedControlPane === 'state'} />
           <Indicator isActive={selectedControlPane === 'interval'} />
           <Indicator isActive={selectedControlPane === 'details'} />
-          <Indicator isActive={selectedControlPane === 'tempo'} />
+          <Indicator isActive={selectedControlPane === 'sequencer'} />
         </div>
       </div>
       <div className='text-sm text-foreground/90 flex'>{selectedPadId}</div>
@@ -72,6 +73,7 @@ export const ControlsLoaded = () => {
       {selectedControlPane === 'details' && (
         <DetailsPane showDeleteModal={showDeleteModal} />
       )}
+      {selectedControlPane === 'sequencer' && <SequencerPane />}
 
       <DeleteModal ref={modalRef} />
     </div>

@@ -7,7 +7,7 @@ import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
-import { useControlsEvents } from '../useControlsEvents';
+import { useControlsEvents } from '../hooks/useControlsEvents';
 import { TimeInput, TimeInputRef } from './timeInput';
 
 const log = createLog('NumericInterval');

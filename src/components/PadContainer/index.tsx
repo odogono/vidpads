@@ -20,10 +20,7 @@ export const PadContainer = () => {
   );
 
   return (
-    <div
-      id='pad-container'
-      className='flex mt-4 w-full flex-grow bg-slate-500 rounded-lg'
-    >
+    <div className='vo-pad-container flex mt-4 w-full flex-grow bg-slate-500 rounded-lg'>
       <div className='grid grid-cols-4 landscape:grid-cols-8 gap-4 p-8 w-full h-full'>
         {pads.map((pad) => (
           <div key={pad.id} className='w-full h-full min-h-[4vh]'>
