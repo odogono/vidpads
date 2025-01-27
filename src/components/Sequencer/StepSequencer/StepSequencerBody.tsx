@@ -5,9 +5,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
-import { PlayHead } from './PlayHead';
+import { PlayHead } from '../PlayHead';
 
-const log = createLog('SequencerBody');
+const log = createLog('StepSequencerBody');
 
 interface TriggerEvent {
   event: 'pad:touchdown' | 'pad:touchup';
@@ -129,7 +129,7 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
       events.off('seq:time-set', handleTimeSet);
       events.off('seq:time-update', handleTimeUpdate);
     };
-  }, [events, handleTimeUpdate]);
+  }, [events, handleTimeSet, handleTimeUpdate]);
 
   return (
     <div className='relative vo-seq-body w-[3000px] h-full'>

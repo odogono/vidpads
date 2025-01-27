@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { Circle, Play, Rewind, Square } from 'lucide-react';
+import { Circle, Play, Rewind, Square, Trash } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 import { OpButton } from '@components/buttons/OpButton';
 import { useEvents } from '@helpers/events';
@@ -19,7 +20,7 @@ export const SequencerPane = () => {
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const { bpm, setBpm } = useSequencer();
+  const { bpm, setBpm, clearEvents } = useSequencer();
 
   const handlePlay = useCallback(() => {
     events.emit('seq:play');
@@ -61,6 +62,11 @@ export const SequencerPane = () => {
     [isPlaying, setShowRewind]
   );
 
+  const handleClear = useCallback(() => {
+    clearEvents();
+    toast.success('Sequencer events cleared');
+  }, [clearEvents]);
+
   useEffect(() => {
     setShowMode('sequencer');
     events.on('seq:play-started', handlePlayStarted);
@@ -92,6 +98,9 @@ export const SequencerPane = () => {
           value={`${bpm}`}
           onChange={(value: string) => setBpm(Number(value))}
         />
+        <OpButton label='Clear' onPress={handleClear}>
+          <Trash />
+        </OpButton>
       </div>
     </>
   );

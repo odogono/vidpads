@@ -190,6 +190,23 @@ export type ToggleSequencerEventAction = {
   duration: number;
 };
 
+export type ClearSequencerEventsAction = {
+  type: 'clearSequencerEvents';
+};
+
+export type AddSequencerEventAction = {
+  type: 'addSequencerEvent';
+  padId: string;
+  time: number;
+  duration: number;
+};
+
+export type RemoveSequencerEventAction = {
+  type: 'removeSequencerEvent';
+  padId: string;
+  time: number;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -216,7 +233,10 @@ export type Actions =
   | ApplyPadAction
   | SetShowModeAction
   | SetSequencerBpmAction
-  | ToggleSequencerEventAction;
+  | ToggleSequencerEventAction
+  | ClearSequencerEventsAction
+  | AddSequencerEventAction
+  | RemoveSequencerEventAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

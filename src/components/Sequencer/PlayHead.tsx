@@ -7,14 +7,13 @@ export interface PlayHeadProps {
 export const PlayHead = ({ position }: PlayHeadProps) => {
   return (
     <div
-      className='absolute vo-seq-playhead w-[20px] h-full '
+      className='absolute vo-seq-playhead w-[20px] h-full z-10'
       style={{
         left: `${1 + position}px`,
         cursor: 'ew-resize'
       }}
     >
       <div
-        className=''
         style={{
           width: 0,
           height: 0,
