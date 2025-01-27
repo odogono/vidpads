@@ -6,7 +6,7 @@ import { createLog } from '@helpers/log';
 import { usePlayerState } from '@model/hooks/usePlayersState';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
-import { useControlsEvents } from '../useControlsEvents';
+import { useControlsEvents } from '../hooks/useControlsEvents';
 import { IntervalCanvas, IntervalCanvasRef } from './IntervalCanvas';
 
 const log = createLog('IntervalSlider', ['debug']);
@@ -40,7 +40,7 @@ export const IntervalSlider = ({ pad }: IntervalSliderProps) => {
   });
 
   return (
-    <div id='interval-slider' className='w-full h-[60%] min-h-[44px] bg-white'>
+    <div className='vo-interval-slider w-full h-[60%] min-h-[44px] bg-white'>
       <IntervalCanvas
         ref={canvasRef}
         time={timeRef.current ?? padStart}

@@ -4,7 +4,6 @@ const TestLayout = () => {
   const isFullscreen = false;
   return (
     <div
-      id='player-main'
       className={`w-full h-full text-white dark text-foreground flex flex-col ${
         isFullscreen ? 'p-0' : 'p-8'
       }`}
@@ -16,19 +15,12 @@ const TestLayout = () => {
       </header>
 
       <div
-        id='fullscreen-wrapper'
         className={`relative ${
           isFullscreen ? 'fixed inset-0 w-screen h-screen z-50' : 'flex-1'
         }`}
       >
-        <div
-          id='player-wrapper'
-          className='relative w-full h-full overflow-hidden'
-        >
-          <div
-            id='player-container'
-            className={`absolute top-0 left-0 w-full h-full`}
-          />
+        <div className='relative w-full h-full overflow-hidden'>
+          <div className={`absolute top-0 left-0 w-full h-full`} />
         </div>
       </div>
     </div>

@@ -1,4 +1,11 @@
-import type { Media, Pad, ProjectExport, VolumeKeyPoint } from '@model/types';
+import type {
+  Media,
+  Pad,
+  ProjectExport,
+  ShowMode,
+  VolumeKeyPoint
+} from '@model/types';
+import type { SequencerType } from '@types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
@@ -7,7 +14,7 @@ export interface StoreContextType {
   isInitial: boolean;
   startTime: string;
   isEditActive?: boolean;
-  selectedControlPane?: 'state' | 'interval' | 'tempo' | 'details';
+  selectedControlPane?: SequencerType;
   selectedPadId?: string | null;
 
   // whether keyboard can trigger a player
@@ -24,6 +31,9 @@ export interface StoreContextType {
 
   // whether pressing on an empty pad opens the selector
   isPadSelectSourceEnabled?: boolean;
+
+  // whether the pads or sequencer are visible
+  showMode: ShowMode;
 
   lastMediaUrl?: string | null;
   lastImportUrl?: string | null;
@@ -137,7 +147,7 @@ export type SetLastImportUrlAction = {
 
 export type SetSelectedControlPaneAction = {
   type: 'setSelectedControlPane';
-  pane: 'state' | 'interval' | 'tempo' | 'details';
+  pane: SequencerType;
 };
 
 export type SetPadPlayEnabledAction = {
@@ -155,6 +165,11 @@ export type ApplyPadAction = {
   pad: Pad;
   targetPadId: string;
   copySourceOnly?: boolean;
+};
+
+export type SetShowModeAction = {
+  type: 'setShowMode';
+  mode: ShowMode;
 };
 
 export type Actions =
@@ -180,7 +195,8 @@ export type Actions =
   | SetSelectedControlPaneAction
   | SetPadPlayEnabledAction
   | SetPadSelectSourceEnabledAction
-  | ApplyPadAction;
+  | ApplyPadAction
+  | SetShowModeAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

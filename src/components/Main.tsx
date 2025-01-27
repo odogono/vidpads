@@ -4,23 +4,25 @@ import { PadContainer } from '@components/PadContainer';
 import { useFullScreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useWindowUrl } from '@hooks/useWindowUrl';
+import { useShowMode } from '@model/hooks/useShowMode';
 import { BinComponent } from './Bin';
 import { Controls } from './Controls';
 import { FullScreenButton } from './FullScreenButton';
 import { MenuButton } from './MenuButton';
 import { PlayerContainer } from './Player/Container';
+import { Sequencer } from './Sequencer';
 import { ShareButton } from './ShareButton';
 
 export const Main = () => {
   useWindowUrl();
 
   const { isFullscreen, setFullscreen } = useFullScreen();
+  const { isPadsVisible, isSequencerVisible } = useShowMode();
 
   return (
     <PadDnDProvider>
       <div
-        id='player-main'
-        className={`w-full h-full text-white dark text-foreground flex flex-col ${
+        className={`vo-main w-full h-full text-white dark text-foreground flex flex-col ${
           isFullscreen ? 'p-0' : 'p-8'
         }`}
       >
@@ -35,15 +37,11 @@ export const Main = () => {
         </header>
 
         <div
-          id='fullscreen-wrapper'
-          className={`relative ${
+          className={`vo-fullscreen-wrapper relative ${
             isFullscreen ? 'fixed inset-0 w-screen h-screen z-50' : 'flex-1'
           }`}
         >
-          <div
-            id='player-wrapper'
-            className='relative w-full h-full min-h-[20vh] overflow-hidden bg-slate-500 rounded-lg'
-          >
+          <div className='vo-player-wrapper relative w-full h-full min-h-[20vh] overflow-hidden bg-slate-500 rounded-lg'>
             <PlayerContainer />
           </div>
 
@@ -57,7 +55,8 @@ export const Main = () => {
           <>
             <BinComponent />
             <Controls />
-            <PadContainer />
+            {isPadsVisible && <PadContainer />}
+            {isSequencerVisible && <Sequencer />}
           </>
         )}
       </div>

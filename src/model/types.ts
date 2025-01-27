@@ -1,5 +1,7 @@
 import { StoreContextType } from './store/types';
 
+export type ShowMode = 'pads' | 'sequencer';
+
 export interface Interval {
   start: number;
   end: number;

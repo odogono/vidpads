@@ -15,6 +15,7 @@ export const initialContext: StoreContextType = {
   isPadPlayEnabled: true,
   isPadSelectSourceEnabled: true,
   isKeyboardPlayEnabled: true,
+  showMode: 'pads',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   startTime: new Date().toISOString(),

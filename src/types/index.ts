@@ -4,3 +4,5 @@ export interface Rect {
   width: number;
   height: number;
 }
+
+export type SequencerType = 'state' | 'interval' | 'sequencer' | 'details';

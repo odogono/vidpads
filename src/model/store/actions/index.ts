@@ -27,6 +27,7 @@ export { setPadPlayEnabled } from './setPadPlayEnabled';
 export { setPadSelectSourceEnabled } from './setPadSelectSourceEnabled';
 export { setSelectedControlPane } from './setControlPane';
 export { setSelectedPadId } from './setSelectedPadId';
+export { setShowMode } from './setShowMode';
 export { updateProject } from './updateProject';
 
 export const setEditActive = (
