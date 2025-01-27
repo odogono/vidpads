@@ -84,6 +84,7 @@ export type EventEmitterEvents = {
   };
 
   'seq:play': undefined;
+  'seq:play-toggle': undefined;
   'seq:play-started': {
     time: number;
   };

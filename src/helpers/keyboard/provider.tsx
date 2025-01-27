@@ -2,7 +2,7 @@
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
+import { EventEmitterEvents, useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { KeyboardContext } from './context';
 
@@ -23,6 +23,26 @@ const KEY_PAD_MAP = {
   KeyX: 'a14',
   KeyC: 'a15',
   KeyV: 'a16'
+};
+
+type EventMap = {
+  [key: string]: {
+    event: keyof EventEmitterEvents;
+    args?: unknown;
+  };
+};
+
+const EVENT_MAP: EventMap = {
+  Escape: {
+    event: 'player:stop-all',
+    args: { url: '', padId: '', time: 0, all: true }
+  },
+  Space: {
+    event: 'seq:play-toggle'
+  },
+  Enter: {
+    event: 'seq:rewind'
+  }
 };
 
 const log = createLog('keyboard', ['debug']);
@@ -109,16 +129,23 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
       const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
       if (padId) {
         events.emit('pad:touchdown', { padId });
+        return;
       }
 
-      if (code === 'Escape') {
-        events.emit('player:stop-all', {
-          url: '',
-          padId: '',
-          time: 0,
-          all: true
-        });
+      if (EVENT_MAP[code]) {
+        const { event, args } = EVENT_MAP[code];
+        events.emit(event, args);
+        return;
       }
+
+      // if (code === 'Escape') {
+      //   events.emit('player:stop-all', {
+      //     url: '',
+      //     padId: '',
+      //     time: 0,
+      //     all: true
+      //   });
+      // }
     },
     [events, isEnabled]
   );
