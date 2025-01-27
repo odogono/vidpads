@@ -1,17 +1,17 @@
 'use client';
 
+import { FullScreenButton } from '@components//FullScreenButton';
+import { BinComponent } from '@components/Bin';
+import { Controls } from '@components/Controls';
+import { MenuButton } from '@components/MenuButton';
 import { PadContainer } from '@components/PadContainer';
+import { PlayerContainer } from '@components/Player/Container';
+import { Sequencer } from '@components/Sequencer';
+import { ShareButton } from '@components/ShareButton';
 import { useFullScreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useWindowUrl } from '@hooks/useWindowUrl';
 import { useShowMode } from '@model/hooks/useShowMode';
-import { BinComponent } from './Bin';
-import { Controls } from './Controls';
-import { FullScreenButton } from './FullScreenButton';
-import { MenuButton } from './MenuButton';
-import { PlayerContainer } from './Player/Container';
-import { Sequencer } from './Sequencer';
-import { ShareButton } from './ShareButton';
 
 export const Main = () => {
   useWindowUrl();

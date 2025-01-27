@@ -27,7 +27,7 @@ export const SequencerBody = ({ padCount }: SequencerBodyProps) => {
           gridTemplateRows: `1fr repeat(${padCount}, 1fr) 0.2fr`
         }}
       >
-        <div className='vo-seq-header  col-span-1'></div>
+        <div className='vo-seq-header col-span-1'></div>
         <div className='vo-seq-gutter col-span-1'></div>
         {cells}
       </div>
