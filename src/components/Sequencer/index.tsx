@@ -3,9 +3,11 @@
 import { usePads } from '@model/hooks/usePads';
 import { SequencerBody } from './SequencerBody';
 import { SequencerPad } from './SequencerPad';
+import { useSequencerStore } from './store';
 
 export const Sequencer = () => {
   const { pads } = usePads();
+  useSequencerStore();
 
   const padCount = pads.length;
 
@@ -20,9 +22,9 @@ export const Sequencer = () => {
       >
         <div className='relative vo-seq-header bg-slate-800 col-span-1 flex justify-center items-center'></div>
         {pads.map((pad, index) => (
-          <>
+          <span key={`pad-${pad.id}-span`}>
             <div
-              key={pad.id}
+              key={`pad-${pad.id}`}
               className=''
               style={{ gridArea: `${index + 2}/1/auto/span 1` }}
             >
@@ -33,7 +35,7 @@ export const Sequencer = () => {
               className='border-b-1 border-slate-600'
               style={{ gridArea: `${index + 2}/2/auto/span 1` }}
             />
-          </>
+          </span>
         ))}
         <div
           className='vo-seq-footer col-span-2'

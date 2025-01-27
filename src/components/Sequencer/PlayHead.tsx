@@ -4,7 +4,6 @@ export const PlayHead = () => {
       className='absolute vo-seq-playhead w-[20px] h-full '
       style={{
         left: `1px`,
-        top: `30px`,
         cursor: 'ew-resize'
       }}
     >

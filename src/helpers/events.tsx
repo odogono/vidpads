@@ -34,6 +34,7 @@ export type EventEmitterEvents = {
   'video:start': PlayerPlay;
   // request the video to stop
   'video:stop': PlayerStop;
+  ß;
   // request the video to seek to a specific time
   'video:seek': PlayerSeek;
   // request the video to extract a thumbnail
@@ -80,6 +81,25 @@ export type EventEmitterEvents = {
   'project:saved': {
     projectId: string;
     projectName: string;
+  };
+
+  'seq:play': undefined;
+  'seq:play-started': {
+    time: number;
+  };
+  'seq:record': undefined;
+  'seq:record-started': {
+    time: number;
+  };
+  'seq:stop': {
+    time: number;
+  };
+  'seq:stopped': {
+    time: number;
+  };
+  'seq:rewind': undefined;
+  'seq:time-update': {
+    time: number;
   };
 };
 
