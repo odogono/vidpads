@@ -34,15 +34,6 @@ export const usePlayerEvents = (pad: Pad) => {
   );
 
   useEffect(() => {
-    // const url = getPadSourceUrl(pad);
-
-    // // handle the player being ready before this component is mounted
-    // if (url) {
-    //   const isReady = player?.isReady;
-    //   setIsPlayerReady(isReady);
-    //   // if (pad.id === 'a1') log.debug('🎉 useEffect', pad.id, { url, isReady });
-    // }
-
     events.on('player:playing', handlePlayerPlaying);
     events.on('player:stopped', handlePlayerStopped);
     return () => {

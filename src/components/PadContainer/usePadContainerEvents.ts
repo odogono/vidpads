@@ -5,16 +5,19 @@ import { createLog } from '@helpers/log';
 import { safeParseInt } from '@helpers/number';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { usePads } from '@model/hooks/usePads';
-import { useSelectedPadId } from '@model/store/selectors';
 
 const log = createLog('usePadContainerEvents');
 
 export const usePadContainerEvents = () => {
   const events = useEvents();
   // const { selectedPadId } = usePad();
-  const { pads, isPadSelectSourceEnabled, isPadPlayEnabled, selectedPadId } =
-    usePads();
-  const { setSelectedPadId } = useSelectedPadId();
+  const {
+    pads,
+    isPadSelectSourceEnabled,
+    isPadPlayEnabled,
+    selectedPadId,
+    setSelectedPadId
+  } = usePads();
 
   const { cutPadToClipboard, copyPadToClipboard, pastePadFromClipboard } =
     usePadOperations();
