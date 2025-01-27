@@ -29,6 +29,7 @@ export { setSelectedControlPane } from './setControlPane';
 export { setSelectedPadId } from './setSelectedPadId';
 export { setSequencerBpm } from './setSequencerBpm';
 export { setShowMode } from './setShowMode';
+export { toggleSequencerEvent } from './toggleSequencerEvent';
 export { updateProject } from './updateProject';
 
 export const setEditActive = (
