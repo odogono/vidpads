@@ -2,6 +2,8 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { PlayHead } from './PlayHead';
+
 export interface SequencerBodyProps {
   padCount: number;
 }
@@ -16,7 +18,8 @@ export const SequencerBody = ({ padCount }: SequencerBodyProps) => {
   }, [barCount, padCount]);
 
   return (
-    <div className='vo-seq-body w-[3000px] h-full'>
+    <div className='relative vo-seq-body w-[3000px] h-full'>
+      <PlayHead />
       <div
         className='grid grid-cols-2 w-full h-full '
         style={{
@@ -36,7 +39,7 @@ const row = (rowIndex: number, length: number) => {
   return Array.from({ length }, (_, index) => {
     return (
       <div
-        key={`ch-${index}`}
+        key={`ch-${index}-${rowIndex}`}
         className='text-gray-400 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.6)] w-[40px] text-xs flex justify-center items-center'
         style={{
           gridRow: `${rowIndex + 2}/${rowIndex + 2}`,
