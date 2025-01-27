@@ -17,7 +17,8 @@ export const initialContext: StoreContextType = {
   isKeyboardPlayEnabled: true,
   showMode: 'pads',
   sequencer: {
-    bpm: 120
+    bpm: 120,
+    events: []
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),

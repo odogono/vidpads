@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -9,34 +9,124 @@ import { PlayHead } from './PlayHead';
 
 const log = createLog('SequencerBody');
 
+interface TriggerEvent {
+  event: 'pad:touchdown' | 'pad:touchup';
+  time: number;
+  padId: string;
+}
 export interface SequencerBodyProps {
   padCount: number;
 }
 
 export const SequencerBody = ({ padCount }: SequencerBodyProps) => {
   const events = useEvents();
-  const { bpm } = useSequencer();
+  const {
+    bpm,
+    events: sequencerEvents,
+    toggleEvent,
+    timeToStep
+  } = useSequencer();
   const barCount = 24;
   const stepWidth = 40;
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
+
+  const { triggers, triggerKey } = useMemo(() => {
+    const result = sequencerEvents.reduce((acc, e) => {
+      const { time, duration, padId } = e;
+
+      acc.push({ event: 'pad:touchdown', time, padId });
+      acc.push({ event: 'pad:touchup', time: time + duration, padId });
+      return acc;
+    }, [] as TriggerEvent[]);
+
+    result.sort((a, b) => a.time - b.time);
+    const triggerKey = result.map((e) => e.time).join(',');
+    return { triggers: result, triggerKey };
+  }, [sequencerEvents]);
+
+  const triggerIndex = useRef(0);
+
+  const handleCellTap = useCallback(
+    (padId: string, columnIndex: number) => {
+      const beatLength = 60000 / bpm;
+      const stepLength = beatLength / 4;
+      const timeStart = columnIndex * stepLength;
+      const timeEnd = timeStart + stepLength;
+      // log.debug('cell tapped', padId, columnIndex, timeStart, timeEnd);
+      toggleEvent(padId, timeStart, timeEnd);
+    },
+    [bpm, toggleEvent]
+  );
+
   const cells = useMemo(() => {
     return Array.from({ length: padCount }, (_, index) => {
-      return row(index, barCount, stepWidth);
+      const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
+      const activeIndexes = events.map((e) => {
+        const sp = timeToStep(e.time);
+        // log.debug('sp', { time: e.time, sp });
+        return Math.round(sp);
+      });
+      // if (events.length) log.debug('events', activeIndexes);
+      return Row({
+        padId: `a${index + 1}`,
+        rowIndex: index,
+        length: barCount,
+        stepWidth,
+        onTap: handleCellTap,
+        activeIndexes
+      });
     });
-  }, [barCount, padCount, stepWidth]);
+  }, [padCount, sequencerEvents, handleCellTap, timeToStep]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number }) => {
-      const beatLength = 60000 / bpm;
-      const stepPosition = event.time / beatLength;
+      const { time } = event;
+      const stepPosition = timeToStep(time);
       setPlayHeadPosition(stepPosition * stepWidth);
+
+      const nextTrigger = triggers[triggerIndex.current];
+      if (nextTrigger) {
+        const nextTriggerTime = nextTrigger.time;
+        if (time >= nextTriggerTime) {
+          const { event, padId } = nextTrigger;
+          events.emit(event, { padId });
+          triggerIndex.current++;
+          // log.debug('handleTimeUpdate', {
+          //   time,
+          //   event,
+          //   padId
+          // });
+        }
+      }
     },
-    [bpm]
+    [events, timeToStep, triggers]
+  );
+
+  const handleTimeSet = useCallback(
+    (event: { time: number }) => {
+      const { time } = event;
+      triggerIndex.current = 0;
+      for (let i = 0; i < triggers.length; i++) {
+        const trigger = triggers[i];
+        if (trigger.time >= time) {
+          triggerIndex.current = i;
+          break;
+        }
+      }
+      log.debug('handleTimeSet', {
+        time,
+        triggerKey,
+        index: triggerIndex.current
+      });
+    },
+    [triggerKey, triggers]
   );
 
   useEffect(() => {
+    events.on('seq:time-set', handleTimeSet);
     events.on('seq:time-update', handleTimeUpdate);
     return () => {
+      events.off('seq:time-set', handleTimeSet);
       events.off('seq:time-update', handleTimeUpdate);
     };
   }, [events, handleTimeUpdate]);
@@ -59,17 +149,35 @@ export const SequencerBody = ({ padCount }: SequencerBodyProps) => {
   );
 };
 
-const row = (rowIndex: number, length: number, stepWidth: number) => {
+interface RowProps {
+  padId: string;
+  rowIndex: number;
+  length: number;
+  stepWidth: number;
+  onTap: (padId: string, columnIndex: number) => void;
+  activeIndexes: number[];
+}
+
+const Row = ({
+  padId,
+  rowIndex,
+  length,
+  stepWidth,
+  onTap,
+  activeIndexes
+}: RowProps) => {
   return Array.from({ length }, (_, index) => {
+    const isActive = activeIndexes.includes(index);
     return (
       <div
-        key={`ch-${index}-${rowIndex}`}
-        className='text-gray-400 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.6)] text-xs flex justify-center items-center'
+        key={`ch-${rowIndex}-${index}`}
+        className={`text-gray-400 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.6)] text-xs flex justify-center items-center ${isActive ? 'bg-red-500' : ''}`}
         style={{
           width: `${stepWidth}px`,
           gridRow: `${rowIndex + 2}/${rowIndex + 2}`,
           gridColumn: `${index + 2}/${index + 2}`
         }}
+        onClick={() => onTap(padId, index)}
       >
         {rowIndex + 1},{index + 1}
       </div>

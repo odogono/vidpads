@@ -102,6 +102,9 @@ export type EventEmitterEvents = {
   'seq:time-update': {
     time: number;
   };
+  'seq:time-set': {
+    time: number;
+  };
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;

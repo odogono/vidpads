@@ -2,6 +2,7 @@ import type {
   Media,
   Pad,
   ProjectExport,
+  SequencerEvent,
   ShowMode,
   VolumeKeyPoint
 } from '@model/types';
@@ -37,6 +38,7 @@ export interface StoreContextType {
 
   sequencer: {
     bpm: number;
+    events: SequencerEvent[];
   };
 
   lastMediaUrl?: string | null;
@@ -181,6 +183,13 @@ export type SetSequencerBpmAction = {
   bpm: number;
 };
 
+export type ToggleSequencerEventAction = {
+  type: 'toggleSequencerEvent';
+  padId: string;
+  time: number;
+  duration: number;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -206,7 +215,8 @@ export type Actions =
   | SetPadSelectSourceEnabledAction
   | ApplyPadAction
   | SetShowModeAction
-  | SetSequencerBpmAction;
+  | SetSequencerBpmAction
+  | ToggleSequencerEventAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

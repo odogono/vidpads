@@ -20,22 +20,15 @@ export const Sequencer = () => {
           gridTemplateRows: `1fr repeat(${padCount}, minmax(0, 1fr)) 0.5fr`
         }}
       >
-        <div className='relative vo-seq-header bg-slate-800 col-span-1 flex justify-center items-center'></div>
+        <div className='relative vo-seq-header col-span-1 flex justify-center items-center'></div>
         {pads.map((pad, index) => (
-          <span key={`pad-${pad.id}-span`}>
-            <div
-              key={`pad-${pad.id}`}
-              className=''
-              style={{ gridArea: `${index + 2}/1/auto/span 1` }}
-            >
-              <SequencerPad pad={pad} />
-            </div>
-            <div
-              key={`${pad.id}-divider`}
-              className='border-b-1 border-slate-600'
-              style={{ gridArea: `${index + 2}/2/auto/span 1` }}
-            />
-          </span>
+          <div
+            key={`pad-${pad.id}`}
+            className=''
+            style={{ gridArea: `${index + 2}/1/auto/span 1` }}
+          >
+            <SequencerPad pad={pad} />
+          </div>
         ))}
         <div
           className='vo-seq-footer col-span-2'

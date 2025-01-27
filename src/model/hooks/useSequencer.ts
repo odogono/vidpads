@@ -11,6 +11,9 @@ export const useSequencer = () => {
     (state) => state.context.sequencer?.bpm ?? 120
   );
 
+  const events =
+    useSelector(store, (state) => state.context.sequencer?.events) ?? [];
+
   const setBpm = useCallback(
     (bpm: number) => {
       store.send({ type: 'setSequencerBpm', bpm });
@@ -18,5 +21,35 @@ export const useSequencer = () => {
     [store]
   );
 
-  return { bpm, setBpm };
+  const timeToStep = useCallback(
+    (time: number) => {
+      const beatLength = 60000 / bpm;
+      const stepPosition = (time / beatLength) * 4;
+      return stepPosition;
+    },
+    [bpm]
+  );
+  const stepToTime = useCallback(
+    (step: number) => {
+      const beatLength = 60000 / bpm;
+      const stepLength = beatLength / 4;
+      const time = step * stepLength;
+      return time;
+    },
+    [bpm]
+  );
+
+  const toggleEvent = useCallback(
+    (padId: string, startTime: number, endTime: number) => {
+      store.send({
+        type: 'toggleSequencerEvent',
+        padId,
+        time: startTime,
+        duration: endTime - startTime
+      });
+    },
+    [store]
+  );
+
+  return { bpm, events, setBpm, toggleEvent, stepToTime, timeToStep };
 };
