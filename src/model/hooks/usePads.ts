@@ -3,10 +3,8 @@
 import { useCallback, useMemo } from 'react';
 
 import { createLog } from '@helpers/log';
-import { VOKeys } from '@model/constants';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { useStore } from '@model/store/useStore';
-import { useQuery } from '@tanstack/react-query';
 import { useSelector } from '@xstate/store/react';
 import { Interval } from '../types';
 import { useMetadata } from './useMetadata';
@@ -28,12 +26,21 @@ export const usePads = () => {
     store,
     (state) => state.context.selectedPadId
   );
+
+  const setSelectedPadId = useCallback(
+    (padId: string | null) => {
+      store.send({ type: 'setSelectedPadId', padId });
+    },
+    [store]
+  );
+
   return {
     pads,
     isReady,
     selectedPadId,
     isPadPlayEnabled,
-    isPadSelectSourceEnabled
+    isPadSelectSourceEnabled,
+    setSelectedPadId
   };
 };
 
