@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
-export const useDivSize = (ref: React.RefObject<HTMLDivElement>) => {
-  const [size, setSize] = useState({ width: 0, height: 0, x: 0, y: 0 });
+import { Rect } from '@types';
+
+export const useElementRect = (ref: React.RefObject<HTMLElement | null>) => {
+  const [size, setSize] = useState<Rect>({ width: 0, height: 0, x: 0, y: 0 });
 
   const handleResize = useCallback(() => {
     if (!ref.current) return;
