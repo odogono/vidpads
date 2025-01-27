@@ -23,6 +23,18 @@ export const secondsToTimeString = (seconds: number): string => {
     .join(':');
 };
 
+export const secondsToHex = (value: number, places: number = 3): string => {
+  const h = Math.pow(10, places);
+  const ms = Math.round(value * h);
+  return ms.toString(16);
+};
+
+export const hexToSeconds = (value: string, places: number = 3): number => {
+  const h = Math.pow(10, places);
+  const ms = parseInt(value, 16);
+  return ms / h;
+};
+
 /**
  * Converts a time string in format "HH:mm:ss" to microseconds
  * @param timeStr Time string in format "HH:mm:ss"
