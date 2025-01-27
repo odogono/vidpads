@@ -16,6 +16,12 @@ export { applyTrimToPad } from './applyTrimToPad';
 export { applyVolumeToPad } from './applyVolumeToPad';
 export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';
+export {
+  addSequencerEvent,
+  clearSequencerEvents,
+  removeSequencerEvent,
+  toggleSequencerEvent
+} from './sequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';
 export { initialiseStore } from './initialiseStore';
@@ -29,7 +35,6 @@ export { setSelectedControlPane } from './setControlPane';
 export { setSelectedPadId } from './setSelectedPadId';
 export { setSequencerBpm } from './setSequencerBpm';
 export { setShowMode } from './setShowMode';
-export { toggleSequencerEvent } from './toggleSequencerEvent';
 export { updateProject } from './updateProject';
 
 export const setEditActive = (

@@ -51,5 +51,33 @@ export const useSequencer = () => {
     [store]
   );
 
-  return { bpm, events, setBpm, toggleEvent, stepToTime, timeToStep };
+  const clearEvents = useCallback(() => {
+    store.send({ type: 'clearSequencerEvents' });
+  }, [store]);
+
+  const addEvent = useCallback(
+    (padId: string, time: number, duration: number) => {
+      store.send({ type: 'addSequencerEvent', padId, time, duration });
+    },
+    [store]
+  );
+
+  const removeEvent = useCallback(
+    (padId: string, time: number) => {
+      store.send({ type: 'removeSequencerEvent', padId, time });
+    },
+    [store]
+  );
+
+  return {
+    bpm,
+    events,
+    setBpm,
+    toggleEvent,
+    stepToTime,
+    timeToStep,
+    clearEvents,
+    addEvent,
+    removeEvent
+  };
 };

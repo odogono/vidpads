@@ -2,7 +2,8 @@
 
 import { usePads } from '@model/hooks/usePads';
 import { SequencerPad } from './SequencerPad';
-import { StepSequencerBody } from './StepSequencerBody';
+// import { StepSequencerBody } from './StepSequencer/StepSequencerBody';
+import { TimeSequencerBody } from './TimeSequencer/TimeSequencerBody';
 import { useSequencerStore } from './store';
 
 export const Sequencer = () => {
@@ -38,7 +39,7 @@ export const Sequencer = () => {
           className='vo-seq-body-wrapper overflow-x-scroll overflow-y-hidden'
           style={{ gridColumn: `2/3`, gridRow: `1/${padCount + 3}` }}
         >
-          <StepSequencerBody padCount={padCount} />
+          <TimeSequencerBody pads={pads} />
         </div>
       </div>
     </div>

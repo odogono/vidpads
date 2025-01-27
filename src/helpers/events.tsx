@@ -105,6 +105,7 @@ export type EventEmitterEvents = {
   'seq:time-set': {
     time: number;
   };
+  'seq:clear-events': undefined;
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;
