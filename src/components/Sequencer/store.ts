@@ -214,6 +214,15 @@ export const useSequencerStore = () => {
     store.send({ type: 'play' });
   }, [store]);
 
+  const handlePlayToggle = useCallback(() => {
+    const { isPlaying, isRecording } = store.getSnapshot().context;
+    if (isPlaying || isRecording) {
+      store.send({ type: 'stop' });
+    } else {
+      store.send({ type: 'play' });
+    }
+  }, [store]);
+
   const handleStop = useCallback(() => {
     store.send({ type: 'stop' });
   }, [store]);
@@ -237,6 +246,7 @@ export const useSequencerStore = () => {
 
   useEffect(() => {
     events.on('seq:play', handlePlay);
+    events.on('seq:play-toggle', handlePlayToggle);
     events.on('seq:stop', handleStop);
     events.on('seq:record', handleRecord);
     events.on('seq:rewind', handleRewind);
@@ -248,6 +258,7 @@ export const useSequencerStore = () => {
 
     return () => {
       events.off('seq:play', handlePlay);
+      events.off('seq:play-toggle', handlePlayToggle);
       events.off('seq:stop', handleStop);
       events.off('seq:record', handleRecord);
       events.off('seq:rewind', handleRewind);
@@ -259,6 +270,7 @@ export const useSequencerStore = () => {
   }, [
     events,
     handlePlay,
+    handlePlayToggle,
     handlePlayStarted,
     handlePlayStopped,
     handleRecord,
