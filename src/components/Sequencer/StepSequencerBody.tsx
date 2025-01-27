@@ -18,7 +18,7 @@ export interface SequencerBodyProps {
   padCount: number;
 }
 
-export const SequencerBody = ({ padCount }: SequencerBodyProps) => {
+export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
   const events = useEvents();
   const {
     bpm,
