@@ -40,7 +40,7 @@ export const Sequencer = () => {
           style={{ gridArea: `${padCount + 2}/1/auto/span 1` }}
         ></div>
         <div
-          className='vo-seq-body-wrapper overflow-x-scroll'
+          className='vo-seq-body-wrapper overflow-x-scroll overflow-y-hidden'
           style={{ gridColumn: `2/3`, gridRow: `1/${padCount + 3}` }}
         >
           <SequencerBody padCount={padCount} />
