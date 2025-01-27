@@ -35,6 +35,10 @@ export interface StoreContextType {
   // whether the pads or sequencer are visible
   showMode: ShowMode;
 
+  sequencer: {
+    bpm: number;
+  };
+
   lastMediaUrl?: string | null;
   lastImportUrl?: string | null;
   pads: Pad[];
@@ -172,6 +176,11 @@ export type SetShowModeAction = {
   mode: ShowMode;
 };
 
+export type SetSequencerBpmAction = {
+  type: 'setSequencerBpm';
+  bpm: number;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -196,7 +205,8 @@ export type Actions =
   | SetPadPlayEnabledAction
   | SetPadSelectSourceEnabledAction
   | ApplyPadAction
-  | SetShowModeAction;
+  | SetShowModeAction
+  | SetSequencerBpmAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

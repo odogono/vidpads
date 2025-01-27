@@ -4,12 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { Interval } from '@model/types';
 import { createStore as createXStateStore } from '@xstate/store';
-import { useSelector } from '@xstate/store/react';
-import { PlayerPlay, PlayerStop } from '../types';
-import { PlayerStateToString, PlayerYTStateToString } from './helpers';
-import { PlayerState, PlayerYTState } from './types';
 
 const log = createLog('seq/state');
 
@@ -159,7 +154,7 @@ export const useSequencerStore = () => {
     store.send({ type: 'timeUpdate', time: totalElapsedTime });
 
     events.emit('seq:time-update', {
-      time
+      time: totalElapsedTime
     });
 
     // log.debug('updateTime', time);

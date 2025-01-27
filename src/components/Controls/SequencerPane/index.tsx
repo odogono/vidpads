@@ -7,7 +7,10 @@ import { Circle, Play, Rewind, Square } from 'lucide-react';
 import { OpButton } from '@components/buttons/OpButton';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useSequencer } from '@model/hooks/useSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
+import { Input } from '@nextui-org/react';
+import { OpInput } from '../../buttons/OpInput';
 
 const log = createLog('SequencerPane');
 
@@ -16,6 +19,7 @@ export const SequencerPane = () => {
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { bpm, setBpm } = useSequencer();
 
   const handlePlay = useCallback(() => {
     events.emit('seq:play');
@@ -83,6 +87,11 @@ export const SequencerPane = () => {
         <OpButton label='Record' onPress={handleRecord}>
           <Circle color='#b51a00' />
         </OpButton>
+        <OpInput
+          label='BPM'
+          value={`${bpm}`}
+          onChange={(value: string) => setBpm(Number(value))}
+        />
       </div>
     </>
   );
