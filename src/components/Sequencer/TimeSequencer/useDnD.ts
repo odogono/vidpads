@@ -13,7 +13,7 @@ interface UseDnDProps {
   dragThreshold?: number;
 }
 
-const log = createLog('sequencer/useDnD');
+export const log = createLog('sequencer/useDnD');
 
 export const useDnD = ({
   id,

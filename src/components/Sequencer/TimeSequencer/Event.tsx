@@ -18,7 +18,7 @@ export interface SequencerEventProps extends SequencerRowEvent {
 }
 
 export const Event = (props: SequencerEventProps) => {
-  const { id, padId, x, width, onTap } = props;
+  const { id, padId, x, width, onTap, isSelected } = props;
   const { selectedSeqEventId, setSelectedSeqEventId } = useSelectedSeqEventId();
 
   const {
@@ -83,18 +83,18 @@ export const Event = (props: SequencerEventProps) => {
     // onDrop: handleDrop
   };
 
+  const bgColor = 'bg-red-500';
+
   return (
     <div
       key={`event-${padId}-${x}`}
-      className={`absolute top-0 h-full bg-red-500 ${
-        isDragging ? 'bg-red-500' : ''
-      }`}
+      className={`absolute top-0 h-full ${isDragging ? bgColor : bgColor} box-border ${isSelected ? 'border-2 border-white' : ''}`}
       style={{
         left: `${x}px`,
         width: `${width}px`
       }}
-      {...localDragProps}
-      {...dragProps}
+      // {...localDragProps}
+      // {...dragProps}
     />
   );
 };

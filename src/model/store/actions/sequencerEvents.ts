@@ -1,16 +1,36 @@
+import { createLog } from '@helpers/log';
 import {
   getIntersectingEvents,
   joinEvents,
+  mergeEvents,
   quantizeEvents,
   removeEvents
 } from '@model/sequencerEvent';
 import {
   AddSequencerEventAction,
   RemoveSequencerEventAction,
+  SelectSequencerEventsAction,
+  SetSelectedSeqEventIdAction,
   StoreContext,
   ToggleSequencerEventAction
 } from '../types';
 import { update } from './helpers';
+
+const log = createLog('sequencer/events');
+
+export const setSelectedSeqEventId = (
+  context: StoreContext,
+  event: SetSelectedSeqEventIdAction
+): StoreContext => {
+  const { eventId } = event;
+
+  return update(context, {
+    sequencer: {
+      ...context.sequencer,
+      selectedEventId: eventId
+    }
+  });
+};
 
 export const toggleSequencerEvent = (
   context: StoreContext,
@@ -108,4 +128,34 @@ export const removeSequencerEvent = (
 
 export const clearSequencerEvents = (context: StoreContext): StoreContext => {
   return update(context, { sequencer: { ...context.sequencer, events: [] } });
+};
+
+export const selectSequencerEvents = (
+  context: StoreContext,
+  action: SelectSequencerEventsAction
+): StoreContext => {
+  const { padIds, time, duration } = action;
+  const sequencer = context.sequencer ?? {};
+  const events = sequencer?.events ?? [];
+
+  const deSelectedEvents = events.map((evt) => ({
+    ...evt,
+    isSelected: false
+  }));
+
+  const intersectingEvents = getIntersectingEvents(
+    deSelectedEvents,
+    time,
+    duration,
+    padIds
+  );
+
+  const selectedEvents = intersectingEvents.map((evt) => ({
+    ...evt,
+    isSelected: true
+  }));
+
+  const mergedEvents = mergeEvents(...selectedEvents, ...deSelectedEvents);
+
+  return update(context, { sequencer: { ...sequencer, events: mergedEvents } });
 };

@@ -15,6 +15,7 @@ export type SequencerType = 'state' | 'interval' | 'sequencer' | 'details';
 export type GeneralTouchEvent =
   | React.TouchEvent<HTMLElement>
   | React.MouseEvent<HTMLElement>
+  | React.PointerEvent<Element>
   | MouseEvent
   | TouchEvent;
 
@@ -40,7 +41,7 @@ export const getClientPosition = (e: GeneralTouchEvent): Position => {
       };
 };
 
-export const getOffset = (e: GeneralTouchEvent | GeneralDragEvent) => {
+export const getOffsetPosition = (e: GeneralTouchEvent | GeneralDragEvent) => {
   if (
     isMouseEvent(e as GeneralTouchEvent) ||
     isDragEvent(e as GeneralTouchEvent) ||

@@ -11,12 +11,7 @@ import {
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { useStore } from '@model/store/useStore';
 import { SequencerEvent } from '@model/types';
-import {
-  GeneralDragEvent,
-  Position,
-  getClientPosition,
-  getOffset
-} from '@types';
+import { GeneralDragEvent, Position, getOffsetPosition } from '@types';
 import { Event } from './Event';
 
 export interface SequencerRowEvent extends SequencerEvent {
@@ -59,7 +54,7 @@ export const Row = ({
       const dropEffect = e.dataTransfer?.getData(MIME_TYPE_DROP_EFFECT);
       log.debug('handleDrop', id, data, dropEffect);
       if (data) {
-        const { x, y } = getOffset(e);
+        const { x, y } = getOffsetPosition(e);
         const event = JSON.parse(data);
 
         onEventDrop(event, padId, { x, y }, dropEffect ?? 'move');
@@ -73,9 +68,8 @@ export const Row = ({
 
   const handleTap = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      const { offsetX } = e.nativeEvent;
+      // const { offsetX } = e.nativeEvent;
       // log.debug('tap', padId, rowIndex, { offsetX });
-
       // onTap(padId, offsetX);
     },
     [padId, onTap]
@@ -93,12 +87,12 @@ export const Row = ({
   return (
     <div
       key={`ch-${rowIndex}`}
-      className={`${bgColor} relative`}
+      className={`vo-seq-row ${bgColor} relative pointer-events-none`}
       style={{
         gridRow: `${rowIndex + 2}/${rowIndex + 2}`,
         gridColumn: `2/2`
       }}
-      onMouseDown={handleTap}
+      // onMouseDown={handleTap}
       onDragOver={(e) => onDragOver(e, id)}
       onDragLeave={() => onDragLeave(id)}
       onDrop={(e) => {
