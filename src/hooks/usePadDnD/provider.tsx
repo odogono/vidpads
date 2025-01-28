@@ -2,8 +2,11 @@
 
 import { ReactNode, useCallback, useState } from 'react';
 
+import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadOperations } from '@model/hooks/usePadOperations';
+import { GeneralDragEvent } from '@types';
+import { MIME_TYPE_ID, MIME_TYPE_PAD, MIME_TYPE_SEQ_EVENT } from './constants';
 import { PadDnDContext } from './context';
 
 const log = createLog('PadDnDProvider');
@@ -17,25 +20,36 @@ const ACCEPTED_FILE_TYPES = [
 ];
 
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
-  const [draggingPadId, setDraggingPadId] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const {
+    store,
     addFileToPad,
     clearPad,
     copyPadToPad,
     cutPadToClipboard,
     copyPadToClipboard
   } = usePadOperations();
-  const onDragStart = useCallback((id: string) => {
-    setDraggingPadId(id);
-  }, []);
+
+  const onDragStart = useCallback(
+    (e: GeneralDragEvent, id: string, mimeType?: string) => {
+      log.debug('onDragStart', id, mimeType);
+      if (mimeType) {
+        e.dataTransfer?.clearData();
+        e.dataTransfer?.setData(mimeType, id);
+        e.dataTransfer?.setData(MIME_TYPE_ID, id);
+      }
+      setDraggingId(id);
+    },
+    []
+  );
 
   const onDragEnd = useCallback(() => {
-    setDraggingPadId(null);
+    setDraggingId(null);
   }, []);
 
   const onDragOver = useCallback(
-    (e: React.DragEvent, id: string) => {
+    (e: GeneralDragEvent, id: string) => {
       e.preventDefault();
       setDragOverId(id);
 
@@ -43,11 +57,11 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
         id === 'bin' || id === 'cut' || id === 'copy' || id === 'delete';
 
       // Check if this is a pad being dragged
-      const isPadDrag = e.dataTransfer.types.includes('application/pad-id');
+      const isPadDrag = e.dataTransfer?.types.includes(MIME_TYPE_PAD);
 
       if (isPadDrag) {
         // Only show drop indicator if dragging onto a different pad
-        if (draggingPadId !== id) {
+        if (draggingId !== id) {
           setDragOverId(id);
         }
         return;
@@ -55,7 +69,9 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
 
       // Handle file drag (existing code)
       if (!isBin) {
-        const types = Array.from(e.dataTransfer.items).map((item) => item.type);
+        const types = Array.from(e.dataTransfer?.items ?? []).map(
+          (item) => item.type
+        );
         if (types.some((type) => ACCEPTED_FILE_TYPES.includes(type))) {
           setDragOverId(id);
         }
@@ -63,7 +79,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
 
       // log.debug('handleDragOver', id);
     },
-    [draggingPadId]
+    [draggingId]
   );
 
   const onDragLeave = useCallback(() => {
@@ -71,22 +87,33 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const onDrop = useCallback(
-    async (e: React.DragEvent, targetId: string) => {
+    async (e: GeneralDragEvent, targetId: string) => {
       e.preventDefault();
       setDragOverId(null);
-      setDraggingPadId(null);
+      setDraggingId(null);
 
       // Check if this is a pad being dropped
-      const sourcePadId = e.dataTransfer.getData('application/pad-id');
+      const sourceId = e.dataTransfer?.getData(MIME_TYPE_ID);
+      const sourcePadId = e.dataTransfer?.getData(MIME_TYPE_PAD);
+      const sourceEventData = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
 
-      log.debug('handleDrop', sourcePadId, targetId);
+      log.debug('handleDrop', sourceId, targetId);
 
-      if (sourcePadId) {
-        if (targetId === 'delete') {
+      if (targetId === 'delete') {
+        if (sourcePadId) {
           await clearPad({ sourcePadId, showToast: true });
-          return;
         }
-
+        if (sourceEventData) {
+          log.debug('delete event', sourceEventData);
+          const event = JSON.parse(sourceEventData);
+          store.send({
+            ...event,
+            type: 'removeSequencerEvent'
+          });
+        }
+        return;
+      }
+      if (sourcePadId) {
         if (targetId === 'cut') {
           await cutPadToClipboard({ sourcePadId, showToast: true });
           return;
@@ -104,7 +131,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
       }
 
       // Handle file drop (existing code)
-      const files = Array.from(e.dataTransfer.files);
+      const files = Array.from(e.dataTransfer?.files ?? []);
       if (files.length > 0) {
         const file = files[0];
         if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
@@ -128,9 +155,9 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
     <PadDnDContext.Provider
       value={{
         ACCEPTED_FILE_TYPES,
-        isDragging: draggingPadId !== null,
-        draggingPadId,
-        setDraggingPadId,
+        isDragging: draggingId !== null,
+        draggingId,
+        setDraggingId,
         dragOverId,
         setDragOverId,
         onDragStart,

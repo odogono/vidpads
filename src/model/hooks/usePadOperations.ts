@@ -338,6 +338,7 @@ export const usePadOperations = () => {
   });
 
   return {
+    store,
     addFileToPad: addFileToPadOp,
     addUrlToPad: addUrlToPadOp,
     copyPadToPad: copyPadToPadOp,

@@ -1,0 +1,99 @@
+'use client';
+
+import { useCallback, useState } from 'react';
+
+import { createLog } from '@helpers/log';
+import { omit } from '@helpers/object';
+import { MIME_TYPE_SEQ_EVENT } from '@hooks/usePadDnD/constants';
+import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { useSelectedSeqEventId } from '@model/store/selectors';
+import { GeneralDragEvent, GeneralTouchEvent } from '@types';
+import type { SequencerRowEvent } from './Row';
+import { useDnD } from './useDnD';
+
+const log = createLog('sequencer/event');
+
+export interface SequencerEventProps extends SequencerRowEvent {
+  onTap: (padId: string, x: number) => void;
+}
+
+export const Event = (props: SequencerEventProps) => {
+  const { id, padId, x, width, onTap } = props;
+  const { selectedSeqEventId, setSelectedSeqEventId } = useSelectedSeqEventId();
+
+  const {
+    isDragging,
+    // setDraggingId,
+    // dragOverId,
+    onDragStart,
+    onDragLeave,
+    onDragOver,
+    onDragEnd,
+    onDrop
+  } = usePadDnD(id);
+
+  const handleTouchDown = useCallback(
+    (e: GeneralTouchEvent) => {
+      log.debug('handleTouchDown');
+      e.stopPropagation();
+      setSelectedSeqEventId(id);
+      onTap(padId, x);
+    },
+    [setSelectedSeqEventId, id, onTap, padId, x]
+  );
+
+  const handleDragStart = useCallback(
+    (e: GeneralDragEvent) => {
+      log.debug('handleDragStart', id);
+      onDragStart(e, id, MIME_TYPE_SEQ_EVENT);
+      const data = omit(props, 'onTap', 'x', 'width');
+      e.dataTransfer?.setData(MIME_TYPE_SEQ_EVENT, JSON.stringify(data));
+    },
+    [id, onDragStart, props]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    // log.debug('handleDragEnd', eventId);
+    onDragEnd(id);
+  }, [onDragEnd, id]);
+
+  const { ...localDragProps } = useDnD({
+    id,
+    onTouchDown: handleTouchDown,
+    onDragStart: handleDragStart,
+    onDragEnd: handleDragEnd
+  });
+
+  const handleDrop = useCallback(
+    (e: GeneralDragEvent) => {
+      log.debug('handleDrop', id);
+      onDrop(e, id);
+    },
+    [onDrop, id]
+  );
+
+  const dragProps = {
+    // Native drag and drop handlers
+    // draggable: isDraggable,
+    onDragStart: handleDragStart,
+    onDragEnd: handleDragEnd,
+    onDragOver: (e: React.DragEvent<HTMLDivElement>) => onDragOver(e, id),
+    onDragLeave: () => onDragLeave(id),
+    onDrop: handleDrop
+  };
+
+  return (
+    <div
+      key={`event-${padId}-${x}`}
+      className={`absolute top-0 h-full bg-red-500 ${
+        isDragging ? 'bg-red-500' : ''
+      }`}
+      style={{
+        left: `${x}px`,
+        width: `${width}px`
+      }}
+      {...localDragProps}
+      {...dragProps}
+    />
+  );
+};

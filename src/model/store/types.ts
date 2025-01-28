@@ -37,6 +37,7 @@ export interface StoreContextType {
   showMode: ShowMode;
 
   sequencer: {
+    selectedEventId?: string | null;
     bpm: number;
     events: SequencerEvent[];
   };
@@ -207,6 +208,11 @@ export type RemoveSequencerEventAction = {
   time: number;
 };
 
+export type SetSelectedSeqEventIdAction = {
+  type: 'setSelectedSeqEventId';
+  eventId: string | null;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -236,7 +242,8 @@ export type Actions =
   | ToggleSequencerEventAction
   | ClearSequencerEventsAction
   | AddSequencerEventAction
-  | RemoveSequencerEventAction;
+  | RemoveSequencerEventAction
+  | SetSelectedSeqEventIdAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

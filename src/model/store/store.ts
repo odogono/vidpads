@@ -18,7 +18,8 @@ export const initialContext: StoreContextType = {
   showMode: 'pads',
   sequencer: {
     bpm: 120,
-    events: []
+    events: [],
+    selectedEventId: null
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),

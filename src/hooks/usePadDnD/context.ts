@@ -2,18 +2,24 @@
 
 import { createContext } from 'react';
 
+import { GeneralDragEvent } from '@types';
+
 export interface PadDnDContextType {
   ACCEPTED_FILE_TYPES: string[];
   dragOverId: string | null;
   isDragging: boolean;
-  draggingPadId: string | null;
-  setDraggingPadId: (padId: string | null) => void;
+  draggingId: string | null;
+  setDraggingId: (id: string | null) => void;
   setDragOverId: (id: string | null) => void;
   onDragLeave: (id: string) => void;
-  onDragOver: (e: React.DragEvent, id: string) => void;
-  onDragStart: (id: string) => void;
+  onDragOver: (e: GeneralDragEvent, id: string) => void;
+  onDragStart: (
+    e: GeneralDragEvent,
+    id: string,
+    mimeType: string | undefined
+  ) => void;
   onDragEnd: (id: string) => void;
-  onDrop: (e: React.DragEvent, targetId: string) => void;
+  onDrop: (e: GeneralDragEvent, targetId: string) => void;
 }
 
 export const PadDnDContext = createContext<PadDnDContextType | undefined>(
