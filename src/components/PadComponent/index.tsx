@@ -11,9 +11,10 @@ import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
+import { GeneralDragEvent, isMouseEvent, type GeneralTouchEvent } from '@types';
+import { MIME_TYPE_PAD } from '../../hooks/usePadDnD/constants';
 import { getPadSourceUrl } from '../../model/pad';
 import { useGhostDrag } from './ghost';
-import { GeneralTouchEvent } from './types';
 import { useNullImage } from './useNullImage';
 import { usePlayerEvents } from './usePlayerEvents';
 
@@ -23,9 +24,6 @@ export interface PadComponentProps {
   pad: Pad;
   onEmptyPadTouch: (padId: string) => void;
 }
-
-// const isTouchEvent = (e: GeneralTouchEvent) => e.type.includes('touch');
-const isMouseEvent = (e: GeneralTouchEvent) => e.type.includes('mouse');
 
 const log = createLog('PadComponent');
 
@@ -42,14 +40,14 @@ export const PadComponent = ({
   const { createGhost, removeGhost, updateGhost } = useGhostDrag();
   const {
     isDragging,
-    setDraggingPadId,
+    setDraggingId,
     dragOverId,
     onDragStart,
     onDragLeave,
     onDragOver,
     onDragEnd,
     onDrop
-  } = usePadDnD();
+  } = usePadDnD(`pad-${pad.id}`);
   const isDraggingOver = dragOverId === pad.id;
   const { selectedPadId, setSelectedPadId } = useSelectedPadId();
 
@@ -98,7 +96,7 @@ export const PadComponent = ({
       }
     } else {
       removeGhost();
-      setDraggingPadId(null);
+      setDraggingId(null);
     }
   }, [
     isDragging,
@@ -107,26 +105,21 @@ export const PadComponent = ({
     pad.id,
     events,
     removeGhost,
-    setDraggingPadId,
+    setDraggingId,
     isPlayerReady,
     isPlayEnabled,
     isSelectSourceEnabled
   ]);
 
   const handleDragStart = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.dataTransfer.clearData();
-      e.dataTransfer.setData('application/pad-id', pad.id);
-      e.dataTransfer.effectAllowed = 'move';
+    (e: GeneralDragEvent) => {
+      onDragStart(e, pad.id, MIME_TYPE_PAD);
 
       // Use the empty canvas as the drag image
       if (dragImage) {
-        e.dataTransfer.setDragImage(dragImage, 0, 0);
+        e.dataTransfer?.setDragImage(dragImage, 0, 0);
       }
       createGhost(e, elementRef.current!);
-
-      onDragStart(pad.id);
-      log.debug('handleDragStart');
 
       events.emit('video:stop', {
         url: getPadSourceUrl(pad) ?? '',
@@ -138,7 +131,7 @@ export const PadComponent = ({
   );
 
   const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    (e: GeneralDragEvent) => {
       onDrop(e, pad.id);
     },
     [pad.id, onDrop]

@@ -6,7 +6,7 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { getPadInterval } from '@model/pad';
-import { Interval, Pad } from '@model/types';
+import { Interval, Pad, SequencerEvent } from '@model/types';
 import { PlayHead } from '../PlayHead';
 import { Row } from './Row';
 
@@ -84,7 +84,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
     }, [] as TriggerEvent[]);
 
     result.sort((a, b) => a.time - b.time);
-    log.debug('triggers', result);
+    // log.debug('triggers', result);
     const triggerKey = result.map((e) => e.time).join(',');
     return { triggers: result, triggerKey };
   }, [bpm, sequencerEvents]);
@@ -145,13 +145,14 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
   const rows = useMemo(() => {
     return Array.from({ length: padCount }, (_, index) => {
       const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
-      const rowEvents = events.map((e) => {
-        const { time, duration, padId } = e;
+      const rowEvents = events.map((e: SequencerEvent) => {
+        const { time, duration } = e;
         // convert time to ms
         const x = msToPixels(time, canvasBpm);
+        // and back to pixels so we get the scaling right
         const width = msToPixels(duration, canvasBpm);
-        log.debug('rowEvents', { x, width, padId });
-        return { x, width, padId };
+        const id = `seq-evt-${e.padId}-${x}`;
+        return { ...e, id, x, width };
       });
       return (
         <Row
