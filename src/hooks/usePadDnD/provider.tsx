@@ -3,10 +3,16 @@
 import { ReactNode, useCallback, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
+import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { GeneralDragEvent } from '@types';
-import { MIME_TYPE_ID, MIME_TYPE_PAD, MIME_TYPE_SEQ_EVENT } from './constants';
+import {
+  MIME_TYPE_DROP_EFFECT,
+  MIME_TYPE_ID,
+  MIME_TYPE_PAD,
+  MIME_TYPE_SEQ_EVENT
+} from './constants';
 import { PadDnDContext } from './context';
 
 const log = createLog('PadDnDProvider');
@@ -31,17 +37,25 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
     copyPadToClipboard
   } = usePadOperations();
 
+  const { isMetaKeyDown } = useKeyboard();
+
   const onDragStart = useCallback(
     (e: GeneralDragEvent, id: string, mimeType?: string) => {
-      log.debug('onDragStart', id, mimeType);
       if (mimeType) {
         e.dataTransfer?.clearData();
         e.dataTransfer?.setData(mimeType, id);
         e.dataTransfer?.setData(MIME_TYPE_ID, id);
       }
+      e.dataTransfer!.dropEffect = isMetaKeyDown() ? 'copy' : 'move';
+      e.dataTransfer!.setData(
+        MIME_TYPE_DROP_EFFECT,
+        e.dataTransfer!.dropEffect
+      );
+      log.debug('onDragStart', id, mimeType, e.dataTransfer?.dropEffect);
+
       setDraggingId(id);
     },
-    []
+    [isMetaKeyDown]
   );
 
   const onDragEnd = useCallback(() => {
@@ -97,13 +111,14 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
       const sourcePadId = e.dataTransfer?.getData(MIME_TYPE_PAD);
       const sourceEventData = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
 
-      log.debug('handleDrop', sourceId, targetId);
+      log.debug('handleDrop', sourceId, targetId, e.dataTransfer?.dropEffect);
 
       if (targetId === 'delete') {
         if (sourcePadId) {
           await clearPad({ sourcePadId, showToast: true });
         }
         if (sourceEventData) {
+          // todo tidy this up
           log.debug('delete event', sourceEventData);
           const event = JSON.parse(sourceEventData);
           store.send({
@@ -143,11 +158,12 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
       }
     },
     [
-      addFileToPad,
       clearPad,
-      copyPadToPad,
+      store,
       cutPadToClipboard,
-      copyPadToClipboard
+      copyPadToClipboard,
+      copyPadToPad,
+      addFileToPad
     ]
   );
 

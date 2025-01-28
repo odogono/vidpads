@@ -7,6 +7,7 @@ import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { getPadInterval } from '@model/pad';
 import { Interval, Pad, SequencerEvent } from '@model/types';
+import { Position } from '../../../types';
 import { PlayHead } from '../PlayHead';
 import { Row } from './Row';
 
@@ -21,14 +22,14 @@ export interface SequencerBodyProps {
   pads: Pad[];
 }
 
-const pixelsToMs = (pixels: number, bpm: number) => {
-  const beats = pixels / 16;
+const pixelsToMs = (pixels: number, pixelsPerBeat: number, bpm: number) => {
+  const beats = pixels / pixelsPerBeat;
   return (beats * 60000) / bpm;
 };
 
-const msToPixels = (ms: number, bpm: number) => {
+const msToPixels = (ms: number, pixelsPerBeat: number, bpm: number) => {
   const beats = (bpm / 60000) * ms;
-  return beats * 16;
+  return beats * pixelsPerBeat;
 };
 
 export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
@@ -65,7 +66,11 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
   //   [bpm, pixelsPerBeat]
   // );
 
-  const timelineDurationInPixels = msToPixels(180 * 1000, canvasBpm);
+  const timelineDurationInPixels = msToPixels(
+    180 * 1000,
+    pixelsPerBeat,
+    canvasBpm
+  );
 
   // const stepWidth = 40;
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
@@ -75,8 +80,16 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       if (!e) return acc;
       const { time, duration, padId } = e;
 
-      const adjTime = pixelsToMs(msToPixels(time, canvasBpm), bpm);
-      const adjDuration = pixelsToMs(msToPixels(duration, canvasBpm), bpm);
+      const adjTime = pixelsToMs(
+        msToPixels(time, pixelsPerBeat, canvasBpm),
+        pixelsPerBeat,
+        bpm
+      );
+      const adjDuration = pixelsToMs(
+        msToPixels(duration, pixelsPerBeat, canvasBpm),
+        pixelsPerBeat,
+        bpm
+      );
 
       acc.push({ event: 'pad:touchdown', time: adjTime, padId });
       acc.push({ event: 'pad:touchup', time: adjTime + adjDuration, padId });
@@ -91,42 +104,31 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
 
   const triggerIndex = useRef(0);
 
-  // const handleCellTap = useCallback(
-  //   (padId: string, columnIndex: number) => {
-  //     const beatLength = 60000 / bpm;
-  //     const stepLength = beatLength / 4;
-  //     const timeStart = columnIndex * stepLength;
-  //     const timeEnd = timeStart + stepLength;
-  //     // log.debug('cell tapped', padId, columnIndex, timeStart, timeEnd);
-  //     toggleEvent(padId, timeStart, timeEnd);
-  //   },
-  //   [bpm, toggleEvent]
-  // );
+  const handleEventDrop = useCallback(
+    (
+      sourceEvent: SequencerEvent,
+      rowPadId: string,
+      { x }: Position,
+      dropEffect: string
+    ) => {
+      if (dropEffect === 'move') {
+        // delete the source event
+        removeEvent(rowPadId, sourceEvent.time);
+      }
 
-  // const cells = useMemo(() => {
-  //   return Array.from({ length: padCount }, (_, index) => {
-  //     const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
-  //     const activeIndexes = events.map((e) => {
-  //       const sp = timeToStep(e.time);
-  //       // log.debug('sp', { time: e.time, sp });
-  //       return Math.round(sp);
-  //     });
-  //     // if (events.length) log.debug('events', activeIndexes);
-  //     return Row({
-  //       padId: `a${index + 1}`,
-  //       rowIndex: index,
-  //       length: barCount,
-  //       stepWidth,
-  //       onTap: handleCellTap,
-  //       activeIndexes
-  //     });
-  //   });
-  // }, [padCount, sequencerEvents, handleCellTap, timeToStep]);
+      // convert x to ms - 10px to account for the gutter
+      const time = pixelsToMs(x - 10, pixelsPerBeat, bpm);
+
+      // add the source event to the row
+      addEvent(rowPadId, time, sourceEvent.duration);
+    },
+    [removeEvent, bpm, addEvent]
+  );
 
   const handleRowTap = useCallback(
     (padId: string, x: number) => {
-      const beats = x / pixelsPerBeat;
-      const ms = (beats * 60000) / bpm;
+      // dont need to subtract gutter because its a pointer position
+      const time = pixelsToMs(x, pixelsPerBeat, bpm);
 
       const pad = pads.find((p) => p.id === padId);
       const interval = getPadInterval(pad, { start: 0, end: -1 }) as Interval;
@@ -134,9 +136,9 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       const duration =
         interval.end === -1 ? 1000 : (interval.end - interval.start) * 1000;
 
-      addEvent(padId, ms, duration);
+      addEvent(padId, time, duration);
 
-      log.debug('row tapped', padId, x, { beats, ms, interval });
+      log.debug('row tapped', padId, x, { time, duration, interval });
       // toggleEvent(padId, ms, ms + 1);
     },
     [bpm, pads, addEvent]
@@ -148,9 +150,9 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       const rowEvents = events.map((e: SequencerEvent) => {
         const { time, duration } = e;
         // convert time to ms
-        const x = msToPixels(time, canvasBpm);
+        const x = msToPixels(time, pixelsPerBeat, canvasBpm);
         // and back to pixels so we get the scaling right
-        const width = msToPixels(duration, canvasBpm);
+        const width = msToPixels(duration, pixelsPerBeat, canvasBpm);
         const id = `seq-evt-${e.padId}-${x}`;
         return { ...e, id, x, width };
       });
@@ -160,6 +162,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
           rowIndex={index}
           padId={`a${index + 1}`}
           onTap={handleRowTap}
+          onEventDrop={handleEventDrop}
           events={rowEvents}
         />
       );
@@ -171,7 +174,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       const { time } = event;
 
       // convert time in milliseconds to bpm
-      const playHeadPosition = msToPixels(time, bpm);
+      const playHeadPosition = msToPixels(time, pixelsPerBeat, canvasBpm);
       // const convertedTime = (bpm / 60000) * time;
       // const playHeadPosition = convertedTime * pixelsPerBeat;
 
@@ -200,7 +203,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
         }
       }
     },
-    [bpm, events, triggers]
+    [events, triggers]
   );
 
   const handleTimeSet = useCallback(

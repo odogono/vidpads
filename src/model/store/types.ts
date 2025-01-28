@@ -200,6 +200,7 @@ export type AddSequencerEventAction = {
   padId: string;
   time: number;
   duration: number;
+  quantizeStep?: number;
 };
 
 export type RemoveSequencerEventAction = {

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { GeneralDragEvent, GeneralTouchEvent, getClientPosition } from '@types';
-import { useEvents } from '../../../helpers/events';
 
 interface UseDnDProps {
   id: string;
@@ -26,14 +26,16 @@ export const useDnD = ({
   const [isDraggable, setIsDraggable] = useState(false);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const [isTouched, setIsTouched] = useState(false);
+  const { isAltKeyDown } = useKeyboard();
 
   const handleDragStart = useCallback(
     (e: GeneralDragEvent) => {
       log.debug('handleDragStart');
       e.dataTransfer?.setData('text/plain', 'This text may be dragged');
+      e.dataTransfer!.dropEffect = isAltKeyDown() ? 'copy' : 'move';
       onDragStart?.(e);
     },
-    [onDragStart]
+    [onDragStart, isAltKeyDown]
   );
 
   const handleDragEnd = useCallback(

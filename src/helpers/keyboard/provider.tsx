@@ -181,6 +181,15 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
     isKeyDown('ShiftLeft') || isKeyDown('ShiftRight');
   const isShiftKeyUp = () => isKeyUp('ShiftLeft') || isKeyUp('ShiftRight');
 
+  const isAltKeyDown = () => isKeyDown('AltLeft') || isKeyDown('AltRight');
+  const isAltKeyUp = () => isKeyUp('AltLeft') || isKeyUp('AltRight');
+  const isCtrlKeyDown = () =>
+    isKeyDown('ControlLeft') || isKeyDown('ControlRight');
+  const isCtrlKeyUp = () => isKeyUp('ControlLeft') || isKeyUp('ControlRight');
+
+  const isMetaKeyDown = () => isKeyDown('MetaLeft') || isKeyDown('MetaRight');
+  const isMetaKeyUp = () => isKeyUp('MetaLeft') || isKeyUp('MetaRight');
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -204,6 +213,12 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
         isKeyUp,
         isShiftKeyDown,
         isShiftKeyUp,
+        isAltKeyDown,
+        isAltKeyUp,
+        isCtrlKeyDown,
+        isCtrlKeyUp,
+        isMetaKeyDown,
+        isMetaKeyUp,
         isEnabled,
         setIsEnabled
       }}

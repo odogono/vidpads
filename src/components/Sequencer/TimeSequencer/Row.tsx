@@ -3,10 +3,20 @@
 import { useCallback, useState } from 'react';
 
 import { createLog } from '@helpers/log';
-import { MIME_TYPE_PAD, MIME_TYPE_SEQ_EVENT } from '@hooks/usePadDnD/constants';
+import {
+  MIME_TYPE_DROP_EFFECT,
+  MIME_TYPE_PAD,
+  MIME_TYPE_SEQ_EVENT
+} from '@hooks/usePadDnD/constants';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { useStore } from '@model/store/useStore';
 import { SequencerEvent } from '@model/types';
-import { GeneralDragEvent, getClientPosition, getOffset } from '@types';
+import {
+  GeneralDragEvent,
+  Position,
+  getClientPosition,
+  getOffset
+} from '@types';
 import { Event } from './Event';
 
 export interface SequencerRowEvent extends SequencerEvent {
@@ -20,6 +30,12 @@ interface RowProps {
   rowIndex: number;
   events: SequencerRowEvent[];
   onTap: (padId: string, x: number) => void;
+  onEventDrop: (
+    sourceEvent: SequencerEvent,
+    rowPadId: string,
+    pos: Position,
+    dropEffect: string
+  ) => void;
   // length: number;
   // stepWidth: number;
   // onTap: (padId: string, columnIndex: number) => void;
@@ -28,15 +44,29 @@ interface RowProps {
 
 const log = createLog('sequencer/row');
 
-export const Row = ({ padId, rowIndex, events, onTap }: RowProps) => {
+export const Row = ({
+  padId,
+  rowIndex,
+  events,
+  onTap,
+  onEventDrop
+}: RowProps) => {
   const id = `seq-row-${padId}`;
 
-  const handleDrop = useCallback((e: GeneralDragEvent) => {
-    const data = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
-    if (data) {
-      log.debug('handleDrop', data, e.dataTransfer?.dropEffect);
-    }
-  }, []);
+  const handleDrop = useCallback(
+    (e: GeneralDragEvent) => {
+      const data = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
+      const dropEffect = e.dataTransfer?.getData(MIME_TYPE_DROP_EFFECT);
+      log.debug('handleDrop', id, data, dropEffect);
+      if (data) {
+        const { x, y } = getOffset(e);
+        const event = JSON.parse(data);
+
+        onEventDrop(event, padId, { x, y }, dropEffect ?? 'move');
+      }
+    },
+    [id, onEventDrop, padId]
+  );
 
   const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
     usePadDnD(id);
@@ -46,7 +76,7 @@ export const Row = ({ padId, rowIndex, events, onTap }: RowProps) => {
       const { offsetX } = e.nativeEvent;
       // log.debug('tap', padId, rowIndex, { offsetX });
 
-      onTap(padId, offsetX);
+      // onTap(padId, offsetX);
     },
     [padId, onTap]
   );
