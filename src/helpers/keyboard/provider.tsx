@@ -35,7 +35,7 @@ type EventMap = {
 const EVENT_MAP: EventMap = {
   Escape: {
     event: 'player:stop-all',
-    args: { url: '', padId: '', time: 0, all: true }
+    args: undefined
   },
   Space: {
     event: 'seq:play-toggle'
@@ -137,15 +137,6 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
         events.emit(event, args);
         return;
       }
-
-      // if (code === 'Escape') {
-      //   events.emit('player:stop-all', {
-      //     url: '',
-      //     padId: '',
-      //     time: 0,
-      //     all: true
-      //   });
-      // }
     },
     [events, isEnabled]
   );

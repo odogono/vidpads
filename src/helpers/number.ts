@@ -1,3 +1,5 @@
+import { Position, Rect } from '@types';
+
 export const roundNumberToDecimalPlaces = (
   number: number,
   places: number = 3
@@ -9,4 +11,13 @@ export const roundNumberToDecimalPlaces = (
 export const safeParseInt = (value: string, defaultTo: number = -1): number => {
   const parsed = parseInt(value, 10);
   return isNaN(parsed) ? defaultTo : parsed;
+};
+
+export const isPointInRect = (point: Position, rect: Rect) => {
+  return (
+    point.x >= rect.x &&
+    point.x <= rect.x + rect.width &&
+    point.y >= rect.y &&
+    point.y <= rect.y + rect.height
+  );
 };

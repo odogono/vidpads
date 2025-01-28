@@ -1,5 +1,6 @@
 import { createLog } from '@helpers/log';
 import {
+  createEvent,
   getIntersectingEvents,
   joinEvents,
   mergeEvents,
@@ -8,6 +9,7 @@ import {
 } from '@model/sequencerEvent';
 import {
   AddSequencerEventAction,
+  MoveSequencerEventsAction,
   RemoveSequencerEventAction,
   SelectSequencerEventsAction,
   SetSelectedSeqEventIdAction,
@@ -37,14 +39,19 @@ export const toggleSequencerEvent = (
   event: ToggleSequencerEventAction
 ): StoreContext => {
   const { padId, time, duration } = event;
+  // log.debug('toggleSequencerEvent', { padId, time, duration });
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
-  const existingEventIndex = events.findIndex(
-    (e) => e.padId === padId && e.time === time
-  );
-  if (existingEventIndex !== -1) {
-    const newEvents = events.filter((e, index) => index !== existingEventIndex);
+  const intersectingEvents = getIntersectingEvents(events, time, duration, [
+    padId
+  ]);
+
+  // log.debug('toggleSequencerEvent', { intersectingEvents });
+
+  if (intersectingEvents.length > 0) {
+    // const newEvents = events.filter((e, index) => index !== existingEventIndex);
+    const newEvents = removeEvents(events, ...intersectingEvents);
 
     return update(context, {
       sequencer: {
@@ -54,11 +61,14 @@ export const toggleSequencerEvent = (
     });
   }
 
+  const id = events.length;
   return update(context, {
     sequencer: {
       ...sequencer,
       // todo - better indexing by time
-      events: [...events, { padId, time, duration }]
+      events: [...events, { padId, time, duration, id }].toSorted(
+        (a, b) => a.time - b.time
+      )
     }
   });
 };
@@ -71,7 +81,10 @@ export const addSequencerEvent = (
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
-  const { time, duration } = quantizeEvents([action], quantizeStep)[0];
+  const { time, duration } = quantizeEvents(
+    [createEvent(action)],
+    quantizeStep
+  )[0];
 
   const intersectingEvents = getIntersectingEvents(events, time, duration, [
     padId
@@ -79,9 +92,10 @@ export const addSequencerEvent = (
 
   // if no intersecting events, just add the new event
   if (!intersectingEvents.length) {
-    const newEvents = [...events, { padId, time, duration }].toSorted(
-      (a, b) => a.time - b.time
-    );
+    const newEvents = [
+      ...events,
+      createEvent({ padId, time, duration })
+    ].toSorted((a, b) => a.time - b.time);
     return update(context, {
       sequencer: {
         ...sequencer,
@@ -95,7 +109,7 @@ export const addSequencerEvent = (
 
   // join the new event with the intersecting events
   const joinedEvent = joinEvents(
-    ...[{ padId, time, duration }, ...intersectingEvents]
+    ...[createEvent(action), ...intersectingEvents]
   );
 
   if (joinedEvent) {
@@ -127,7 +141,15 @@ export const removeSequencerEvent = (
 };
 
 export const clearSequencerEvents = (context: StoreContext): StoreContext => {
-  return update(context, { sequencer: { ...context.sequencer, events: [] } });
+  const sequencer = context.sequencer ?? {};
+  const events = sequencer?.events ?? [];
+
+  const selectedEvents = events.filter((evt) => evt.isSelected);
+
+  const newEvents =
+    selectedEvents.length > 0 ? removeEvents(events, ...selectedEvents) : [];
+
+  return update(context, { sequencer: { ...sequencer, events: newEvents } });
 };
 
 export const selectSequencerEvents = (
@@ -158,4 +180,27 @@ export const selectSequencerEvents = (
   const mergedEvents = mergeEvents(...selectedEvents, ...deSelectedEvents);
 
   return update(context, { sequencer: { ...sequencer, events: mergedEvents } });
+};
+
+export const moveSequencerEvents = (
+  context: StoreContext,
+  action: MoveSequencerEventsAction
+): StoreContext => {
+  const { timeDelta } = action;
+  const sequencer = context.sequencer ?? {};
+  const events = sequencer?.events ?? [];
+
+  const selectedEvents = events.filter((evt) => evt.isSelected);
+
+  const movedEvents = selectedEvents.map((evt) => ({
+    ...evt,
+    time: Math.max(0, evt.time + timeDelta)
+  }));
+
+  log.debug('moveSequencerEvents moved', movedEvents.length);
+  const newEvents = mergeEvents(...movedEvents, ...events);
+
+  log.debug('moveSequencerEvents newEvents', newEvents.length);
+
+  return update(context, { sequencer: { ...sequencer, events: newEvents } });
 };

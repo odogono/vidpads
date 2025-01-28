@@ -216,6 +216,11 @@ export type SelectSequencerEventsAction = {
   duration: number;
 };
 
+export type MoveSequencerEventsAction = {
+  type: 'moveSequencerEvents';
+  timeDelta: number;
+};
+
 export type SetSelectedSeqEventIdAction = {
   type: 'setSelectedSeqEventId';
   eventId: string | null;
@@ -252,7 +257,8 @@ export type Actions =
   | AddSequencerEventAction
   | RemoveSequencerEventAction
   | SetSelectedSeqEventIdAction
-  | SelectSequencerEventsAction;
+  | SelectSequencerEventsAction
+  | MoveSequencerEventsAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

@@ -16,10 +16,8 @@ export const useSequencer = () => {
 
   const events =
     useSelector(store, (state) => state.context.sequencer?.events) ?? [];
-
-  const selectedEvents = useMemo(() => {
-    return events.filter((e) => e.isSelected);
-  }, [events]);
+  const selectedEvents = events.filter((e) => e.isSelected);
+  const selectedEventIds = selectedEvents.map((e) => e.id).join(',');
 
   const setBpm = useCallback(
     (bpm: number) => {
@@ -83,6 +81,13 @@ export const useSequencer = () => {
     [store]
   );
 
+  const moveEvents = useCallback(
+    (timeDelta: number) => {
+      store.send({ type: 'moveSequencerEvents', timeDelta });
+    },
+    [store]
+  );
+
   return {
     bpm,
     events,
@@ -94,6 +99,8 @@ export const useSequencer = () => {
     addEvent,
     removeEvent,
     selectEvents,
-    selectedEvents
+    selectedEvents,
+    selectedEventIds,
+    moveEvents
   };
 };

@@ -16,7 +16,15 @@ export { applyTrimToPad } from './applyTrimToPad';
 export { applyVolumeToPad } from './applyVolumeToPad';
 export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';
-export * from './sequencerEvents';
+export {
+  setSelectedSeqEventId,
+  toggleSequencerEvent,
+  addSequencerEvent,
+  clearSequencerEvents,
+  removeSequencerEvent,
+  moveSequencerEvents,
+  selectSequencerEvents
+} from './sequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';
 export { initialiseStore } from './initialiseStore';

@@ -24,7 +24,7 @@ interface RowProps {
   padId: string;
   rowIndex: number;
   events: SequencerRowEvent[];
-  onTap: (padId: string, x: number) => void;
+  onTap?: (padId: string, x: number) => void;
   onEventDrop: (
     sourceEvent: SequencerEvent,
     rowPadId: string,
@@ -101,11 +101,7 @@ export const Row = ({
       }}
     >
       {events.map((event) => (
-        <Event
-          key={`event-${padId}-${event.x}`}
-          {...event}
-          onTap={handleEventTap}
-        />
+        <Event key={`evt-${event.id}`} {...event} onTap={handleEventTap} />
       ))}
     </div>
   );

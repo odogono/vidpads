@@ -54,7 +54,7 @@ export type EventEmitterEvents = {
   'player:stopped': PlayerStopped;
   'player:time-update': PlayerTimeUpdate;
 
-  'player:stop-all': PlayerStop;
+  'player:stop-all': undefined;
 
   'player:set-volume': PlayerSetVolume;
   'player:set-playback-rate': PlayerSetPlaybackRate;

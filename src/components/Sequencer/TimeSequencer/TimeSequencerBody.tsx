@@ -8,6 +8,7 @@ import { useSequencer } from '@model/hooks/useSequencer';
 import { getPadInterval } from '@model/pad';
 import { Interval, Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
+import { quantizeSeconds } from '../../../model/sequencerEvent';
 import { PlayHead } from '../PlayHead';
 import { Marquee } from './Marquee';
 import { Row } from './Row';
@@ -29,20 +30,37 @@ const pixelsToMs = (pixels: number, pixelsPerBeat: number, bpm: number) => {
   return (beats * 60000) / bpm;
 };
 
+const pixelsToSeconds = (
+  pixels: number,
+  pixelsPerBeat: number,
+  bpm: number
+) => {
+  return pixelsToMs(pixels, pixelsPerBeat, bpm) / 1000;
+};
+
 const msToPixels = (ms: number, pixelsPerBeat: number, bpm: number) => {
   const beats = (bpm / 60000) * ms;
   return beats * pixelsPerBeat;
 };
 
+const secondsToPixels = (
+  seconds: number,
+  pixelsPerBeat: number,
+  bpm: number
+) => {
+  return msToPixels(seconds * 1000, pixelsPerBeat, bpm);
+};
+
 export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
+  const gridRef = useRef<HTMLDivElement>(null);
   const padCount = pads.length;
 
   // at 60 bpm, 1 beat is one second
   const pixelsPerBeat = 16;
   const canvasBpm = 60;
 
-  const timelineDurationInPixels = msToPixels(
-    180 * 1000,
+  const timelineDurationInPixels = secondsToPixels(
+    180,
     pixelsPerBeat,
     canvasBpm
   );
@@ -52,48 +70,120 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
     bpm,
     events: sequencerEvents,
     toggleEvent,
-    timeToStep,
+    moveEvents,
     addEvent,
     removeEvent,
     selectEvents,
-    selectedEvents
+    selectedEvents,
+    selectedEventIds
   } = useSequencer();
 
-  // Add ref for the grid container
-  const gridRef = useRef<HTMLDivElement>(null);
+  const selectedEventsRect = useMemo(() => {
+    if (!gridRef.current) return { x: 0, y: 0, width: 0, height: 0 };
+
+    const gridHeight = gridRef.current.clientHeight;
+
+    const totalFr = 1 + padCount + 0.2;
+    const rowHeight = gridHeight / totalFr;
+
+    const { minX, minY, maxX, maxY } = selectedEvents.reduce(
+      (acc, e) => {
+        const { time, duration } = e;
+        const x = secondsToPixels(time, pixelsPerBeat, canvasBpm);
+        const width = secondsToPixels(duration, pixelsPerBeat, canvasBpm);
+
+        const y = rowHeight * Number(e.padId.substring(1));
+        const height = rowHeight;
+
+        acc.minX = Math.min(acc.minX, x);
+        acc.minY = Math.min(acc.minY, y);
+        acc.maxX = Math.max(acc.maxX, x + width);
+        acc.maxY = Math.max(acc.maxY, y + height);
+
+        return acc;
+      },
+      {
+        minX: Number.MAX_VALUE,
+        minY: Number.MAX_VALUE,
+        maxX: -Number.MAX_VALUE,
+        maxY: -Number.MAX_VALUE
+      }
+    );
+
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [padCount, selectedEventIds]);
+
+  useEffect(() => {
+    log.debug('TimeSequencerBody', {
+      selectedEvents: selectedEvents.map((e) => e.id),
+      selectedEventIds
+    });
+  }, [selectedEventIds, selectedEvents]);
 
   const handleMarqueeSelectEnd = useCallback(
-    (rect: Rect) => {
+    (rect: Rect, isFinished?: boolean) => {
+      if (!gridRef.current) return;
       const x = Math.max(0, rect.x - 10);
-      const time = pixelsToMs(x, pixelsPerBeat, canvasBpm);
-      const duration = pixelsToMs(rect.width, pixelsPerBeat, canvasBpm);
+      const time = pixelsToSeconds(x, pixelsPerBeat, canvasBpm);
+      const duration = pixelsToSeconds(rect.width, pixelsPerBeat, canvasBpm);
 
       // Get the grid container's height and calculate row height
-      if (gridRef.current) {
-        const gridHeight = gridRef.current.clientHeight;
 
-        const totalFr = 1 + padCount + 0.2;
-        const rowHeight = gridHeight / totalFr;
+      const gridHeight = gridRef.current.clientHeight;
 
-        const startRowIndex = Math.floor(rect.y / rowHeight) - 1; // -1 to account for header
-        const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1; // -1 to account for header
-        // log.debug('handleMarqueeSelectEnd', { startRowIndex, endRowIndex });
+      const totalFr = 1 + padCount + 0.2;
+      const rowHeight = gridHeight / totalFr;
 
-        const padIds = Array.from(
-          { length: endRowIndex - startRowIndex + 1 },
-          (_, index) => `a${startRowIndex + index + 1}`
-        );
+      const startRowIndex = Math.floor(rect.y / rowHeight) - 1; // -1 to account for header
+      const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1; // -1 to account for header
+      // log.debug('handleMarqueeSelectEnd', { startRowIndex, endRowIndex });
 
+      const padIds = Array.from(
+        { length: endRowIndex - startRowIndex + 1 },
+        (_, index) => `a${startRowIndex + index + 1}`
+      );
+
+      if (isFinished && rect.width <= 5 && rect.height <= 5) {
+        const quantizedStep = 0.5;
+        const quantizedTime = quantizeSeconds(time, 0.5);
+        // log.debug('toggleEvent', { padIds, time, quantizedTime });
+        toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
+      } else {
         selectEvents(padIds, time, duration);
       }
     },
-    [canvasBpm, padCount, pixelsPerBeat, selectEvents]
+    [canvasBpm, padCount, pixelsPerBeat, selectEvents, toggleEvent]
+  );
+
+  const handleMarqueeMoveUpdate = useCallback(
+    (pos: Position, isFinished?: boolean) => {
+      // convert pos to ms
+      // const x = Math.max(0, pos.x - 10);
+      const time = pixelsToSeconds(pos.x, pixelsPerBeat, canvasBpm);
+
+      log.debug('handleMarqueeMoveUpdate', pos.x, time, isFinished);
+      // set the playhead to the time
+      // setPlayHeadPosition(time);
+      if (!isFinished) {
+        moveEvents(time);
+      }
+    },
+    [moveEvents]
   );
 
   const { marqueeStart, marqueeEnd, isDragging, ...marqueeEvents } = useMarquee(
     {
       onSelectUpdate: handleMarqueeSelectEnd,
-      onSelectEnd: handleMarqueeSelectEnd
+      onMoveUpdate: handleMarqueeMoveUpdate,
+      hasSelectedEvents: selectedEventIds.length > 0,
+      selectedEventsRect
     }
   );
 
@@ -121,10 +211,11 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       return acc;
     }, [] as TriggerEvent[]);
 
-    result.sort((a, b) => a.time - b.time);
+    // result.sort((a, b) => a.time - b.time);
     // log.debug('triggers', result);
     const triggerKey = result.map((e) => e.time).join(',');
     return { triggers: result, triggerKey };
+    // todo - this calls every render
   }, [bpm, sequencerEvents]);
 
   const triggerIndex = useRef(0);
@@ -150,24 +241,24 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
     [removeEvent, bpm, addEvent]
   );
 
-  const handleRowTap = useCallback(
-    (padId: string, x: number) => {
-      // dont need to subtract gutter because its a pointer position
-      const time = pixelsToMs(x, pixelsPerBeat, bpm);
+  // const handleRowTap = useCallback(
+  //   (padId: string, x: number) => {
+  //     // dont need to subtract gutter because its a pointer position
+  //     const time = pixelsToMs(x, pixelsPerBeat, bpm);
 
-      const pad = pads.find((p) => p.id === padId);
-      const interval = getPadInterval(pad, { start: 0, end: -1 }) as Interval;
+  //     const pad = pads.find((p) => p.id === padId);
+  //     const interval = getPadInterval(pad, { start: 0, end: -1 }) as Interval;
 
-      const duration =
-        interval.end === -1 ? 1000 : (interval.end - interval.start) * 1000;
+  //     const duration =
+  //       interval.end === -1 ? 1000 : (interval.end - interval.start) * 1000;
 
-      addEvent(padId, time, duration);
+  //     addEvent(padId, time, duration);
 
-      log.debug('row tapped', padId, x, { time, duration, interval });
-      // toggleEvent(padId, ms, ms + 1);
-    },
-    [bpm, pads, addEvent]
-  );
+  //     log.debug('row tapped', padId, x, { time, duration, interval });
+  //     // toggleEvent(padId, ms, ms + 1);
+  //   },
+  //   [bpm, pads, addEvent]
+  // );
 
   const rows = useMemo(() => {
     return Array.from({ length: padCount }, (_, index) => {
@@ -175,9 +266,9 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       const rowEvents = events.map((e: SequencerEvent) => {
         const { time, duration } = e;
         // convert time to ms
-        const x = msToPixels(time, pixelsPerBeat, canvasBpm);
+        const x = secondsToPixels(time, pixelsPerBeat, canvasBpm);
         // and back to pixels so we get the scaling right
-        const width = msToPixels(duration, pixelsPerBeat, canvasBpm);
+        const width = secondsToPixels(duration, pixelsPerBeat, canvasBpm);
         const id = `seq-evt-${e.padId}-${x}`;
         return { ...e, id, x, width };
       });
@@ -186,18 +277,18 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
           key={`row-${index}`}
           rowIndex={index}
           padId={`a${index + 1}`}
-          onTap={handleRowTap}
+          // onTap={handleRowTap}
           onEventDrop={handleEventDrop}
           events={rowEvents}
         />
       );
     });
-  }, [handleEventDrop, handleRowTap, padCount, sequencerEvents]);
+  }, [handleEventDrop, padCount, sequencerEvents]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number }) => {
       const { time } = event;
-      const playHeadPosition = msToPixels(time, pixelsPerBeat, canvasBpm);
+      const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
       setPlayHeadPosition(playHeadPosition);
 
       const nextTrigger = triggers[triggerIndex.current];
@@ -215,7 +306,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
         }
       }
     },
-    [events, triggers]
+    [bpm, events, triggers]
   );
 
   const handleTimeSet = useCallback(

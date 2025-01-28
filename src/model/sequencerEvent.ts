@@ -1,5 +1,25 @@
 import { SequencerEvent } from './types';
 
+let eventIdCount = 0;
+
+export const createEvent = ({
+  padId,
+  time = 0,
+  duration = 0.1
+}: {
+  padId: string;
+  time?: number;
+  duration?: number;
+}) => {
+  const id = eventIdCount++;
+  return {
+    padId,
+    time,
+    duration,
+    id
+  };
+};
+
 export const joinEvents = (
   ...events: SequencerEvent[]
 ): SequencerEvent | undefined => {
@@ -17,11 +37,11 @@ export const joinEvents = (
     [events[0].time, events[0].time + events[0].duration]
   );
 
-  return {
+  return createEvent({
     padId,
     time,
     duration: timeEnd - time
-  };
+  });
 };
 
 export const doEventsIntersect = (
@@ -53,12 +73,13 @@ export const quantizeEvents = (
 ) => {
   return evts.map((evt) => ({
     ...evt,
-    time: Math.max(0, Math.round(evt.time / quantizeStep) * quantizeStep),
-    duration: Math.max(
-      0,
-      Math.round(evt.duration / quantizeStep) * quantizeStep
-    )
+    time: quantizeSeconds(evt.time, quantizeStep),
+    duration: quantizeSeconds(evt.duration, quantizeStep)
   }));
+};
+
+export const quantizeSeconds = (seconds: number, quantizeStep: number = 1) => {
+  return Math.max(0, Math.floor(seconds / quantizeStep) * quantizeStep);
 };
 
 export const areEventsEqual = (evtA: SequencerEvent, evtB: SequencerEvent) => {
@@ -105,14 +126,14 @@ export const removeEvents = (
  * @returns
  */
 export const mergeEvents = (...events: SequencerEvent[]): SequencerEvent[] => {
-  const eventIdMap = new Map<string, SequencerEvent>();
+  const eventIdMap = new Map<number, SequencerEvent>();
 
   events.forEach((evt) => {
-    const key = getEventKey(evt);
+    const key = evt.id;
     if (!eventIdMap.has(key)) {
       eventIdMap.set(key, evt);
     }
   });
 
-  return Array.from(eventIdMap.values());
+  return Array.from(eventIdMap.values()).toSorted((a, b) => a.time - b.time);
 };
