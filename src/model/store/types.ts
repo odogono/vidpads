@@ -209,6 +209,13 @@ export type RemoveSequencerEventAction = {
   time: number;
 };
 
+export type SelectSequencerEventsAction = {
+  type: 'selectSequencerEvents';
+  padIds: string[];
+  time: number;
+  duration: number;
+};
+
 export type SetSelectedSeqEventIdAction = {
   type: 'setSelectedSeqEventId';
   eventId: string | null;
@@ -244,7 +251,8 @@ export type Actions =
   | ClearSequencerEventsAction
   | AddSequencerEventAction
   | RemoveSequencerEventAction
-  | SetSelectedSeqEventIdAction;
+  | SetSelectedSeqEventIdAction
+  | SelectSequencerEventsAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

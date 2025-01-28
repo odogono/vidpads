@@ -1,7 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
+import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
+
+const log = createLog('sequencer/useSequencer');
 
 export const useSequencer = () => {
   const { store } = useStore();
@@ -13,6 +16,10 @@ export const useSequencer = () => {
 
   const events =
     useSelector(store, (state) => state.context.sequencer?.events) ?? [];
+
+  const selectedEvents = useMemo(() => {
+    return events.filter((e) => e.isSelected);
+  }, [events]);
 
   const setBpm = useCallback(
     (bpm: number) => {
@@ -69,6 +76,13 @@ export const useSequencer = () => {
     [store]
   );
 
+  const selectEvents = useCallback(
+    (padIds: string[], time: number, duration: number) => {
+      store.send({ type: 'selectSequencerEvents', padIds, time, duration });
+    },
+    [store]
+  );
+
   return {
     bpm,
     events,
@@ -78,6 +92,8 @@ export const useSequencer = () => {
     timeToStep,
     clearEvents,
     addEvent,
-    removeEvent
+    removeEvent,
+    selectEvents,
+    selectedEvents
   };
 };

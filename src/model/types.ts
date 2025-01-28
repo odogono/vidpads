@@ -163,4 +163,5 @@ export interface SequencerEvent {
   padId: string;
   time: number;
   duration: number;
+  isSelected?: boolean;
 }

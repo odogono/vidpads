@@ -2,7 +2,8 @@ import { SequencerEvent } from '@model/types';
 import {
   doEventsIntersect,
   getIntersectingEvents,
-  joinEvents
+  joinEvents,
+  mergeEvents
 } from '../sequencerEvent';
 
 describe('doEventsIntersect', () => {
@@ -191,5 +192,30 @@ describe('getIntersectingEvents', () => {
   it('should handle empty padIds array', () => {
     const intersecting = getIntersectingEvents(events, 0, 12, []);
     expect(intersecting).toHaveLength(0);
+  });
+});
+
+describe('mergeEvents', () => {
+  it('should merge events', () => {
+    const events = [
+      { padId: '1', time: 0, duration: 4 },
+      { padId: '2', time: 2, duration: 4 }
+    ];
+
+    const result = mergeEvents(...events);
+    expect(result).toHaveLength(2);
+    expect(result).toContainEqual(events[0]);
+    expect(result).toContainEqual(events[1]);
+  });
+
+  it('should merge identical events', () => {
+    const events = [
+      { padId: '1', time: 0, duration: 4 },
+      { padId: '1', time: 0, duration: 4 }
+    ];
+
+    const result = mergeEvents(...events);
+    expect(result).toHaveLength(1);
+    expect(result).toContainEqual(events[0]);
   });
 });

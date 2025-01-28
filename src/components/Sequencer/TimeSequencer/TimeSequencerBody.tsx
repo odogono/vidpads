@@ -7,9 +7,11 @@ import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { getPadInterval } from '@model/pad';
 import { Interval, Pad, SequencerEvent } from '@model/types';
-import { Position } from '../../../types';
+import { Position, Rect } from '@types';
 import { PlayHead } from '../PlayHead';
+import { Marquee } from './Marquee';
 import { Row } from './Row';
+import { useMarquee } from './useMarquee';
 
 const log = createLog('TimeSequencerBody');
 
@@ -33,6 +35,18 @@ const msToPixels = (ms: number, pixelsPerBeat: number, bpm: number) => {
 };
 
 export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
+  const padCount = pads.length;
+
+  // at 60 bpm, 1 beat is one second
+  const pixelsPerBeat = 16;
+  const canvasBpm = 60;
+
+  const timelineDurationInPixels = msToPixels(
+    180 * 1000,
+    pixelsPerBeat,
+    canvasBpm
+  );
+
   const events = useEvents();
   const {
     bpm,
@@ -40,36 +54,51 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
     toggleEvent,
     timeToStep,
     addEvent,
-    removeEvent
+    removeEvent,
+    selectEvents,
+    selectedEvents
   } = useSequencer();
 
-  const padCount = pads.length;
+  // Add ref for the grid container
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  // at 60 bpm, 1 beat is one second
-  const pixelsPerBeat = 16;
+  const handleMarqueeSelectEnd = useCallback(
+    (rect: Rect) => {
+      const x = Math.max(0, rect.x - 10);
+      const time = pixelsToMs(x, pixelsPerBeat, canvasBpm);
+      const duration = pixelsToMs(rect.width, pixelsPerBeat, canvasBpm);
 
-  const canvasBpm = 60;
+      // Get the grid container's height and calculate row height
+      if (gridRef.current) {
+        const gridHeight = gridRef.current.clientHeight;
 
-  // const pixelsToMs = useCallback(
-  //   (x: number) => {
-  //     const beats = x / pixelsPerBeat;
-  //     return (beats * 60000) / bpm;
-  //   },
-  //   [bpm, pixelsPerBeat]
-  // );
+        const totalFr = 1 + padCount + 0.2;
+        const rowHeight = gridHeight / totalFr;
 
-  // const msToPixels = useCallback(
-  //   (ms: number) => {
-  //     const beats = (bpm / 60000) * ms;
-  //     return beats * pixelsPerBeat;
-  //   },
-  //   [bpm, pixelsPerBeat]
-  // );
+        const startRowIndex = Math.floor(rect.y / rowHeight) - 1; // -1 to account for header
+        const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1; // -1 to account for header
+        // log.debug('handleMarqueeSelectEnd', { startRowIndex, endRowIndex });
 
-  const timelineDurationInPixels = msToPixels(
-    180 * 1000,
-    pixelsPerBeat,
-    canvasBpm
+        const padIds = Array.from(
+          { length: endRowIndex - startRowIndex + 1 },
+          (_, index) => `a${startRowIndex + index + 1}`
+        );
+        // log.debug(
+        //   'handleMarqueeSelectEnd',
+        //   { startRowIndex, endRowIndex },
+        //   padIds
+        // );
+
+        selectEvents(padIds, time, duration);
+      }
+    },
+    [canvasBpm, padCount, pixelsPerBeat, selectEvents]
+  );
+
+  const { marqueeStart, marqueeEnd, isDragging, ...marqueeEvents } = useMarquee(
+    {
+      onSelectEnd: handleMarqueeSelectEnd
+    }
   );
 
   // const stepWidth = 40;
@@ -167,26 +196,13 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
         />
       );
     });
-  }, [handleRowTap, padCount, sequencerEvents]);
+  }, [handleEventDrop, handleRowTap, padCount, sequencerEvents]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number }) => {
       const { time } = event;
-
-      // convert time in milliseconds to bpm
       const playHeadPosition = msToPixels(time, pixelsPerBeat, canvasBpm);
-      // const convertedTime = (bpm / 60000) * time;
-      // const playHeadPosition = convertedTime * pixelsPerBeat;
-
-      // const beatLength = pixelsPerBeat bpm / 6000;
-
-      // const stepPosition = timeToStep(time);
       setPlayHeadPosition(playHeadPosition);
-
-      // log.debug('handleTimeUpdate', {
-      //   time,
-      //   convertedTime
-      // });
 
       const nextTrigger = triggers[triggerIndex.current];
       if (nextTrigger) {
@@ -243,15 +259,17 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       style={{ width: timelineDurationInPixels }}
     >
       <PlayHead position={playHeadPosition} />
+      <Marquee start={marqueeStart} end={marqueeEnd} isDragging={isDragging} />
       <div
-        className='grid grid-cols-2 w-full h-full '
+        ref={gridRef}
+        className='vo-seq-grid grid grid-cols-2 w-full h-full'
         style={{
           gridTemplateColumns: `10px 1fr`,
-          gridTemplateRows: `1fr repeat(${padCount}, 1fr) 0.2fr`
+          gridTemplateRows: `1fr repeat(${padCount}, 1fr) 0.2fr` // if this changes, then update totalFr
         }}
+        {...marqueeEvents}
       >
         <Header pixelsPerBeat={pixelsPerBeat} />
-
         {rows}
       </div>
     </div>

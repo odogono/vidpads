@@ -73,6 +73,10 @@ export const getEventMax = (evtA: SequencerEvent, evtB: SequencerEvent) => {
   return evtA.time >= evtB.time ? evtA : evtB;
 };
 
+export const getEventKey = (evt: SequencerEvent) => {
+  return `${evt.padId}-${evt.time}`;
+};
+
 export const getIntersectingEvents = (
   evts: SequencerEvent[],
   time: number,
@@ -93,4 +97,22 @@ export const removeEvents = (
   ...events: SequencerEvent[]
 ) => {
   return from.filter((evt) => !events.includes(evt));
+};
+
+/**
+ * Combines two arrays of events into a single non-duplicate array
+ * @param events
+ * @returns
+ */
+export const mergeEvents = (...events: SequencerEvent[]): SequencerEvent[] => {
+  const eventIdMap = new Map<string, SequencerEvent>();
+
+  events.forEach((evt) => {
+    const key = getEventKey(evt);
+    if (!eventIdMap.has(key)) {
+      eventIdMap.set(key, evt);
+    }
+  });
+
+  return Array.from(eventIdMap.values());
 };
