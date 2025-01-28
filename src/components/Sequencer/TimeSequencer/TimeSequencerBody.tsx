@@ -83,11 +83,6 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
           { length: endRowIndex - startRowIndex + 1 },
           (_, index) => `a${startRowIndex + index + 1}`
         );
-        // log.debug(
-        //   'handleMarqueeSelectEnd',
-        //   { startRowIndex, endRowIndex },
-        //   padIds
-        // );
 
         selectEvents(padIds, time, duration);
       }
@@ -97,6 +92,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
 
   const { marqueeStart, marqueeEnd, isDragging, ...marqueeEvents } = useMarquee(
     {
+      onSelectUpdate: handleMarqueeSelectEnd,
       onSelectEnd: handleMarqueeSelectEnd
     }
   );

@@ -3,15 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
-import { Rect, getOffsetPosition } from '@types';
+import { Position, Rect, getOffsetPosition } from '@types';
 
 const log = createLog('useMarquee');
 
 interface UseMarqueeProps {
-  onSelectEnd: (rect: Rect) => void;
+  onSelectUpdate?: (rect: Rect) => void;
+  onSelectEnd?: (rect: Rect) => void;
 }
 
-export const useMarquee = ({ onSelectEnd }: UseMarqueeProps) => {
+export const useMarquee = ({
+  onSelectUpdate,
+  onSelectEnd
+}: UseMarqueeProps) => {
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const [endPosition, setEndPosition] = useState({ x: 0, y: 0 });
   const [isTouched, setIsTouched] = useState(false);
@@ -38,9 +42,13 @@ export const useMarquee = ({ onSelectEnd }: UseMarqueeProps) => {
 
       if (isDragging) {
         setEndPosition({ x, y });
+
+        if (onSelectUpdate) {
+          onSelectUpdate(positionsToRect(startPosition, { x, y }));
+        }
       }
     },
-    [isDragging, isTouched, startPosition.x, startPosition.y]
+    [isDragging, isTouched, onSelectUpdate, startPosition]
   );
 
   const handleTouchDown = useCallback(
@@ -64,17 +72,9 @@ export const useMarquee = ({ onSelectEnd }: UseMarqueeProps) => {
       setIsTouched(false);
       setIsDragging(false);
 
-      const x = Math.max(0, Math.min(startPosition.x, endPosition.x));
-      const y = Math.max(0, Math.min(startPosition.y, endPosition.y));
-      const width = Math.abs(endPosition.x - startPosition.x);
-      const height = Math.abs(endPosition.y - startPosition.y);
-
-      onSelectEnd({
-        x,
-        y,
-        width,
-        height
-      });
+      if (onSelectEnd) {
+        onSelectEnd(positionsToRect(startPosition, endPosition));
+      }
     },
     [startPosition, endPosition, onSelectEnd]
   );
@@ -90,4 +90,12 @@ export const useMarquee = ({ onSelectEnd }: UseMarqueeProps) => {
     // onTouchMove: handleTouchMove,
     // onTouchEnd: handleTouchUp
   };
+};
+
+const positionsToRect = (start: Position, end: Position) => {
+  const x = Math.min(start.x, end.x);
+  const y = Math.min(start.y, end.y);
+  const width = Math.abs(end.x - start.x);
+  const height = Math.abs(end.y - start.y);
+  return { x, y, width, height };
 };
