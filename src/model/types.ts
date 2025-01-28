@@ -160,6 +160,7 @@ export interface ProjectCreatedEvent {
 }
 
 export interface SequencerEvent {
+  id: number;
   padId: string;
   time: number;
   duration: number;

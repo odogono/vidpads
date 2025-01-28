@@ -158,7 +158,7 @@ export const useSequencerStore = () => {
     store.send({ type: 'timeUpdate', time: totalElapsedTime });
 
     events.emit('seq:time-update', {
-      time: totalElapsedTime
+      time: totalElapsedTime / 1000
     });
 
     // log.debug('updateTime', time);
@@ -247,7 +247,8 @@ export const useSequencerStore = () => {
 
   const handleStop = useCallback(() => {
     store.send({ type: 'stop' });
-  }, [store]);
+    events.emit('player:stop-all');
+  }, [store, events]);
 
   const handleRecord = useCallback(() => {
     store.send({ type: 'record' });
