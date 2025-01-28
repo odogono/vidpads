@@ -48,6 +48,7 @@ export const Event = (props: SequencerEventProps) => {
       onDragStart(e, id, MIME_TYPE_SEQ_EVENT);
       const data = omit(props, 'onTap', 'x', 'width');
       e.dataTransfer?.setData(MIME_TYPE_SEQ_EVENT, JSON.stringify(data));
+      e.dataTransfer!.dropEffect = 'copy';
     },
     [id, onDragStart, props]
   );
@@ -64,13 +65,13 @@ export const Event = (props: SequencerEventProps) => {
     onDragEnd: handleDragEnd
   });
 
-  const handleDrop = useCallback(
-    (e: GeneralDragEvent) => {
-      log.debug('handleDrop', id);
-      onDrop(e, id);
-    },
-    [onDrop, id]
-  );
+  // const handleDrop = useCallback(
+  //   (e: GeneralDragEvent) => {
+  //     // log.debug('handleDrop', id);
+  //     onDrop(e, id);
+  //   },
+  //   [onDrop, id]
+  // );
 
   const dragProps = {
     // Native drag and drop handlers
@@ -78,8 +79,8 @@ export const Event = (props: SequencerEventProps) => {
     onDragStart: handleDragStart,
     onDragEnd: handleDragEnd,
     onDragOver: (e: React.DragEvent<HTMLDivElement>) => onDragOver(e, id),
-    onDragLeave: () => onDragLeave(id),
-    onDrop: handleDrop
+    onDragLeave: () => onDragLeave(id)
+    // onDrop: handleDrop
   };
 
   return (

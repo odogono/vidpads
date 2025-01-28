@@ -8,6 +8,12 @@ export interface KeyboardContextType {
   isKeyUp: (key: string) => boolean;
   isShiftKeyDown: () => boolean;
   isShiftKeyUp: () => boolean;
+  isAltKeyDown: () => boolean;
+  isAltKeyUp: () => boolean;
+  isCtrlKeyDown: () => boolean;
+  isCtrlKeyUp: () => boolean;
+  isMetaKeyDown: () => boolean;
+  isMetaKeyUp: () => boolean;
   isEnabled: boolean;
   setIsEnabled: (enabled: boolean) => void;
 }

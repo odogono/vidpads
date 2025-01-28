@@ -1,4 +1,10 @@
 import {
+  getIntersectingEvents,
+  joinEvents,
+  quantizeEvents,
+  removeEvents
+} from '@model/sequencerEvent';
+import {
   AddSequencerEventAction,
   RemoveSequencerEventAction,
   StoreContext,
@@ -41,14 +47,45 @@ export const addSequencerEvent = (
   context: StoreContext,
   action: AddSequencerEventAction
 ): StoreContext => {
-  const { padId, time, duration } = action;
+  const { padId, quantizeStep = 1 } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
+
+  const { time, duration } = quantizeEvents([action], quantizeStep)[0];
+
+  const intersectingEvents = getIntersectingEvents(events, time, duration, [
+    padId
+  ]);
+
+  // if no intersecting events, just add the new event
+  if (!intersectingEvents.length) {
+    const newEvents = [...events, { padId, time, duration }].toSorted(
+      (a, b) => a.time - b.time
+    );
+    return update(context, {
+      sequencer: {
+        ...sequencer,
+        events: newEvents
+      }
+    });
+  }
+
+  // remove the intersecting events
+  const newEvents = removeEvents(events, ...intersectingEvents);
+
+  // join the new event with the intersecting events
+  const joinedEvent = joinEvents(
+    ...[{ padId, time, duration }, ...intersectingEvents]
+  );
+
+  if (joinedEvent) {
+    newEvents.push(joinedEvent);
+  }
 
   return update(context, {
     sequencer: {
       ...sequencer,
-      events: [...events, { padId, time, duration }]
+      events: newEvents.toSorted((a, b) => a.time - b.time)
     }
   });
 };
