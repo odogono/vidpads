@@ -9,8 +9,6 @@ interface MarqueeProps {
   isDragging: boolean;
 }
 
-const log = createLog('sequencer/marquee');
-
 export const Marquee = ({ start, end, isDragging }: MarqueeProps) => {
   const minX = Math.min(start.x, end.x);
   const maxX = Math.max(start.x, end.x);
@@ -32,7 +30,7 @@ export const Marquee = ({ start, end, isDragging }: MarqueeProps) => {
         top,
         width,
         height,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+        border: '2px dashed rgba(255, 255, 255, 0.5)'
       }}
     />
   );
