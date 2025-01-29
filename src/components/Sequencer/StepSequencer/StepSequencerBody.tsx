@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
-import { PlayHead } from '../PlayHead';
+import { PlayHead } from '../TimeSequencer/components/PlayHead';
 
 const log = createLog('StepSequencerBody');
 

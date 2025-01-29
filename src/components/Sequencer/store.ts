@@ -153,7 +153,8 @@ const onHandlers = {
       playStartedAt: performance.now()
     };
   },
-  timeUpdate: (context: SeqStoreContext, action: TimeUpdateAction) => {
+  timeUpdate: (context: SeqStoreContext) => {
+    // todo - not used
     return context;
   },
   setEndTime: (context: SeqStoreContext, action: SetEndTimeEvent) => {
