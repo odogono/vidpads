@@ -10,6 +10,7 @@ import { Interval, Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
 import { quantizeSeconds } from '../../../model/sequencerEvent';
 import { PlayHead } from '../PlayHead';
+import { Header } from './Header';
 import { Marquee } from './Marquee';
 import { Row } from './Row';
 import { useMarquee } from './useMarquee';
@@ -329,6 +330,17 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
     [triggers]
   );
 
+  const handlePlayHeadMove = useCallback(
+    (pos: Position) => {
+      const time = pixelsToSeconds(pos.x, pixelsPerBeat, bpm);
+      // events.emit('seq:set-time', { time });
+      // const newX = secondsToPixels(time, pixelsPerBeat, bpm);
+      // log.debug('handlePlayHeadMove', pos.x, time, newX);
+      // setPlayHeadPosition(pos.x);
+    },
+    [pixelsPerBeat, bpm]
+  );
+
   useEffect(() => {
     events.on('seq:time-set', handleTimeSet);
     events.on('seq:time-update', handleTimeUpdate);
@@ -354,52 +366,11 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
           gridTemplateColumns: `10px 1fr`,
           gridTemplateRows: `1fr repeat(${padCount}, 1fr) 0.2fr` // if this changes, then update totalFr
         }}
-        {...marqueeEvents}
+        // {...marqueeEvents}
       >
-        <Header pixelsPerBeat={pixelsPerBeat} />
+        <Header pixelsPerBeat={pixelsPerBeat} onTap={handlePlayHeadMove} />
         {rows}
       </div>
-    </div>
-  );
-};
-
-interface HeaderProps {
-  pixelsPerBeat: number;
-}
-
-const Header = ({ pixelsPerBeat }: HeaderProps) => {
-  return (
-    <div
-      className='vo-seq-header relative'
-      style={{
-        gridColumn: '2/2',
-        backgroundSize: 'auto 30%',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'bottom',
-        backgroundImage: `repeating-linear-gradient(
-        to right,
-      transparent 0px,
-      transparent ${pixelsPerBeat - 1}px,
-      #aaa ${pixelsPerBeat - 1}px,
-      #aaa ${pixelsPerBeat}px
-        )`
-      }}
-    >
-      <div
-        className='absolute top-0 left-0 right-0 bottom-0'
-        style={{
-          backgroundSize: 'auto 60%',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'bottom',
-          backgroundImage: `repeating-linear-gradient(
-            to right, 
-            transparent 0px,
-            transparent ${pixelsPerBeat * 4 - 1}px,
-            #aaa ${pixelsPerBeat * 4 - 1}px,
-            #aaa ${pixelsPerBeat * 4}px
-          )`
-        }}
-      ></div>
     </div>
   );
 };
