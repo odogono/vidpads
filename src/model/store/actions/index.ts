@@ -23,7 +23,9 @@ export {
   clearSequencerEvents,
   removeSequencerEvent,
   moveSequencerEvents,
-  selectSequencerEvents
+  selectSequencerEvents,
+  setSequencerStartTime,
+  setSequencerEndTime
 } from './sequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';

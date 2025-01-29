@@ -9,6 +9,22 @@ const log = createLog('sequencer/useSequencer');
 export const useSequencer = () => {
   const { store } = useStore();
 
+  const startTime =
+    useSelector(store, (state) => state.context.sequencer?.startTime) ?? 0;
+  const endTime =
+    useSelector(store, (state) => state.context.sequencer?.endTime) ?? 30;
+
+  const setStartTime = useCallback(
+    (startTime: number) =>
+      store.send({ type: 'setSequencerStartTime', startTime }),
+    [store]
+  );
+
+  const setEndTime = useCallback(
+    (endTime: number) => store.send({ type: 'setSequencerEndTime', endTime }),
+    [store]
+  );
+
   const bpm = useSelector(
     store,
     (state) => state.context.sequencer?.bpm ?? 120
@@ -101,6 +117,10 @@ export const useSequencer = () => {
     selectEvents,
     selectedEvents,
     selectedEventIds,
-    moveEvents
+    moveEvents,
+    startTime,
+    endTime,
+    setStartTime,
+    setEndTime
   };
 };

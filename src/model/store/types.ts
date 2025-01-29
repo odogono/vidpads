@@ -40,6 +40,8 @@ export interface StoreContextType {
     selectedEventId?: string | null;
     bpm: number;
     events: SequencerEvent[];
+    startTime: number;
+    endTime: number;
   };
 
   lastMediaUrl?: string | null;
@@ -226,6 +228,16 @@ export type SetSelectedSeqEventIdAction = {
   eventId: string | null;
 };
 
+export type SetSequencerStartTimeAction = {
+  type: 'setSequencerStartTime';
+  startTime: number;
+};
+
+export type SetSequencerEndTimeAction = {
+  type: 'setSequencerEndTime';
+  endTime: number;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdateStartTimeAction
@@ -258,7 +270,9 @@ export type Actions =
   | RemoveSequencerEventAction
   | SetSelectedSeqEventIdAction
   | SelectSequencerEventsAction
-  | MoveSequencerEventsAction;
+  | MoveSequencerEventsAction
+  | SetSequencerStartTimeAction
+  | SetSequencerEndTimeAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -279,11 +293,18 @@ export type IsEditActiveEvent = {
   isEditActive: boolean;
 };
 
+export type SequencerTimesUpdatedEvent = {
+  type: 'sequencerTimesUpdated';
+  startTime: number;
+  endTime: number;
+};
+
 export type EmittedEvents =
   | PadUpdatedEvent
   | StartTimeUpdatedEvent
   | StoreInitialisedEvent
-  | IsEditActiveEvent;
+  | IsEditActiveEvent
+  | SequencerTimesUpdatedEvent;
 
 export type Emit = { emit: (event: EmittedEvents) => void };
 

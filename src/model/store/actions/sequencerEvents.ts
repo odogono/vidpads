@@ -9,10 +9,13 @@ import {
 } from '@model/sequencerEvent';
 import {
   AddSequencerEventAction,
+  Emit,
   MoveSequencerEventsAction,
   RemoveSequencerEventAction,
   SelectSequencerEventsAction,
   SetSelectedSeqEventIdAction,
+  SetSequencerEndTimeAction,
+  SetSequencerStartTimeAction,
   StoreContext,
   ToggleSequencerEventAction
 } from '../types';
@@ -203,4 +206,46 @@ export const moveSequencerEvents = (
   log.debug('moveSequencerEvents newEvents', newEvents.length);
 
   return update(context, { sequencer: { ...sequencer, events: newEvents } });
+};
+
+export const setSequencerStartTime = (
+  context: StoreContext,
+  action: SetSequencerStartTimeAction,
+  { emit }: Emit
+): StoreContext => {
+  const { startTime } = action;
+  const value = Math.max(
+    0,
+    Math.min(startTime, context.sequencer?.endTime ?? 0)
+  );
+  emit({
+    type: 'sequencerTimesUpdated',
+    startTime: value,
+    endTime: context.sequencer?.endTime ?? 0
+  });
+  return update(context, {
+    sequencer: { ...context.sequencer, startTime: value }
+  });
+};
+
+export const setSequencerEndTime = (
+  context: StoreContext,
+  action: SetSequencerEndTimeAction,
+  { emit }: Emit
+): StoreContext => {
+  const { endTime } = action;
+  const value = Math.max(
+    0,
+    Math.max(endTime, context.sequencer?.startTime ?? 0)
+  );
+
+  emit({
+    type: 'sequencerTimesUpdated',
+    startTime: context.sequencer?.startTime ?? 0,
+    endTime: value
+  });
+
+  return update(context, {
+    sequencer: { ...context.sequencer, endTime: value }
+  });
 };
