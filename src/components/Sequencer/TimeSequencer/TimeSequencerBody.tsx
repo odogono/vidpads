@@ -60,12 +60,6 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
   const pixelsPerBeat = 16;
   const canvasBpm = 60;
 
-  const timelineDurationInPixels = secondsToPixels(
-    180,
-    pixelsPerBeat,
-    canvasBpm
-  );
-
   const events = useEvents();
   const {
     bpm,
@@ -76,8 +70,13 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
     removeEvent,
     selectEvents,
     selectedEvents,
-    selectedEventIds
+    selectedEventIds,
+    startTime,
+    endTime
   } = useSequencer();
+
+  const timelineDurationInPixels =
+    secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
 
   const selectedEventsRect = useMemo(() => {
     if (!gridRef.current) return { x: 0, y: 0, width: 0, height: 0 };
@@ -126,7 +125,8 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       selectedEvents: selectedEvents.map((e) => e.id),
       selectedEventIds
     });
-  }, [selectedEventIds, selectedEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEventIds]);
 
   const handleMarqueeSelectEnd = useCallback(
     (rect: Rect, isFinished?: boolean) => {
@@ -291,6 +291,7 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
       const { time } = event;
       const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
       setPlayHeadPosition(playHeadPosition);
+      // log.debug('handleTimeUpdate', { time, playHeadPosition, bpm });
 
       const nextTrigger = triggers[triggerIndex.current];
       if (nextTrigger) {
@@ -332,13 +333,11 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
 
   const handlePlayHeadMove = useCallback(
     (pos: Position) => {
-      const time = pixelsToSeconds(pos.x, pixelsPerBeat, bpm);
-      // events.emit('seq:set-time', { time });
-      // const newX = secondsToPixels(time, pixelsPerBeat, bpm);
-      // log.debug('handlePlayHeadMove', pos.x, time, newX);
-      // setPlayHeadPosition(pos.x);
+      const time = pixelsToMs(pos.x, pixelsPerBeat, bpm);
+      // the playhead position will be updated by a seq:time-update event
+      events.emit('seq:set-time', { time });
     },
-    [pixelsPerBeat, bpm]
+    [bpm, events]
   );
 
   useEffect(() => {
@@ -354,19 +353,19 @@ export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
 
   return (
     <div
-      className={`relative vo-seq-body h-full`}
+      className={`relative vo-seq-body h-full pointer-events-none`}
       style={{ width: timelineDurationInPixels }}
     >
-      <PlayHead position={playHeadPosition} />
+      <PlayHead position={playHeadPosition} onMove={handlePlayHeadMove} />
       <Marquee start={marqueeStart} end={marqueeEnd} isDragging={isDragging} />
       <div
         ref={gridRef}
-        className='vo-seq-grid grid grid-cols-2 w-full h-full'
+        className='vo-seq-grid grid grid-cols-2 w-full h-full pointer-events-auto'
         style={{
           gridTemplateColumns: `10px 1fr`,
           gridTemplateRows: `1fr repeat(${padCount}, 1fr) 0.2fr` // if this changes, then update totalFr
         }}
-        // {...marqueeEvents}
+        {...marqueeEvents}
       >
         <Header pixelsPerBeat={pixelsPerBeat} onTap={handlePlayHeadMove} />
         {rows}

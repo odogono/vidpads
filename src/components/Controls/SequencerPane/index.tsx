@@ -20,8 +20,15 @@ export const SequencerPane = () => {
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const { bpm, setBpm, clearEvents } = useSequencer();
-  const { setIsEnabled } = useKeyboard();
+  const {
+    bpm,
+    setBpm,
+    clearEvents,
+    startTime,
+    endTime,
+    setStartTime,
+    setEndTime
+  } = useSequencer();
 
   const handlePlay = useCallback(() => {
     events.emit('seq:play');
@@ -94,16 +101,24 @@ export const SequencerPane = () => {
         <OpButton label='Record' onPress={handleRecord}>
           <Circle color='#b51a00' />
         </OpButton>
+        <OpButton label='Clear' onPress={handleClear}>
+          <Trash />
+        </OpButton>
+        <OpInput
+          label='Start'
+          value={`${startTime}`}
+          onChange={(value: string) => setStartTime(Number(value))}
+        />
+        <OpInput
+          label='End'
+          value={`${endTime}`}
+          onChange={(value: string) => setEndTime(Number(value))}
+        />
         <OpInput
           label='BPM'
           value={`${bpm}`}
           onChange={(value: string) => setBpm(Number(value))}
-          onFocus={() => setIsEnabled(false)}
-          onBlur={() => setIsEnabled(true)}
         />
-        <OpButton label='Clear' onPress={handleClear}>
-          <Trash />
-        </OpButton>
       </div>
     </>
   );

@@ -19,7 +19,9 @@ export const initialContext: StoreContextType = {
   sequencer: {
     bpm: 120,
     events: [],
-    selectedEventId: null
+    selectedEventId: null,
+    startTime: 0,
+    endTime: 30 // secs
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),

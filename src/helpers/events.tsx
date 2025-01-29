@@ -106,6 +106,12 @@ export type EventEmitterEvents = {
     time: number;
   };
   'seq:clear-events': undefined;
+  'seq:set-time': {
+    time: number;
+  };
+  'seq:set-end-time': {
+    time: number; // in secs
+  };
 };
 
 export type EventEmitter = Emitter<EventEmitterEvents>;

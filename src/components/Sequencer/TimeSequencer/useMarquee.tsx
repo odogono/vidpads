@@ -31,6 +31,11 @@ export const useMarquee = ({
 
   const handleTouchMove = useCallback(
     (e: React.PointerEvent) => {
+      // Don't handle move if interacting with playhead
+      if ((e.target as HTMLElement).closest('.vo-seq-playhead')) {
+        return;
+      }
+
       if (!isTouched) return;
       e.preventDefault();
 
@@ -86,6 +91,15 @@ export const useMarquee = ({
 
   const handleTouchDown = useCallback(
     (e: React.PointerEvent) => {
+      // Don't start marquee if clicking on playhead elements
+      if ((e.target as HTMLElement).closest('.vo-seq-header')) {
+        return;
+      }
+      log.debug(
+        'handleTouchDown',
+        (e.target as HTMLElement).closest('.vo-seq-header')
+      );
+
       e.preventDefault();
       e.currentTarget.setPointerCapture(e.pointerId);
       const pos = getOffsetPosition(e);
@@ -94,7 +108,6 @@ export const useMarquee = ({
 
       if (hasSelectedEvents && selectedEventsRect) {
         // check whether this pos is within the existing bounds
-        const rect = positionsToRect(startPosition, endPosition);
         const isIntersecting = isPointInRect(pos, selectedEventsRect);
 
         log.debug(
@@ -120,7 +133,7 @@ export const useMarquee = ({
       }
       setIsMoving(beginMoving);
     },
-    [endPosition, hasSelectedEvents, startPosition, selectedEventsRect]
+    [hasSelectedEvents, selectedEventsRect]
   );
 
   const handleTouchUp = useCallback(
@@ -160,12 +173,10 @@ export const useMarquee = ({
     marqueeStart,
     marqueeEnd,
     isDragging,
-    // onTouchStart: handleTouchDown,
     onPointerDown: handleTouchDown,
     onPointerMove: handleTouchMove,
-    onPointerUp: handleTouchUp
-    // onTouchMove: handleTouchMove,
-    // onTouchEnd: handleTouchUp
+    onPointerUp: handleTouchUp,
+    onPointerCancel: handleTouchUp
   };
 };
 

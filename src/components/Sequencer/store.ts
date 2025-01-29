@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useStore } from '@model/store/useStore';
 import { createStore as createXStateStore } from '@xstate/store';
+import { useSelector } from '@xstate/store/react';
+import { SequencerTimesUpdatedEvent } from '../../model/store/types';
 
 const log = createLog('seq/state');
 
@@ -61,18 +64,49 @@ type TimeSetEvent = {
   time: number;
 };
 
+type SetEndTimeEvent = {
+  type: 'setEndTime';
+  time: number; // in ms
+};
+
+type SetStartTimeEvent = {
+  type: 'setStartTime';
+  time: number; // in ms
+};
+
+type SetElapsedTimeEvent = {
+  type: 'setElapsedTime';
+  time: number; // in ms
+};
+
 type SeqEmittedEvents =
   | PlayStartedEvent
   | PlayStoppedEvent
   | TimeUpdateEvent
   | RecordStartedEvent
-  | TimeSetEvent;
+  | TimeSetEvent
+  | SetEndTimeEvent
+  | SetStartTimeEvent
+  | SetElapsedTimeEvent;
 type Emit = { emit: (event: SeqEmittedEvents) => void };
 
 interface SeqStoreContext {
+  // time in ms when the sequence started playing/recording
+  playStartedAt: number;
+
+  // time when the sequence starts
   startTime: number;
+
+  // time when the sequence ends
+  endTime: number;
+
+  // time elapsed since the sequence started playing/recording
   elapsedTime: number;
+
+  // whether the sequence is recording
   isRecording: boolean;
+
+  // whether the sequence is playing
   isPlaying: boolean;
 }
 
@@ -81,18 +115,18 @@ const onHandlers = {
     const { isPlaying, isRecording, elapsedTime } = context;
     if (isPlaying || isRecording) return context;
     emit({ type: 'playStarted', time: elapsedTime });
-    log.debug('play', elapsedTime);
+    log.debug('play', elapsedTime, '/', context.endTime);
     return {
       ...context,
-      startTime: performance.now(),
+      playStartedAt: performance.now(),
       isPlaying: true
     };
   },
   stop: (context: SeqStoreContext, action: StopAction, { emit }: Emit) => {
-    const { startTime, elapsedTime } = context;
-    const totalElapsedTime = elapsedTime + (performance.now() - startTime);
+    const { playStartedAt, elapsedTime } = context;
+    const totalElapsedTime = elapsedTime + (performance.now() - playStartedAt);
     emit({ type: 'playStopped', time: totalElapsedTime });
-    log.debug('stop', totalElapsedTime);
+    log.debug('stop', { totalElapsedTime });
     return {
       ...context,
       elapsedTime: totalElapsedTime,
@@ -104,23 +138,39 @@ const onHandlers = {
     emit({ type: 'recordStarted', time: context.elapsedTime });
     return {
       ...context,
-      startTime: now,
+      playStartedAt: now,
       isPlaying: false,
       isRecording: true
     };
   },
   rewind: (context: SeqStoreContext, action: RewindAction, { emit }: Emit) => {
-    // const elapsedTime = performance.now() - context.startTime;
+    // const { startTime } = context;
     emit({ type: 'timeUpdate', time: 0 });
     emit({ type: 'timeSet', time: 0 });
     return {
       ...context,
       elapsedTime: 0,
-      startTime: performance.now()
+      playStartedAt: performance.now()
     };
   },
   timeUpdate: (context: SeqStoreContext, action: TimeUpdateAction) => {
     return context;
+  },
+  setEndTime: (context: SeqStoreContext, action: SetEndTimeEvent) => {
+    log.debug('setEndTime', action.time);
+    return { ...context, endTime: action.time };
+  },
+  setStartTime: (context: SeqStoreContext, action: SetStartTimeEvent) => {
+    log.debug('setStartTime', action.time);
+    return { ...context, startTime: action.time };
+  },
+  setElapsedTime: (context: SeqStoreContext, action: SetElapsedTimeEvent) => {
+    // log.debug('setElapsedTime', action.time);
+    return {
+      ...context,
+      elapsedTime: action.time,
+      playStartedAt: performance.now()
+    };
   }
 };
 
@@ -131,7 +181,9 @@ const content = {
     emitted: {} as SeqEmittedEvents
   },
   context: {
+    playStartedAt: 0,
     startTime: 0,
+    endTime: 10000,
     elapsedTime: 0,
     isRecording: false,
     isPlaying: false
@@ -148,18 +200,40 @@ export const useSequencerStore = () => {
   const [store] = useState(() => createStore());
   const animationRef = useRef<number | null>(null);
 
-  // const time = useSelector(store, (state) => state.context.time);
+  const { store: primaryStore } = useStore();
+  const primaryStoreStartTime = useSelector(
+    primaryStore,
+    (state) => state.context.sequencer?.startTime ?? 0
+  );
+  const primaryStoreEndTime = useSelector(
+    primaryStore,
+    (state) => state.context.sequencer?.endTime ?? 0
+  );
+
+  // log.debug('primaryStoreStartTime', primaryStoreStartTime);
+  // log.debug('primaryStoreEndTime', primaryStoreEndTime);
 
   const updateTime = useCallback(() => {
+    const { playStartedAt, elapsedTime, startTime, endTime, isPlaying } =
+      store.getSnapshot().context;
+
+    if (!isPlaying) return;
     const time = performance.now();
-    const { startTime, elapsedTime } = store.getSnapshot().context;
-    const totalElapsedTime = elapsedTime + (time - startTime);
+    const totalElapsedTime = elapsedTime + (time - playStartedAt) + startTime;
 
-    store.send({ type: 'timeUpdate', time: totalElapsedTime });
-
+    // log.debug('updateTime >= endTime', {
+    //   playStartedAt,
+    //   totalElapsedTime,
+    //   elapsedTime,
+    //   endTime
+    // });
     events.emit('seq:time-update', {
       time: totalElapsedTime / 1000
     });
+
+    if (totalElapsedTime >= endTime) {
+      store.send({ type: 'stop' });
+    }
 
     // log.debug('updateTime', time);
 
@@ -177,6 +251,7 @@ export const useSequencerStore = () => {
       });
 
       animationRef.current = requestAnimationFrame(updateTime);
+      updateTime();
 
       log.debug('handlePlayStarted', event.time);
     },
@@ -223,6 +298,7 @@ export const useSequencerStore = () => {
 
   const handleTimeUpdate = useCallback(
     (event: TimeUpdateEvent) => {
+      log.debug('handleTimeUpdate', event.time);
       events.emit('seq:time-update', {
         time: event.time
       });
@@ -258,12 +334,50 @@ export const useSequencerStore = () => {
     store.send({ type: 'rewind' });
   }, [store]);
 
+  const handleSetTime = useCallback(
+    (event: { time: number }) => {
+      store.send({ type: 'setElapsedTime', time: event.time });
+      events.emit('seq:time-update', {
+        time: event.time / 1000
+      });
+    },
+    [events, store]
+  );
+
+  const handleSetEndTime = useCallback(
+    (event: { time: number }) => {
+      store.send({ type: 'setEndTime', time: event.time * 1000 });
+    },
+    [store]
+  );
+
+  const handleSequencerTimesUpdated = useCallback(
+    (event: SequencerTimesUpdatedEvent) => {
+      store.send({ type: 'setEndTime', time: event.endTime * 1000 });
+      store.send({ type: 'setStartTime', time: event.startTime * 1000 });
+    },
+    [store]
+  );
+
+  handleSequencerTimesUpdated({
+    type: 'sequencerTimesUpdated',
+    startTime: primaryStoreStartTime,
+    endTime: primaryStoreEndTime
+  });
+
   useEffect(() => {
     events.on('seq:play', handlePlay);
     events.on('seq:play-toggle', handlePlayToggle);
     events.on('seq:stop', handleStop);
     events.on('seq:record', handleRecord);
     events.on('seq:rewind', handleRewind);
+    events.on('seq:set-end-time', handleSetEndTime);
+    events.on('seq:set-time', handleSetTime);
+
+    const evtTimesUpdated = primaryStore.on(
+      'sequencerTimesUpdated',
+      handleSequencerTimesUpdated
+    );
 
     const evtPlayStarted = store.on('playStarted', handlePlayStarted);
     const evtPlayStopped = store.on('playStopped', handlePlayStopped);
@@ -272,6 +386,9 @@ export const useSequencerStore = () => {
     const evtTimeSet = store.on('timeSet', handleTimeSet);
 
     handleTimeSet({ type: 'timeSet', time: 0 });
+    events.emit('seq:time-update', {
+      time: primaryStoreStartTime
+    });
 
     return () => {
       events.off('seq:play', handlePlay);
@@ -279,11 +396,14 @@ export const useSequencerStore = () => {
       events.off('seq:stop', handleStop);
       events.off('seq:record', handleRecord);
       events.off('seq:rewind', handleRewind);
+      events.off('seq:set-end-time', handleSetEndTime);
+      events.off('seq:set-time', handleSetTime);
       evtTimeUpdate.unsubscribe();
       evtPlayStarted.unsubscribe();
       evtPlayStopped.unsubscribe();
       evtRecordStarted.unsubscribe();
       evtTimeSet.unsubscribe();
+      evtTimesUpdated.unsubscribe();
     };
   }, [
     events,
@@ -297,7 +417,13 @@ export const useSequencerStore = () => {
     handleStop,
     handleTimeUpdate,
     handleTimeSet,
-    store
+    handleSetTime,
+    store,
+    handleSetEndTime,
+    handleSequencerTimesUpdated,
+    primaryStore,
+    updateTime,
+    primaryStoreStartTime
   ]);
 
   return store;
