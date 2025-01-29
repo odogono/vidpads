@@ -14,6 +14,7 @@ import {
   RemoveSequencerEventAction,
   SelectSequencerEventsAction,
   SetSelectedEventsDurationAction,
+  SetSelectedEventsTimeAction,
   SetSelectedSeqEventIdAction,
   SetSequencerEndTimeAction,
   SetSequencerStartTimeAction,
@@ -217,7 +218,7 @@ export const moveSequencerEvents = (
   }));
 
   const quantizedEvents = isFinished
-    ? quantizeEvents(movedEvents, 16)
+    ? movedEvents //quantizeEvents(movedEvents, 16)
     : movedEvents;
 
   // log.debug('moveSequencerEvents moved', movedEvents.length);
@@ -270,6 +271,35 @@ export const setSequencerEndTime = (
   });
 };
 
+export const setSelectedEventsTime = (
+  context: StoreContext,
+  action: SetSelectedEventsTimeAction
+): StoreContext => {
+  const { time } = action;
+  const sequencer = context.sequencer ?? {};
+  const events = sequencer?.events ?? [];
+
+  const selectedEvents = events.filter((evt) => evt.isSelected);
+
+  if (selectedEvents.length === 0) {
+    return context;
+  }
+
+  // we are changing the time relatively, not absolutely
+
+  const initialTime = selectedEvents[0].time;
+  const timeDelta = time - initialTime;
+
+  const changedEvents = selectedEvents.map((evt) => ({
+    ...evt,
+    time: evt.time + timeDelta
+  }));
+
+  const newEvents = mergeEvents(...changedEvents, ...events);
+
+  return update(context, { sequencer: { ...sequencer, events: newEvents } });
+};
+
 export const setSelectedEventsDuration = (
   context: StoreContext,
   action: SetSelectedEventsDurationAction
@@ -285,12 +315,12 @@ export const setSelectedEventsDuration = (
     duration
   }));
 
-  log.debug(
-    'setSelectedEventsDuration',
-    changedEvents.length,
-    'changed duration to',
-    duration
-  );
+  // log.debug(
+  //   'setSelectedEventsDuration',
+  //   changedEvents.length,
+  //   'changed duration to',
+  //   duration
+  // );
 
   const newEvents = mergeEvents(...changedEvents, ...events);
 

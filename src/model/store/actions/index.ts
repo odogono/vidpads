@@ -26,6 +26,7 @@ export {
   selectSequencerEvents,
   setSequencerStartTime,
   setSequencerEndTime,
+  setSelectedEventsTime,
   setSelectedEventsDuration
 } from './sequencerEvents';
 export { copyPad } from './copyPad';
