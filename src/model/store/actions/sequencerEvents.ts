@@ -4,8 +4,10 @@ import {
   getIntersectingEvents,
   joinEvents,
   mergeEvents,
+  padIdToRowIndex,
   quantizeEvents,
-  removeEvents
+  removeEvents,
+  rowIndexToPadId
 } from '@model/sequencerEvent';
 import {
   AddSequencerEventAction,
@@ -23,7 +25,7 @@ import {
 } from '../types';
 import { update } from './helpers';
 
-const log = createLog('sequencer/events');
+const log = createLog('sequencer/events', ['debug']);
 
 export const setSelectedSeqEventId = (
   context: StoreContext,
@@ -181,13 +183,13 @@ export const selectSequencerEvents = (
     padIds
   );
 
-  // log.debug(
-  //   'selectSequencerEvents',
-  //   intersectingEvents.length,
-  //   `(${intersectingEvents.map((e) => e.id).join(',')})`,
-  //   'selected /',
-  //   deSelectedEvents.length
-  // );
+  log.debug(
+    'selectSequencerEvents',
+    intersectingEvents.length,
+    `(${intersectingEvents.map((e) => e.id).join(',')})`,
+    'selected /',
+    deSelectedEvents.length
+  );
 
   const selectedEvents = intersectingEvents.map((evt) => ({
     ...evt,
@@ -205,7 +207,7 @@ export const moveSequencerEvents = (
   context: StoreContext,
   action: MoveSequencerEventsAction
 ): StoreContext => {
-  const { timeDelta, isFinished } = action;
+  const { timeDelta, rowDelta, isFinished } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
@@ -213,7 +215,8 @@ export const moveSequencerEvents = (
 
   const movedEvents = selectedEvents.map((evt) => ({
     ...evt,
-    time: Math.max(0, evt.time + timeDelta)
+    time: Math.max(0, evt.time + timeDelta),
+    padId: rowIndexToPadId(Math.max(0, padIdToRowIndex(evt.padId) + rowDelta))
   }));
 
   const quantizedEvents = isFinished

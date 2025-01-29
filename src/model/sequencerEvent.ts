@@ -138,3 +138,11 @@ export const mergeEvents = (...events: SequencerEvent[]): SequencerEvent[] => {
 
   return Array.from(eventIdMap.values()).toSorted((a, b) => a.time - b.time);
 };
+
+export const padIdToRowIndex = (padId: string) => {
+  return parseInt(padId.slice(1)) - 1;
+};
+
+export const rowIndexToPadId = (rowIndex: number) => {
+  return `a${rowIndex + 1}`;
+};
