@@ -104,7 +104,7 @@ export const formatTimeStringToSeconds = (timeString: string) => {
     throw new Error('Seconds must be less than 60');
   }
   if (milliseconds >= 1000) {
-    throw new Error('Milliseconds must be less than 1000');
+    throw new Error(`Milliseconds must be less than 1000 (${timeString})`);
   }
 
   // Calculate total seconds

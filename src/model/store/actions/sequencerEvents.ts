@@ -13,6 +13,7 @@ import {
   MoveSequencerEventsAction,
   RemoveSequencerEventAction,
   SelectSequencerEventsAction,
+  SetSelectedEventsDurationAction,
   SetSelectedSeqEventIdAction,
   SetSequencerEndTimeAction,
   SetSequencerStartTimeAction,
@@ -152,6 +153,11 @@ export const clearSequencerEvents = (context: StoreContext): StoreContext => {
   const newEvents =
     selectedEvents.length > 0 ? removeEvents(events, ...selectedEvents) : [];
 
+  log.debug(
+    'clearSequencerEvents',
+    selectedEvents.length > 0 ? selectedEvents.length : events.length
+  );
+
   return update(context, { sequencer: { ...sequencer, events: newEvents } });
 };
 
@@ -175,13 +181,13 @@ export const selectSequencerEvents = (
     padIds
   );
 
-  log.debug(
-    'selectSequencerEvents',
-    intersectingEvents.length,
-    `(${intersectingEvents.map((e) => e.id).join(',')})`,
-    'selected /',
-    deSelectedEvents.length
-  );
+  // log.debug(
+  //   'selectSequencerEvents',
+  //   intersectingEvents.length,
+  //   `(${intersectingEvents.map((e) => e.id).join(',')})`,
+  //   'selected /',
+  //   deSelectedEvents.length
+  // );
 
   const selectedEvents = intersectingEvents.map((evt) => ({
     ...evt,
@@ -190,7 +196,7 @@ export const selectSequencerEvents = (
 
   const mergedEvents = mergeEvents(...selectedEvents, ...deSelectedEvents);
 
-  log.debug('selectSequencerEvents', mergedEvents.map((e) => e.id).join(','));
+  // log.debug('selectSequencerEvents', mergedEvents.map((e) => e.id).join(','));
 
   return update(context, { sequencer: { ...sequencer, events: mergedEvents } });
 };
@@ -199,7 +205,7 @@ export const moveSequencerEvents = (
   context: StoreContext,
   action: MoveSequencerEventsAction
 ): StoreContext => {
-  const { timeDelta } = action;
+  const { timeDelta, isFinished } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
@@ -210,10 +216,14 @@ export const moveSequencerEvents = (
     time: Math.max(0, evt.time + timeDelta)
   }));
 
-  log.debug('moveSequencerEvents moved', movedEvents.length);
-  const newEvents = mergeEvents(...movedEvents, ...events);
+  const quantizedEvents = isFinished
+    ? quantizeEvents(movedEvents, 16)
+    : movedEvents;
 
-  log.debug('moveSequencerEvents newEvents', newEvents.length);
+  // log.debug('moveSequencerEvents moved', movedEvents.length);
+  const newEvents = mergeEvents(...quantizedEvents, ...events);
+
+  // log.debug('moveSequencerEvents newEvents', newEvents.length);
 
   return update(context, { sequencer: { ...sequencer, events: newEvents } });
 };
@@ -258,4 +268,31 @@ export const setSequencerEndTime = (
   return update(context, {
     sequencer: { ...context.sequencer, endTime: value }
   });
+};
+
+export const setSelectedEventsDuration = (
+  context: StoreContext,
+  action: SetSelectedEventsDurationAction
+): StoreContext => {
+  const { duration } = action;
+  const sequencer = context.sequencer ?? {};
+  const events = sequencer?.events ?? [];
+
+  const selectedEvents = events.filter((evt) => evt.isSelected);
+
+  const changedEvents = selectedEvents.map((evt) => ({
+    ...evt,
+    duration
+  }));
+
+  log.debug(
+    'setSelectedEventsDuration',
+    changedEvents.length,
+    'changed duration to',
+    duration
+  );
+
+  const newEvents = mergeEvents(...changedEvents, ...events);
+
+  return update(context, { sequencer: { ...sequencer, events: newEvents } });
 };

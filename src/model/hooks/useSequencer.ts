@@ -103,8 +103,15 @@ export const useSequencer = () => {
   );
 
   const moveEvents = useCallback(
-    (timeDelta: number) => {
-      store.send({ type: 'moveSequencerEvents', timeDelta });
+    (timeDelta: number, isFinished?: boolean) => {
+      store.send({ type: 'moveSequencerEvents', timeDelta, isFinished });
+    },
+    [store]
+  );
+
+  const setSelectedEventsDuration = useCallback(
+    (duration: number) => {
+      store.send({ type: 'setSelectedEventsDuration', duration });
     },
     [store]
   );
@@ -127,6 +134,7 @@ export const useSequencer = () => {
     startTime,
     endTime,
     setStartTime,
-    setEndTime
+    setEndTime,
+    setSelectedEventsDuration
   };
 };
