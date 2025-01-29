@@ -22,6 +22,7 @@ export const SequencerPane = () => {
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const durationRef = useRef<OpTimeInputRef | null>(null);
+  const timeRef = useRef<OpTimeInputRef | null>(null);
   const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
 
   const {
@@ -34,6 +35,7 @@ export const SequencerPane = () => {
     setEndTime,
     selectedEvents,
     selectedEventIds,
+    setSelectedEventsTime,
     setSelectedEventsDuration
   } = useSequencer();
 
@@ -96,6 +98,13 @@ export const SequencerPane = () => {
     };
   }, [events, handlePlayStarted, handleStopped, handleTimeUpdate, setShowMode]);
 
+  const handleTimeChange = useCallback(
+    (value: number) => {
+      setSelectedEventsTime(Math.max(0, value));
+    },
+    [setSelectedEventsTime]
+  );
+
   const handleDurationChange = useCallback(
     (value: number) => {
       setSelectedEventsDuration(Math.max(0.1, value));
@@ -104,6 +113,12 @@ export const SequencerPane = () => {
   );
 
   useEffect(() => {
+    const time = selectedEvents.reduce((acc, event) => {
+      return Math.min(acc, event.time);
+    }, Number.MAX_VALUE);
+
+    timeRef.current?.setValue(time === Number.MAX_VALUE ? 0 : time);
+
     const duration = selectedEvents.reduce((acc, event) => {
       return Math.max(acc, event.duration);
     }, 0);
@@ -141,6 +156,17 @@ export const SequencerPane = () => {
           label='BPM'
           value={`${bpm}`}
           onChange={(value: string) => setBpm(Number(value))}
+        />
+        <OpTimeInput
+          ref={timeRef}
+          label='Time'
+          isDisabled={!hasSelectedEvents}
+          initialValue={0}
+          defaultValue={0}
+          range={[0, 100]}
+          description='Time'
+          showIncrementButtons={true}
+          onChange={handleTimeChange}
         />
         <OpTimeInput
           ref={durationRef}

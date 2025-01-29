@@ -109,6 +109,13 @@ export const useSequencer = () => {
     [store]
   );
 
+  const setSelectedEventsTime = useCallback(
+    (time: number) => {
+      store.send({ type: 'setSelectedEventsTime', time });
+    },
+    [store]
+  );
+
   const setSelectedEventsDuration = useCallback(
     (duration: number) => {
       store.send({ type: 'setSelectedEventsDuration', duration });
@@ -135,6 +142,7 @@ export const useSequencer = () => {
     endTime,
     setStartTime,
     setEndTime,
+    setSelectedEventsTime,
     setSelectedEventsDuration
   };
 };

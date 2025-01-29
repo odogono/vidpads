@@ -239,6 +239,11 @@ export type SetSequencerEndTimeAction = {
   endTime: number;
 };
 
+export type SetSelectedEventsTimeAction = {
+  type: 'setSelectedEventsTime';
+  time: number;
+};
+
 export type SetSelectedEventsDurationAction = {
   type: 'setSelectedEventsDuration';
   duration: number;
@@ -279,6 +284,7 @@ export type Actions =
   | MoveSequencerEventsAction
   | SetSequencerStartTimeAction
   | SetSequencerEndTimeAction
+  | SetSelectedEventsTimeAction
   | SetSelectedEventsDurationAction;
 
 export type PadUpdatedEvent = {
