@@ -10,7 +10,11 @@ const log = createLog('useMarquee');
 
 interface UseMarqueeProps {
   onSelectUpdate?: (rect: Rect, isFinished?: boolean | undefined) => void;
-  onMoveUpdate?: (pos: Position, isFinished?: boolean | undefined) => void;
+  onMoveUpdate?: (
+    pos: Position,
+    start: Position,
+    isFinished?: boolean | undefined
+  ) => void;
   hasSelectedEvents: boolean;
   selectedEventsRect?: Rect;
   onLongPressDown?: (rect: Rect, isFinished?: boolean | undefined) => void;
@@ -32,7 +36,6 @@ export const useMarquee = ({
   const [isMoving, setIsMoving] = useState(false);
   const [isLongTouch, setIsLongTouch] = useState(false);
   const longTouchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const touchStartTimeRef = useRef<number>(0);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -66,10 +69,10 @@ export const useMarquee = ({
         if (onMoveUpdate) {
           const pos = {
             x: x - endPosition.x,
-            y: y - endPosition.y
+            y: y - startPosition.y
           };
           if (pos.x !== 0 || pos.y !== 0) {
-            onMoveUpdate(pos, false);
+            onMoveUpdate(pos, startPosition, false);
           }
           setEndPosition({ x, y });
         }
@@ -100,9 +103,7 @@ export const useMarquee = ({
       isMoving,
       onMoveUpdate,
       endPosition.x,
-      endPosition.y,
-      startPosition.x,
-      startPosition.y,
+      startPosition,
       isDragging,
       onSelectUpdate,
       marqueeStart
@@ -115,10 +116,6 @@ export const useMarquee = ({
       if ((e.target as HTMLElement).closest('.vo-seq-header')) {
         return;
       }
-      log.debug(
-        'handleTouchDown',
-        (e.target as HTMLElement).closest('.vo-seq-header')
-      );
 
       e.preventDefault();
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -153,22 +150,13 @@ export const useMarquee = ({
       }
       setIsMoving(beginMoving);
 
-      touchStartTimeRef.current = Date.now();
       longTouchTimeoutRef.current = setTimeout(() => {
         setIsLongTouch(true);
-        // log.debug('Long touch detected');
-        if (onLongPressDown) {
-          onLongPressDown(positionsToRect(marqueeStart, marqueeEnd), false);
-        }
-      }, 250); // 500ms for long touch
+        onLongPressDown?.(positionsToRect(pos, pos), false);
+        setIsMoving(true);
+      }, 250); // 250ms for long touch
     },
-    [
-      hasSelectedEvents,
-      selectedEventsRect,
-      onLongPressDown,
-      marqueeStart,
-      marqueeEnd
-    ]
+    [hasSelectedEvents, selectedEventsRect, onLongPressDown]
   );
 
   const handleTouchUp = useCallback(
@@ -190,14 +178,13 @@ export const useMarquee = ({
             x: endPosition.x - startPosition.x,
             y: endPosition.y - startPosition.y
           };
-          onMoveUpdate(pos, true);
+          onMoveUpdate(pos, startPosition, true);
         }
       } else {
-        if (onSelectUpdate && !isLongTouch) {
-          onSelectUpdate(positionsToRect(marqueeStart, marqueeEnd), true);
-        }
-        if (onLongPressDown && isLongTouch) {
-          onLongPressDown(positionsToRect(marqueeStart, marqueeEnd), true);
+        if (!isLongTouch) {
+          onSelectUpdate?.(positionsToRect(marqueeStart, marqueeEnd), true);
+        } else {
+          onLongPressDown?.(positionsToRect(marqueeStart, marqueeEnd), true);
         }
       }
 
@@ -209,13 +196,12 @@ export const useMarquee = ({
       onMoveUpdate,
       endPosition.x,
       endPosition.y,
-      startPosition.x,
-      startPosition.y,
-      onSelectUpdate,
+      startPosition,
       isLongTouch,
-      onLongPressDown,
+      onSelectUpdate,
       marqueeStart,
-      marqueeEnd
+      marqueeEnd,
+      onLongPressDown
     ]
   );
 

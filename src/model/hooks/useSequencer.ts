@@ -35,8 +35,8 @@ export const useSequencer = () => {
   const evtStr = (e: SequencerEvent) =>
     `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
 
-  const events =
-    useSelector(store, (state) => state.context.sequencer?.events) ?? [];
+  const events = useSelector(store, (state) => state.context.sequencer?.events);
+
   const selectedEvents = events.filter((e) => e.isSelected);
   const selectedEventIds = selectedEvents.map((e) => evtStr(e)).join(',');
   const eventIds = events.map((e) => evtStr(e)).join(',');
@@ -104,8 +104,13 @@ export const useSequencer = () => {
   );
 
   const moveEvents = useCallback(
-    (timeDelta: number, isFinished?: boolean) => {
-      store.send({ type: 'moveSequencerEvents', timeDelta, isFinished });
+    (timeDelta: number, rowDelta: number, isFinished?: boolean) => {
+      store.send({
+        type: 'moveSequencerEvents',
+        timeDelta,
+        rowDelta,
+        isFinished
+      });
     },
     [store]
   );

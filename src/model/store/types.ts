@@ -221,6 +221,7 @@ export type SelectSequencerEventsAction = {
 export type MoveSequencerEventsAction = {
   type: 'moveSequencerEvents';
   timeDelta: number;
+  rowDelta: number;
   isFinished?: boolean;
 };
 
