@@ -8,8 +8,8 @@ import { MIME_TYPE_SEQ_EVENT } from '@hooks/usePadDnD/constants';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { useSelectedSeqEventId } from '@model/store/selectors';
 import { GeneralDragEvent, GeneralTouchEvent } from '@types';
+import { useDnD } from '../hooks/useDnD';
 import type { SequencerRowEvent } from './Row';
-import { useDnD } from './useDnD';
 
 const log = createLog('sequencer/event');
 
