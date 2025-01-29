@@ -42,6 +42,7 @@ export const TimeSequencerBody = ({
   const {
     bpm,
     events: sequencerEvents,
+    eventIds: sequencerEventIds,
     toggleEvent,
     moveEvents,
     // addEvent,
@@ -106,13 +107,16 @@ export const TimeSequencerBody = ({
         (_, index) => `a${startRowIndex + index + 1}`
       );
 
-      if (isFinished && rect.width <= 5 && rect.height <= 5) {
-        const quantizedStep = 0.5;
-        const quantizedTime = quantizeSeconds(time, 0.5);
-        // log.debug('toggleEvent', { padIds, time, quantizedTime });
-        toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
-      } else {
-        selectEvents(padIds, time, duration);
+      if (isFinished) {
+        if (isFinished && rect.width <= 5 && rect.height <= 5) {
+          const quantizedStep = 0.5;
+          const quantizedTime = quantizeSeconds(time, 0.5);
+          // log.debug('toggleEvent', { padIds, time, quantizedTime });
+          toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
+        } else {
+          log.debug('selectEvents', { padIds, time, duration });
+          selectEvents(padIds, time, duration);
+        }
       }
     },
     [canvasBpm, getGridDimensions, pixelsPerBeat, selectEvents, toggleEvent]
@@ -144,6 +148,7 @@ export const TimeSequencerBody = ({
   );
 
   const rows = useMemo(() => {
+    log.debug('events', sequencerEvents.length, sequencerEvents);
     return Array.from({ length: padCount }, (_, index) => {
       const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
       const rowEvents = events.map((e: SequencerEvent) => {
@@ -152,9 +157,15 @@ export const TimeSequencerBody = ({
         const x = secondsToPixels(time, pixelsPerBeat, canvasBpm);
         // and back to pixels so we get the scaling right
         const width = secondsToPixels(duration, pixelsPerBeat, canvasBpm);
-        const id = `seq-evt-${e.padId}-${x}`;
-        return { ...e, id, x, width };
+        // const id = `seq-evt-${e.padId}-${e.id}`;
+        return { ...e, x, width };
       });
+      // log.debug(
+      //   'rowEvents',
+      //   `a${index + 1}`,
+      //   rowEvents.length,
+      //   sequencerEvents.length
+      // );
       return (
         <Row
           key={`row-${index}`}
@@ -166,7 +177,9 @@ export const TimeSequencerBody = ({
         />
       );
     });
-  }, [canvasBpm, padCount, pixelsPerBeat, sequencerEvents]);
+    // stop constant re-rendering from sequencerEvents
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvasBpm, padCount, pixelsPerBeat, sequencerEventIds]);
 
   const handlePlayHeadMove = useCallback(
     (pos: Position) => {

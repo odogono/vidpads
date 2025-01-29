@@ -175,12 +175,22 @@ export const selectSequencerEvents = (
     padIds
   );
 
+  log.debug(
+    'selectSequencerEvents',
+    intersectingEvents.length,
+    `(${intersectingEvents.map((e) => e.id).join(',')})`,
+    'selected /',
+    deSelectedEvents.length
+  );
+
   const selectedEvents = intersectingEvents.map((evt) => ({
     ...evt,
     isSelected: true
   }));
 
   const mergedEvents = mergeEvents(...selectedEvents, ...deSelectedEvents);
+
+  log.debug('selectSequencerEvents', mergedEvents.map((e) => e.id).join(','));
 
   return update(context, { sequencer: { ...sequencer, events: mergedEvents } });
 };

@@ -15,7 +15,6 @@ import { GeneralDragEvent, Position, getOffsetPosition } from '@types';
 import { Event } from './Event';
 
 export interface SequencerRowEvent extends SequencerEvent {
-  id: string;
   x: number;
   width: number;
 }
@@ -84,6 +83,8 @@ export const Row = ({
   //   // bgColor = 'bg-gray-300';
   // }
 
+  // log.debug('Row', { padId });
+
   return (
     <div
       key={`ch-${rowIndex}`}
@@ -101,7 +102,11 @@ export const Row = ({
       // }}
     >
       {events.map((event) => (
-        <Event key={`evt-${event.id}`} {...event} onTap={handleEventTap} />
+        <Event
+          key={`evt-${padId}-${event.id}`}
+          {...event}
+          onTap={handleEventTap}
+        />
       ))}
     </div>
   );
