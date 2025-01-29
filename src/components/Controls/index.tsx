@@ -47,7 +47,7 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row gap-2'>
+    <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row'>
       <div className='switcher rounded-lg  flex flex-row'>
         <Button
           isIconOnly
@@ -66,7 +66,7 @@ export const ControlsLoaded = () => {
           <Indicator isActive={selectedControlPane === 'sequencer'} />
         </div>
       </div>
-      <div className='text-sm text-foreground/90 flex'>{selectedPadId}</div>
+      {/* <div className='text-sm text-foreground/90 flex'>{selectedPadId}</div> */}
 
       {selectedControlPane === 'state' && <StatePane />}
       {selectedControlPane === 'interval' && <IntervalPane />}

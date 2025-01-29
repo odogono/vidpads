@@ -29,7 +29,7 @@ export const Main = () => {
         <header
           className={`flex justify-between p-4 w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
         >
-          <div className='text-white text-xl font-bold'>ODGN VO-1</div>
+          <div className='text-white text-xl font-bold'>ODGN VID O</div>
           <span>
             <ShareButton />
             <MenuButton />

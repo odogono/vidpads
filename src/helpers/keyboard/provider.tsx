@@ -29,13 +29,16 @@ type EventMap = {
   [key: string]: {
     event: keyof EventEmitterEvents;
     args?: unknown;
+    fn?: () => void;
   };
 };
 
 const EVENT_MAP: EventMap = {
   Escape: {
     event: 'player:stop-all',
-    args: undefined
+    args: undefined,
+    // eslint-disable-next-line no-console
+    fn: () => console.clear()
   },
   Space: {
     event: 'seq:play-toggle'
@@ -133,8 +136,9 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (EVENT_MAP[code]) {
-        const { event, args } = EVENT_MAP[code];
+        const { event, args, fn } = EVENT_MAP[code];
         events.emit(event, args);
+        if (fn) fn();
         return;
       }
     },
