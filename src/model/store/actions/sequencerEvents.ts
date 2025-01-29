@@ -48,7 +48,7 @@ export const toggleSequencerEvent = (
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
-  const intersectingEvents = getIntersectingEvents(events, time, duration, [
+  const intersectingEvents = getIntersectingEvents(events, time, 0.001, [
     padId
   ]);
 
@@ -66,14 +66,13 @@ export const toggleSequencerEvent = (
     });
   }
 
-  const id = events.length;
+  const newEvent = createEvent({ padId, time, duration });
+  const newEvents = [...events, newEvent].toSorted((a, b) => a.time - b.time);
+
   return update(context, {
     sequencer: {
       ...sequencer,
-      // todo - better indexing by time
-      events: [...events, { padId, time, duration, id }].toSorted(
-        (a, b) => a.time - b.time
-      )
+      events: newEvents
     }
   });
 };

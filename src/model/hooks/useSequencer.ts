@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { useSelector } from '@xstate/store/react';
+import { getIntersectingEvents } from '../sequencerEvent';
 import { SequencerEvent } from '../types';
 
 const log = createLog('sequencer/useSequencer');
@@ -123,6 +124,12 @@ export const useSequencer = () => {
     [store]
   );
 
+  const getEventsAtTime = useCallback(
+    (padId: string, time: number) =>
+      getIntersectingEvents(events, time, 0.001, [padId]),
+    [events]
+  );
+
   return {
     bpm,
     events,
@@ -143,6 +150,7 @@ export const useSequencer = () => {
     setStartTime,
     setEndTime,
     setSelectedEventsTime,
-    setSelectedEventsDuration
+    setSelectedEventsDuration,
+    getEventsAtTime
   };
 };

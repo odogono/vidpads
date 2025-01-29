@@ -39,6 +39,9 @@ export const TimeSequencerBody = ({
 
   const { gridRef, getGridDimensions } = useGridDimensions({ padCount });
 
+  // records the duration of the last event toggled
+  const [lastEventDuration, setLastEventDuration] = useState(0.5);
+
   const {
     bpm,
     events: sequencerEvents,
@@ -46,7 +49,7 @@ export const TimeSequencerBody = ({
     toggleEvent,
     moveEvents,
     // addEvent,
-    // removeEvent,
+    getEventsAtTime,
     selectEvents,
     selectedEvents,
     selectedEventIds,
@@ -80,75 +83,151 @@ export const TimeSequencerBody = ({
     selectedEventIds
   });
 
-  useEffect(() => {
-    log.debug('TimeSequencerBody', {
-      selectedEvents: selectedEvents.map((e) => e.id),
-      selectedEventIds
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedEventIds]);
+  // useEffect(() => {
+  //   log.debug('TimeSequencerBody', {
+  //     selectedEvents: selectedEvents.map((e) => e.id),
+  //     selectedEventIds
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [selectedEventIds]);
 
-  const handleMarqueeSelectEnd = useCallback(
-    (rect: Rect, isFinished?: boolean) => {
-      // if (!gridRef.current) return;
+  const convertGridRectToTime = useCallback(
+    (rect: Rect) => {
       const x = Math.max(0, rect.x - 10);
       const time = pixelsToSeconds(x, pixelsPerBeat, canvasBpm);
       const duration = pixelsToSeconds(rect.width, pixelsPerBeat, canvasBpm);
 
-      // Get the grid container's height and calculate row height
       const { rowHeight } = getGridDimensions();
-
-      const startRowIndex = Math.floor(rect.y / rowHeight) - 1; // -1 to account for header
-      const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1; // -1 to account for header
-      // log.debug('handleMarqueeSelectEnd', { startRowIndex, endRowIndex });
+      const startRowIndex = Math.floor(rect.y / rowHeight) - 1;
+      const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1;
 
       const padIds = Array.from(
         { length: endRowIndex - startRowIndex + 1 },
         (_, index) => `a${startRowIndex + index + 1}`
       );
 
+      return { time, duration, padIds };
+    },
+    [pixelsPerBeat, canvasBpm, getGridDimensions]
+  );
+
+  const handleMarqueeSelectEnd = useCallback(
+    (rect: Rect, isFinished?: boolean, isLongPress?: boolean) => {
+      const x = Math.max(0, rect.x - 10);
+      const time = pixelsToSeconds(x, pixelsPerBeat, canvasBpm);
+      const duration = pixelsToSeconds(rect.width, pixelsPerBeat, canvasBpm);
+
+      const { rowHeight } = getGridDimensions();
+      const startRowIndex = Math.floor(rect.y / rowHeight) - 1;
+      const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1;
+
+      const padIds = Array.from(
+        { length: endRowIndex - startRowIndex + 1 },
+        (_, index) => `a${startRowIndex + index + 1}`
+      );
+
+      const hasSelectedEvents = selectedEventIds.length > 0;
+
       if (isFinished) {
-        if (isFinished && rect.width <= 5 && rect.height <= 5) {
-          const quantizedStep = 0.5;
-          const quantizedTime = quantizeSeconds(time, 0.5);
-          // log.debug('toggleEvent', { padIds, time, quantizedTime });
-          toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
+        if (isLongPress) {
+          // On long press, create a 1-beat event
+          // const quantizedStep = (60 / canvasBpm) * 2; // One beat duration
+          // const quantizedTime = quantizeSeconds(time, 0.5);
+          // toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
+          // log.debug('handleMarqueeSelectEnd long press', rect);
+        } else if (rect.width <= 5 && rect.height <= 5) {
+          if (hasSelectedEvents) {
+            // deselect all events
+            selectEvents([], -1, -1);
+          } else {
+            const eventsAtTime = getEventsAtTime(padIds[0], time);
+
+            if (eventsAtTime.length > 0) {
+              const lastEvent = eventsAtTime[eventsAtTime.length - 1];
+              const evtDuration = lastEvent?.duration ?? 0.5;
+              setLastEventDuration(evtDuration);
+            }
+
+            // const lastEvent = eventsAtTime[eventsAtTime.length - 1];
+            // const evtDuration = lastEvent?.duration ?? 0.5;
+            // setLastEventDuration(evtDuration);
+
+            log.debug('handleMarqueeSelectEnd hit events', eventsAtTime);
+            // Short tap - create short event
+            // const quantizedStep = 0.5;
+            const quantizedTime = quantizeSeconds(time, 0.5);
+            toggleEvent(
+              padIds[0],
+              quantizedTime,
+              quantizedTime + lastEventDuration
+            );
+          }
         } else {
-          log.debug('selectEvents', { padIds, time, duration });
+          // Normal marquee selection
           selectEvents(padIds, time, duration);
         }
       }
     },
-    [canvasBpm, getGridDimensions, pixelsPerBeat, selectEvents, toggleEvent]
+    [
+      canvasBpm,
+      getGridDimensions,
+      pixelsPerBeat,
+      selectEvents,
+      selectedEventIds.length,
+      toggleEvent,
+      getEventsAtTime,
+      lastEventDuration,
+      setLastEventDuration
+    ]
+  );
+
+  const handleLongPressDown = useCallback(
+    (rect: Rect, isFinished?: boolean) => {
+      const { time, duration, padIds } = convertGridRectToTime(rect);
+      // log.debug('handleLongPressDown', { time, duration, padIds }, isFinished);
+      if (isFinished) {
+        selectEvents(padIds, time, duration);
+      }
+    },
+    [convertGridRectToTime, selectEvents]
   );
 
   const handleMarqueeMoveUpdate = useCallback(
     (pos: Position, isFinished?: boolean) => {
       // convert pos to ms
-      // const x = Math.max(0, pos.x - 10);
       const time = pixelsToSeconds(pos.x, pixelsPerBeat, canvasBpm);
+      // const quantizedTime = quantizeSeconds(time, 0.5);
 
-      log.debug('handleMarqueeMoveUpdate', pos.x, time, isFinished);
-      // set the playhead to the time
-      // setPlayHeadPosition(time);
-      if (!isFinished) {
-        moveEvents(time);
-      }
+      // log.debug(
+      //   'handleMarqueeMoveUpdate',
+      //   pos.x,
+      //   time,
+      //   // quantizedTime,
+      //   isFinished
+      // );
+
+      moveEvents(isFinished ? 0 : time, isFinished);
     },
     [canvasBpm, moveEvents, pixelsPerBeat]
   );
 
-  const { marqueeStart, marqueeEnd, isDragging, ...marqueeEvents } = useMarquee(
-    {
-      onSelectUpdate: handleMarqueeSelectEnd,
-      onMoveUpdate: handleMarqueeMoveUpdate,
-      hasSelectedEvents: selectedEventIds.length > 0,
-      selectedEventsRect
-    }
-  );
+  const {
+    marqueeStart,
+    marqueeEnd,
+    isDragging,
+    isLongTouch,
+    ...marqueeEvents
+  } = useMarquee({
+    onLongPressDown: handleLongPressDown,
+    onSelectUpdate: (rect: Rect, isFinished?: boolean) =>
+      handleMarqueeSelectEnd(rect, isFinished, isLongTouch),
+    onMoveUpdate: handleMarqueeMoveUpdate,
+    hasSelectedEvents: selectedEventIds.length > 0,
+    selectedEventsRect
+  });
 
   const rows = useMemo(() => {
-    log.debug('events', sequencerEvents.length, sequencerEvents);
+    // log.debug('events', sequencerEvents.length, sequencerEvents);
     return Array.from({ length: padCount }, (_, index) => {
       const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
       const rowEvents = events.map((e: SequencerEvent) => {
@@ -211,6 +290,15 @@ export const TimeSequencerBody = ({
       >
         <Header pixelsPerBeat={pixelsPerBeat} onTap={handlePlayHeadMove} />
         {rows}
+        <div
+          className='vo-seq-selected-evts-rect absolute pointer-events-none bg-black opacity-20'
+          style={{
+            left: selectedEventsRect.x,
+            top: selectedEventsRect.y,
+            width: selectedEventsRect.width,
+            height: selectedEventsRect.height
+          }}
+        />
       </div>
     </div>
   );
