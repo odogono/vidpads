@@ -25,7 +25,7 @@ interface RowProps {
   rowIndex: number;
   events: SequencerRowEvent[];
   onTap?: (padId: string, x: number) => void;
-  onEventDrop: (
+  onEventDrop?: (
     sourceEvent: SequencerEvent,
     rowPadId: string,
     pos: Position,
@@ -46,43 +46,43 @@ export const Row = ({
   onTap,
   onEventDrop
 }: RowProps) => {
-  const id = `seq-row-${padId}`;
+  // const id = `seq-row-${padId}`;
 
-  const handleDrop = useCallback(
-    (e: GeneralDragEvent) => {
-      const data = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
-      const dropEffect = e.dataTransfer?.getData(MIME_TYPE_DROP_EFFECT);
-      log.debug('handleDrop', id, data, dropEffect);
-      if (data) {
-        const { x, y } = getOffsetPosition(e);
-        const event = JSON.parse(data);
+  // const handleDrop = useCallback(
+  //   (e: GeneralDragEvent) => {
+  //     const data = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
+  //     const dropEffect = e.dataTransfer?.getData(MIME_TYPE_DROP_EFFECT);
+  //     log.debug('handleDrop', id, data, dropEffect);
+  //     if (data) {
+  //       const { x, y } = getOffsetPosition(e);
+  //       const event = JSON.parse(data);
 
-        onEventDrop(event, padId, { x, y }, dropEffect ?? 'move');
-      }
-    },
-    [id, onEventDrop, padId]
-  );
+  //       onEventDrop(event, padId, { x, y }, dropEffect ?? 'move');
+  //     }
+  //   },
+  //   [id, onEventDrop, padId]
+  // );
 
-  const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
-    usePadDnD(id);
+  // const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
+  //   usePadDnD(id);
 
-  const handleTap = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      // const { offsetX } = e.nativeEvent;
-      // log.debug('tap', padId, rowIndex, { offsetX });
-      // onTap(padId, offsetX);
-    },
-    [padId, onTap]
-  );
+  // const handleTap = useCallback(
+  //   (e: React.MouseEvent<HTMLDivElement>) => {
+  //     // const { offsetX } = e.nativeEvent;
+  //     // log.debug('tap', padId, rowIndex, { offsetX });
+  //     // onTap(padId, offsetX);
+  //   },
+  //   [padId, onTap]
+  // );
 
   const handleEventTap = useCallback((padId: string, x: number) => {
     log.debug('event tap', { padId, x });
   }, []);
 
   const bgColor = rowIndex % 2 === 0 ? 'bg-gray-500' : 'bg-gray-400';
-  if (dragOverId === `seq-row-${padId}`) {
-    // bgColor = 'bg-gray-300';
-  }
+  // if (dragOverId === `seq-row-${padId}`) {
+  //   // bgColor = 'bg-gray-300';
+  // }
 
   return (
     <div
@@ -93,12 +93,12 @@ export const Row = ({
         gridColumn: `2/2`
       }}
       // onMouseDown={handleTap}
-      onDragOver={(e) => onDragOver(e, id)}
-      onDragLeave={() => onDragLeave(id)}
-      onDrop={(e) => {
-        onDrop(e, id);
-        handleDrop(e);
-      }}
+      // onDragOver={(e) => onDragOver(e, id)}
+      // onDragLeave={() => onDragLeave(id)}
+      // onDrop={(e) => {
+      //   onDrop(e, id);
+      //   // handleDrop(e);
+      // }}
     >
       {events.map((event) => (
         <Event key={`evt-${event.id}`} {...event} onTap={handleEventTap} />

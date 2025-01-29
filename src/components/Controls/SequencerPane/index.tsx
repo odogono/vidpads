@@ -91,7 +91,7 @@ export const SequencerPane = () => {
 
   return (
     <>
-      <div className='pane-interval w-full h-full bg-slate-500 rounded-lg flex flex-row gap-2'>
+      <div className='pane-interval w-full h-full pl-2 bg-slate-500 flex flex-row gap-2  border-slate-400'>
         <OpButton label='Stop' onPress={handleStop}>
           {showRewind ? <Rewind /> : <Square />}
         </OpButton>

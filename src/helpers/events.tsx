@@ -100,7 +100,7 @@ export type EventEmitterEvents = {
   };
   'seq:rewind': undefined;
   'seq:time-update': {
-    time: number;
+    time: number; // in secs
   };
   'seq:time-set': {
     time: number;

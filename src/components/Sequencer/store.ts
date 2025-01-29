@@ -9,7 +9,7 @@ import { createStore as createXStateStore } from '@xstate/store';
 import { useSelector } from '@xstate/store/react';
 import { SequencerTimesUpdatedEvent } from '../../model/store/types';
 
-const log = createLog('seq/state');
+const log = createLog('seq/state', ['debug']);
 
 type PlayAction = {
   type: 'play';
@@ -157,15 +157,15 @@ const onHandlers = {
     return context;
   },
   setEndTime: (context: SeqStoreContext, action: SetEndTimeEvent) => {
-    log.debug('setEndTime', action.time);
+    // log.debug('setEndTime', action.time);
     return { ...context, endTime: action.time };
   },
   setStartTime: (context: SeqStoreContext, action: SetStartTimeEvent) => {
-    log.debug('setStartTime', action.time);
+    // log.debug('setStartTime', action.time);
     return { ...context, startTime: action.time };
   },
   setElapsedTime: (context: SeqStoreContext, action: SetElapsedTimeEvent) => {
-    // log.debug('setElapsedTime', action.time);
+    // log.debug('setElapsedTime', action.time, 'was', context.elapsedTime);
     return {
       ...context,
       elapsedTime: action.time,
@@ -334,11 +334,12 @@ export const useSequencerStore = () => {
     store.send({ type: 'rewind' });
   }, [store]);
 
+  // receives a time in seconds
   const handleSetTime = useCallback(
     (event: { time: number }) => {
-      store.send({ type: 'setElapsedTime', time: event.time });
+      store.send({ type: 'setElapsedTime', time: event.time * 1000 });
       events.emit('seq:time-update', {
-        time: event.time / 1000
+        time: event.time
       });
     },
     [events, store]
