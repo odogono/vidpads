@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Circle, Play, Rewind, Square, Trash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -12,6 +12,7 @@ import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
+import { OpTimeInput, OpTimeInputRef } from '../../buttons/OpTimeInput';
 
 const log = createLog('SequencerPane');
 
@@ -20,6 +21,9 @@ export const SequencerPane = () => {
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const durationRef = useRef<OpTimeInputRef | null>(null);
+  const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
+
   const {
     bpm,
     setBpm,
@@ -27,7 +31,10 @@ export const SequencerPane = () => {
     startTime,
     endTime,
     setStartTime,
-    setEndTime
+    setEndTime,
+    selectedEvents,
+    selectedEventIds,
+    setSelectedEventsDuration
   } = useSequencer();
 
   const handlePlay = useCallback(() => {
@@ -89,6 +96,22 @@ export const SequencerPane = () => {
     };
   }, [events, handlePlayStarted, handleStopped, handleTimeUpdate, setShowMode]);
 
+  const handleDurationChange = useCallback(
+    (value: number) => {
+      setSelectedEventsDuration(Math.max(0.1, value));
+    },
+    [setSelectedEventsDuration]
+  );
+
+  useEffect(() => {
+    const duration = selectedEvents.reduce((acc, event) => {
+      return Math.max(acc, event.duration);
+    }, 0);
+    durationRef.current?.setValue(duration);
+    setHasSelectedEvents(duration > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEventIds, durationRef]);
+
   return (
     <>
       <div className='pane-interval w-full h-full pl-2 bg-slate-500 flex flex-row gap-2  border-slate-400'>
@@ -118,6 +141,17 @@ export const SequencerPane = () => {
           label='BPM'
           value={`${bpm}`}
           onChange={(value: string) => setBpm(Number(value))}
+        />
+        <OpTimeInput
+          ref={durationRef}
+          label='Duration'
+          isDisabled={!hasSelectedEvents}
+          initialValue={0}
+          defaultValue={0}
+          range={[0, 100]}
+          description='Duration'
+          showIncrementButtons={true}
+          onChange={handleDurationChange}
         />
       </div>
     </>

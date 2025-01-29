@@ -33,15 +33,17 @@ export const OpInput = ({
         }}
       />
 
-      <div
-        className='text-xs text-foreground/90 mt-2'
-        style={{
-          fontSize: '0.6rem',
-          lineHeight: '0.75rem'
-        }}
-      >
-        {label}
-      </div>
+      {label && (
+        <div
+          className='text-xs text-foreground/90 mt-2'
+          style={{
+            fontSize: '0.6rem',
+            lineHeight: '0.75rem'
+          }}
+        >
+          {label}
+        </div>
+      )}
     </div>
   );
 };

@@ -2,13 +2,13 @@
 
 import { useCallback, useRef } from 'react';
 
+import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../hooks/useControlsEvents';
-import { TimeInput, TimeInputRef } from './timeInput';
 
 const log = createLog('NumericInterval');
 
@@ -17,9 +17,9 @@ export interface NumericIntervalProps {
 }
 
 export const NumericInterval = ({ pad }: NumericIntervalProps) => {
-  const startTimeRef = useRef<TimeInputRef | null>(null);
-  const endTimeRef = useRef<TimeInputRef | null>(null);
-  const inputTimeRef = useRef<TimeInputRef | null>(null);
+  const startTimeRef = useRef<OpTimeInputRef | null>(null);
+  const endTimeRef = useRef<OpTimeInputRef | null>(null);
+  const inputTimeRef = useRef<OpTimeInputRef | null>(null);
 
   const padSourceUrl = getPadSourceUrl(pad);
   const { duration } = useMetadataByUrl(padSourceUrl);
@@ -77,7 +77,7 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
 
   return (
     <div className='flex flex-row gap-2'>
-      <TimeInput
+      <OpTimeInput
         ref={startTimeRef}
         initialValue={padStart}
         defaultValue={0}
@@ -86,14 +86,14 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         showIncrementButtons={true}
         onChange={handleStartChange}
       />
-      <TimeInput
+      <OpTimeInput
         ref={inputTimeRef}
         initialValue={0}
         defaultValue={0}
         description='Time'
         isDisabled={true}
       />
-      <TimeInput
+      <OpTimeInput
         ref={endTimeRef}
         initialValue={padEnd}
         defaultValue={duration}

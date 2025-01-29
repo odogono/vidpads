@@ -5,14 +5,15 @@ import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
 import { cn } from '@nextui-org/react';
 
-const log = createLog('TimeInput');
+const log = createLog('OpTimeInput');
 
-export interface TimeInputRef {
+export interface OpTimeInputRef {
   setValue: (value: number) => void;
   getValue: () => number;
 }
-interface TimeInputProps {
-  ref?: React.RefObject<TimeInputRef | null>;
+interface OpTimeInputProps {
+  label?: string;
+  ref?: React.RefObject<OpTimeInputRef | null>;
   initialValue: number;
   defaultValue?: number | undefined;
   range?: [number, number];
@@ -22,14 +23,15 @@ interface TimeInputProps {
   showIncrementButtons?: boolean;
 }
 
-export const TimeInput = ({
+export const OpTimeInput = ({
+  label,
   ref,
   initialValue,
   defaultValue,
   isDisabled,
   onChange,
   range
-}: TimeInputProps) => {
+}: OpTimeInputProps) => {
   const { setIsEnabled: setKeyboardEnabled } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
     formatTimeToString(initialValue)
@@ -84,10 +86,10 @@ export const TimeInput = ({
     const [min, max] = range ? range : [0, 100];
 
     const currentSeconds = formatTimeStringToSeconds(inputValue);
-    log.debug('handleWheel', { currentSeconds, min, max });
+    // log.debug('handleWheel', { currentSeconds, min, max });
     const delta = e.deltaY < 0 ? 0.01 : -0.01;
     const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
-    log.debug('handleWheel', { newValue });
+    // log.debug('handleWheel', { newValue });
 
     // log.debug('handleWheel', { currentSeconds, newValue, min, max });
     setInputValue(formatTimeToString(newValue));
@@ -98,30 +100,39 @@ export const TimeInput = ({
   // if (description === 'Start') log.debug('TimeInput', inputValue);
 
   return (
-    <div className='time-input'>
-      <div className='flex items-center gap-2'>
-        <input
-          className={cn(
-            `rounded-r-none cursor-ns-resize bg-default-100 px-3 py-1 text-sm min-h-unit-8 border-medium border-default-200 outline-none w-[7.5rem] font-mono`,
-            'hover:border-default-400 ',
-            isDisabled ? 'bg-gray-800 text-gray-500' : ''
-          )}
-          type='text'
-          disabled={isDisabled}
-          value={inputValue}
-          onChange={handleInput}
-          onKeyDown={handleKeyDown}
-          onBlur={(e) => {
-            handleChange(e);
-            setKeyboardEnabled(true);
+    <div className='time-input flex flex-col items-center justify-center'>
+      <input
+        className={cn(
+          `rounded-r-none cursor-ns-resize bg-default-100 px-3 py-1 text-sm min-h-unit-8  utline-none w-[7.5rem] font-mono`,
+          'hover:border-default-400 ',
+          isDisabled ? 'bg-gray-800 text-gray-500' : ''
+        )}
+        type='text'
+        disabled={isDisabled}
+        value={inputValue}
+        onChange={handleInput}
+        onKeyDown={handleKeyDown}
+        onBlur={(e) => {
+          handleChange(e);
+          setKeyboardEnabled(true);
+        }}
+        onFocus={(e) => {
+          setKeyboardEnabled(false);
+          e.target.select();
+        }}
+        onWheel={handleWheel}
+      />
+      {label && (
+        <div
+          className='text-xs text-foreground/90 mt-2'
+          style={{
+            fontSize: '0.6rem',
+            lineHeight: '0.75rem'
           }}
-          onFocus={(e) => {
-            setKeyboardEnabled(false);
-            e.target.select();
-          }}
-          onWheel={handleWheel}
-        />
-      </div>
+        >
+          {label}
+        </div>
+      )}
     </div>
   );
 };
