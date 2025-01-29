@@ -47,8 +47,17 @@ export const useSelectedEventsRect = ({
       }
     );
 
+    if (minX === Number.MAX_VALUE) {
+      return {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0
+      };
+    }
+
     return {
-      x: minX,
+      x: minX + 10,
       y: minY,
       width: maxX - minX,
       height: maxY - minY

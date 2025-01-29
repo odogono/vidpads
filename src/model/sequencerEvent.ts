@@ -104,6 +104,7 @@ export const getIntersectingEvents = (
   duration: number,
   padIds: string[]
 ): SequencerEvent[] => {
+  if (padIds.length === 0) return [];
   return evts.filter((evt) => {
     return (
       padIds.includes(evt.padId) &&
