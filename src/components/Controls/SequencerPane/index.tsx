@@ -6,12 +6,12 @@ import { Circle, Play, Rewind, Square, Trash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { OpButton } from '@components/buttons/OpButton';
+import { OpInput } from '@components/buttons/OpInput';
 import { useEvents } from '@helpers/events';
+import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
-import { Input } from '@nextui-org/react';
-import { OpInput } from '../../buttons/OpInput';
 
 const log = createLog('SequencerPane');
 
@@ -21,6 +21,7 @@ export const SequencerPane = () => {
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const { bpm, setBpm, clearEvents } = useSequencer();
+  const { setIsEnabled } = useKeyboard();
 
   const handlePlay = useCallback(() => {
     events.emit('seq:play');
@@ -97,6 +98,8 @@ export const SequencerPane = () => {
           label='BPM'
           value={`${bpm}`}
           onChange={(value: string) => setBpm(Number(value))}
+          onFocus={() => setIsEnabled(false)}
+          onBlur={() => setIsEnabled(true)}
         />
         <OpButton label='Clear' onPress={handleClear}>
           <Trash />

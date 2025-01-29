@@ -7,13 +7,13 @@ export interface PlayHeadProps {
 export const PlayHead = ({ position }: PlayHeadProps) => {
   return (
     <div
-      className='absolute vo-seq-playhead w-[20px] h-full z-10'
+      className='absolute vo-seq-playhead w-[20px] h-full z-10 pointer-events-none'
       style={{
-        left: `${1 + position}px`,
-        cursor: 'ew-resize'
+        left: `${1 + position}px`
       }}
     >
       <div
+        className='cursor-col-resize pointer-events-auto'
         style={{
           width: 0,
           height: 0,
@@ -22,7 +22,7 @@ export const PlayHead = ({ position }: PlayHeadProps) => {
           borderTop: `10px solid #aaa`
         }}
       />
-      <div className='w-[1px] h-full ml-[9px] bg-white' />
+      <div className='w-[1px] h-full ml-[9px] bg-white cursor-col-resize pointer-events-auto' />
     </div>
   );
 };

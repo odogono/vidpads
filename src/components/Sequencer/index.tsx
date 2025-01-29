@@ -21,7 +21,7 @@ export const Sequencer = () => {
           gridTemplateRows: `1fr repeat(${padCount}, minmax(0, 1fr)) 0.5fr`
         }}
       >
-        <div className='relative vo-seq-header col-span-1 flex justify-center items-center'></div>
+        <div className='relative vo-seq-corner col-span-1 flex justify-center items-center'></div>
         {pads.map((pad, index) => (
           <div
             key={`pad-${pad.id}`}

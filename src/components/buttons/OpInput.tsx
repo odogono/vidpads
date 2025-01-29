@@ -5,11 +5,15 @@ import { Input } from '@nextui-org/react';
 export const OpInput = ({
   label,
   value,
-  onChange
+  onChange,
+  onFocus,
+  onBlur
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }) => {
   return (
     <div className='flex flex-col items-center justify-center'>
@@ -20,6 +24,8 @@ export const OpInput = ({
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChange(e.target.value)
         }
+        onFocus={() => onFocus?.()}
+        onBlur={() => onBlur?.()}
       />
 
       <div
