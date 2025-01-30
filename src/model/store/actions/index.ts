@@ -17,7 +17,6 @@ export { applyVolumeToPad } from './applyVolumeToPad';
 export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';
 export {
-  setSelectedSeqEventId,
   toggleSequencerEvent,
   addSequencerEvent,
   clearSequencerEvents,

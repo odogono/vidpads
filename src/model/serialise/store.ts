@@ -1,14 +1,19 @@
 // import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
-import type { InternalToExternalUrlMap } from '@model/hooks/useMetadata';
 import { StoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
 import { version as appVersion } from '../../../package.json';
+import { safeParseInt } from '../../helpers/number';
 import {
   exportPadToJSON,
   exportPadToURLString,
   importPadFromURLString
 } from './pad';
+import {
+  exportSequencerToJSON,
+  exportSequencerToURLString,
+  importSequencerFromURLString
+} from './sequencer';
 
 // const log = createLog('model/export');
 
@@ -22,8 +27,12 @@ export type ExportOptions = Record<string, unknown>;
 export const exportToJSON = (store: StoreType): ProjectExport => {
   const { context } = store.getSnapshot();
 
-  const { projectId, projectName, createdAt, updatedAt, pads } = context;
+  const { projectId, projectName, sequencer, createdAt, updatedAt, pads } =
+    context;
 
+  const sequencerJSON = sequencer
+    ? exportSequencerToJSON(sequencer)
+    : undefined;
   const padsJSON = pads.map((pad) => exportPadToJSON(pad)).filter(Boolean);
 
   return {
@@ -31,9 +40,10 @@ export const exportToJSON = (store: StoreType): ProjectExport => {
     name: projectName ?? 'Untitled',
     version: EXPORT_APP_VERSION,
     exportVersion: `${EXPORT_JSON_VERSION}`,
+    pads: padsJSON,
+    sequencer: sequencerJSON,
     createdAt: createdAt ?? new Date().toISOString(),
-    updatedAt: updatedAt ?? new Date().toISOString(),
-    pads: padsJSON
+    updatedAt: updatedAt ?? new Date().toISOString()
   } as ProjectExport;
 };
 
@@ -45,7 +55,10 @@ export const exportToJSONString = (store: StoreType) => {
 export const exportToURLString = (store: StoreType) => {
   const { context } = store.getSnapshot();
 
-  const { projectId, projectName, createdAt, updatedAt, pads } = context;
+  const { projectId, projectName, createdAt, updatedAt, pads, sequencer } =
+    context;
+
+  const sequencerURL = sequencer ? exportSequencerToURLString(sequencer) : '';
 
   const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
 
@@ -55,7 +68,19 @@ export const exportToURLString = (store: StoreType) => {
   // base64 encode the project name
   const projectNameBase64 = projectName ? encodeURIComponent(projectName) : '';
 
-  return `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeMs}|${updateTimeMs}|${padsURL.join('(')}`;
+  let result = `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeMs}|${updateTimeMs}`;
+
+  if (padsURL.length > 0) {
+    result += `|${padsURL.join('(')}`;
+  } else {
+    result += '|';
+  }
+
+  if (sequencerURL) {
+    result += `|${sequencerURL}`;
+  }
+
+  return result;
 };
 
 export const urlStringToProject = (urlString: string) => {
@@ -65,15 +90,16 @@ export const urlStringToProject = (urlString: string) => {
     projectNameBase64,
     createTimeMs,
     updateTimeMs,
-    padsURL
+    padsURL,
+    sequencerURL
   ] = urlString.split('|');
 
-  if (parseInt(version, 10) !== EXPORT_URL_VERSION) {
-    throw new Error('Unsupported export version');
+  if (safeParseInt(version) !== EXPORT_URL_VERSION) {
+    throw new Error(`Unsupported export version: ${version}`);
   }
 
-  const createdAt = new Date(parseInt(createTimeMs, 10));
-  const updatedAt = new Date(parseInt(updateTimeMs, 10));
+  const createdAt = new Date(safeParseInt(createTimeMs));
+  const updatedAt = new Date(safeParseInt(updateTimeMs));
 
   const projectName = decodeURIComponent(projectNameBase64);
 
@@ -82,12 +108,17 @@ export const urlStringToProject = (urlString: string) => {
     .map(importPadFromURLString)
     .filter(Boolean) as PadExport[];
 
+  const sequencer = sequencerURL
+    ? importSequencerFromURLString(sequencerURL)
+    : undefined;
+
   return {
     id: projectId,
     name: projectName,
     exportVersion: `${version}`,
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
-    pads
+    pads,
+    sequencer
   } as ProjectExport;
 };

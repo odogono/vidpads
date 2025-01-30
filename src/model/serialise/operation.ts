@@ -3,6 +3,7 @@ import {
   Operation,
   OperationExport,
   OperationType,
+  OperationTypeKey,
   PlaybackRateOperation,
   TrimOperation,
   VolumeKeyPoint,
@@ -82,6 +83,17 @@ export const importOperationFromJSON = (
   return undefined;
 };
 
+const OperationTypeCodes: Record<OperationType, string> = {
+  [OperationType.PlaybackRate]: 'pb',
+  [OperationType.Trim]: 't',
+  [OperationType.Volume]: 'v',
+  [OperationType.Source]: 's',
+  [OperationType.Duration]: 'd',
+  [OperationType.Resize]: 'r',
+  [OperationType.AddEffect]: 'a',
+  [OperationType.AddTransition]: 't'
+} as const;
+
 export const exportOperationToURL = (
   operation: Operation | undefined
 ): string | undefined => {
@@ -89,18 +101,27 @@ export const exportOperationToURL = (
     return '';
   }
 
+  const code = OperationTypeCodes[operation.type];
+
+  if (!code) {
+    return '';
+  }
+
   if (operation.type === OperationType.PlaybackRate) {
     const { rate } = operation as PlaybackRateOperation;
-    return `${operation.type}:${roundDP(rate)}`;
+    return `${code}:${roundDP(rate)}`;
   }
 
   if (operation.type === OperationType.Trim) {
     const { start, end } = operation as TrimOperation;
-    return `${operation.type}:${roundDP(start)}:${roundDP(end)}`;
+    return `${code}:${roundDP(start)}:${roundDP(end)}`;
   }
+
   if (operation.type === OperationType.Volume) {
     const { envelope } = operation as VolumeOperation;
-    return `${operation.type}:${envelope.map((e) => `${roundDP(e.time)}:${roundDP(e.value)}`).join(':')}`;
+    return `${code}:${envelope
+      .map((e) => `${roundDP(e.time)}:${roundDP(e.value)}`)
+      .join(':')}`;
   }
 
   return '';
@@ -111,7 +132,7 @@ export const importOperationFromURL = (
 ): OperationExport | undefined => {
   const [type, ...rest] = urlString.split(':');
 
-  if (type === OperationType.PlaybackRate) {
+  if (type === OperationTypeCodes[OperationType.PlaybackRate]) {
     const [rate] = rest;
     return {
       type: OperationType.PlaybackRate,
@@ -120,7 +141,7 @@ export const importOperationFromURL = (
     } as PlaybackRateOperation;
   }
 
-  if (type === OperationType.Trim) {
+  if (type === OperationTypeCodes[OperationType.Trim]) {
     const [start, end] = rest;
     return {
       type: OperationType.Trim,
@@ -129,7 +150,7 @@ export const importOperationFromURL = (
     } as TrimOperation;
   }
 
-  if (type === OperationType.Volume) {
+  if (type === OperationTypeCodes[OperationType.Volume]) {
     const values = rest.map((v) => parseFloat(v));
 
     const [envelope] = values.reduce(

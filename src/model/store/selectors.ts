@@ -27,9 +27,6 @@ export const getPadsBySourceUrl = (
 export const getSelectedPadId = (store: StoreType): string | undefined =>
   store.getSnapshot().context.selectedPadId ?? undefined;
 
-export const getSelectedSeqEventId = (store: StoreType): string | undefined =>
-  store.getSnapshot().context.sequencer?.selectedEventId ?? undefined;
-
 export const getPadsWithMedia = (store: StoreType) => {
   const { pads } = store.getSnapshot().context;
   return pads.filter((pad) => getPadSourceUrl(pad));
@@ -60,22 +57,6 @@ export const useSelectedPadId = () => {
   );
 
   return { selectedPadId, setSelectedPadId };
-};
-
-export const useSelectedSeqEventId = () => {
-  const { store } = useStore();
-  const selectedSeqEventId = useSelector(
-    store,
-    (state) => state.context.sequencer?.selectedEventId
-  );
-
-  const setSelectedSeqEventId = useCallback(
-    (eventId: string | null) => {
-      store.send({ type: 'setSelectedSeqEventId', eventId });
-    },
-    [store]
-  );
-  return { selectedSeqEventId, setSelectedSeqEventId };
 };
 
 export const useLastMediaUrl = () => {

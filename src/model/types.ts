@@ -32,6 +32,8 @@ export const OperationType = {
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
 
+export type OperationTypeKey = keyof typeof OperationType;
+
 export interface Operation {
   type: OperationType;
 }
@@ -139,6 +141,7 @@ export interface ProjectExport {
   createdAt: string;
   updatedAt: string;
   pads: PadExport[];
+  sequencer?: SequencerExport | undefined;
 }
 
 export interface PadExport {
@@ -148,6 +151,13 @@ export interface PadExport {
 }
 
 export type OperationExport = Operation;
+
+export interface SequencerExport {
+  bpm: number;
+  startTime: number;
+  endTime: number;
+  events: Record<string, [number, number][]> | undefined;
+}
 
 export interface ProjectLoadedEvent {
   projectId: string;

@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 
 import { createLog } from '@helpers/log';
-import { InternalToExternalUrlMap } from '@model/hooks/useMetadata';
 import { exportToURLString, urlStringToProject } from '@model/serialise/store';
 import { StoreContextType, StoreType } from '@model/store/types';
 import { OperationType, Pad, TrimOperation } from '@model/types';
@@ -23,12 +22,7 @@ const defaultContext = {
 
 const log = createLog('export.test');
 
-const mockUrlMap: InternalToExternalUrlMap = {
-  'odgn-vo://media/vid1': 'https://example.com/video1',
-  'odgn-vo://media/vid2': 'https://example.com/video2?start=2.6'
-};
-
-describe.skip('exportToURLString', () => {
+describe('exportToURLString', () => {
   const mockStore = {
     getSnapshot: () => ({
       context: {
@@ -42,8 +36,7 @@ describe.skip('exportToURLString', () => {
   } as StoreType;
 
   it('should export basic project info to URL string', () => {
-    const result = exportToURLString(mockStore, mockUrlMap);
-
+    const result = exportToURLString(mockStore);
     // Split URL components
     const [version, projectId, projectName, createTime, updateTime, ...rest] =
       result.split('|');
@@ -71,7 +64,7 @@ describe.skip('exportToURLString', () => {
       })
     } as StoreType;
 
-    const result = exportToURLString(emptyNameStore, mockUrlMap);
+    const result = exportToURLString(emptyNameStore);
     const [, , projectName] = result.split('|');
     expect(projectName).toBe('');
   });
@@ -103,21 +96,22 @@ describe.skip('exportToURLString', () => {
       })
     } as StoreType;
 
-    const result = exportToURLString(storeWithPads, mockUrlMap);
+    const result = exportToURLString(storeWithPads);
 
-    log.debug(result);
-
-    const [version, projectId, projectName, padData] = result.split('|');
+    const [version, projectId, projectName, , , padData] = result.split('|');
 
     expect(version).toBe('1');
     expect(projectId).toBe('test-project');
     expect(decodeURIComponent(projectName)).toBe('Test Project');
 
-    // Check pad data format: padId|sourceUrl|operations
-    const [padId, sourceUrl, operations] = padData.split('|');
-    expect(padId).toBe('pad1');
-    expect(sourceUrl).toBe('https://example.com/video1');
-    expect(operations).toBe('trim:1.23:4.56');
+    const pad = importPadFromURLString(padData);
+
+    expect(pad).toBeDefined();
+    expect(pad?.id).toBe('pad1');
+    expect(pad?.source).toBe('odgn-vo://media/vid1');
+    expect(pad?.operations?.[0]?.type).toBe(OperationType.Trim);
+    expect((pad?.operations?.[0] as TrimOperation).start).toBe(1.23);
+    expect((pad?.operations?.[0] as TrimOperation).end).toBe(4.56);
   });
 });
 
@@ -140,9 +134,9 @@ describe('exportPadToURLString', () => {
       }
     };
 
-    const json = exportPadToJSON(pad, mockUrlMap);
+    const json = exportPadToJSON(pad);
 
-    const exported = exportPadToURLString(pad, mockUrlMap);
+    const exported = exportPadToURLString(pad);
 
     // log.debug(exported);
 
@@ -157,7 +151,7 @@ describe('exportPadToURLString', () => {
 describe('importPadFromURLString', () => {
   it('should import project from URL string', async () => {
     const data =
-      '1|08978bb8|DJ%20Premier%20on%20the%20Wheels%20of%20Steel|1736858554520|1737221082587|a1[Sff7Kc77QAY[trim:178.7:207.7(a2[WeoCOdbAy3s[trim:166.6:208(a3[TgelVkHEKdw[trim:214:264.4(a4[xnI8JEW7Ty4[trim:176:191.2(a5[FNj-m_s0ngA[trim:13.3:24.3(a9[RDhkRQ2jY9Q[(a10[Sff7Kc77QAY[trim:33.3:35.9';
+      '1|08978bb8|DJ%20Premier%20on%20the%20Wheels%20of%20Steel|1736858554520|1737221082587|a1[Sff7Kc77QAY[t:178.7:207.7(a2[WeoCOdbAy3s[t:166.6:208(a3[TgelVkHEKdw[t:214:264.4(a4[xnI8JEW7Ty4[t:176:191.2(a5[FNj-m_s0ngA[t:13.3:24.3(a9[RDhkRQ2jY9Q[(a10[Sff7Kc77QAY[t:33.3:35.9';
 
     const project = urlStringToProject(data);
 
@@ -213,12 +207,14 @@ describe('importPadFromURLString', () => {
     expect(project).toEqual(json);
   });
 
-  // it.only('should decode this', () => {
-  //   const data =
-  //     '1|5bdf1e67|C.R.E.A.M.|1737286737694|1737289526155|a1[gp9uZjPaB4w[trim:0.42:5.81(a2[gp9uZjPaB4w[trim:18:20.1(a5[PBwAxmrE194[trim:22.9:25.9(a6[PBwAxmrE194[trim:86.6:91.7(a7[PBwAxmrE194[trim:219.74:224.85(a11[mFTpDtjkHV8[trim:47.1:49.03(a12[mFTpDtjkHV8[trim:175:230.85';
+  it('should import a project with sequencer data from a URL string', () => {
+    const data =
+      '1%7C5dfc6cf5%7C808%7C1737733737341%7C1738259649629%7Ca1%5Bhttps%253A%252F%252Fyoutu.be%252FgsZ7izQpywY%5Bt%3A1%3A2%28a2%5Bhttps%253A%252F%252Fyoutu.be%252FgsZ7izQpywY%5Bt%3A17%3A17.1%28a3%5Bhttps%253A%252F%252Fyoutu.be%252FgsZ7izQpywY%5Bt%3A30.12%3A31%28a4%5Bhttps%253A%252F%252Fyoutu.be%252FgsZ7izQpywY%5Bt%3A170.29%3A171%28a5%5Bhttps%253A%252F%252Fyoutu.be%252FgsZ7izQpywY%5Bt%3A146.85%3A147.992%2Bpb%3A1%28a6%5Bhttps%253A%252F%252Fyoutu.be%252FgsZ7izQpywY%5Bt%3A91.605%3A184.212%2Bpb%3A1%28a11%5Bhttps%253A%252F%252Fyoutu.be%252FrtqTmUVjsuY%5Bt%3A286.768%3A290.431%28a12%5Bhttps%253A%252F%252Fyoutu.be%252FmFTpDtjkHV8%5Bt%3A28.91%3A31.171%28a13%5Bhttps%253A%252F%252Fyoutu.be%252FCYdOUyPcUm4%5Bt%3A126.457%3A130.12%2Bpb%3A1%28a14%5Bhttps%253A%252F%252Fyoutu.be%252FCYdOUyPcUm4%5Bt%3A600.713%3A604.593%2Bpb%3A1.29%2Bv%3A0%3A0.47%28a15%5Bhttps%253A%252F%252Fyoutu.be%252FmFTpDtjkHV8%5Bt%3A0.905%3A179%28a16%5Bhttps%253A%252F%252Fyoutu.be%252FmFTpDtjkHV8%5Bt%3A25.891%3A179%7C60%5B0%5B45%5Ba15%280%3A3.982%2Ba1%280.372%3A0.308%3A1.306%3A0.308%3A2.222%3A0.308%3A3.123%3A0.308%3A4.038%3A0.309%3A4.972%3A0.309%3A5.906%3A0.308%3A6.807%3A0.309%2Ba3%280.604%3A0.185%3A1.739%3A0.166%3A2.688%3A0.184%3A3.656%3A0.101%3A3.939%3A0.151%3A4.806%3A0.166%3A5.758%3A0.148%3A6.856%3A0.199%2Ba16%282.105%3A1.691';
 
-  //   const project = urlStringToProject(data);
+    const project = urlStringToProject(decodeURIComponent(data));
 
-  //   log.debug(JSON.stringify(project, null, 2));
-  // });
+    expect(project.sequencer).toBeDefined();
+
+    log.debug(JSON.stringify(project, null, 2));
+  });
 });

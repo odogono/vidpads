@@ -1,6 +1,7 @@
 import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
 import { importPadFromJSON } from '@model/serialise/pad';
+import { importSequencerFromJSON } from '@model/serialise/sequencer';
 import { initialContext } from '@model/store/store';
 import { ImportProjectAction, StoreContext } from '@model/store/types';
 import { addOrReplacePad } from './helpers';
@@ -28,10 +29,21 @@ export const importProject = (
     updatedAt: data.updatedAt ?? new Date().toISOString()
   };
 
+  const sequencer = data.sequencer
+    ? importSequencerFromJSON(data.sequencer)
+    : undefined;
+
+  const contextWithSequencer = sequencer
+    ? {
+        ...newContext,
+        sequencer
+      }
+    : newContext;
+
   return pads.reduce((acc, pad) => {
     if (pad) {
       return addOrReplacePad(acc, pad);
     }
     return acc;
-  }, newContext);
+  }, contextWithSequencer);
 };

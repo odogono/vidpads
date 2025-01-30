@@ -37,7 +37,6 @@ export interface StoreContextType {
   showMode: ShowMode;
 
   sequencer: {
-    selectedEventId?: string | null;
     bpm: number;
     events: SequencerEvent[];
     startTime: number;
@@ -225,11 +224,6 @@ export type MoveSequencerEventsAction = {
   isFinished?: boolean;
 };
 
-export type SetSelectedSeqEventIdAction = {
-  type: 'setSelectedSeqEventId';
-  eventId: string | null;
-};
-
 export type SetSequencerStartTimeAction = {
   type: 'setSequencerStartTime';
   startTime: number;
@@ -280,7 +274,6 @@ export type Actions =
   | ClearSequencerEventsAction
   | AddSequencerEventAction
   | RemoveSequencerEventAction
-  | SetSelectedSeqEventIdAction
   | SelectSequencerEventsAction
   | MoveSequencerEventsAction
   | SetSequencerStartTimeAction
