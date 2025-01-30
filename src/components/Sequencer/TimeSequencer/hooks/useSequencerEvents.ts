@@ -10,7 +10,11 @@ import {
   pixelsToMs,
   secondsToPixels
 } from '../helpers/timeConversion';
-import { TriggerEvent } from '../types';
+import {
+  TriggerNode,
+  findTriggerEventsWithinTimeRange,
+  insertTriggerEvent
+} from '../helpers/triggerEvent';
 
 interface UseSequencerEventsProps {
   setPlayHeadPosition: (position: number) => void;
@@ -32,87 +36,81 @@ export const useSequencerEvents = ({
   sequencerEventIds
 }: UseSequencerEventsProps) => {
   const events = useEvents();
-  const triggerIndex = useRef(0);
 
-  const { triggers } = useMemo(() => {
-    const result = sequencerEvents.reduce((acc, e) => {
-      if (!e) return acc;
-      const { time, duration, padId } = e;
+  // creates a binary tree of trigger events
+  const triggerTree: TriggerNode | undefined = useMemo(() => {
+    const result = sequencerEvents.reduce(
+      (tree, e) => {
+        if (!e) return tree;
+        const { time, duration, padId } = e;
 
-      const adjTime = pixelsToMs(
-        msToPixels(time, pixelsPerBeat, canvasBpm),
-        pixelsPerBeat,
-        bpm
-      );
-      const adjDuration = pixelsToMs(
-        msToPixels(duration, pixelsPerBeat, canvasBpm),
-        pixelsPerBeat,
-        bpm
-      );
+        const adjTime = pixelsToMs(
+          msToPixels(time, pixelsPerBeat, canvasBpm),
+          pixelsPerBeat,
+          bpm
+        );
+        const adjDuration = pixelsToMs(
+          msToPixels(duration, pixelsPerBeat, canvasBpm),
+          pixelsPerBeat,
+          bpm
+        );
 
-      acc.push({ event: 'pad:touchdown', time: adjTime, padId });
-      acc.push({ event: 'pad:touchup', time: adjTime + adjDuration, padId });
-      return acc;
-    }, [] as TriggerEvent[]);
+        tree = insertTriggerEvent(tree, {
+          event: 'pad:touchdown',
+          time: adjTime,
+          padId
+        });
+        tree = insertTriggerEvent(tree, {
+          event: 'pad:touchup',
+          time: adjTime + adjDuration,
+          padId
+        });
+        return tree;
+      },
+      undefined as TriggerNode | undefined
+    );
 
-    return { triggers: result };
-
+    return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sequencerEventIds, pixelsPerBeat, canvasBpm, bpm]);
 
+  const lastTimeUpdate = useRef(0);
   const handleTimeUpdate = useCallback(
-    (event: { time: number }) => {
-      const { time } = event;
+    (event: { time: number; isPlaying: boolean }) => {
+      const { time, isPlaying } = event;
       const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
       setPlayHeadPosition(playHeadPosition);
-      // log.debug('handleTimeUpdate', { time, playHeadPosition, bpm });
 
-      const nextTrigger = triggers[triggerIndex.current];
-      if (nextTrigger) {
-        const nextTriggerTime = nextTrigger.time;
-        if (time >= nextTriggerTime) {
-          const { event, padId } = nextTrigger;
-          events.emit(event, { padId });
-          triggerIndex.current++;
-          // log.debug('handleTimeUpdate', {
-          //   time,
-          //   event,
-          //   padId
-          // });
-        }
+      if (!isPlaying) {
+        lastTimeUpdate.current = time;
+        return;
       }
-    },
-    [bpm, events, pixelsPerBeat, setPlayHeadPosition, triggerIndex, triggers]
-  );
 
-  const handleTimeSet = useCallback(
-    (event: { time: number }) => {
-      const { time } = event;
-      triggerIndex.current = 0;
-      for (let i = 0; i < triggers.length; i++) {
-        const trigger = triggers[i];
-        if (trigger.time >= time) {
-          triggerIndex.current = i;
-          break;
-        }
+      // get all of the events between the last time this was called
+      // and the current time
+      const startTime = Math.min(time, lastTimeUpdate.current);
+      const endTime = Math.max(time, lastTimeUpdate.current);
+      const rangeEvents = findTriggerEventsWithinTimeRange(
+        triggerTree,
+        startTime,
+        endTime
+      );
+
+      for (const event of rangeEvents) {
+        events.emit(event.event, { padId: event.padId });
       }
-      // log.debug('handleTimeSet', {
-      //   time,
-      //   triggerKey,
-      //   index: triggerIndex.current
-      // });
+
+      lastTimeUpdate.current = time;
     },
-    [triggerIndex, triggers]
+    [bpm, events, pixelsPerBeat, setPlayHeadPosition, triggerTree]
   );
 
   useEffect(() => {
-    events.on('seq:time-set', handleTimeSet);
     events.on('seq:time-update', handleTimeUpdate);
     return () => {
-      events.off('seq:time-set', handleTimeSet);
       events.off('seq:time-update', handleTimeUpdate);
     };
-  }, [events, handleTimeSet, handleTimeUpdate]);
+  }, [events, handleTimeUpdate]);
 
   return events;
 };

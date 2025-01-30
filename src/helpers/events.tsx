@@ -101,9 +101,7 @@ export type EventEmitterEvents = {
   'seq:rewind': undefined;
   'seq:time-update': {
     time: number; // in secs
-  };
-  'seq:time-set': {
-    time: number;
+    isPlaying: boolean;
   };
   'seq:clear-events': undefined;
   'seq:set-time': {
