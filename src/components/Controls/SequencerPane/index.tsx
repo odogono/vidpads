@@ -21,6 +21,7 @@ export const SequencerPane = () => {
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const durationRef = useRef<OpTimeInputRef | null>(null);
   const timeRef = useRef<OpTimeInputRef | null>(null);
   const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
@@ -59,24 +60,27 @@ export const SequencerPane = () => {
 
   const handlePlayStarted = useCallback(() => {
     setIsPlaying(true);
+    setIsRecording(false);
     setShowRewind(false);
-  }, [setIsPlaying, setShowRewind]);
+  }, [setIsPlaying, setIsRecording, setShowRewind]);
 
   const handleStopped = useCallback(
     (event: { time: number }) => {
       setIsPlaying(false);
+      setIsRecording(false);
       setShowRewind(event.time > 0);
     },
-    [setIsPlaying, setShowRewind]
+    [setIsPlaying, setIsRecording, setShowRewind]
   );
 
   const handleTimeUpdate = useCallback(
-    (event: { time: number }) => {
-      if (!isPlaying) {
-        setShowRewind(event.time > 0);
+    (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
+      const { time, isPlaying, isRecording } = event;
+      if (!isPlaying && !isRecording) {
+        setShowRewind(time > 0);
       }
     },
-    [isPlaying, setShowRewind]
+    [setShowRewind]
   );
 
   const handleClear = useCallback(() => {
@@ -137,7 +141,10 @@ export const SequencerPane = () => {
           <Play className={isPlaying ? 'animate-pulse' : ''} />
         </OpButton>
         <OpButton label='Record' onPress={handleRecord}>
-          <Circle color='#b51a00' />
+          <Circle
+            color='#b51a00'
+            className={isRecording ? 'animate-pulse' : ''}
+          />
         </OpButton>
         <OpButton label='Clear' onPress={handleClear}>
           <Trash />

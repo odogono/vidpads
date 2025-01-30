@@ -107,6 +107,7 @@ interface SeqStoreContext {
 const onHandlers = {
   play: (context: SeqStoreContext, action: PlayAction, { emit }: Emit) => {
     const { isPlaying, isRecording, elapsedTime } = context;
+    log.debug('play', { isPlaying, isRecording, elapsedTime });
     if (isPlaying || isRecording) return context;
     emit({ type: 'playStarted', time: elapsedTime });
     log.debug('play', elapsedTime, '/', context.endTime);
@@ -124,12 +125,15 @@ const onHandlers = {
     return {
       ...context,
       elapsedTime: totalElapsedTime,
-      isPlaying: false
+      isPlaying: false,
+      isRecording: false
     };
   },
   record: (context: SeqStoreContext, action: RecordAction, { emit }: Emit) => {
+    const { isPlaying, isRecording, elapsedTime } = context;
+    if (isPlaying || isRecording) return context;
     const now = performance.now();
-    emit({ type: 'recordStarted', time: context.elapsedTime });
+    emit({ type: 'recordStarted', time: elapsedTime });
     return {
       ...context,
       playStartedAt: now,
@@ -207,10 +211,16 @@ export const useSequencerStore = () => {
   // log.debug('primaryStoreEndTime', primaryStoreEndTime);
 
   const updateTime = useCallback(() => {
-    const { playStartedAt, elapsedTime, startTime, endTime, isPlaying } =
-      store.getSnapshot().context;
+    const {
+      playStartedAt,
+      elapsedTime,
+      startTime,
+      endTime,
+      isPlaying,
+      isRecording
+    } = store.getSnapshot().context;
 
-    if (!isPlaying) return;
+    if (!isPlaying && !isRecording) return;
     const time = performance.now();
     const totalElapsedTime = elapsedTime + (time - playStartedAt) + startTime;
 
@@ -222,7 +232,8 @@ export const useSequencerStore = () => {
     // });
     events.emit('seq:time-update', {
       time: totalElapsedTime / 1000,
-      isPlaying: true
+      isPlaying,
+      isRecording
     });
 
     if (totalElapsedTime >= endTime) {
@@ -247,7 +258,7 @@ export const useSequencerStore = () => {
       animationRef.current = requestAnimationFrame(updateTime);
       updateTime();
 
-      log.debug('handlePlayStarted', event.time);
+      // log.debug('handlePlayStarted', event.time);
     },
     [events, updateTime]
   );
@@ -263,7 +274,7 @@ export const useSequencerStore = () => {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
 
-      log.debug('handlePlayStopped', event.time);
+      // log.debug('handlePlayStopped', event.time);
     },
     [events]
   );
@@ -275,6 +286,7 @@ export const useSequencerStore = () => {
       });
 
       animationRef.current = requestAnimationFrame(updateTime);
+      updateTime();
 
       log.debug('handleRecordStarted', event.time);
     },
@@ -286,7 +298,8 @@ export const useSequencerStore = () => {
       log.debug('handleTimeUpdate', event.time);
       events.emit('seq:time-update', {
         time: event.time,
-        isPlaying: false
+        isPlaying: false,
+        isRecording: false
       });
     },
     [events]
@@ -326,7 +339,8 @@ export const useSequencerStore = () => {
       store.send({ type: 'setElapsedTime', time: event.time * 1000 });
       events.emit('seq:time-update', {
         time: event.time,
-        isPlaying: false
+        isPlaying: false,
+        isRecording: false
       });
     },
     [events, store]
@@ -374,7 +388,8 @@ export const useSequencerStore = () => {
 
     events.emit('seq:time-update', {
       time: primaryStoreStartTime,
-      isPlaying: false
+      isPlaying: false,
+      isRecording: false
     });
 
     return () => {

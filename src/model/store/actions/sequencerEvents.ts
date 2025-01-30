@@ -1,11 +1,10 @@
 import { createLog } from '@helpers/log';
 import {
-  createEvent,
+  createSequencerEvent,
   getIntersectingEvents,
   joinEvents,
   mergeEvents,
   padIdToRowIndex,
-  quantizeEvents,
   removeEvents,
   rowIndexToPadId
 } from '@model/sequencerEvent';
@@ -68,7 +67,7 @@ export const toggleSequencerEvent = (
     });
   }
 
-  const newEvent = createEvent({ padId, time, duration });
+  const newEvent = createSequencerEvent({ padId, time, duration });
   const newEvents = [...events, newEvent].toSorted((a, b) => a.time - b.time);
 
   return update(context, {
@@ -83,14 +82,14 @@ export const addSequencerEvent = (
   context: StoreContext,
   action: AddSequencerEventAction
 ): StoreContext => {
-  const { padId, quantizeStep = 1 } = action;
+  const { padId, time, duration } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
-  const { time, duration } = quantizeEvents(
-    [createEvent(action)],
-    quantizeStep
-  )[0];
+  // const { time, duration } = quantizeEvents(
+  //   [createEvent(action)],
+  //   quantizeStep
+  // )[0];
 
   const intersectingEvents = getIntersectingEvents(events, time, duration, [
     padId
@@ -100,7 +99,7 @@ export const addSequencerEvent = (
   if (!intersectingEvents.length) {
     const newEvents = [
       ...events,
-      createEvent({ padId, time, duration })
+      createSequencerEvent({ padId, time, duration })
     ].toSorted((a, b) => a.time - b.time);
     return update(context, {
       sequencer: {
@@ -115,7 +114,7 @@ export const addSequencerEvent = (
 
   // join the new event with the intersecting events
   const joinedEvent = joinEvents(
-    ...[createEvent(action), ...intersectingEvents]
+    ...[createSequencerEvent(action), ...intersectingEvents]
   );
 
   if (joinedEvent) {

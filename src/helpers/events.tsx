@@ -102,6 +102,7 @@ export type EventEmitterEvents = {
   'seq:time-update': {
     time: number; // in secs
     isPlaying: boolean;
+    isRecording: boolean;
   };
   'seq:clear-events': undefined;
   'seq:set-time': {

@@ -1,9 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useSequencer } from '@model/hooks/useSequencer';
+import { createSequencerEvent } from '@model/sequencerEvent';
 import { SequencerEvent } from '@model/types';
 import {
   msToPixels,
@@ -36,6 +38,52 @@ export const useSequencerEvents = ({
   sequencerEventIds
 }: UseSequencerEventsProps) => {
   const events = useEvents();
+  const lastTimeUpdate = useRef(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const { addEvent } = useSequencer();
+  const recordEvents = useRef<Map<string, SequencerEvent>>(new Map());
+
+  const handlePadTouchdown = useCallback(
+    (event: { padId: string }) => {
+      if (!isRecording) return;
+      const { padId } = event;
+      // log.debug('pad:touchdown', padId);
+
+      const seqEvent = createSequencerEvent({
+        padId,
+        time: lastTimeUpdate.current,
+        duration: 0.5
+      });
+
+      recordEvents.current.set(padId, seqEvent);
+    },
+    [recordEvents, lastTimeUpdate, isRecording]
+  );
+
+  const handlePadTouchup = useCallback(
+    (event: { padId: string }) => {
+      if (!isRecording) return;
+      const { padId } = event;
+      // log.debug('pad:touchup', padId);
+      const seqEvent = recordEvents.current.get(padId);
+      if (!seqEvent) return;
+      recordEvents.current.delete(padId);
+
+      seqEvent.duration = lastTimeUpdate.current - seqEvent.time;
+
+      addEvent(seqEvent.padId, seqEvent.time, seqEvent.duration);
+    },
+    [addEvent, recordEvents, lastTimeUpdate, isRecording]
+  );
+
+  const handleRecordStarted = useCallback(() => {
+    setIsRecording(true);
+    recordEvents.current.clear();
+  }, [setIsRecording, recordEvents]);
+
+  const handleStopped = useCallback(() => {
+    setIsRecording(false);
+  }, [setIsRecording]);
 
   // creates a binary tree of trigger events
   const triggerTree: TriggerNode | undefined = useMemo(() => {
@@ -74,14 +122,13 @@ export const useSequencerEvents = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sequencerEventIds, pixelsPerBeat, canvasBpm, bpm]);
 
-  const lastTimeUpdate = useRef(0);
   const handleTimeUpdate = useCallback(
-    (event: { time: number; isPlaying: boolean }) => {
-      const { time, isPlaying } = event;
+    (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
+      const { time, isPlaying, isRecording } = event;
       const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
       setPlayHeadPosition(playHeadPosition);
 
-      if (!isPlaying) {
+      if (!isPlaying && !isRecording) {
         lastTimeUpdate.current = time;
         return;
       }
@@ -106,11 +153,26 @@ export const useSequencerEvents = ({
   );
 
   useEffect(() => {
+    events.on('pad:touchdown', handlePadTouchdown);
+    events.on('pad:touchup', handlePadTouchup);
     events.on('seq:time-update', handleTimeUpdate);
+    events.on('seq:record-started', handleRecordStarted);
+    events.on('seq:stopped', handleStopped);
     return () => {
+      events.off('pad:touchdown', handlePadTouchdown);
+      events.off('pad:touchup', handlePadTouchup);
       events.off('seq:time-update', handleTimeUpdate);
+      events.off('seq:record-started', handleRecordStarted);
+      events.off('seq:stopped', handleStopped);
     };
-  }, [events, handleTimeUpdate]);
+  }, [
+    events,
+    handlePadTouchdown,
+    handlePadTouchup,
+    handleTimeUpdate,
+    handleRecordStarted,
+    handleStopped
+  ]);
 
   return events;
 };
