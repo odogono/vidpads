@@ -32,9 +32,25 @@ export default {
       },
       minHeight: {
         '1/2': '50%'
+      },
+      screens: {
+        sm: '480px',
+        md: '834px',
+        lg: '1440px',
+        'touch-none': { raw: '(pointer: coarse)' }
       }
     }
   },
   darkMode: 'class',
-  plugins: [require('tailwindcss-motion'), nextui()]
+  plugins: [
+    require('tailwindcss-motion'),
+    nextui(),
+    ({ addUtilities }) => {
+      addUtilities({
+        '.touch-none': {
+          '-webkit-touch-callout': 'none'
+        }
+      });
+    }
+  ]
 } satisfies Config;
