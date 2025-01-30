@@ -1,30 +1,64 @@
 'use client';
 
-import { RefObject, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { secondsToPixels } from '../helpers/timeConversion';
+import { SequencerEvent } from '@model/types';
+import {
+  msToPixels,
+  pixelsToMs,
+  secondsToPixels
+} from '../helpers/timeConversion';
 import { TriggerEvent } from '../types';
 
 interface UseSequencerEventsProps {
   setPlayHeadPosition: (position: number) => void;
-  triggers: TriggerEvent[];
-  triggerIndex: RefObject<number>;
   pixelsPerBeat: number;
   bpm: number;
+  canvasBpm: number;
+  sequencerEvents: SequencerEvent[];
+  sequencerEventIds: string;
 }
 
 const log = createLog('seq/useSequencerEvents');
 
 export const useSequencerEvents = ({
   setPlayHeadPosition,
-  triggers,
-  triggerIndex,
   pixelsPerBeat,
-  bpm
+  bpm,
+  canvasBpm,
+  sequencerEvents,
+  sequencerEventIds
 }: UseSequencerEventsProps) => {
   const events = useEvents();
+  const triggerIndex = useRef(0);
+
+  const { triggers } = useMemo(() => {
+    const result = sequencerEvents.reduce((acc, e) => {
+      if (!e) return acc;
+      const { time, duration, padId } = e;
+
+      const adjTime = pixelsToMs(
+        msToPixels(time, pixelsPerBeat, canvasBpm),
+        pixelsPerBeat,
+        bpm
+      );
+      const adjDuration = pixelsToMs(
+        msToPixels(duration, pixelsPerBeat, canvasBpm),
+        pixelsPerBeat,
+        bpm
+      );
+
+      acc.push({ event: 'pad:touchdown', time: adjTime, padId });
+      acc.push({ event: 'pad:touchup', time: adjTime + adjDuration, padId });
+      return acc;
+    }, [] as TriggerEvent[]);
+
+    return { triggers: result };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sequencerEventIds, pixelsPerBeat, canvasBpm, bpm]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number }) => {
