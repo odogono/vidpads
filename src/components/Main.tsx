@@ -8,7 +8,7 @@ import { PadContainer } from '@components/PadContainer';
 import { PlayerContainer } from '@components/Player/Container';
 import { Sequencer } from '@components/Sequencer';
 import { ShareButton } from '@components/ShareButton';
-import { useFullScreen } from '@hooks/useFullScreen';
+import { useFullscreen } from '@contexts/fullscreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useWindowUrl } from '@hooks/useWindowUrl';
 import { useShowMode } from '@model/hooks/useShowMode';
@@ -16,18 +16,18 @@ import { useShowMode } from '@model/hooks/useShowMode';
 export const Main = () => {
   useWindowUrl();
 
-  const { isFullscreen, setFullscreen } = useFullScreen();
+  const { isFullscreen, setIsFullscreen } = useFullscreen();
   const { isPadsVisible, isSequencerVisible } = useShowMode();
 
   return (
     <PadDnDProvider>
       <div
         className={`vo-main w-full h-full text-white dark text-foreground flex flex-col ${
-          isFullscreen ? 'p-0' : 'p-8'
+          isFullscreen ? 'p-0' : 'sm:p-[2vw] md:p-[3vw] lg:p-[5vw]'
         }`}
       >
         <header
-          className={`flex justify-between p-4 w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
+          className={`flex justify-between w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
         >
           <div className='text-white text-l font-bold'>ODGN VIDEO OPERATOR</div>
           <span>
@@ -41,13 +41,15 @@ export const Main = () => {
             isFullscreen ? 'fixed inset-0 w-screen h-screen z-50' : 'flex-1'
           }`}
         >
-          <div className='vo-player-wrapper relative w-full h-full min-h-[20vh] overflow-hidden bg-slate-500 rounded-lg'>
+          <div
+            className={`vo-player-wrapper relative w-full h-full min-h-[20vh] overflow-hidden ${isFullscreen ? 'bg-black' : 'bg-slate-500'} rounded-lg`}
+          >
             <PlayerContainer />
           </div>
 
           <FullScreenButton
             isFullscreen={isFullscreen}
-            setIsFullscreen={setFullscreen}
+            setIsFullscreen={setIsFullscreen}
           />
         </div>
 

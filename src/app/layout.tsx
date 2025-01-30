@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 
+import { FullscreenContextProvider } from '../contexts/fullscreen';
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin']
@@ -32,11 +34,17 @@ const RootLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => (
-  <html lang='en'>
+  <html lang='en' className='overscroll-none'>
     <body
-      className={`${geistSans.variable} ${geistMono.variable} bg-background antialiased`}
+      className={`
+        ${geistSans.variable} 
+        ${geistMono.variable} 
+        bg-background 
+        antialiased
+        overflow-y-hidden
+      `}
     >
-      {children}
+      <FullscreenContextProvider>{children}</FullscreenContextProvider>
     </body>
   </html>
 );

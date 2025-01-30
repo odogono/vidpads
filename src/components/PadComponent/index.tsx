@@ -1,7 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type PointerEvent as ReactPointerEvent
+} from 'react';
 
 import { VolumeOff } from 'lucide-react';
 
@@ -59,22 +64,33 @@ export const PadComponent = ({
     }
   }, [isDragging, removeGhost]);
 
-  const handleTouchStart = useCallback(() => {
-    if (isPlayerReady && isPlayEnabled) {
-      events.emit('pad:touchdown', { padId: pad.id });
-    }
-    setSelectedPadId(pad.id);
-  }, [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled]);
+  const handlePointerDown = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  const handleTouchMove = useCallback(
-    (e: GeneralTouchEvent) => {
-      const clientX = isMouseEvent(e)
-        ? (e as React.MouseEvent<HTMLDivElement>).clientX
-        : (e as React.TouchEvent<HTMLDivElement>).touches[0].clientX;
-      const clientY = isMouseEvent(e)
-        ? (e as React.MouseEvent<HTMLDivElement>).clientY
-        : (e as React.TouchEvent<HTMLDivElement>).touches[0].clientY;
+      if (isPlayerReady && isPlayEnabled) {
+        events.emit('pad:touchdown', { padId: pad.id });
+      }
+      setSelectedPadId(pad.id);
+    },
+    [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled]
+  );
 
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    []
+  );
+
+  const handlePointerMove = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement> | PointerEvent) => {
+      // e.preventDefault();
+      // e.stopPropagation();
+
+      const { clientX, clientY } = e;
       requestAnimationFrame(() => {
         updateGhost(clientX, clientY);
       });
@@ -82,34 +98,37 @@ export const PadComponent = ({
     [updateGhost]
   );
 
-  const handleTouchEnd = useCallback(() => {
-    // log.debug('handleTouchEnd');
+  const handlePointerUp = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement> | PointerEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    // Only trigger tap if we didn't drag
-    if (!isDragging) {
-      if (!thumbnail && isSelectSourceEnabled) {
-        onEmptyPadTouch(pad.id);
-      } else {
-        if (isPlayerReady && isPlayEnabled) {
-          events.emit('pad:touchup', { padId: pad.id });
+      if (!isDragging) {
+        if (!thumbnail && isSelectSourceEnabled) {
+          onEmptyPadTouch(pad.id);
+        } else {
+          if (isPlayerReady && isPlayEnabled) {
+            events.emit('pad:touchup', { padId: pad.id });
+          }
         }
+      } else {
+        removeGhost();
+        setDraggingId(null);
       }
-    } else {
-      removeGhost();
-      setDraggingId(null);
-    }
-  }, [
-    isDragging,
-    thumbnail,
-    onEmptyPadTouch,
-    pad.id,
-    events,
-    removeGhost,
-    setDraggingId,
-    isPlayerReady,
-    isPlayEnabled,
-    isSelectSourceEnabled
-  ]);
+    },
+    [
+      isDragging,
+      thumbnail,
+      onEmptyPadTouch,
+      pad.id,
+      events,
+      removeGhost,
+      setDraggingId,
+      isPlayerReady,
+      isPlayEnabled,
+      isSelectSourceEnabled
+    ]
+  );
 
   const handleDragStart = useCallback(
     (e: GeneralDragEvent) => {
@@ -160,25 +179,17 @@ export const PadComponent = ({
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mouseup', handleTouchEnd, { passive: true });
-      document.addEventListener('touchend', handleTouchEnd, { passive: true });
-      document.addEventListener('mousemove', handleTouchMove, {
-        passive: true
-      });
+      document.addEventListener('pointerup', handlePointerUp);
+      document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('dragover', handleDragOver, { passive: true });
-      document.addEventListener('touchmove', handleTouchMove, {
-        passive: true
-      });
     }
 
     return () => {
-      document.removeEventListener('mouseup', handleTouchEnd);
-      document.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('mousemove', handleTouchMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+      document.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('dragover', handleDragOver);
-      document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isDragging, handleTouchEnd, handleTouchMove, handleDragOver]);
+  }, [isDragging, handlePointerUp, handlePointerMove, handleDragOver]);
 
   const dragProps = {
     // Native drag and drop handlers
@@ -197,16 +208,16 @@ export const PadComponent = ({
       ref={elementRef}
       key={pad.id}
       className={`
-          w-full h-full rounded-lg cursor-pointer transition-all relative
+          w-full h-full rounded-lg cursor-pointer transition-all relative select-none touch-none
           ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
           ${isReady ? 'opacity-100' : 'opacity-20'}
         `}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleTouchStart}
-      onMouseUp={handleTouchEnd}
+      style={{ touchAction: 'none', WebkitTouchCallout: 'none' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onContextMenu={handleContextMenu}
       {...dragProps}
     >
       {thumbnail && (

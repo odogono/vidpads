@@ -1,31 +1,87 @@
+'use client';
+
 import { Toaster } from 'react-hot-toast';
 
 import { Tooltip } from '@components/Tooltip';
+import { useFullscreen } from '@contexts/fullscreen';
 
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
+  const { isFullscreen } = useFullscreen();
+
   return (
     <>
       <Tooltip />
       <Toaster />
-      <div className='min-h-screen w-screen bg-sky-200 flex justify-center items-center overflow-hidden'>
-        <div className='w-screen h-screen flex justify-center items-center p-5 box-border'>
-          <div
-            className={`
-            bg-slate-700 
-            border-2 
-            border-gray-700 
-            rounded-2xl 
-            shadow-md 
+      <div
+        className={`
+          vo-root-a
+          ${
+            isFullscreen
+              ? `
+            fixed inset-0 
+            w-screen h-screen 
+            bg-black`
+              : `flex 
+          w-screen 
+          h-[100dvh] 
+          bg-sky-200 
+          justify-center items-center`
+          }
+          
+          overflow-hidden
+        `}
+      >
+        <div
+          className={`
+            vo-root-b
             relative
-            portrait:w-[min(calc(100vw-40px),calc((100vh-40px)*0.707))]
-            portrait:aspect-[724/1024]
-            landscape:h-[min(calc(100vh-40px),calc((100vw-40px)*0.707))]
-            landscape:aspect-[1024/724]
+            ${
+              isFullscreen
+                ? 'w-screen h-screen bg-black'
+                : `w-full h-full bg-slate-700
+            portrait:lg:rounded-2xl 
+            landscape:lg:rounded-2xl 
+            portrait:sm:w-full
+            portrait:sm:h-full
+            portrait:md:w-[min(calc(100vw-40px),calc((100vh-40px)*0.707))]
+            portrait:md:aspect-[724/1024]
+            landscape:md:h-[min(calc(100vh-40px),calc((100vw-40px)*0.707))]
+            landscape:md:aspect-[1024/724]
+            portrait:lg:w-[min(calc(100vw-40px),calc((100vh-40px)*0.707))]
+            portrait:lg:aspect-[724/1024]
+            landscape:lg:h-[min(calc(100vh-40px),calc((100vw-40px)*0.707))]
+            landscape:lg:aspect-[1024/724]
+            `
+            }
           `}
-          >
-            {children}
-          </div>
+        >
+          {children}
         </div>
+      </div>
+      <div className='absolute left-10 top-10 bg-black/50 text-white px-2 py-1 rounded text-sm font-mono'>
+        <span className='block portrait:sm:hidden landscape:hidden'>
+          {'<480px'}
+        </span>
+        <span className='hidden portrait:sm:block portrait:md:hidden landscape:hidden'>
+          {'480-834px'}
+        </span>
+        <span className='hidden portrait:md:block portrait:lg:hidden landscape:hidden'>
+          {'834-1440px'}
+        </span>
+        <span className='hidden portrait:lg:block landscape:hidden'>
+          {'>1440px'}
+        </span>
+
+        <span className='hidden landscape:block landscape:sm:hidden'>
+          {'<768px (L)'}
+        </span>
+        <span className='hidden landscape:sm:block landscape:md:hidden'>
+          {'768-1024px (L)'}
+        </span>
+        <span className='hidden landscape:md:block landscape:lg:hidden'>
+          {'1024-1440px (L)'}
+        </span>
+        <span className='hidden landscape:lg:block'>{'>1440px (L)'}</span>
       </div>
     </>
   );
