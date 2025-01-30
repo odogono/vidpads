@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 import mitt, { Emitter } from 'mitt';
 
@@ -34,7 +34,7 @@ export type EventEmitterEvents = {
   'video:start': PlayerPlay;
   // request the video to stop
   'video:stop': PlayerStop;
-  ß;
+
   // request the video to seek to a specific time
   'video:seek': PlayerSeek;
   // request the video to extract a thumbnail
