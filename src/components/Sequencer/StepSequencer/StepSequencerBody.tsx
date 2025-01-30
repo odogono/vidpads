@@ -102,34 +102,12 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
     [events, timeToStep, triggers]
   );
 
-  const handleTimeSet = useCallback(
-    (event: { time: number }) => {
-      const { time } = event;
-      triggerIndex.current = 0;
-      for (let i = 0; i < triggers.length; i++) {
-        const trigger = triggers[i];
-        if (trigger.time >= time) {
-          triggerIndex.current = i;
-          break;
-        }
-      }
-      log.debug('handleTimeSet', {
-        time,
-        triggerKey,
-        index: triggerIndex.current
-      });
-    },
-    [triggerKey, triggers]
-  );
-
   useEffect(() => {
-    events.on('seq:time-set', handleTimeSet);
     events.on('seq:time-update', handleTimeUpdate);
     return () => {
-      events.off('seq:time-set', handleTimeSet);
       events.off('seq:time-update', handleTimeUpdate);
     };
-  }, [events, handleTimeSet, handleTimeUpdate]);
+  }, [events, handleTimeUpdate]);
 
   return (
     <div className='relative vo-seq-body w-[3000px] h-full'>
