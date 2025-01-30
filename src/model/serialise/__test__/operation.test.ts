@@ -72,7 +72,7 @@ describe('Operation serialization', () => {
       const exported = exportOperationToURL(trimOperation);
       const imported = importOperationFromURL(exported!);
 
-      expect(exported).toBe('trim:1.235:4.568');
+      expect(exported).toBe('t:1.235:4.568');
       expect(imported).toEqual({
         type: OperationType.Trim,
         start: 1.235,
@@ -92,7 +92,7 @@ describe('Operation serialization', () => {
       const exported = exportOperationToURL(volumeOperation);
       const imported = importOperationFromURL(exported!);
 
-      expect(exported).toBe('volume:0:1:2.5:0.5');
+      expect(exported).toBe('v:0:1:2.5:0.5');
       expect(imported).toEqual(volumeOperation);
     });
 
@@ -111,7 +111,7 @@ describe('Operation serialization', () => {
       const exported = exportOperationToURL(volumeOperation);
       const imported = importOperationFromURL(exported!);
 
-      expect(exported).toBe('volume:');
+      expect(exported).toBe('v:');
       expect(imported).toEqual(volumeOperation);
     });
 

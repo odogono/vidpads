@@ -1,4 +1,10 @@
 import { createLog } from '@helpers/log';
+import {
+  createPadUrl,
+  isYTMediaUrl,
+  parsePadUrl,
+  toMediaUrl
+} from '@helpers/metadata';
 import { isYouTubeUrl, isYouTubeVideoId } from '@helpers/youtube';
 import {
   Interval,
@@ -8,12 +14,6 @@ import {
   Pad,
   PadExport
 } from '@model/types';
-import {
-  createPadUrl,
-  isYTMediaUrl,
-  parsePadUrl,
-  toMediaUrl
-} from '../../helpers/metadata';
 import {
   createPad,
   getPadInterval,
@@ -36,7 +36,7 @@ export interface ImportPadFromJSONOptions {
   importSource?: boolean;
 }
 
-const log = createLog('model/serialise/pad');
+const log = createLog('model/serialise/pad', ['debug']);
 
 export const importPadFromJSON = ({
   pad,

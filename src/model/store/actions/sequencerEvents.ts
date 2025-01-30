@@ -16,7 +16,6 @@ import {
   SelectSequencerEventsAction,
   SetSelectedEventsDurationAction,
   SetSelectedEventsTimeAction,
-  SetSelectedSeqEventIdAction,
   SetSequencerEndTimeAction,
   SetSequencerStartTimeAction,
   StoreContext,
@@ -25,20 +24,6 @@ import {
 import { update } from './helpers';
 
 const log = createLog('sequencer/events', ['debug']);
-
-export const setSelectedSeqEventId = (
-  context: StoreContext,
-  event: SetSelectedSeqEventIdAction
-): StoreContext => {
-  const { eventId } = event;
-
-  return update(context, {
-    sequencer: {
-      ...context.sequencer,
-      selectedEventId: eventId
-    }
-  });
-};
 
 export const toggleSequencerEvent = (
   context: StoreContext,
