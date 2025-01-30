@@ -59,19 +59,13 @@ export const TimeSequencerBody = ({
   const timelineDurationInPixels =
     secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
 
-  const { triggers, triggerIndex } = useTriggers(
-    sequencerEvents,
-    pixelsPerBeat,
-    canvasBpm,
-    bpm
-  );
-
   useSequencerEvents({
+    sequencerEvents,
+    sequencerEventIds,
     setPlayHeadPosition,
-    triggers,
-    triggerIndex,
     pixelsPerBeat,
-    bpm
+    bpm,
+    canvasBpm
   });
 
   const selectedEventsRect: Rect = useSelectedEventsRect({
