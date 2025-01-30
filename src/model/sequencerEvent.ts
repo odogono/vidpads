@@ -2,7 +2,7 @@ import { SequencerEvent } from './types';
 
 let eventIdCount = 0;
 
-export const createEvent = ({
+export const createSequencerEvent = ({
   padId,
   time = 0,
   duration = 0.1
@@ -37,7 +37,7 @@ export const joinEvents = (
     [events[0].time, events[0].time + events[0].duration]
   );
 
-  return createEvent({
+  return createSequencerEvent({
     padId,
     time,
     duration: timeEnd - time
