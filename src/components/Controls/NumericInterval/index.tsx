@@ -2,12 +2,15 @@
 
 import { useCallback, useRef } from 'react';
 
+import { ArrowLeftFromLine, ArrowRightFromLine } from 'lucide-react';
+
 import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
+import { OpButton } from '../../buttons/OpButton';
 import { useControlsEvents } from '../hooks/useControlsEvents';
 
 const log = createLog('NumericInterval', ['debug']);
@@ -75,6 +78,22 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
     [handleIntervalChange]
   );
 
+  const handleCopyTimeToStart = useCallback(() => {
+    const start = inputTimeRef.current?.getValue();
+    const end = endTimeRef.current?.getValue();
+    if (start === undefined || end === undefined) return;
+    startTimeRef.current?.setValue(start);
+    handleIntervalChange(start, end);
+  }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange]);
+
+  const handleCopyTimeToEnd = useCallback(() => {
+    const start = startTimeRef.current?.getValue();
+    const end = inputTimeRef.current?.getValue();
+    if (start === undefined || end === undefined) return;
+    endTimeRef.current?.setValue(end);
+    handleIntervalChange(start, end);
+  }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange]);
+
   return (
     <div className='flex flex-row gap-2'>
       <OpTimeInput
@@ -86,6 +105,9 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         showIncrementButtons={true}
         onChange={handleStartChange}
       />
+      <OpButton size='sm' onPress={handleCopyTimeToStart}>
+        <ArrowLeftFromLine />
+      </OpButton>
       <OpTimeInput
         ref={inputTimeRef}
         initialValue={0}
@@ -93,6 +115,9 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         description='Time'
         isDisabled={true}
       />
+      <OpButton size='sm' onPress={handleCopyTimeToEnd}>
+        <ArrowRightFromLine />
+      </OpButton>
       <OpTimeInput
         ref={endTimeRef}
         initialValue={padEnd}

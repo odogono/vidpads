@@ -5,9 +5,11 @@ import { Button, Input, cn } from '@nextui-org/react';
 export const OpButton = ({
   label,
   children,
-  onPress
+  onPress,
+  size = 'md'
 }: {
-  label: string;
+  label?: string;
+  size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
   onPress: () => void;
 }) => {
@@ -15,23 +17,26 @@ export const OpButton = ({
     <div className='flex flex-col items-center justify-center'>
       <Button
         isIconOnly
+        size={size}
         aria-label={label}
         onPress={onPress}
         className={cn(
-          'min-w-[44px] min-h-[44px] aspect-square bg-slate-400 hover:bg-slate-300 text-black'
+          'aspect-square bg-slate-400 hover:bg-slate-300 text-black'
         )}
       >
         {children}
       </Button>
-      <div
-        className='text-xs text-foreground/90 mt-2'
-        style={{
-          fontSize: '0.6rem',
-          lineHeight: '0.75rem'
-        }}
-      >
-        {label}
-      </div>
+      {label && (
+        <div
+          className='text-xs text-foreground/90 mt-2'
+          style={{
+            fontSize: '0.6rem',
+            lineHeight: '0.75rem'
+          }}
+        >
+          {label}
+        </div>
+      )}
     </div>
   );
 };
