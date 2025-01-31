@@ -16,7 +16,7 @@ import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
-import { GeneralDragEvent, isMouseEvent, type GeneralTouchEvent } from '@types';
+import { GeneralDragEvent } from '@types';
 import { MIME_TYPE_PAD } from '../../hooks/usePadDnD/constants';
 import { getPadSourceUrl } from '../../model/pad';
 import { useGhostDrag } from './ghost';
@@ -66,8 +66,8 @@ export const PadComponent = ({
 
   const handlePointerDown = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
+      // e.preventDefault();
+      // e.stopPropagation();
 
       if (isPlayerReady && isPlayEnabled) {
         events.emit('pad:touchdown', { padId: pad.id });
@@ -100,8 +100,8 @@ export const PadComponent = ({
 
   const handlePointerUp = useCallback(
     (e: ReactPointerEvent<HTMLDivElement> | PointerEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+      // e.preventDefault();
+      // e.stopPropagation();
 
       if (!isDragging) {
         if (!thumbnail && isSelectSourceEnabled) {
