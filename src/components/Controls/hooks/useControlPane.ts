@@ -3,7 +3,15 @@
 import { useCallback } from 'react';
 
 import { useStore } from '@model/store/useStore';
+import { ControlPanes } from '@types';
 import { useSelector } from '@xstate/store/react';
+
+const ControlPaneIndexes: ControlPanes[] = [
+  'state',
+  'interval',
+  'details',
+  'sequencer'
+];
 
 export const useControlPane = () => {
   const { store } = useStore();
@@ -14,38 +22,30 @@ export const useControlPane = () => {
   );
 
   const setSelectedControlPane = useCallback(
-    (pane: 'state' | 'interval' | 'sequencer' | 'details') => {
+    (pane: ControlPanes) => {
       store.send({ type: 'setSelectedControlPane', pane });
     },
     [store]
   );
 
-  const cycleToNextControlPane = useCallback(() => {
-    let nextPane: 'state' | 'interval' | 'sequencer' | 'details' = 'state';
-    switch (selectedControlPane) {
-      case 'state':
-        nextPane = 'interval';
-        break;
-      case 'interval':
-        nextPane = 'details';
-        break;
-      case 'details':
-        nextPane = 'sequencer';
-        break;
-      case 'sequencer':
-        nextPane = 'state';
-        break;
-      default:
-        nextPane = 'state';
-        break;
-    }
+  const goToPreviousControlPane = useCallback(() => {
+    const index = ControlPaneIndexes.indexOf(selectedControlPane);
+    const previousIndex = index - 1;
+    const previousPane = ControlPaneIndexes[previousIndex];
+    setSelectedControlPane(previousPane);
+  }, [setSelectedControlPane, selectedControlPane]);
 
+  const goToNextControlPane = useCallback(() => {
+    const index = ControlPaneIndexes.indexOf(selectedControlPane);
+    const nextIndex = index + 1;
+    const nextPane = ControlPaneIndexes[nextIndex];
     setSelectedControlPane(nextPane);
   }, [setSelectedControlPane, selectedControlPane]);
 
   return {
     selectedControlPane,
     setSelectedControlPane,
-    cycleToNextControlPane
+    goToPreviousControlPane,
+    goToNextControlPane
   };
 };

@@ -10,7 +10,7 @@ export interface Position {
   y: number;
 }
 
-export type SequencerType = 'state' | 'interval' | 'sequencer' | 'details';
+export type ControlPanes = 'state' | 'interval' | 'sequencer' | 'details';
 
 export type GeneralTouchEvent =
   | React.TouchEvent<HTMLElement>

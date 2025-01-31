@@ -7,6 +7,7 @@ import { ArrowDownUp } from 'lucide-react';
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { usePad } from '@model/hooks/usePad';
 import { Button, Card, CardHeader, cn } from '@nextui-org/react';
+import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
 import { SequencerPane } from './SequencerPane';
@@ -19,7 +20,8 @@ export const ControlsLoaded = () => {
   const { selectedPadId } = usePad();
   // const [selectedPane, setSelectedPane] = useState<PaneState>('details');
 
-  const { selectedControlPane, cycleToNextControlPane } = useControlPane();
+  const { selectedControlPane, goToPreviousControlPane, goToNextControlPane } =
+    useControlPane();
 
   const modalRef = useRef<DeleteModalRef | null>(null);
   // used to prevent hydration error
@@ -49,16 +51,11 @@ export const ControlsLoaded = () => {
   return (
     <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row'>
       <div className='switcher rounded-lg  flex flex-row'>
-        <Button
-          isIconOnly
-          aria-label='State'
-          onPress={cycleToNextControlPane}
-          className={cn(
-            'w-full h-full aspect-square bg-slate-400 hover:bg-slate-300 text-black'
-          )}
-        >
-          <ArrowDownUp />
-        </Button>
+        <OpBiButton
+          label='State'
+          onPressUp={goToPreviousControlPane}
+          onPressDown={goToNextControlPane}
+        ></OpBiButton>
         <div className='switcher-indicator m-2 flex flex-col gap-2 justify-center'>
           <Indicator isActive={selectedControlPane === 'state'} />
           <Indicator isActive={selectedControlPane === 'interval'} />
