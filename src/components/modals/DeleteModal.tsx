@@ -31,7 +31,7 @@ export const DeleteModal = ({ ref }: DeleteModalProps) => {
 
   const handleDelete = useCallback(async () => {
     if (!selectedPadId) return;
-    await clearPad(selectedPadId);
+    await clearPad({ sourcePadId: selectedPadId });
     onClose();
   }, [selectedPadId, clearPad, onClose]);
 

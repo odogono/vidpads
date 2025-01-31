@@ -309,9 +309,11 @@ export const usePadOperations = () => {
     }: Partial<PadOperationsOptions> & { sourcePadId: string }) => {
       const pad = getPadById(store, sourcePadId);
       if (!pad) {
-        log.warn('[clearPad] Pad not found:', sourcePadId);
+        log.debug('[clearPad] Pad not found:', sourcePadId);
         return false;
       }
+
+      log.debug('[clearPad] deleting pad media:', sourcePadId);
 
       await deletePadMediaOp(pad);
 
