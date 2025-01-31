@@ -1,11 +1,11 @@
-import { useEffect, useImperativeHandle, useState } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useState } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
 import { cn } from '@nextui-org/react';
 
-const log = createLog('OpTimeInput');
+const log = createLog('OpTimeInput', ['debug']);
 
 export interface OpTimeInputRef {
   setValue: (value: number) => void;
@@ -80,22 +80,25 @@ export const OpTimeInput = ({
     setInputValue(e.target.value);
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
-    if (isDisabled) return;
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLInputElement>) => {
+      if (isDisabled) return;
 
-    const [min, max] = range ? range : [0, 100];
+      const [min, max] = range ? range : [0, 100];
 
-    const currentSeconds = formatTimeStringToSeconds(inputValue);
-    // log.debug('handleWheel', { currentSeconds, min, max });
-    const delta = e.deltaY < 0 ? 0.01 : -0.01;
-    const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
-    // log.debug('handleWheel', { newValue });
+      const currentSeconds = formatTimeStringToSeconds(inputValue);
+      log.debug('handleWheel', { currentSeconds, min, max, inputValue, range });
+      const delta = e.deltaY < 0 ? 0.01 : -0.01;
+      const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
+      // log.debug('handleWheel', { newValue });
 
-    // log.debug('handleWheel', { currentSeconds, newValue, min, max });
-    setInputValue(formatTimeToString(newValue));
-    onChange?.(newValue);
-    (e.target as HTMLInputElement).blur();
-  };
+      log.debug('handleWheel', { currentSeconds, newValue, min, max });
+      setInputValue(formatTimeToString(newValue));
+      onChange?.(newValue);
+      (e.target as HTMLInputElement).blur();
+    },
+    [isDisabled, range, inputValue, onChange]
+  );
 
   // if (description === 'Start') log.debug('TimeInput', inputValue);
 

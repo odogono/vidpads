@@ -9,6 +9,7 @@ import {
   updateMetadataProperty as dbUpdateMetadataProperty
 } from '@model/db/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { invalidateQueryKeys } from '../../helpers/query';
 import { MediaYouTube } from '../types';
 
 export interface PlayerHandler {
@@ -99,17 +100,6 @@ export const usePlayerState = (padId?: string, mediaUrl?: string) => {
     [mutatePlayer, playerId]
   );
 
-  // const onPlayerDestroyed = useCallback(() => {
-  //   queryClient.setQueryData(VOKeys.players(), (old: PlayerMap) => {
-  //     const newMap = new Map(old);
-  //     newMap.delete(playerId);
-  //     return newMap;
-  //   });
-  //   queryClient.invalidateQueries({
-  //     queryKey: VOKeys.player(playerId)
-  //   });
-  // }, [queryClient, playerId]);
-
   return {
     player: player ?? { ...defaultPlayer, padId, mediaUrl },
     onPlayerUpdate,
@@ -151,42 +141,13 @@ export const usePlayersState = () => {
 
         return newMap;
       });
+
+      // invalidate the metadata since duration and/or playbackRates may have changed
+      queryClient.invalidateQueries({
+        queryKey: VOKeys.metadata(player.mediaUrl)
+      });
     }
   });
-
-  // const onPlayerUpdate = useCallback(
-  //   (player: PlayerHandler) => {
-  //     const playerId = toPlayerId(player.padId, player.mediaUrl);
-
-  //     queryClient.setQueryData(VOKeys.players(), (old: PlayerMap) => {
-  //       const newMap = new Map(old);
-  //       const existingPlayer = newMap.get(playerId);
-  //       const newPlayer = { ...defaultPlayer, ...existingPlayer, ...player };
-  //       newMap.set(playerId, newPlayer);
-  //       return newMap;
-  //     });
-
-  //     queryClient.invalidateQueries({
-  //       queryKey: VOKeys.player(playerId)
-  //     });
-  //   },
-  //   [queryClient]
-  // );
-
-  // const onPlayerDestroyed = useCallback(
-  //   (player: PlayerHandler) => {
-  //     const playerId = toPlayerId(player.padId, player.mediaUrl);
-  //     queryClient.setQueryData(VOKeys.players(), (old: PlayerMap) => {
-  //       const newMap = new Map(old);
-  //       newMap.delete(playerId);
-  //       return newMap;
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: VOKeys.player(playerId)
-  //     });
-  //   },
-  //   [queryClient]
-  // );
 
   return {
     updatePlayer,
