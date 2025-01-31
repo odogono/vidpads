@@ -136,12 +136,6 @@ export const usePlayerYTEvents = ({
       // and we need to set it to the video duration
       if (interval && interval.end === -1) {
         interval.end = duration;
-
-        // events.emit('media:property-update', {
-        //   mediaUrl,
-        //   property: 'duration',
-        //   value: interval.end
-        // });
       }
 
       log.debug('onPlayerReady duration', duration);
@@ -152,12 +146,6 @@ export const usePlayerYTEvents = ({
         duration: duration,
         playbackRates: player.getAvailablePlaybackRates()
       });
-
-      // events.emit('media:property-update', {
-      //   mediaUrl,
-      //   property: 'playbackRates',
-      //   value: player.getAvailablePlaybackRates()
-      // });
 
       handlePlayerStateChange(player.getPlayerState(), player);
     },

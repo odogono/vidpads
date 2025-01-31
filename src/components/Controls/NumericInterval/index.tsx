@@ -10,7 +10,7 @@ import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { useControlsEvents } from '../hooks/useControlsEvents';
 
-const log = createLog('NumericInterval');
+const log = createLog('NumericInterval', ['debug']);
 
 export interface NumericIntervalProps {
   pad: Pad | undefined;
@@ -50,7 +50,6 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   const handleStartChange = useCallback(
     (value: number) => {
       value = roundNumberToDecimalPlaces(value);
-      // log.debug('handleStartChange', value);
       const end = endTimeRef.current?.getValue();
       if (end === undefined) return;
       let newEnd = end;
@@ -60,6 +59,7 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         endTimeRef.current?.setValue(newEnd);
       }
 
+      log.debug('handleStartChange', { value, newEnd });
       handleIntervalChange(value, newEnd);
     },
     [handleIntervalChange, duration]
