@@ -2,11 +2,9 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import { ArrowDownUp } from 'lucide-react';
-
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
 import { usePad } from '@model/hooks/usePad';
-import { Button, Card, CardHeader, cn } from '@nextui-org/react';
+import { Card, CardHeader, cn } from '@nextui-org/react';
 import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';

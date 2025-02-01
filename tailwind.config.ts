@@ -45,7 +45,11 @@ export default {
   plugins: [
     require('tailwindcss-motion'),
     nextui(),
-    ({ addUtilities }) => {
+    ({
+      addUtilities
+    }: {
+      addUtilities: (utilities: Record<string, unknown>) => void;
+    }) => {
       addUtilities({
         '.touch-none': {
           '-webkit-touch-callout': 'none'

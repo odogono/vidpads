@@ -1,14 +1,14 @@
 'use client';
 
-import { FullScreenButton } from '@components//FullScreenButton';
 import { BinComponent } from '@components/Bin';
 import { Controls } from '@components/Controls';
+import { FullScreenButton } from '@components/FullScreenButton';
 import { MenuButton } from '@components/MenuButton';
 import { PadContainer } from '@components/PadContainer';
 import { PlayerContainer } from '@components/Player/Container';
 import { Sequencer } from '@components/Sequencer';
 import { ShareButton } from '@components/ShareButton';
-import { useFullscreen } from '@contexts/fullscreen';
+import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useWindowUrl } from '@hooks/useWindowUrl';
 import { useShowMode } from '@model/hooks/useShowMode';
@@ -29,7 +29,7 @@ export const Main = () => {
         <header
           className={`flex justify-between w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
         >
-          <div className='text-white text-l font-bold'>ODGN VIDEO OPERATOR</div>
+          <div className='text-white text-l font-bold'>ODGN VO PADS</div>
           <span>
             <ShareButton />
             <MenuButton />

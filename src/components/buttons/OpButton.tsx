@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, cn } from '@nextui-org/react';
+import { Button, cn } from '@nextui-org/react';
 
 export const OpButton = ({
   label,
