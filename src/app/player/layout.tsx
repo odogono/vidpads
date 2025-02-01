@@ -3,10 +3,10 @@
 import { Toaster } from 'react-hot-toast';
 
 import { Tooltip } from '@components/Tooltip';
-import { useFullscreen } from '@contexts/fullscreen';
+import { useFullscreen } from '@hooks/useFullScreen';
 
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isFullscreen } = useFullscreen();
+  const { isFullscreen, areScreenDimsVisible } = useFullscreen();
 
   return (
     <>
@@ -39,6 +39,7 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
               isFullscreen
                 ? 'w-screen h-screen bg-black'
                 : `w-full h-full bg-slate-700
+                oh-blimey-this-is-a-mess
             portrait:lg:rounded-2xl 
             landscape:lg:rounded-2xl 
             portrait:sm:w-full
@@ -58,31 +59,33 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </div>
-      <div className='absolute left-10 top-10 bg-black/50 text-white px-2 py-1 rounded text-sm font-mono'>
-        <span className='block portrait:sm:hidden landscape:hidden'>
-          {'<480px'}
-        </span>
-        <span className='hidden portrait:sm:block portrait:md:hidden landscape:hidden'>
-          {'480-834px'}
-        </span>
-        <span className='hidden portrait:md:block portrait:lg:hidden landscape:hidden'>
-          {'834-1440px'}
-        </span>
-        <span className='hidden portrait:lg:block landscape:hidden'>
-          {'>1440px'}
-        </span>
+      {areScreenDimsVisible && (
+        <div className='absolute left-10 top-10 bg-black/50 text-white px-2 py-1 rounded text-sm font-mono'>
+          <span className='block portrait:sm:hidden landscape:hidden'>
+            {'<480px'}
+          </span>
+          <span className='hidden portrait:sm:block portrait:md:hidden landscape:hidden'>
+            {'480-834px'}
+          </span>
+          <span className='hidden portrait:md:block portrait:lg:hidden landscape:hidden'>
+            {'834-1440px'}
+          </span>
+          <span className='hidden portrait:lg:block landscape:hidden'>
+            {'>1440px'}
+          </span>
 
-        <span className='hidden landscape:block landscape:sm:hidden'>
-          {'<768px (L)'}
-        </span>
-        <span className='hidden landscape:sm:block landscape:md:hidden'>
-          {'768-1024px (L)'}
-        </span>
-        <span className='hidden landscape:md:block landscape:lg:hidden'>
-          {'1024-1440px (L)'}
-        </span>
-        <span className='hidden landscape:lg:block'>{'>1440px (L)'}</span>
-      </div>
+          <span className='hidden landscape:block landscape:sm:hidden'>
+            {'<768px (L)'}
+          </span>
+          <span className='hidden landscape:sm:block landscape:md:hidden'>
+            {'768-1024px (L)'}
+          </span>
+          <span className='hidden landscape:md:block landscape:lg:hidden'>
+            {'1024-1440px (L)'}
+          </span>
+          <span className='hidden landscape:lg:block'>{'>1440px (L)'}</span>
+        </div>
+      )}
     </>
   );
 };

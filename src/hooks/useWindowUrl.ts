@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
-import { ProjectCreatedEvent, ProjectLoadedEvent } from '../model/types';
+import { ProjectCreatedEvent } from '../model/types';
 
 const log = createLog('useWindowUrl');
 
@@ -80,14 +80,14 @@ export const useWindowUrl = () => {
 
   useEffect(() => {
     if (currentProjectName) {
-      document.title = `ODGN Vidpads - ${currentProjectName}`;
+      document.title = `ODGN VO PADS - ${currentProjectName}`;
     }
   }, [currentProjectName]);
 
   const handleProjectLoaded = useCallback(
     ({ projectId, projectName }: ProjectCreatedEvent) => {
       setProjectParams(projectId);
-      document.title = `ODGN Vidpads - ${projectName}`;
+      document.title = `ODGN VO PADS - ${projectName}`;
     },
     [setProjectParams]
   );

@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 
-import { FullscreenContextProvider } from '../contexts/fullscreen';
+import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ODGN Vidpads',
+  title: 'ODGN VO PADS',
   description: 'for all your video triggering needs'
 };
 

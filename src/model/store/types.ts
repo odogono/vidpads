@@ -6,7 +6,7 @@ import type {
   ShowMode,
   VolumeKeyPoint
 } from '@model/types';
-import type { SequencerType } from '@types';
+import { ControlPanes } from '@types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
@@ -15,7 +15,7 @@ export interface StoreContextType {
   isInitial: boolean;
   startTime: string;
   isEditActive?: boolean;
-  selectedControlPane?: SequencerType;
+  selectedControlPane?: ControlPanes;
   selectedPadId?: string | null;
 
   // whether keyboard can trigger a player
