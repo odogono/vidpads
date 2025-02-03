@@ -20,6 +20,7 @@ export interface PlayerProps {
   isVisible?: boolean;
   media: Media;
   showControls?: boolean;
+  isLoader?: boolean;
 }
 
 export interface PlayerEvent {

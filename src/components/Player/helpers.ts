@@ -18,7 +18,7 @@ export const showPlayer = (padId: string) => {
   if (playerElement) {
     playerElement.style.transition = 'none'; // Disable transition
     playerElement.style.opacity = '1';
-    playerElement.style.zIndex = '1000'; // Bring to front
+    playerElement.style.zIndex = '100'; // Bring to front
     playerElement.dataset.state = 'playing';
   }
   return playerElement;
@@ -39,7 +39,7 @@ export const hideElement = (element: HTMLElement) => {
 export const showElement = (element: HTMLElement) => {
   element.style.transition = 'none'; // Disable transition
   element.style.opacity = '1';
-  element.style.zIndex = '1000'; // Bring to front
+  element.style.zIndex = '100'; // Bring to front
 };
 
 export const setZIndex = (element: HTMLElement, index: number) => {

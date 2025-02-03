@@ -49,12 +49,12 @@ export const useProjects = () => {
         snapshot.context.projectId
       );
 
-      setProjectId(data.id);
+      setProjectId(snapshot.context.projectId);
 
-      invalidateAllQueries(queryClient);
+      // invalidateAllQueries(queryClient);
       return true;
     },
-    [setProjectId, queryClient]
+    [setProjectId]
   );
 
   const importFromURLString = useCallback(
