@@ -25,7 +25,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
   const { data: store, isSuccess } = useSuspenseQuery({
     queryKey: [QUERY_KEY_STORE_INITIALISE],
     queryFn: async () => {
-      let isInitial = true;
+      const isInitial = true;
       let storeState: StoreContextType | null = null;
       if (!isIndexedDBSupported()) {
         log.warn('IndexedDB is not supported');
@@ -33,7 +33,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({
         return createStore(undefined);
       } else {
         storeState = await loadStateFromIndexedDB();
-        isInitial = storeState?.isInitial ?? true;
+        // isInitial = storeState?.isInitial ?? true;
       }
 
       const store = createStore(storeState ?? undefined);

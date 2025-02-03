@@ -2,10 +2,13 @@ import { useCallback } from 'react';
 
 import toast from 'react-hot-toast';
 
+import { readFromClipboard, writeToClipboard } from '@helpers/clipboard';
 import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
+import { getUrlMetadata, isYouTubeMetadata } from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
 import { getYouTubeThumbnail } from '@helpers/youtube';
+import { useProject } from '@hooks/useProject';
 import {
   AddFileToPadProps,
   AddUrlToPadProps,
@@ -26,11 +29,8 @@ import {
 } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
-import { useStore } from '@model/store/useStore';
 import { Media, MediaYouTube, Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { readFromClipboard, writeToClipboard } from '../../helpers/clipboard';
-import { getUrlMetadata, isYouTubeMetadata } from '../../helpers/metadata';
 import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
 
 const log = createLog('model/usePadOperations');
@@ -40,7 +40,7 @@ export interface PadOperationsOptions {
 }
 
 export const usePadOperations = () => {
-  const { store } = useStore();
+  const { project } = useProject();
   const queryClient = useQueryClient();
   const { isShiftKeyDown } = useKeyboard();
 
@@ -51,7 +51,7 @@ export const usePadOperations = () => {
       const sourceUrl = getPadSourceUrl(pad);
       if (!sourceUrl) return null;
 
-      const pads = getPadsBySourceUrl(store, sourceUrl);
+      const pads = getPadsBySourceUrl(project, sourceUrl);
 
       // if there is only one pad using this source, then its
       // safe to delete the source data
@@ -71,7 +71,7 @@ export const usePadOperations = () => {
 
   const { mutateAsync: addFileToPadOp } = useMutation({
     mutationFn: async (props: AddFileToPadProps) => {
-      const media = await addFileToPad({ ...props, store });
+      const media = await addFileToPad({ ...props, project });
       if (!media) return null;
 
       invalidateQueryKeys(queryClient, [
@@ -88,7 +88,7 @@ export const usePadOperations = () => {
 
   const { mutateAsync: addUrlToPadOp } = useMutation({
     mutationFn: async (props: AddUrlToPadProps) => {
-      const media = await addUrlToPad({ ...props, store });
+      const media = await addUrlToPad({ ...props, project });
       if (!media) return null;
 
       invalidateQueryKeys(queryClient, [
@@ -104,7 +104,7 @@ export const usePadOperations = () => {
 
   const { mutateAsync: copyPadToPadOp } = useMutation({
     mutationFn: async ({ sourcePadId, targetPadId }: CopyPadToPadProps) => {
-      const targetPad = getPadById(store, targetPadId);
+      const targetPad = getPadById(project, targetPadId);
       if (!targetPad) {
         log.warn('[copyPad] Pad not found:', targetPadId);
         return null;
@@ -115,7 +115,7 @@ export const usePadOperations = () => {
 
       await dbCopyPadThumbnail(sourcePadId, targetPadId);
 
-      const sourcePad = getPadById(store, sourcePadId);
+      const sourcePad = getPadById(project, sourcePadId);
       const sourcePadUrl = getPadSourceUrl(sourcePad);
       if (sourcePadUrl) {
         queryClient.invalidateQueries({
@@ -134,7 +134,7 @@ export const usePadOperations = () => {
         [...VOKeys.padThumbnail(targetPad.id)]
       ]);
 
-      store.send({
+      project.send({
         type: 'copyPad',
         sourcePadId,
         targetPadId,
@@ -150,7 +150,7 @@ export const usePadOperations = () => {
     }: Partial<PadOperationsOptions> & {
       sourcePadId: string;
     }) => {
-      const pad = getPadById(store, sourcePadId);
+      const pad = getPadById(project, sourcePadId);
       if (!pad) {
         log.debug('[copyPad] Pad not found:', sourcePadId);
         return false;
@@ -171,7 +171,7 @@ export const usePadOperations = () => {
       return true;
       // copyPadToPadOp({ sourcePadId: pad.id, targetPadId: pad.id });
     },
-    [store]
+    [project]
   );
 
   const pastePadOp = useCallback(
@@ -195,7 +195,7 @@ export const usePadOperations = () => {
         return false;
       }
 
-      const targetPad = getPadById(store, targetPadId);
+      const targetPad = getPadById(project, targetPadId);
       if (!targetPad) {
         log.warn('[pastePad] Pad not found:', targetPadId);
         return false;
@@ -236,7 +236,7 @@ export const usePadOperations = () => {
 
       await dbSetPadThumbnail(targetPad.id, thumbnail);
       log.debug('[pastePad] set pad thumbnail:', targetPad.id);
-      store.send({
+      project.send({
         type: 'applyPad',
         pad: sourcePad,
         targetPadId,
@@ -263,7 +263,7 @@ export const usePadOperations = () => {
 
       return true;
     },
-    [deletePadMediaOp, isShiftKeyDown, queryClient, store]
+    [deletePadMediaOp, isShiftKeyDown, queryClient, project]
   );
 
   const { mutateAsync: cutPadOp } = useMutation({
@@ -271,7 +271,7 @@ export const usePadOperations = () => {
       sourcePadId,
       showToast = true
     }: Partial<PadOperationsOptions> & { sourcePadId: string }) => {
-      const pad = getPadById(store, sourcePadId);
+      const pad = getPadById(project, sourcePadId);
       if (!pad) {
         log.debug('[cutPad] Pad not found:', sourcePadId);
         return false;
@@ -289,7 +289,7 @@ export const usePadOperations = () => {
 
       await deletePadMediaOp(pad);
 
-      store.send({
+      project.send({
         type: 'clearPad',
         padId: sourcePadId
       });
@@ -307,7 +307,7 @@ export const usePadOperations = () => {
       sourcePadId,
       showToast = true
     }: Partial<PadOperationsOptions> & { sourcePadId: string }) => {
-      const pad = getPadById(store, sourcePadId);
+      const pad = getPadById(project, sourcePadId);
       if (!pad) {
         log.debug('[clearPad] Pad not found:', sourcePadId);
         return false;
@@ -317,7 +317,7 @@ export const usePadOperations = () => {
 
       await deletePadMediaOp(pad);
 
-      store.send({
+      project.send({
         type: 'clearPad',
         padId: sourcePadId
       });
@@ -340,7 +340,7 @@ export const usePadOperations = () => {
   });
 
   return {
-    store,
+    project,
     addFileToPad: addFileToPadOp,
     addUrlToPad: addUrlToPadOp,
     copyPadToPad: copyPadToPadOp,

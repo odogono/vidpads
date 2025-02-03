@@ -1,6 +1,6 @@
+import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import { setPadThumbnail as dbSetPadThumbnail } from '@model/db/api';
-import { useStore } from '@model/store/useStore';
 import { Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -12,11 +12,11 @@ export interface UsePadTrimOperationProps {
 }
 
 export const usePadTrimOperation = () => {
-  const { store } = useStore();
+  const { project } = useProject();
   const queryClient = useQueryClient();
 
   return async ({ pad, start, end, thumbnail }: UsePadTrimOperationProps) => {
-    store.send({
+    project.send({
       type: 'applyTrimToPad',
       padId: pad.id,
       start,

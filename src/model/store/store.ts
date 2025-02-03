@@ -1,4 +1,6 @@
 import { createStore as createXstateStore } from '@xstate/store';
+import { formatShortDate } from '../../helpers/datetime';
+import { generateShortUUID } from '../../helpers/uuid';
 import { createPad } from '../pad';
 import * as actions from './actions';
 import type {
@@ -9,22 +11,20 @@ import type {
 } from './types';
 
 export const initialContext: StoreContextType = {
-  isInitial: true,
-  projectId: null,
+  projectId: generateShortUUID(),
   projectName: 'Untitled',
   isPadPlayEnabled: true,
   isPadSelectSourceEnabled: true,
   isKeyboardPlayEnabled: true,
   showMode: 'pads',
   sequencer: {
-    bpm: 120,
+    bpm: 60,
     events: [],
     startTime: 0,
     endTime: 30 // secs
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
-  startTime: new Date().toISOString(),
   pads: [
     createPad('a1'),
     createPad('a2'),
@@ -45,14 +45,28 @@ export const initialContext: StoreContextType = {
   ]
 };
 
-export const createStore = (initialState?: StoreContextType): StoreType => {
+export const createStore = (
+  initialState?: StoreContextType | null | undefined
+): StoreType => {
+  const date = new Date();
+  const dateString = date.toISOString();
+  const projectName = `Untitled ${formatShortDate(date)}`;
+
+  const initial = {
+    ...initialContext,
+    projectId: generateShortUUID(),
+    projectName,
+    createdAt: dateString,
+    updatedAt: dateString
+  };
+
   const content = {
     types: {
       context: {} as StoreContextType,
       events: {} as Actions,
       emitted: {} as EmittedEvents
     },
-    context: initialState ?? initialContext,
+    context: initialState ?? initial,
     on: actions
   };
 

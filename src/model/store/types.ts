@@ -10,11 +10,15 @@ import { ControlPanes } from '@types';
 import type { Store } from '@xstate/store';
 
 export interface StoreContextType {
-  projectId: string | null;
+  projectId: string;
+
   projectName: string;
-  isInitial: boolean;
-  startTime: string;
-  isEditActive?: boolean;
+  projectDescription?: string;
+  projectAuthor?: string;
+
+  // isInitial: boolean;
+  // startTime: string;
+
   selectedControlPane?: ControlPanes;
   selectedPadId?: string | null;
 
@@ -40,6 +44,12 @@ export interface StoreContextType {
     bpm: number;
     events: SequencerEvent[];
     startTime: number;
+    endTime: number;
+  };
+
+  stepSequencer?: {
+    bpm: number;
+    events: SequencerEvent[];
     endTime: number;
   };
 

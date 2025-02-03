@@ -22,13 +22,13 @@ const log = createLog('model/api', ['debug']);
 export interface AddFileToPadProps {
   file: File;
   padId: string;
-  store?: StoreType;
+  project?: StoreType;
 }
 
 export interface AddUrlToPadProps {
   url: string;
   padId: string;
-  store?: StoreType;
+  project?: StoreType;
 }
 
 export const getAllMediaMetaData = async () => {
@@ -40,9 +40,13 @@ export interface CopyPadToPadProps {
   targetPadId: string;
 }
 
-export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
-  if (!store) {
-    log.warn('Store not found');
+export const addUrlToPad = async ({
+  url,
+  padId,
+  project
+}: AddUrlToPadProps) => {
+  if (!project) {
+    log.warn('Project not found');
     return null;
   }
 
@@ -74,7 +78,7 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
   await dbSetPadThumbnail(padId, thumbnail);
 
   // Update the store with the tile's video ID
-  store.send({
+  project.send({
     type: 'setPadMedia',
     padId,
     media
@@ -94,7 +98,7 @@ export const addUrlToPad = async ({ url, padId, store }: AddUrlToPadProps) => {
 export const addFileToPad = async ({
   file,
   padId,
-  store
+  project
 }: AddFileToPadProps) => {
   try {
     const media = await getMediaMetadata(file);
@@ -102,8 +106,8 @@ export const addFileToPad = async ({
     const mediaType = isVideo ? 'video' : 'image';
     log.info(`${mediaType} metadata for pad ${padId}:`, media);
 
-    if (!store) {
-      log.warn('Store not found');
+    if (!project) {
+      log.warn('Project not found');
       return null;
     }
 
@@ -128,7 +132,7 @@ export const addFileToPad = async ({
         await dbSetPadThumbnail(padId, thumbnail);
 
         // Update the store with the tile's video ID
-        store.send({
+        project.send({
           type: 'setPadMedia',
           padId,
           media
@@ -146,7 +150,7 @@ export const addFileToPad = async ({
         await dbSaveImageData(file, media as MediaImage, thumbnail);
 
         // Update the store with the tile's image ID
-        store.send({
+        project.send({
           type: 'setPadMedia',
           padId,
           media

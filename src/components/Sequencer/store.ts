@@ -7,6 +7,7 @@ import { createLog } from '@helpers/log';
 import { useStore } from '@model/store/useStore';
 import { createStore as createXStateStore } from '@xstate/store';
 import { useSelector } from '@xstate/store/react';
+import { useProject } from '../../hooks/useProject';
 import { SequencerTimesUpdatedEvent } from '../../model/store/types';
 
 const log = createLog('seq/state', ['debug']);
@@ -197,7 +198,7 @@ export const useSequencerStore = () => {
   const [store] = useState(() => createStore());
   const animationRef = useRef<number | null>(null);
 
-  const { store: primaryStore } = useStore();
+  const { project: primaryStore } = useProject();
   const primaryStoreStartTime = useSelector(
     primaryStore,
     (state) => state.context.sequencer?.startTime ?? 0
