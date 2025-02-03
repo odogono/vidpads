@@ -29,7 +29,7 @@ import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
 
-const DB_NAME = 'vidpads';
+const DB_NAME = 'odgn-vo';
 const DB_VERSION = 2;
 
 export const useDBStore = () => {
@@ -64,7 +64,7 @@ const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
 
   // Handle initial database creation (version 0 to 1)
   if (oldVersion < 1) {
-    idbCreateObjectStore(db, 'store');
+    // idbCreateObjectStore(db, 'store');
     idbCreateObjectStore(db, 'metadata', { keyPath: 'url' });
     idbCreateObjectStore(db, 'videoChunks', {
       keyPath: ['id', 'videoChunkIndex']
@@ -75,7 +75,7 @@ const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
 
   // Handle upgrade to version 2
   if (oldVersion < 2) {
-    idbCreateObjectStore(db, 'projects', { keyPath: 'id' });
+    idbCreateObjectStore(db, 'projects', { keyPath: 'projectId' });
   }
 };
 
@@ -177,61 +177,117 @@ export const saveProject = async (project: ProjectExport): Promise<void> => {
   });
 };
 
-export const loadStateFromIndexedDB =
-  async (): Promise<StoreContextType | null> => {
-    const db = await openDB();
-
-    return new Promise((resolve, reject) => {
-      const { store, transaction } = idbOpenTransaction(
-        db,
-        ['store'],
-        'readonly'
-      );
-
-      const getRequest = store.get('state');
-
-      getRequest.onerror = () => {
-        log.error('Error loading state from IndexedDB:', getRequest.error);
-        reject(getRequest.error);
-      };
-      getRequest.onsuccess = () => {
-        const result = (getRequest.result as StoreContextType) ?? null;
-        resolve(result);
-      };
-
-      transaction.oncomplete = () => {
-        log.debug('state loaded from IndexedDB');
-        closeDB(db);
-      };
-    });
-  };
-
-export const saveStateToIndexedDB = async (
-  state: StoreContextType
-): Promise<void> => {
+export const loadProjectState = async (
+  projectId: string
+): Promise<StoreContextType | null> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const { store, transaction } = idbOpenTransaction(
+    const { projects, transaction } = idbOpenTransaction(
       db,
-      ['store'],
+      ['projects'],
+      'readonly'
+    );
+    const getRequest = projects.get(projectId);
+
+    getRequest.onerror = () => {
+      log.error('Error loading project from IndexedDB:', getRequest.error);
+      reject(getRequest.error);
+    };
+
+    getRequest.onsuccess = () => {
+      const result = (getRequest.result as StoreContextType) ?? null;
+      resolve(result);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+    };
+  });
+};
+
+export const saveProjectState = async (
+  project: StoreContextType
+): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { projects, transaction } = idbOpenTransaction(
+      db,
+      ['projects'],
       'readwrite'
     );
 
-    const putRequest = store.put(state, 'state');
+    log.info('saving project', project);
+    const putRequest = projects.put(project);
 
     putRequest.onerror = () => {
-      log.error('Error saving state to IndexedDB:', putRequest.error);
+      log.error('Error saving project to IndexedDB:', putRequest.error);
+      log.info('Error saving project to IndexedDB:', putRequest.error);
       reject(putRequest.error);
     };
     putRequest.onsuccess = () => resolve();
 
     transaction.oncomplete = () => {
-      // log.debug('state saved to IndexedDB');
       closeDB(db);
     };
   });
 };
+
+// export const loadStateFromIndexedDB =
+//   async (): Promise<StoreContextType | null> => {
+//     const db = await openDB();
+
+//     return new Promise((resolve, reject) => {
+//       const { store, transaction } = idbOpenTransaction(
+//         db,
+//         ['store'],
+//         'readonly'
+//       );
+
+//       const getRequest = store.get('state');
+
+//       getRequest.onerror = () => {
+//         log.error('Error loading state from IndexedDB:', getRequest.error);
+//         reject(getRequest.error);
+//       };
+//       getRequest.onsuccess = () => {
+//         const result = (getRequest.result as StoreContextType) ?? null;
+//         resolve(result);
+//       };
+
+//       transaction.oncomplete = () => {
+//         log.debug('state loaded from IndexedDB');
+//         closeDB(db);
+//       };
+//     });
+//   };
+
+// export const saveStateToIndexedDB = async (
+//   state: StoreContextType
+// ): Promise<void> => {
+//   const db = await openDB();
+
+//   return new Promise((resolve, reject) => {
+//     const { store, transaction } = idbOpenTransaction(
+//       db,
+//       ['store'],
+//       'readwrite'
+//     );
+
+//     const putRequest = store.put(state, 'state');
+
+//     putRequest.onerror = () => {
+//       log.error('Error saving state to IndexedDB:', putRequest.error);
+//       reject(putRequest.error);
+//     };
+//     putRequest.onsuccess = () => resolve();
+
+//     transaction.oncomplete = () => {
+//       // log.debug('state saved to IndexedDB');
+//       closeDB(db);
+//     };
+//   });
+// };
 
 export interface SaveUrlDataProps {
   media: MediaYouTube;

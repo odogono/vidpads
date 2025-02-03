@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
+import { useProject } from '@hooks/useProject';
 import {
   QUERY_KEY_PROJECT,
   QUERY_KEY_PROJECTS,
@@ -21,16 +22,14 @@ import {
   exportToURLString,
   urlStringToProject
 } from '@model/serialise/store';
-import { useStore } from '@model/store/useStore';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useMetadata } from './useMetadata';
 import { usePadOperations } from './usePadOperations';
 
 const log = createLog('model/useProjects');
 
 export const useProjects = () => {
-  const { store } = useStore();
+  const { project } = useProject();
   const events = useEvents();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
@@ -43,11 +42,11 @@ export const useProjects = () => {
 
       await deleteAllPadThumbnails();
 
-      store.send({ type: 'importProject', data });
+      project.send({ type: 'importProject', data });
 
       await Promise.all(
         data.pads.map((pad) =>
-          addUrlToPad({ url: pad.source, padId: pad.id, store })
+          addUrlToPad({ url: pad.source, padId: pad.id, project })
         )
       );
 
@@ -58,7 +57,7 @@ export const useProjects = () => {
 
       return true;
     },
-    [queryClient, deleteAllPadThumbnails, store, addUrlToPad, events]
+    [queryClient, deleteAllPadThumbnails, project, addUrlToPad, events]
   );
 
   const importFromURLString = useCallback(
@@ -69,11 +68,11 @@ export const useProjects = () => {
 
       await deleteAllPadThumbnails();
 
-      store.send({ type: 'importProject', data });
+      project.send({ type: 'importProject', data });
 
       await Promise.all(
         data.pads.map((pad) =>
-          addUrlToPad({ url: pad.source, padId: pad.id, store })
+          addUrlToPad({ url: pad.source, padId: pad.id, project })
         )
       );
 
@@ -84,20 +83,20 @@ export const useProjects = () => {
 
       return true;
     },
-    [queryClient, deleteAllPadThumbnails, store, addUrlToPad, events]
+    [queryClient, deleteAllPadThumbnails, project, addUrlToPad, events]
   );
 
   const exportProjectToJSON = useCallback(() => {
-    return exportToJSON(store);
-  }, [store]);
+    return exportToJSON(project);
+  }, [project]);
 
   const exportProjectToJSONString = useCallback(() => {
-    return exportToJSONString(store);
-  }, [store]);
+    return exportToJSONString(project);
+  }, [project]);
 
   const exportProjectToURLString = useCallback(() => {
-    return exportToURLString(store);
-  }, [store]);
+    return exportToURLString(project);
+  }, [project]);
 
   const importFromJSONString = useCallback(
     async (json: string) => {
@@ -130,13 +129,13 @@ export const useProjects = () => {
   );
 
   const createNewProject = useCallback(async () => {
-    store.send({ type: 'newProject' });
+    project.send({ type: 'newProject' });
 
     invalidateQueryKeys(queryClient, [[QUERY_KEY_PROJECT], [QUERY_KEY_STATE]]);
 
     await deleteAllPadThumbnails();
 
-    const projectId = store.getSnapshot().context.projectId;
+    const projectId = project.getSnapshot().context.projectId;
 
     events.emit('project:created', {
       projectId: projectId!,
@@ -144,7 +143,7 @@ export const useProjects = () => {
     });
 
     return true;
-  }, [store, queryClient, deleteAllPadThumbnails, events]);
+  }, [project, queryClient, deleteAllPadThumbnails, events]);
 
   const deleteEverything = useCallback(async () => {
     await dbDeleteDB();
@@ -155,7 +154,7 @@ export const useProjects = () => {
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
     mutationFn: async ({ projectName }: { projectName: string }) => {
-      const data = exportToJSON(store);
+      const data = exportToJSON(project);
 
       const saveData = {
         ...data,
@@ -168,7 +167,7 @@ export const useProjects = () => {
       await dbSaveProject(saveData);
 
       // update the project id and name
-      store.send({ type: 'updateProject', project: saveData });
+      project.send({ type: 'updateProject', project: saveData });
 
       return saveData;
     },

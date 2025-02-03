@@ -1,41 +1,44 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
-import { createLog } from '@helpers/log';
-import { useStore } from '@model/store/useStore';
+// import { createLog } from '@helpers/log';
+import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
 import { getIntersectingEvents } from '../sequencerEvent';
 import { SequencerEvent } from '../types';
 
-const log = createLog('sequencer/useSequencer');
+// const log = createLog('sequencer/useSequencer');
 
 export const useSequencer = () => {
-  const { store } = useStore();
+  const { project } = useProject();
 
   const startTime =
-    useSelector(store, (state) => state.context.sequencer?.startTime) ?? 0;
+    useSelector(project, (state) => state.context.sequencer?.startTime) ?? 0;
   const endTime =
-    useSelector(store, (state) => state.context.sequencer?.endTime) ?? 30;
+    useSelector(project, (state) => state.context.sequencer?.endTime) ?? 30;
 
   const setStartTime = useCallback(
     (startTime: number) =>
-      store.send({ type: 'setSequencerStartTime', startTime }),
-    [store]
+      project.send({ type: 'setSequencerStartTime', startTime }),
+    [project]
   );
 
   const setEndTime = useCallback(
-    (endTime: number) => store.send({ type: 'setSequencerEndTime', endTime }),
-    [store]
+    (endTime: number) => project.send({ type: 'setSequencerEndTime', endTime }),
+    [project]
   );
 
   const bpm = useSelector(
-    store,
+    project,
     (state) => state.context.sequencer?.bpm ?? 120
   );
 
   const evtStr = (e: SequencerEvent) =>
     `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
 
-  const events = useSelector(store, (state) => state.context.sequencer?.events);
+  const events = useSelector(
+    project,
+    (state) => state.context.sequencer?.events
+  );
 
   const selectedEvents = events.filter((e) => e.isSelected);
   const selectedEventIds = selectedEvents.map((e) => evtStr(e)).join(',');
@@ -43,9 +46,9 @@ export const useSequencer = () => {
 
   const setBpm = useCallback(
     (bpm: number) => {
-      store.send({ type: 'setSequencerBpm', bpm });
+      project.send({ type: 'setSequencerBpm', bpm });
     },
-    [store]
+    [project]
   );
 
   const timeToStep = useCallback(
@@ -68,65 +71,65 @@ export const useSequencer = () => {
 
   const toggleEvent = useCallback(
     (padId: string, startTime: number, endTime: number) => {
-      store.send({
+      project.send({
         type: 'toggleSequencerEvent',
         padId,
         time: startTime,
         duration: endTime - startTime
       });
     },
-    [store]
+    [project]
   );
 
   const clearEvents = useCallback(() => {
-    store.send({ type: 'clearSequencerEvents' });
-  }, [store]);
+    project.send({ type: 'clearSequencerEvents' });
+  }, [project]);
 
   const addEvent = useCallback(
     (padId: string, time: number, duration: number) => {
-      store.send({ type: 'addSequencerEvent', padId, time, duration });
+      project.send({ type: 'addSequencerEvent', padId, time, duration });
     },
-    [store]
+    [project]
   );
 
   const removeEvent = useCallback(
     (padId: string, time: number) => {
-      store.send({ type: 'removeSequencerEvent', padId, time });
+      project.send({ type: 'removeSequencerEvent', padId, time });
     },
-    [store]
+    [project]
   );
 
   const selectEvents = useCallback(
     (padIds: string[], time: number, duration: number) => {
-      store.send({ type: 'selectSequencerEvents', padIds, time, duration });
+      project.send({ type: 'selectSequencerEvents', padIds, time, duration });
     },
-    [store]
+    [project]
   );
 
   const moveEvents = useCallback(
     (timeDelta: number, rowDelta: number, isFinished?: boolean) => {
-      store.send({
+      project.send({
         type: 'moveSequencerEvents',
         timeDelta,
         rowDelta,
         isFinished
       });
     },
-    [store]
+    [project]
   );
 
   const setSelectedEventsTime = useCallback(
     (time: number) => {
-      store.send({ type: 'setSelectedEventsTime', time });
+      project.send({ type: 'setSelectedEventsTime', time });
     },
-    [store]
+    [project]
   );
 
   const setSelectedEventsDuration = useCallback(
     (duration: number) => {
-      store.send({ type: 'setSelectedEventsDuration', duration });
+      project.send({ type: 'setSelectedEventsDuration', duration });
     },
-    [store]
+    [project]
   );
 
   const getEventsAtTime = useCallback(

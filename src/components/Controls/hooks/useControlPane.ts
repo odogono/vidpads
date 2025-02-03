@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 
-import { useStore } from '@model/store/useStore';
+import { useProject } from '@hooks/useProject';
 import { ControlPanes } from '@types';
 import { useSelector } from '@xstate/store/react';
 
@@ -14,18 +14,18 @@ const ControlPaneIndexes: ControlPanes[] = [
 ];
 
 export const useControlPane = () => {
-  const { store } = useStore();
+  const { project } = useProject();
 
   const selectedControlPane = useSelector(
-    store,
+    project,
     (state) => state.context.selectedControlPane ?? 'state'
   );
 
   const setSelectedControlPane = useCallback(
     (pane: ControlPanes) => {
-      store.send({ type: 'setSelectedControlPane', pane });
+      project.send({ type: 'setSelectedControlPane', pane });
     },
-    [store]
+    [project]
   );
 
   const goToPreviousControlPane = useCallback(() => {

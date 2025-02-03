@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 
-import { useStore } from '@model/store/useStore';
+import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
 
 export type UsePadResult = ReturnType<typeof usePad>;
@@ -15,10 +15,10 @@ export type UsePadResult = ReturnType<typeof usePad>;
  * @returns
  */
 export const usePad = (padId?: string) => {
-  const { store } = useStore();
+  const { project } = useProject();
 
   const selectedPadId = useSelector(
-    store,
+    project,
     (state) => state.context.selectedPadId
   );
 
@@ -26,68 +26,68 @@ export const usePad = (padId?: string) => {
     padId = selectedPadId;
   }
 
-  const pad = useSelector(store, (state) =>
+  const pad = useSelector(project, (state) =>
     state.context.pads.find((pad) => pad.id === padId)
   );
 
   const isPadPlayEnabled = useSelector(
-    store,
+    project,
     (state) => state.context.isPadPlayEnabled ?? true
   );
 
   const isPadSelectSourceEnabled = useSelector(
-    store,
+    project,
     (state) => state.context.isPadSelectSourceEnabled ?? true
   );
 
   const setPadPlayEnabled = useCallback(
     (isEnabled: boolean) => {
-      store.send({ type: 'setPadPlayEnabled', isEnabled });
+      project.send({ type: 'setPadPlayEnabled', isEnabled });
     },
-    [store]
+    [project]
   );
 
   const setPadSelectSourceEnabled = useCallback(
     (isEnabled: boolean) => {
-      store.send({ type: 'setPadSelectSourceEnabled', isEnabled });
+      project.send({ type: 'setPadSelectSourceEnabled', isEnabled });
     },
-    [store]
+    [project]
   );
 
   const setPadIsOneShot = useCallback(
     (padId: string, isOneShot: boolean) => {
       if (pad) {
-        store.send({ type: 'setPadIsOneShot', padId, isOneShot });
+        project.send({ type: 'setPadIsOneShot', padId, isOneShot });
       }
     },
-    [pad, store]
+    [pad, project]
   );
 
   const setPadIsLooped = useCallback(
     (padId: string, isLooped: boolean) => {
       if (pad) {
-        store.send({ type: 'setPadIsLooped', padId, isLooped });
+        project.send({ type: 'setPadIsLooped', padId, isLooped });
       }
     },
-    [pad, store]
+    [pad, project]
   );
 
   const setPadVolume = useCallback(
     (padId: string, volume: number) => {
       if (pad) {
-        store.send({ type: 'applyVolumeToPad', padId, volume });
+        project.send({ type: 'applyVolumeToPad', padId, volume });
       }
     },
-    [pad, store]
+    [pad, project]
   );
 
   const setPadPlaybackRate = useCallback(
     (padId: string, rate: number) => {
       if (pad) {
-        store.send({ type: 'applyPlaybackRateToPad', padId, rate });
+        project.send({ type: 'applyPlaybackRateToPad', padId, rate });
       }
     },
-    [pad, store]
+    [pad, project]
   );
 
   const isLooped = pad?.isLooped;
@@ -106,6 +106,6 @@ export const usePad = (padId?: string) => {
     setPadPlaybackRate,
     setPadPlayEnabled,
     setPadSelectSourceEnabled,
-    store
+    project
   };
 };

@@ -2,11 +2,11 @@
 
 import { useCallback } from 'react';
 
+import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
 import { getPadSourceUrl } from '../pad';
 import { Pad } from '../types';
 import { StoreType } from './types';
-import { useStore } from './useStore';
 
 export const getPadById = (
   store: StoreType,
@@ -42,17 +42,17 @@ export const getAllMedia = (store: StoreType) => {
  * @returns
  */
 export const useSelectedPadId = () => {
-  const { store } = useStore();
+  const { project } = useProject();
 
   const setSelectedPadId = useCallback(
     (padId: string | null) => {
-      store.send({ type: 'setSelectedPadId', padId });
+      project.send({ type: 'setSelectedPadId', padId });
     },
-    [store]
+    [project]
   );
 
   const selectedPadId = useSelector(
-    store,
+    project,
     (state) => state.context.selectedPadId
   );
 
@@ -60,33 +60,33 @@ export const useSelectedPadId = () => {
 };
 
 export const useLastMediaUrl = () => {
-  const { store } = useStore();
+  const { project } = useProject();
   const lastMediaUrl = useSelector(
-    store,
+    project,
     (state) => state.context.lastMediaUrl
   );
 
   const setLastMediaUrl = useCallback(
     (url: string) => {
-      store.send({ type: 'setLastMediaUrl', url });
+      project.send({ type: 'setLastMediaUrl', url });
     },
-    [store]
+    [project]
   );
   return { lastMediaUrl, setLastMediaUrl };
 };
 
 export const useLastImportUrl = () => {
-  const { store } = useStore();
+  const { project } = useProject();
   const lastImportUrl = useSelector(
-    store,
+    project,
     (state) => state.context.lastImportUrl
   );
 
   const setLastImportUrl = useCallback(
     (url: string) => {
-      store.send({ type: 'setLastImportUrl', url });
+      project.send({ type: 'setLastImportUrl', url });
     },
-    [store]
+    [project]
   );
   return { lastImportUrl, setLastImportUrl };
 };

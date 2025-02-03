@@ -6,7 +6,7 @@ import { QueryClientContextProvider } from '@contexts/queryclient';
 import { EventsProvider } from '@helpers/events';
 // import { FFmpegProvider } from '@helpers/ffmpeg/provider';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
-import { StoreProvider } from '@model/store/provider';
+import { ProjectProvider } from '@hooks/useProject/provider';
 import { NextUIProvider } from '@nextui-org/react';
 
 const Player = () => {
@@ -16,10 +16,10 @@ const Player = () => {
         <QueryClientContextProvider>
           <EventsProvider>
             <KeyboardProvider>
-              <LoadingSuspense message='Loading store...'>
-                <StoreProvider>
+              <LoadingSuspense message='Loading project...'>
+                <ProjectProvider>
                   <Main />
-                </StoreProvider>
+                </ProjectProvider>
               </LoadingSuspense>
             </KeyboardProvider>
           </EventsProvider>

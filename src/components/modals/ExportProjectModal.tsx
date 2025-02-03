@@ -2,7 +2,7 @@
 
 import { useImperativeHandle } from 'react';
 
-import { useShareUrl } from '@hooks/useWindowUrl';
+import { useShareUrl } from '@hooks/useShareUrl';
 // import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
 import {
