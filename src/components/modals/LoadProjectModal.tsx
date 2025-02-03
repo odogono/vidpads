@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useImperativeHandle, useState } from 'react';
+import { useCallback, useImperativeHandle, useMemo, useState } from 'react';
 
 import { formatTimeAgo } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
@@ -12,6 +12,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Pagination,
   Selection,
   Table,
   TableBody,
@@ -43,6 +44,16 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
     Partial<StoreContextType>[]
   >([]);
 
+  const rowsPerPage = 5;
+  const [page, setPage] = useState(1);
+  const pages = Math.ceil(projectDetails.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return projectDetails.slice(start, end);
+  }, [projectDetails, page, rowsPerPage]);
+
   const handleLoadProject = useCallback(async () => {
     try {
       if (!selectedProjectId) {
@@ -62,6 +73,14 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
 
   const handleOnOpen = useCallback(async () => {
     const projectDetails = await getAllProjectDetails();
+    if (projectDetails) {
+      projectDetails.sort((a, b) => {
+        return (
+          new Date(b.updatedAt ?? '').getTime() -
+          new Date(a.updatedAt ?? '').getTime()
+        );
+      });
+    }
     setProjectDetails(projectDetails ?? []);
     onOpen();
   }, [getAllProjectDetails, onOpen]);
@@ -97,6 +116,18 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
                     (e as Set<string>).values().next().value
                   );
                 }}
+                bottomContent={
+                  <div className='flex w-full justify-center'>
+                    <Pagination
+                      isCompact
+                      showControls
+                      color='secondary'
+                      page={page}
+                      total={pages}
+                      onChange={(page) => setPage(page)}
+                    />
+                  </div>
+                }
               >
                 <TableHeader className='bg-background text-foreground'>
                   <TableColumn className='bg-background text-foreground'>
@@ -106,15 +137,15 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
                     Updated At
                   </TableColumn>
                 </TableHeader>
-                <TableBody>
-                  {projectDetails.map((project) => (
-                    <TableRow key={project.projectId}>
-                      <TableCell>{project.projectName}</TableCell>
+                <TableBody items={items}>
+                  {(item) => (
+                    <TableRow key={item.projectId}>
+                      <TableCell>{item.projectName}</TableCell>
                       <TableCell>
-                        {formatTimeAgo(new Date(project.updatedAt ?? ''))}
+                        {formatTimeAgo(new Date(item.updatedAt ?? ''))}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </ModalBody>

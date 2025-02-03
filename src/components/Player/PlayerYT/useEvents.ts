@@ -3,7 +3,7 @@ import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePadDetails } from '@model/hooks/usePads';
-import { usePlayerState } from '@model/hooks/usePlayersState';
+import { usePlayerState } from '@model/hooks/usePlayerState';
 import {
   PlayerEvent,
   PlayerExtractThumbnail,

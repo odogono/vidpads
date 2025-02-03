@@ -1,16 +1,8 @@
-import { useCallback } from 'react';
-
 import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
-import { isYouTubeMetadata } from '@helpers/metadata';
 import { VOKeys } from '@model/constants';
-import {
-  getMediaData as dbGetMediaData,
-  updateMetadataProperty as dbUpdateMetadataProperty
-} from '@model/db/api';
+import { updateMetadataProperty as dbUpdateMetadataProperty } from '@model/db/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { invalidateQueryKeys } from '../../helpers/query';
-import { MediaYouTube } from '../types';
 
 export interface PlayerHandler {
   padId: string;
@@ -22,90 +14,7 @@ export interface PlayerHandler {
 
 type PlayerMap = Map<string, PlayerHandler>;
 
-const defaultPlayer: PlayerHandler = {
-  padId: '',
-  mediaUrl: '',
-  isReady: false,
-  duration: -1,
-  playbackRates: []
-};
-
-const log = createLog('model/hooks/usePlayersState', ['debug']);
-
-export const usePlayerState = (padId?: string, mediaUrl?: string) => {
-  const queryClient = useQueryClient();
-  const playerId = padId; // toPlayerId(padId, mediaUrl);
-
-  const { data: player } = useQuery({
-    queryKey: VOKeys.player(playerId ?? 'unknown'),
-    queryFn: async () => {
-      if (!mediaUrl) return defaultPlayer;
-      if (!playerId) return defaultPlayer;
-
-      log.debug('querying player', playerId);
-      const media = (await dbGetMediaData(mediaUrl)) ?? undefined;
-      const players = queryClient.getQueryData(VOKeys.players()) as PlayerMap;
-      const player = players.get(playerId);
-      const duration = media?.duration ?? -1;
-      const playbackRates = isYouTubeMetadata(media)
-        ? (media as MediaYouTube).playbackRates
-        : [];
-      return { ...defaultPlayer, ...player, duration, playbackRates };
-    },
-    enabled: !!playerId
-  });
-
-  const { mutate: mutatePlayer } = useMutation({
-    mutationKey: VOKeys.updatePlayer(playerId ?? 'unknown'),
-    mutationFn: (updatedPlayer: Partial<PlayerHandler>) => {
-      log.debug('[mutatePlayer]', 'update', { player, updatedPlayer });
-      return applyPlayerUpdate(player, updatedPlayer);
-    },
-    onSuccess: (player: PlayerHandler) => {
-      if (!playerId) return;
-      queryClient.setQueryData(VOKeys.player(playerId), player);
-
-      queryClient.setQueryData(VOKeys.players(), (previous: PlayerMap) => {
-        const newMap = new Map(previous);
-        newMap.set(playerId, player);
-
-        return newMap;
-      });
-    }
-  });
-
-  const { mutate: destroyPlayer } = useMutation({
-    mutationKey: VOKeys.deletePlayer(playerId ?? 'unknown'),
-    mutationFn: () => {
-      return Promise.resolve(defaultPlayer);
-    },
-    onSuccess: () => {
-      if (!playerId) return;
-      queryClient.invalidateQueries({
-        queryKey: VOKeys.player(playerId)
-      });
-      queryClient.setQueryData(VOKeys.players(), (old: PlayerMap) => {
-        const newMap = new Map(old);
-        newMap.delete(playerId);
-        return newMap;
-      });
-    }
-  });
-
-  const onPlayerUpdate = useCallback(
-    (player: Partial<PlayerHandler>) => {
-      if (!playerId) return;
-      mutatePlayer(player);
-    },
-    [mutatePlayer, playerId]
-  );
-
-  return {
-    player: player ?? { ...defaultPlayer, padId, mediaUrl },
-    onPlayerUpdate,
-    onPlayerDestroyed: destroyPlayer
-  };
-};
+const log = createLog('usePlayersState');
 
 export const usePlayersState = () => {
   const queryClient = useQueryClient();
@@ -121,14 +30,16 @@ export const usePlayersState = () => {
   const { mutateAsync: updatePlayer } = useMutation({
     mutationKey: VOKeys.updatePlayer('unknown'),
     mutationFn: (updatedPlayer: Partial<PlayerHandler>) => {
-      log.debug('[mutatePlayer]', 'update', updatedPlayer);
+      log.debug('[mutatePlayer]', 'update>', updatedPlayer);
       const { padId } = updatedPlayer;
       log.debug('[mutatePlayer]', 'padId', padId);
       if (!padId) throw new Error('PadId is required');
 
-      const player = players.get(padId);
+      const player = players.get(padId) ?? (updatedPlayer as PlayerHandler);
       log.debug('[mutatePlayer]', 'player', { padId }, player);
-      if (!player) throw new Error('Player not found');
+      // if (!player) {
+      //   log.debug('[mutatePlayer]', '😂 player not found', { padId }, players);
+      // }
       return applyPlayerUpdate(player, updatedPlayer);
     },
     onSuccess: (player: PlayerHandler) => {

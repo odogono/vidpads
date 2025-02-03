@@ -1,6 +1,6 @@
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
-import { setPadThumbnail as dbSetPadThumbnail } from '@model/db/api';
+import { savePadThumbnail as dbSavePadThumbnail } from '@model/db/api';
 import { Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -12,7 +12,7 @@ export interface UsePadTrimOperationProps {
 }
 
 export const usePadTrimOperation = () => {
-  const { project } = useProject();
+  const { project, projectId } = useProject();
   const queryClient = useQueryClient();
 
   return async ({ pad, start, end, thumbnail }: UsePadTrimOperationProps) => {
@@ -24,11 +24,11 @@ export const usePadTrimOperation = () => {
     });
 
     if (thumbnail) {
-      await dbSetPadThumbnail(pad.id, thumbnail);
+      await dbSavePadThumbnail(projectId, pad.id, thumbnail);
 
       // Invalidate the pad-thumbnail query to trigger a refetch
       await queryClient.invalidateQueries({
-        queryKey: [...VOKeys.padThumbnail(pad.id)]
+        queryKey: [...VOKeys.padThumbnail(projectId, pad.id)]
       });
     }
 

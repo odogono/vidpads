@@ -65,8 +65,8 @@ export const idbCreateObjectStore = (
   if (db.objectStoreNames.contains(name)) {
     return false;
   }
-  db.createObjectStore(name, options);
-  return true;
+
+  return db.createObjectStore(name, options);
 };
 
 export type IDBStores<T extends readonly string[]> = {

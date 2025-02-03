@@ -150,7 +150,7 @@ export type ImportProjectAction = {
 
 export type UpdateProjectAction = {
   type: 'updateProject';
-  project: ProjectExport;
+  project: StoreContextType;
 };
 
 export type SetLastMediaUrlAction = {
@@ -165,7 +165,7 @@ export type SetLastImportUrlAction = {
 
 export type SetSelectedControlPaneAction = {
   type: 'setSelectedControlPane';
-  pane: SequencerType;
+  pane: ControlPanes;
 };
 
 export type SetPadPlayEnabledAction = {

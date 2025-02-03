@@ -5,11 +5,15 @@ import {
   getMediaData as dbGetMediaData,
   saveMediaData as dbSaveMediaData
 } from '@model/db/api';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useQueryClient,
+  useSuspenseQuery
+} from '@tanstack/react-query';
 import { VOKeys } from '../constants';
 import { Media, MediaYouTube } from '../types';
 
-const log = createLog('model/useMetadata', ['debug']);
+const log = createLog('model/useMetadata');
 
 export const useMetadata = () => {
   const isMounted = typeof window !== 'undefined';
@@ -21,40 +25,49 @@ export const useMetadata = () => {
 
   return {
     metadata: data?.metadata,
-    urlToMetadata: data?.urlToMetadata
+    urlToMetadata: data?.urlToMetadata,
+    urlToMetadataStr: data?.urlToMetadataStr
   };
 };
 
+export const getMetaDataByUrl = async (
+  queryClient: QueryClient,
+  url: string | undefined
+) => {
+  if (!url) return null;
+
+  const localData = await dbGetMediaData(url);
+
+  if (localData) {
+    return localData;
+  }
+
+  log.debug('[useMetadataByUrl] no local media data - fetching', url);
+
+  const media = await getUrlMetadata(url);
+
+  if (!media) {
+    log.debug('[useMetadataByUrl] No metadata found for url:', url);
+    return null;
+  }
+
+  await dbSaveMediaData(media);
+
+  queryClient.setQueryData(VOKeys.metadata(url), media);
+
+  return media;
+};
+
 export const useMetadataByUrl = (url: string | undefined) => {
-  const { data } = useSuspenseQuery({
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useSuspenseQuery({
     queryKey: VOKeys.metadata(url ?? 'unknown'),
-    queryFn: async () => {
-      if (!url) return null;
-
-      const localData = await dbGetMediaData(url);
-
-      if (localData) {
-        return localData;
-      }
-
-      const media = await getUrlMetadata(url);
-
-      if (!media) {
-        log.warn('[useMetadataByUrl] No metadata found for url:', url);
-        return null;
-      }
-
-      await dbSaveMediaData(media);
-
-      return media;
-    }
+    queryFn: () => getMetaDataByUrl(queryClient, url)
   });
-
-  // log.debug('[useMetadataByUrl] data', data);
 
   const duration = data?.duration ?? -1;
 
-  return { duration, metadata: data };
+  return { duration, metadata: data, isLoading };
 };
 
 const getAllMetadata = async (isMounted: boolean) => {
@@ -63,6 +76,8 @@ const getAllMetadata = async (isMounted: boolean) => {
 
   const urlToMetadata = new Map<string, Media>();
   metadata.forEach((m) => urlToMetadata.set(m.url, m));
+
+  log.debug('[getAllMetadata]', urlToMetadata);
 
   const urlToDuration = metadata.reduce(
     (acc, media) => {
@@ -88,6 +103,9 @@ const getAllMetadata = async (isMounted: boolean) => {
   return {
     metadata,
     urlToMetadata,
+    urlToMetadataStr: Array.from(urlToMetadata.entries())
+      .map(([url, media]) => `${url}: ${media.url}`)
+      .join(', '),
     urlToDuration,
     urlToPlaybackRates
   };

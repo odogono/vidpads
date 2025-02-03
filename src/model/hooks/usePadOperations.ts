@@ -13,19 +13,18 @@ import {
   AddFileToPadProps,
   AddUrlToPadProps,
   CopyPadToPadProps,
-  addFileToPad,
-  addUrlToPad
+  addFileToPad
 } from '@model';
 import { VOKeys } from '@model/constants';
 import {
   copyPadThumbnail as dbCopyPadThumbnail,
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
-  deleteMediaData as dbDeleteMediaData,
   deletePadThumbnail as dbDeletePadThumbnail,
   getPadThumbnail as dbGetPadThumbnail,
   getThumbnailFromUrl as dbGetThumbnailFromUrl,
-  saveUrlData as dbSaveUrlData,
-  setPadThumbnail as dbSetPadThumbnail
+  saveMediaData as dbSaveMediaData,
+  saveMediaThumbnail as dbSaveMediaThumbnail,
+  savePadThumbnail as dbSavePadThumbnail
 } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
 import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
@@ -64,7 +63,9 @@ export const usePadOperations = () => {
 
       await dbDeletePadThumbnail(projectId, pad.id);
 
-      invalidateQueryKeys(queryClient, [[...VOKeys.padThumbnail(pad.id)]]);
+      invalidateQueryKeys(queryClient, [
+        [...VOKeys.padThumbnail(projectId, pad.id)]
+      ]);
 
       return pad;
     }
@@ -72,11 +73,11 @@ export const usePadOperations = () => {
 
   const { mutateAsync: addFileToPadOp } = useMutation({
     mutationFn: async (props: AddFileToPadProps) => {
-      const media = await addFileToPad({ ...props, project });
+      const media = await addFileToPad({ ...props, project, projectId });
       if (!media) return null;
 
       invalidateQueryKeys(queryClient, [
-        [...VOKeys.padThumbnail(props.padId)],
+        [...VOKeys.padThumbnail(projectId, props.padId)],
 
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
@@ -89,11 +90,32 @@ export const usePadOperations = () => {
 
   const { mutateAsync: addUrlToPadOp } = useMutation({
     mutationFn: async (props: AddUrlToPadProps) => {
-      const media = await addUrlToPad({ ...props, project });
-      if (!media) return null;
+      const { padId, url } = props;
+      // determine the type of url
+      const media = await getUrlMetadata(url);
+
+      if (!media) {
+        log.debug('[addUrlToPad] No metadata found for url:', url);
+        return null;
+      }
+
+      await dbSaveMediaData(media);
+
+      const mediaThumbnail = await getThumbnailFromMedia(media);
+
+      if (mediaThumbnail) {
+        await dbSaveMediaThumbnail(media, mediaThumbnail);
+        await dbSavePadThumbnail(projectId, padId, mediaThumbnail);
+      }
+
+      project.send({
+        type: 'setPadMedia',
+        padId,
+        media
+      });
 
       invalidateQueryKeys(queryClient, [
-        [...VOKeys.padThumbnail(props.padId)],
+        [...VOKeys.padThumbnail(padId)],
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
         [...VOKeys.allMetadata()]
@@ -132,7 +154,7 @@ export const usePadOperations = () => {
       }
 
       invalidateQueryKeys(queryClient, [
-        [...VOKeys.padThumbnail(targetPad.id)]
+        [...VOKeys.padThumbnail(projectId, targetPad.id)]
       ]);
 
       project.send({
@@ -229,18 +251,21 @@ export const usePadOperations = () => {
       }
 
       // clear the target pad
-      await deletePadMediaOp(targetPad);
-      log.debug('[pastePad] deleted target pad media:', targetPad.id);
+      // await deletePadMediaOp(targetPad);
+      // log.debug('[pastePad] deleted target pad media:', targetPad.id);
 
-      await dbSaveUrlData({
-        media: media as MediaYouTube,
-        thumbnail
-      });
+      if (media) {
+        await dbSaveMediaData(media);
+      }
 
-      log.debug('[pastePad] saved url data:', sourcePadUrl);
+      if (thumbnail) {
+        await dbSaveMediaThumbnail(media, thumbnail);
+        await dbSavePadThumbnail(projectId, targetPad.id, thumbnail);
+      }
 
-      await dbSetPadThumbnail(projectId, targetPad.id, thumbnail);
-      log.debug('[pastePad] set pad thumbnail:', targetPad.id);
+      log.debug('[pastePad] target pad media:', targetPad.id, media);
+
+      // log.debug('[pastePad] set pad thumbnail:', targetPad.id);
       project.send({
         type: 'applyPad',
         pad: sourcePad,
@@ -248,18 +273,13 @@ export const usePadOperations = () => {
         copySourceOnly: isShiftKeyDown()
       });
 
-      log.debug('[pastePad] applied pad:', targetPad.id);
-
-      // Update the store with the tile's video ID
-      // store.send({
-      //   type: 'setPadMedia',
-      //   padId: targetPad.id,
-      //   media
-      // });
-
+      // queryClient.invalidateQueries({ queryKey: VOKeys.pad(targetPad.id) });
       invalidateQueryKeys(queryClient, [
-        [...VOKeys.allMetadata()],
-        [...VOKeys.pad(targetPad.id)]
+        [...VOKeys.pad(projectId, targetPad.id)],
+        [...VOKeys.padThumbnail(projectId, targetPad.id)],
+        // all metadata has to be invalidated so that the useMetadata query
+        // can be refetched correctly
+        [...VOKeys.allMetadata()]
       ]);
 
       if (showToast) {
@@ -268,7 +288,7 @@ export const usePadOperations = () => {
 
       return true;
     },
-    [deletePadMediaOp, isShiftKeyDown, queryClient, project, projectId]
+    [project, projectId, isShiftKeyDown, queryClient]
   );
 
   const { mutateAsync: cutPadOp } = useMutation({
@@ -337,10 +357,10 @@ export const usePadOperations = () => {
 
   const { mutateAsync: deleteAllPadThumbnails } = useMutation({
     mutationFn: async () => {
-      await dbDeleteAllPadThumbnails();
+      await dbDeleteAllPadThumbnails(projectId);
     },
     onSuccess: () => {
-      invalidateQueryKeys(queryClient, [[...VOKeys.pads()]]);
+      invalidateQueryKeys(queryClient, [[...VOKeys.pads(projectId)]]);
     }
   });
 
@@ -366,12 +386,20 @@ const getThumbnailFromSourcePad = async (
     return null;
   }
 
-  // look for a local thumbnail
-  const sourcePadUrl = getPadSourceUrl(sourcePad);
-  const thumbnail =
-    (await dbGetPadThumbnail(projectId, sourcePad.id)) ??
-    (await dbGetThumbnailFromUrl(sourcePadUrl));
+  const sourcePadThumbnail = await dbGetPadThumbnail(projectId, sourcePad.id);
 
+  if (sourcePadThumbnail) {
+    return sourcePadThumbnail;
+  }
+
+  return getThumbnailFromMedia(media);
+};
+
+const getThumbnailFromMedia = async (media: Media) => {
+  if (!media) {
+    return null;
+  }
+  const thumbnail = await dbGetThumbnailFromUrl(media.url);
   if (thumbnail) {
     return thumbnail;
   }

@@ -5,7 +5,7 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { usePadDetails } from '@model/hooks/usePads';
-import { usePlayerState } from '@model/hooks/usePlayersState';
+import { usePlayerState } from '@model/hooks/usePlayerState';
 import { MediaVideo } from '@model/types';
 import {
   PlayerExtractThumbnail,
@@ -20,7 +20,7 @@ import {
 
 type LocalPlayerProps = PlayerProps;
 
-const log = createLog('player/local', ['debug']);
+const log = createLog('player/local');
 
 export const LocalPlayer = ({
   id,
@@ -245,6 +245,8 @@ export const LocalPlayer = ({
     log.debug('❤️ player:ready', mediaUrl, playerPadId);
 
     cOnPlayerUpdate({
+      padId: playerPadId,
+      mediaUrl: mediaUrl,
       isReady: true,
       duration: video.duration,
       playbackRates: [0.25, 0.5, 1, 1.5, 2]

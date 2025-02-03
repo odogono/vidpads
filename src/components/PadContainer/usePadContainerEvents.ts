@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { safeParseInt } from '@helpers/number';
+import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { usePads } from '@model/hooks/usePads';
 
@@ -10,9 +11,10 @@ const log = createLog('usePadContainerEvents');
 
 export const usePadContainerEvents = () => {
   const events = useEvents();
-  // const { selectedPadId } = usePad();
+  const { projectId } = useProject();
   const {
     pads,
+    padsWithMediaStr,
     isPadSelectSourceEnabled,
     isPadPlayEnabled,
     selectedPadId,
@@ -85,8 +87,10 @@ export const usePadContainerEvents = () => {
 
   return {
     pads,
+    padsWithMediaStr,
     isPadSelectSourceEnabled,
     isPadPlayEnabled,
-    selectedPadId
+    selectedPadId,
+    projectId
   };
 };

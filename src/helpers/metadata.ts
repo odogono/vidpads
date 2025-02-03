@@ -49,6 +49,20 @@ export const toPadThumbnailUrl = (projectId: string, padId: string): string => {
   return `${scheme}${projectId}/pad/${padId}/thumbnail`;
 };
 
+export const fromPadThumbnailUrl = (
+  url: string
+): { projectId: string; padId: string } => {
+  const regex = new RegExp(`^${scheme}([^/]+)/pad/([^/]+)/thumbnail$`);
+  const match = url.match(regex);
+  if (!match) {
+    return { projectId: '', padId: '' };
+  }
+  return {
+    projectId: match[1],
+    padId: match[2]
+  };
+};
+
 export const toLocalFileMediaUrl = (fileId: string): string => {
   return `${scheme}local/${fileId}`;
 };

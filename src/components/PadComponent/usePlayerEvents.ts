@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { usePlayerState } from '@model/hooks/usePlayersState';
+import { usePlayerState } from '@model/hooks/usePlayerState';
 import { Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { PlayerPlaying, PlayerStopped } from '../Player/types';
