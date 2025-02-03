@@ -41,7 +41,7 @@ export const ProjectProvider = ({
 
       try {
         log.debug('A deleting pad thumbnails');
-        await dbDeleteAllPadThumbnails();
+        // await dbDeleteAllPadThumbnails();
         if (importData) {
           log.debug('TODO - import data');
         }
@@ -95,8 +95,8 @@ export const ProjectProvider = ({
 
         const projectDetails = await dbGetAllProjectDetails();
 
-        for (const { projectId, projectName } of projectDetails) {
-          log.info('project', projectId, projectName);
+        for (const { projectId, projectName, updatedAt } of projectDetails) {
+          log.info('project', projectId, projectName, updatedAt);
         }
 
         // await wait(10000);
@@ -112,7 +112,7 @@ export const ProjectProvider = ({
   });
 
   return (
-    <ProjectContext.Provider value={{ project }}>
+    <ProjectContext.Provider value={{ project, projectId }}>
       {children}
     </ProjectContext.Provider>
   );

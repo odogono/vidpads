@@ -40,7 +40,7 @@ export interface PadOperationsOptions {
 }
 
 export const usePadOperations = () => {
-  const { project } = useProject();
+  const { project, projectId } = useProject();
   const queryClient = useQueryClient();
   const { isShiftKeyDown } = useKeyboard();
 
@@ -57,11 +57,12 @@ export const usePadOperations = () => {
       // safe to delete the source data
       if (pads.length === 1) {
         log.debug('[useDeletePadMedia] Deleting source data:', sourceUrl);
-        await dbDeleteMediaData(sourceUrl);
+        // not safe to do this anymore since we have multiple projects
+        // await dbDeleteMediaData(sourceUrl);
         queryClient.invalidateQueries({ queryKey: VOKeys.metadata(sourceUrl) });
       }
 
-      await dbDeletePadThumbnail(pad.id);
+      await dbDeletePadThumbnail(projectId, pad.id);
 
       invalidateQueryKeys(queryClient, [[...VOKeys.padThumbnail(pad.id)]]);
 
@@ -113,7 +114,7 @@ export const usePadOperations = () => {
       // clear the target pad
       await deletePadMediaOp(targetPad);
 
-      await dbCopyPadThumbnail(sourcePadId, targetPadId);
+      await dbCopyPadThumbnail(projectId, sourcePadId, targetPadId);
 
       const sourcePad = getPadById(project, sourcePadId);
       const sourcePadUrl = getPadSourceUrl(sourcePad);
@@ -216,7 +217,11 @@ export const usePadOperations = () => {
         return false;
       }
 
-      const thumbnail = await getThumbnailFromSourcePad(sourcePad, media);
+      const thumbnail = await getThumbnailFromSourcePad(
+        projectId,
+        sourcePad,
+        media
+      );
 
       if (!thumbnail) {
         log.debug('[pastePad] No thumbnail found for url:', sourcePadUrl);
@@ -234,7 +239,7 @@ export const usePadOperations = () => {
 
       log.debug('[pastePad] saved url data:', sourcePadUrl);
 
-      await dbSetPadThumbnail(targetPad.id, thumbnail);
+      await dbSetPadThumbnail(projectId, targetPad.id, thumbnail);
       log.debug('[pastePad] set pad thumbnail:', targetPad.id);
       project.send({
         type: 'applyPad',
@@ -263,7 +268,7 @@ export const usePadOperations = () => {
 
       return true;
     },
-    [deletePadMediaOp, isShiftKeyDown, queryClient, project]
+    [deletePadMediaOp, isShiftKeyDown, queryClient, project, projectId]
   );
 
   const { mutateAsync: cutPadOp } = useMutation({
@@ -352,7 +357,11 @@ export const usePadOperations = () => {
   };
 };
 
-const getThumbnailFromSourcePad = async (sourcePad?: Pad, media?: Media) => {
+const getThumbnailFromSourcePad = async (
+  projectId: string,
+  sourcePad?: Pad,
+  media?: Media
+) => {
   if (!sourcePad || !media) {
     return null;
   }
@@ -360,7 +369,7 @@ const getThumbnailFromSourcePad = async (sourcePad?: Pad, media?: Media) => {
   // look for a local thumbnail
   const sourcePadUrl = getPadSourceUrl(sourcePad);
   const thumbnail =
-    (await dbGetPadThumbnail(sourcePad.id)) ??
+    (await dbGetPadThumbnail(projectId, sourcePad.id)) ??
     (await dbGetThumbnailFromUrl(sourcePadUrl));
 
   if (thumbnail) {

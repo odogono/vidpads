@@ -1,8 +1,9 @@
 import { createLog } from '@helpers/log';
-import { isYouTubeMetadata } from '@helpers/metadata';
+import { getUrlMetadata, isYouTubeMetadata } from '@helpers/metadata';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
-  getMediaData as dbGetMediaData
+  getMediaData as dbGetMediaData,
+  saveMediaData as dbSaveMediaData
 } from '@model/db/api';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { VOKeys } from '../constants';
@@ -30,13 +31,26 @@ export const useMetadataByUrl = (url: string | undefined) => {
     queryFn: async () => {
       if (!url) return null;
 
-      const media = await dbGetMediaData(url);
+      const localData = await dbGetMediaData(url);
 
-      return media ?? null;
+      if (localData) {
+        return localData;
+      }
+
+      const media = await getUrlMetadata(url);
+
+      if (!media) {
+        log.warn('[useMetadataByUrl] No metadata found for url:', url);
+        return null;
+      }
+
+      await dbSaveMediaData(media);
+
+      return media;
     }
   });
 
-  log.debug('[useMetadataByUrl] data', data);
+  // log.debug('[useMetadataByUrl] data', data);
 
   const duration = data?.duration ?? -1;
 

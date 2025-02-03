@@ -266,43 +266,6 @@ export const saveProjectState = async (
 //   });
 // };
 
-export interface SaveUrlDataProps {
-  media: MediaYouTube;
-  thumbnail: string | null;
-}
-
-export const saveUrlData = async ({
-  media,
-  thumbnail
-}: SaveUrlDataProps): Promise<void> => {
-  const db = await openDB();
-
-  return new Promise((resolve, reject) => {
-    const { metadata, thumbnails, transaction } = idbOpenTransaction(
-      db,
-      ['metadata', 'thumbnails'],
-      'readwrite'
-    );
-
-    // Save the metadata
-    metadata.put(media);
-
-    // Save the thumbnail
-    thumbnails.put({ id: media.url, type: 'url', thumbnail });
-
-    transaction.onerror = () => {
-      log.error('Error saving video data:', transaction.error);
-      reject(transaction.error);
-    };
-
-    transaction.oncomplete = () => {
-      // log.debug('Video data saved successfully');
-      closeDB(db);
-      resolve();
-    };
-  });
-};
-
 export const updateMetadataProperty = async (
   mediaUrl: string | undefined,
   property: keyof Media | keyof MediaYouTube,
@@ -742,6 +705,66 @@ export const getMediaData = async (url: string): Promise<Media | null> => {
   });
 };
 
+export const saveMediaData = async (media: Media): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { metadata, transaction } = idbOpenTransaction(
+      db,
+      ['metadata'],
+      'readwrite'
+    );
+
+    metadata.put(media);
+
+    transaction.onerror = () => {
+      log.error('Error saving media data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+      resolve();
+    };
+  });
+};
+
+export interface SaveUrlDataProps {
+  media: MediaYouTube;
+  thumbnail: string | null;
+}
+
+export const saveUrlData = async ({
+  media,
+  thumbnail
+}: SaveUrlDataProps): Promise<void> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const { metadata, thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['metadata', 'thumbnails'],
+      'readwrite'
+    );
+
+    // Save the metadata
+    metadata.put(media);
+
+    // Save the thumbnail
+    thumbnails.put({ id: media.url, type: 'url', thumbnail });
+
+    transaction.onerror = () => {
+      log.error('Error saving video data:', transaction.error);
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      // log.debug('Video data saved successfully');
+      closeDB(db);
+      resolve();
+    };
+  });
+};
+
 export const deleteMediaData = async (url: string): Promise<void> => {
   const mediaData = await getMediaData(url);
   if (!mediaData) {
@@ -788,10 +811,11 @@ export const deleteMediaData = async (url: string): Promise<void> => {
 };
 
 export const setPadThumbnail = async (
+  projectId: string,
   padId: string,
   thumbnail: string
 ): Promise<string> => {
-  const thumbnailId = toPadThumbnailUrl(padId);
+  const thumbnailId = toPadThumbnailUrl(projectId, padId);
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -819,9 +843,10 @@ export const setPadThumbnail = async (
 };
 
 export const getPadThumbnail = async (
+  projectId: string,
   padId: string
 ): Promise<string | null> => {
-  const thumbnailId = toPadThumbnailUrl(padId);
+  const thumbnailId = toPadThumbnailUrl(projectId, padId);
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -835,6 +860,36 @@ export const getPadThumbnail = async (
 
     request.onerror = () => {
       log.error('Error loading pad thumbnail:', request.error);
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      const result = request.result;
+      closeDB(db);
+      resolve(result ? result.thumbnail : null);
+    };
+  });
+};
+
+export const getMediaThumbnail = async (
+  media: Media | null | undefined
+): Promise<string | null> => {
+  if (!media) {
+    // log.debug('[getMediaThumbnail] Media is null or undefined');
+    return null;
+  }
+
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readonly'
+    );
+
+    const request = thumbnails.get(media.url);
+
+    request.onerror = () => {
       reject(request.error);
     };
 
@@ -861,19 +916,23 @@ export const deleteAllPadThumbnails = async (): Promise<number> => {
 };
 
 export const copyPadThumbnail = async (
+  projectId: string,
   sourcePadId: string,
   targetPadId: string
 ): Promise<string | null> => {
-  const sourceThumbnail = await getPadThumbnail(sourcePadId);
+  const sourceThumbnail = await getPadThumbnail(projectId, sourcePadId);
   if (!sourceThumbnail) {
     log.error('Source pad thumbnail not found:', sourcePadId);
     return null;
   }
-  return setPadThumbnail(targetPadId, sourceThumbnail);
+  return setPadThumbnail(projectId, targetPadId, sourceThumbnail);
 };
 
-export const deletePadThumbnail = async (padId: string): Promise<string> => {
-  const thumbnailId = toPadThumbnailUrl(padId);
+export const deletePadThumbnail = async (
+  projectId: string,
+  padId: string
+): Promise<string> => {
+  const thumbnailId = toPadThumbnailUrl(projectId, padId);
   const db = await openDB();
 
   return new Promise((resolve, reject) => {

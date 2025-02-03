@@ -45,8 +45,8 @@ export const parsePadUrl = (
   };
 };
 
-export const toPadThumbnailUrl = (padId: string): string => {
-  return `${scheme}pad/${padId}/thumbnail`;
+export const toPadThumbnailUrl = (projectId: string, padId: string): string => {
+  return `${scheme}${projectId}/pad/${padId}/thumbnail`;
 };
 
 export const toLocalFileMediaUrl = (fileId: string): string => {
@@ -114,7 +114,9 @@ export const isImageMetadata = (metadata: Media): boolean => {
   return metadata.mimeType.startsWith('image/');
 };
 
-export const isYouTubeMetadata = (metadata?: Media): boolean => {
+export const isYouTubeMetadata = (
+  metadata?: Media | null | undefined
+): boolean => {
   return metadata?.mimeType.startsWith('video/youtube') ?? false;
 };
 
