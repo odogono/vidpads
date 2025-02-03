@@ -90,8 +90,9 @@ export const usePadOperations = () => {
 
   const { mutateAsync: addUrlToPadOp } = useMutation({
     mutationFn: async (props: AddUrlToPadProps) => {
-      const { padId, url } = props;
-      // determine the type of url
+      const { padId, url, projectId } = props;
+
+      // retrieve existing, or fetch from network
       const media = await getUrlMetadata(url);
 
       if (!media) {
@@ -115,12 +116,13 @@ export const usePadOperations = () => {
       });
 
       invalidateQueryKeys(queryClient, [
-        [...VOKeys.padThumbnail(padId)],
+        [...VOKeys.padThumbnail(projectId, padId)],
         // all metadata has to be invalidated so that the useMetadata query
         // can be refetched correctly
         [...VOKeys.allMetadata()]
       ]);
 
+      log.debug('[addUrlToPad] media:', padId, media.url);
       return media;
     }
   });

@@ -2,7 +2,11 @@ import { useCallback } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { invalidateAllQueries, invalidateQueryKeys } from '@helpers/query';
+import {
+  invalidateAllQueries,
+  invalidateQueryKeys,
+  resetAllQueries
+} from '@helpers/query';
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import {
@@ -44,10 +48,7 @@ export const useProjects = () => {
 
       await dbSaveProjectState(snapshot.context);
 
-      log.debug(
-        '[loadProjectFromJSON] save project',
-        snapshot.context.projectId
-      );
+      log.debug('[loadProjectFromJSON] project', snapshot.context.projectId);
 
       setProjectId(snapshot.context.projectId);
 
@@ -61,26 +62,25 @@ export const useProjects = () => {
     async (urlString: string) => {
       const data = urlStringToProject(urlString);
 
-      invalidateAllQueries(queryClient);
+      const newStore = createStore();
+      newStore.send({ type: 'importProject', data });
+      const snapshot = newStore.getSnapshot();
 
-      await deleteAllPadThumbnails();
+      await dbSaveProjectState(snapshot.context);
 
-      project.send({ type: 'importProject', data });
+      log.debug('[loadProjectFromJSON] project', snapshot.context.projectId);
 
-      await Promise.all(
-        data.pads.map((pad) =>
-          addUrlToPad({ url: pad.source, padId: pad.id, project })
-        )
-      );
+      setProjectId(snapshot.context.projectId);
 
-      events.emit('project:loaded', {
-        projectId: data.id,
-        projectName: data.name
-      });
+      // await Promise.all(
+      //   data.pads.map((pad) =>
+      //     addUrlToPad({ url: pad.source, padId: pad.id, projectId })
+      //   )
+      // );
 
       return true;
     },
-    [queryClient, deleteAllPadThumbnails, project, events, addUrlToPad]
+    [setProjectId]
   );
 
   const exportProjectToJSON = useCallback(() => {
@@ -107,7 +107,7 @@ export const useProjects = () => {
 
   const loadProject = useCallback(
     async (projectId: string) => {
-      log.debug('Loading project:', projectId);
+      // log.debug('Loading project:', projectId);
 
       // const project = await dbLoadProject(projectId);
 
@@ -118,12 +118,13 @@ export const useProjects = () => {
 
       // await loadProjectFromJSON(project);
 
+      queryClient.invalidateQueries({ queryKey: VOKeys.project(projectId) });
       setProjectId(projectId);
       // events.emit('project:loaded', { projectId, projectName: project.name });
 
       return true;
     },
-    [setProjectId]
+    [queryClient, setProjectId]
   );
 
   const createNewProject = useCallback(async () => {
@@ -138,11 +139,6 @@ export const useProjects = () => {
 
     return true;
   }, [setProjectId]);
-
-  const deleteEverything = useCallback(async () => {
-    await dbDeleteDB();
-    await createNewProject();
-  }, [createNewProject]);
 
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
@@ -203,6 +199,12 @@ export const useProjects = () => {
       return [];
     }
   }, [queryClient]);
+
+  const deleteEverything = useCallback(async () => {
+    await dbDeleteDB();
+    await resetAllQueries(queryClient);
+    await createNewProject();
+  }, [createNewProject, queryClient]);
 
   return {
     projectId,

@@ -23,7 +23,7 @@ export interface AddFileToPadProps {
 export interface AddUrlToPadProps {
   url: string;
   padId: string;
-  project?: StoreType;
+  projectId: string;
 }
 
 export const getAllMediaMetaData = async () => {
