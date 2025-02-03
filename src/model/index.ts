@@ -10,7 +10,7 @@ import { getYouTubeThumbnail } from '@helpers/youtube';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   saveImageData as dbSaveImageData,
-  saveUrlData as dbSaveUrlData,
+  saveMediaData as dbSaveMediaData,
   saveVideoData as dbSaveVideoData,
   setPadThumbnail as dbSetPadThumbnail
 } from '@model/db/api';
@@ -58,24 +58,26 @@ export const addUrlToPad = async ({
     return null;
   }
 
+  await dbSaveMediaData(media);
+
   log.debug('[addUrlToPad] url:', url, padId);
 
   // fetch the thumbnail
-  const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
+  // const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
 
-  if (!thumbnail) {
-    log.warn('[addUrlToPad] No thumbnail found for url:', url);
-    return null;
-  }
+  // if (!thumbnail) {
+  //   log.warn('[addUrlToPad] No thumbnail found for url:', url);
+  //   return null;
+  // }
 
-  await dbSaveUrlData({
-    media: media as MediaYouTube,
-    thumbnail
-  });
+  // await dbSaveUrlData({
+  //   media: media as MediaYouTube,
+  //   thumbnail
+  // });
 
-  log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
+  // log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
 
-  await dbSetPadThumbnail(padId, thumbnail);
+  // await dbSetPadThumbnail(projectId, padId, thumbnail);
 
   // Update the store with the tile's video ID
   project.send({

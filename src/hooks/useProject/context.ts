@@ -7,8 +7,10 @@ import { StoreType } from '@model/store/types';
 
 export type ProjectContextType = {
   project: StoreType;
+  projectId: string;
 };
 
 export const ProjectContext = createContext<ProjectContextType | null>({
-  project: createStore()
+  project: createStore(),
+  projectId: ''
 });

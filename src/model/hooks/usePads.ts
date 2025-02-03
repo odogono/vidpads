@@ -44,7 +44,7 @@ export const usePads = () => {
 };
 
 export const usePadsExtended = () => {
-  const { pads, isReady, selectedPadId } = usePads();
+  const { pads, selectedPadId } = usePads();
   const { urlToMetadata } = useMetadata();
 
   const { selectedPadSourceUrl, selectedPadStartAndEndTime } = useMemo(() => {
@@ -64,7 +64,6 @@ export const usePadsExtended = () => {
   );
 
   return {
-    isReady,
     pads,
     // padSourceUrls,
     padsWithMedia,

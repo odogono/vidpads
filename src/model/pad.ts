@@ -1,4 +1,3 @@
-import { toPadThumbnailUrl } from '../helpers/metadata';
 import { roundNumberToDecimalPlaces } from '../helpers/number';
 import {
   Interval,
@@ -98,9 +97,9 @@ export const addOrReplacePadOperation = (
   };
 };
 
-export const exportToURL = (pad: Pad): string => {
-  return toPadThumbnailUrl(pad.id);
-};
+// export const exportToURL = (pad: Pad, projectId: string): string => {
+//   return toPadThumbnailUrl(pad.id, projectId);
+// };
 
 export const copyPad = (pad: Pad): Pad => {
   return JSON.parse(JSON.stringify(pad));

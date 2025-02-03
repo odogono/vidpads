@@ -36,7 +36,7 @@ export const useProjects = () => {
     async (data: ProjectExport) => {
       invalidateAllQueries(queryClient);
 
-      await deleteAllPadThumbnails();
+      // await deleteAllPadThumbnails();
 
       project.send({ type: 'importProject', data });
 
@@ -53,7 +53,7 @@ export const useProjects = () => {
 
       return true;
     },
-    [queryClient, deleteAllPadThumbnails, project, addUrlToPad, events]
+    [queryClient, project, addUrlToPad, events]
   );
 
   const importFromURLString = useCallback(
@@ -62,7 +62,7 @@ export const useProjects = () => {
 
       invalidateAllQueries(queryClient);
 
-      await deleteAllPadThumbnails();
+      // await deleteAllPadThumbnails();
 
       project.send({ type: 'importProject', data });
 
@@ -79,7 +79,7 @@ export const useProjects = () => {
 
       return true;
     },
-    [queryClient, deleteAllPadThumbnails, project, addUrlToPad, events]
+    [queryClient, project, addUrlToPad, events]
   );
 
   const exportProjectToJSON = useCallback(() => {

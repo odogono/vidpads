@@ -14,7 +14,7 @@ const log = createLog('player/usePlayers');
 type PlayersResult = [string, PlayerProps[]];
 
 export const usePlayers = () => {
-  const { isReady, pads, padsWithMedia, urlToMetadata } = usePadsExtended();
+  const { pads, padsWithMedia, urlToMetadata } = usePadsExtended();
   const queryClient = useQueryClient();
 
   const playersRef = useRef<PlayerProps[]>([]);
@@ -24,8 +24,7 @@ export const usePlayers = () => {
     // log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
     const result = padsWithMedia.reduce((acc, pad) => {
       const url = getPadSourceUrl(pad);
-      if (!isReady || !url) {
-        if (!isReady) log.debug('[usePlayers] isReady:', pad.id, isReady);
+      if (!url) {
         if (!url) log.debug('[usePlayers] no url:', pad.id, url);
         return acc;
       }
@@ -68,7 +67,7 @@ export const usePlayers = () => {
     }
 
     return [padUrlStr, result];
-  }, [padsWithMedia, isReady, urlToMetadata, queryClient]);
+  }, [padsWithMedia, urlToMetadata, queryClient]);
 
   return {
     pads,
