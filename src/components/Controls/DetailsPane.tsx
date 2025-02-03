@@ -22,6 +22,7 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const events = useEvents();
   const { selectedPadId, setPadPlayEnabled, setPadSelectSourceEnabled } =
     usePad();
+  const isEnabled = !!selectedPadId;
 
   const handleCut = useCallback(() => events.emit('cmd:cut'), [events]);
   const handleCopy = useCallback(() => events.emit('cmd:copy'), [events]);
@@ -36,28 +37,20 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     };
   }, [setPadPlayEnabled, setPadSelectSourceEnabled]);
 
-  if (!selectedPadId) {
-    return (
-      <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
-        <h3 className='font-semibold text-foreground/90'>No Pad Selected</h3>
-      </div>
-    );
-  }
-
   return (
     <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
-      <Input isClearable size='sm' label='Label' />
+      <Input isClearable size='sm' label='Label' disabled={!isEnabled} />
 
-      <OpButton label='Cut' onPress={handleCut}>
+      <OpButton label='Cut' onPress={handleCut} isEnabled={isEnabled}>
         <ClipboardX />
       </OpButton>
-      <OpButton label='Copy' onPress={handleCopy}>
+      <OpButton label='Copy' onPress={handleCopy} isEnabled={isEnabled}>
         <ClipboardCopy />
       </OpButton>
-      <OpButton label='Paste' onPress={handlePaste}>
+      <OpButton label='Paste' onPress={handlePaste} isEnabled={isEnabled}>
         <ClipboardPaste />
       </OpButton>
-      <OpButton label='Delete' onPress={showDeleteModal}>
+      <OpButton label='Delete' onPress={showDeleteModal} isEnabled={isEnabled}>
         <Trash2 />
       </OpButton>
     </div>

@@ -18,9 +18,9 @@ interface OpTimeInputProps {
   defaultValue?: number | undefined;
   range?: [number, number];
   description: string;
-  isDisabled?: boolean;
   onChange?: (value: number) => void;
   showIncrementButtons?: boolean;
+  isEnabled?: boolean;
 }
 
 export const OpTimeInput = ({
@@ -28,9 +28,9 @@ export const OpTimeInput = ({
   ref,
   initialValue,
   defaultValue,
-  isDisabled,
   onChange,
-  range
+  range,
+  isEnabled
 }: OpTimeInputProps) => {
   const { setIsEnabled: setKeyboardEnabled } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
@@ -82,7 +82,7 @@ export const OpTimeInput = ({
 
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLInputElement>) => {
-      if (isDisabled) return;
+      if (!isEnabled) return;
 
       const [min, max] = range ? range : [0, 100];
 
@@ -97,7 +97,7 @@ export const OpTimeInput = ({
       onChange?.(newValue);
       (e.target as HTMLInputElement).blur();
     },
-    [isDisabled, range, inputValue, onChange]
+    [isEnabled, range, inputValue, onChange]
   );
 
   // if (description === 'Start') log.debug('TimeInput', inputValue);
@@ -108,10 +108,10 @@ export const OpTimeInput = ({
         className={cn(
           `rounded-r-none cursor-ns-resize bg-default-100 px-3 py-1 text-sm min-h-unit-8  utline-none w-[7.5rem] font-mono`,
           'hover:border-default-400 ',
-          isDisabled ? 'bg-gray-800 text-gray-500' : ''
+          !isEnabled ? 'bg-gray-800 text-gray-500' : ''
         )}
         type='text'
-        disabled={isDisabled}
+        disabled={!isEnabled}
         value={inputValue}
         onChange={handleInput}
         onKeyDown={handleKeyDown}

@@ -12,6 +12,7 @@ import { Dial } from '.';
 interface PlaybackRateDialProps {
   pad: Pad | undefined;
   setPadPlaybackRate: (padId: string, rate: number) => void;
+  isEnabled?: boolean;
 }
 
 // const log = createLog('dial');

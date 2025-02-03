@@ -17,9 +17,10 @@ const log = createLog('NumericInterval', ['debug']);
 
 export interface NumericIntervalProps {
   pad: Pad | undefined;
+  isEnabled?: boolean;
 }
 
-export const NumericInterval = ({ pad }: NumericIntervalProps) => {
+export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
   const startTimeRef = useRef<OpTimeInputRef | null>(null);
   const endTimeRef = useRef<OpTimeInputRef | null>(null);
   const inputTimeRef = useRef<OpTimeInputRef | null>(null);
@@ -97,6 +98,7 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
   return (
     <div className='flex flex-row gap-2'>
       <OpTimeInput
+        isEnabled={isEnabled}
         ref={startTimeRef}
         initialValue={padStart}
         defaultValue={0}
@@ -105,7 +107,7 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         showIncrementButtons={true}
         onChange={handleStartChange}
       />
-      <OpButton size='sm' onPress={handleCopyTimeToStart}>
+      <OpButton size='sm' onPress={handleCopyTimeToStart} isEnabled={isEnabled}>
         <ArrowLeftFromLine />
       </OpButton>
       <OpTimeInput
@@ -113,12 +115,13 @@ export const NumericInterval = ({ pad }: NumericIntervalProps) => {
         initialValue={0}
         defaultValue={0}
         description='Time'
-        isDisabled={true}
+        isEnabled={false}
       />
-      <OpButton size='sm' onPress={handleCopyTimeToEnd}>
+      <OpButton size='sm' onPress={handleCopyTimeToEnd} isEnabled={isEnabled}>
         <ArrowRightFromLine />
       </OpButton>
       <OpTimeInput
+        isEnabled={isEnabled}
         ref={endTimeRef}
         initialValue={padEnd}
         defaultValue={duration}

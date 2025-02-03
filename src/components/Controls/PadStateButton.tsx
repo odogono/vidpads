@@ -3,11 +3,13 @@ import { Button } from '@nextui-org/react';
 export const PadStateButton = ({
   label,
   onPress,
-  isActive
+  isActive,
+  isEnabled
 }: {
   label: string;
   onPress: () => void;
   isActive: boolean;
+  isEnabled?: boolean;
 }) => {
   return (
     <Button
@@ -20,6 +22,7 @@ export const PadStateButton = ({
       color='primary'
       variant={isActive ? 'solid' : 'flat'}
       radius='full'
+      isDisabled={!isEnabled}
     >
       {label}
     </Button>
