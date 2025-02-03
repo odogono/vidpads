@@ -7,9 +7,11 @@ import { createLog } from '@helpers/log';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import {
   getPadInterval,
+  getPadLoopStart,
   getPadPlaybackRate,
   getPadSourceUrl,
-  getPadVolume
+  getPadVolume,
+  isPadLooped
 } from '@model/pad';
 import { Interval } from '@model/types';
 import { LoadingPlayer } from './LoadingPlayer';
@@ -57,7 +59,8 @@ export const PlayerContainer = () => {
       }
 
       const isOneShot = pad.isOneShot ?? false;
-      const isLoop = pad.isLooped ?? false;
+      const isLoop = isPadLooped(pad);
+      const loopStart = getPadLoopStart(pad);
       const { start, end } = getPadInterval(pad, {
         start: 0,
         end: Number.MAX_SAFE_INTEGER
@@ -70,6 +73,7 @@ export const PlayerContainer = () => {
         padId: pad.id,
         isOneShot,
         isLoop,
+        loopStart,
         start,
         end,
         volume,

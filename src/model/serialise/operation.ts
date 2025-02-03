@@ -1,9 +1,9 @@
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import {
+  LoopOperation,
   Operation,
   OperationExport,
   OperationType,
-  OperationTypeKey,
   PlaybackRateOperation,
   TrimOperation,
   VolumeKeyPoint,
@@ -45,6 +45,14 @@ export const exportOperationToJSON = (
     } as VolumeOperation;
   }
 
+  if (operation.type === OperationType.Loop) {
+    const { start } = operation as LoopOperation;
+    return {
+      type: operation.type,
+      start: roundDP(start)
+    } as LoopOperation;
+  }
+
   return undefined;
 };
 
@@ -80,6 +88,11 @@ export const importOperationFromJSON = (
     } as VolumeOperation;
   }
 
+  if (operation.type === OperationType.Loop) {
+    const { start } = operation as LoopOperation;
+    return { type: OperationType.Loop, start } as LoopOperation;
+  }
+
   return undefined;
 };
 
@@ -91,7 +104,8 @@ const OperationTypeCodes: Record<OperationType, string> = {
   [OperationType.Duration]: 'd',
   [OperationType.Resize]: 'r',
   [OperationType.AddEffect]: 'a',
-  [OperationType.AddTransition]: 't'
+  [OperationType.AddTransition]: 't',
+  [OperationType.Loop]: 'l'
 } as const;
 
 export const exportOperationToURL = (
@@ -124,6 +138,11 @@ export const exportOperationToURL = (
       .join(':')}`;
   }
 
+  if (operation.type === OperationType.Loop) {
+    const { start } = operation as LoopOperation;
+    return `${code}:${roundDP(start)}`;
+  }
+
   return '';
 };
 
@@ -148,6 +167,14 @@ export const importOperationFromURL = (
       start: parseFloat(start),
       end: parseFloat(end)
     } as TrimOperation;
+  }
+
+  if (type === OperationTypeCodes[OperationType.Loop]) {
+    const [start] = rest;
+    return {
+      type: OperationType.Loop,
+      start: parseFloat(start)
+    } as LoopOperation;
   }
 
   if (type === OperationTypeCodes[OperationType.Volume]) {

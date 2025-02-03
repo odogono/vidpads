@@ -28,5 +28,5 @@ export const applyTrimToPad = (
   // replace the old trim operation with the new one
   const newPad = addOrReplacePadOperation(pad, newOp);
 
-  return addOrReplacePad(context, newPad);
+  return addOrReplacePad(context, newPad!);
 };
