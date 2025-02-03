@@ -5,7 +5,6 @@ import { useCallback, useImperativeHandle, useState } from 'react';
 import { formatTimeAgo } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
-import { Project } from '@model/types';
 import {
   Button,
   Modal,
@@ -21,6 +20,7 @@ import {
   TableHeader,
   TableRow
 } from '@nextui-org/react';
+import { StoreContextType } from '../../model/store/types';
 import { useModalState } from './useModalState';
 
 const log = createLog('LoadProjectModal');
@@ -39,7 +39,9 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
   const [selectedProjectId, setSelectedProjectId] = useState<
     string | undefined
   >();
-  const [projectDetails, setProjectDetails] = useState<Partial<Project>[]>([]);
+  const [projectDetails, setProjectDetails] = useState<
+    Partial<StoreContextType>[]
+  >([]);
 
   const handleLoadProject = useCallback(async () => {
     try {
@@ -106,8 +108,8 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
                 </TableHeader>
                 <TableBody>
                   {projectDetails.map((project) => (
-                    <TableRow key={project.id}>
-                      <TableCell>{project.name}</TableCell>
+                    <TableRow key={project.projectId}>
+                      <TableCell>{project.projectName}</TableCell>
                       <TableCell>
                         {formatTimeAgo(new Date(project.updatedAt ?? ''))}
                       </TableCell>

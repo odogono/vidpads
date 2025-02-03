@@ -15,16 +15,9 @@ import {
   MediaType,
   MediaVideo,
   MediaYouTube,
-  Project,
   ProjectExport
 } from '@model/types';
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery
-} from '@tanstack/react-query';
 import { isValidMediaUrl, toPadThumbnailUrl } from '../../helpers/metadata';
-import { QUERY_KEY_STATE } from '../constants';
 import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
@@ -32,28 +25,10 @@ const log = createLog('db/api');
 const DB_NAME = 'odgn-vo';
 const DB_VERSION = 2;
 
-export const useDBStore = () => {
-  return useSuspenseQuery({
-    queryKey: [QUERY_KEY_STATE],
-    queryFn: loadStateFromIndexedDB
-  });
-};
-
 export const isIndexedDBSupported = () => {
   return (
     typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined'
   );
-};
-
-export const useDBStoreUpdate = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: saveStateToIndexedDB,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY_STATE] });
-    }
-  });
 };
 
 const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
@@ -89,7 +64,9 @@ export const closeDB = (db: IDBDatabase) => {
 
 export const deleteDB = () => idbDeleteDB(DB_NAME);
 
-export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
+export const getAllProjectDetails = async (): Promise<
+  Partial<StoreContextType>[]
+> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -110,11 +87,11 @@ export const getAllProjectDetails = async (): Promise<Partial<Project>[]> => {
     };
 
     getAllRequest.onsuccess = () => {
-      const projects = getAllRequest.result as Project[];
+      const projects = getAllRequest.result as StoreContextType[];
 
       const projectDetails = projects.map((project) => {
-        const { id, name, createdAt, updatedAt } = project;
-        return { id, name, createdAt, updatedAt };
+        const { projectId, projectName, createdAt, updatedAt } = project;
+        return { projectId, projectName, createdAt, updatedAt };
       });
       resolve(projectDetails);
     };
