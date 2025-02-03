@@ -32,27 +32,29 @@ export const StatePane = () => {
     setPadIsLooped(pad.id, !isLooped);
   }, [pad, isLooped, setPadIsLooped]);
 
-  if (!selectedPadId) {
-    return (
-      <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
-        <h3 className='font-semibold text-foreground/90'>No Pad Selected</h3>
-      </div>
-    );
-  }
-
   return (
     <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center '>
-      <VolumeDial pad={pad} setPadVolume={setPadVolume} />
-      <PlaybackRateDial pad={pad} setPadPlaybackRate={setPadPlaybackRate} />
+      <VolumeDial
+        pad={pad}
+        setPadVolume={setPadVolume}
+        isEnabled={!!selectedPadId}
+      />
+      <PlaybackRateDial
+        pad={pad}
+        setPadPlaybackRate={setPadPlaybackRate}
+        isEnabled={!!selectedPadId}
+      />
       <PadStateButton
         label='One Shot'
         onPress={handleOneShot}
         isActive={pad?.isOneShot ?? false}
+        isEnabled={!!selectedPadId}
       />
       <PadStateButton
         label='Loop'
         onPress={handleLooped}
         isActive={pad?.isLooped ?? false}
+        isEnabled={!!selectedPadId}
       />
     </div>
   );

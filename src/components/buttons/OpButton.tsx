@@ -4,12 +4,14 @@ import { Button, cn } from '@nextui-org/react';
 
 export const OpButton = ({
   label,
+  isEnabled,
   children,
   onPress,
   size = 'md'
 }: {
   label?: string;
   size?: 'sm' | 'md' | 'lg';
+  isEnabled?: boolean;
   children: React.ReactNode;
   onPress: () => void;
 }) => {
@@ -20,6 +22,7 @@ export const OpButton = ({
         size={size}
         aria-label={label}
         onPress={onPress}
+        isDisabled={!isEnabled}
         className={cn(
           'aspect-square bg-slate-400 hover:bg-slate-300 text-black'
         )}

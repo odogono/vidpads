@@ -36,16 +36,6 @@ export const ControlsLoaded = () => {
     return null;
   }
 
-  if (!selectedPadId) {
-    return (
-      <Card className='mt-4 w-full min-h-[8vh] bg-gray-800'>
-        <CardHeader className='flex justify-between items-center'>
-          <h3 className='font-semibold text-foreground/90'>No Pad Selected</h3>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   return (
     <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row'>
       <div className='switcher rounded-lg  flex flex-row'>

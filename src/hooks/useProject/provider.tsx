@@ -30,17 +30,6 @@ export const ProjectProvider = ({
   const snapshotRef = useRef<StoreContextType | null>(null);
   const { setProjectId, projectId, importData } = useRouter();
 
-  // useEffect(() => {
-  //   if (!importData) return;
-
-  //   // parse the data, extract it's project, and save it
-
-  //   // once done, clear the data from the url and set
-  //   // the projectId
-
-  //   // const success = await importFromURLString(importData);
-  // }, [importData]);
-
   const { data: project } = useSuspenseQuery({
     queryKey: VOKeys.project(projectId),
     queryFn: async () => {
@@ -78,7 +67,7 @@ export const ProjectProvider = ({
           log.debug('D using existing project', projectId, snapshot.context);
         }
 
-        log.debug('D setting projectId', snapshot.context.projectId);
+        log.debug('E setting projectId', snapshot.context.projectId);
         setProjectId(snapshot.context.projectId);
 
         invalidateQueryKeys(queryClient, [

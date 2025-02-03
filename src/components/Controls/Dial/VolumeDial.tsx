@@ -12,6 +12,7 @@ import { Dial } from '.';
 interface VolumeDialProps {
   pad: Pad | undefined;
   setPadVolume: (padId: string, volume: number) => void;
+  isEnabled?: boolean;
 }
 
 // const log = createLog('dial');
