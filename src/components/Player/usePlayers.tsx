@@ -14,30 +14,37 @@ const log = createLog('player/usePlayers');
 type PlayersResult = [string, PlayerProps[]];
 
 export const usePlayers = () => {
-  const { pads, padsWithMedia, urlToMetadata } = usePadsExtended();
+  const {
+    pads,
+    padsWithMedia,
+    padsWithMediaStr,
+    urlToMetadata,
+    urlToMetadataStr
+  } = usePadsExtended();
   const queryClient = useQueryClient();
 
   const playersRef = useRef<PlayerProps[]>([]);
   const padUrlStrRef = useRef<string>('');
 
   useMemo<PlayersResult>(() => {
-    // log.debug('[usePlayers] padsWithMedia:', padsWithMedia.length);
+    log.debug('padsWithMedia:', padsWithMediaStr);
+    // log.debug('urlToMetadata:', urlToMetadataStr);
     const result = padsWithMedia.reduce((acc, pad) => {
       const url = getPadSourceUrl(pad);
       if (!url) {
-        if (!url) log.debug('[usePlayers] no url:', pad.id, url);
+        if (!url) log.debug('no url:', pad.id, url);
         return acc;
       }
 
       const media = urlToMetadata?.get(url);
       if (!media) {
         log.debug(
-          '[usePlayers] no media:',
+          'no media:',
           pad.id,
           { url },
           queryClient.getQueryData(VOKeys.metadata(url))
         );
-        log.debug('[usePlayers] urlToMetadata', urlToMetadata);
+        log.debug('urlToMetadata', urlToMetadata);
         return acc;
       }
 
@@ -67,7 +74,8 @@ export const usePlayers = () => {
     }
 
     return [padUrlStr, result];
-  }, [padsWithMedia, urlToMetadata, queryClient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [padsWithMediaStr, urlToMetadataStr, queryClient]);
 
   return {
     pads,

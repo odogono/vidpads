@@ -30,7 +30,7 @@ export interface PadComponentProps {
   onEmptyPadTouch: (padId: string) => void;
 }
 
-const log = createLog('PadComponent');
+const log = createLog('PadComponent', ['debug']);
 
 export const PadComponent = ({
   isPlayEnabled,
@@ -203,12 +203,13 @@ export const PadComponent = ({
 
   const isReady = !!thumbnail ? isPlayerReady : true;
 
+  if (thumbnail) log.debug('render', pad.id, thumbnail);
+
   return (
     <div
       ref={elementRef}
-      key={pad.id}
       className={`
-          w-full h-full rounded-lg cursor-pointer transition-all relative select-none touch-none
+          w-full min-h-[44px] h-full rounded-lg cursor-pointer transition-all relative select-none touch-none
           ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
           ${isReady ? 'opacity-100' : 'opacity-20'}

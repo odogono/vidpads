@@ -1,21 +1,15 @@
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
 import { createImageThumbnail } from '@helpers/image';
 import { createLog } from '@helpers/log';
-import {
-  getMediaMetadata,
-  getUrlMetadata,
-  isVideoMetadata
-} from '@helpers/metadata';
-import { getYouTubeThumbnail } from '@helpers/youtube';
+import { getMediaMetadata, isVideoMetadata } from '@helpers/metadata';
 import {
   getAllMediaMetaData as dbGetAllMediaMetaData,
   saveImageData as dbSaveImageData,
-  saveMediaData as dbSaveMediaData,
-  saveVideoData as dbSaveVideoData,
-  setPadThumbnail as dbSetPadThumbnail
+  savePadThumbnail as dbSavePadThumbnail,
+  saveVideoData as dbSaveVideoData
 } from '@model/db/api';
 import { StoreType } from '@model/store/types';
-import { MediaImage, MediaVideo, MediaYouTube } from '@model/types';
+import { MediaImage, MediaVideo } from '@model/types';
 
 const log = createLog('model/api', ['debug']);
 
@@ -23,6 +17,7 @@ export interface AddFileToPadProps {
   file: File;
   padId: string;
   project?: StoreType;
+  projectId: string;
 }
 
 export interface AddUrlToPadProps {
@@ -40,54 +35,54 @@ export interface CopyPadToPadProps {
   targetPadId: string;
 }
 
-export const addUrlToPad = async ({
-  url,
-  padId,
-  project
-}: AddUrlToPadProps) => {
-  if (!project) {
-    log.warn('Project not found');
-    return null;
-  }
+// export const addUrlToPad = async ({
+//   url,
+//   padId,
+//   project
+// }: AddUrlToPadProps) => {
+//   if (!project) {
+//     log.warn('Project not found');
+//     return null;
+//   }
 
-  // determine the type of url
-  const media = await getUrlMetadata(url);
+//   // determine the type of url
+//   const media = await getUrlMetadata(url);
 
-  if (!media) {
-    log.warn('[addUrlToPad] No metadata found for url:', url);
-    return null;
-  }
+//   if (!media) {
+//     log.debug('[addUrlToPad] No metadata found for url:', url);
+//     return null;
+//   }
 
-  await dbSaveMediaData(media);
+//   await dbSaveMediaData(media);
 
-  log.debug('[addUrlToPad] url:', url, padId);
+//   log.debug('[addUrlToPad] url:', url, padId);
 
-  // fetch the thumbnail
-  // const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
+//   // fetch the thumbnail
+//   // const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
 
-  // if (!thumbnail) {
-  //   log.warn('[addUrlToPad] No thumbnail found for url:', url);
-  //   return null;
-  // }
+//   // if (!thumbnail) {
+//   //   log.warn('[addUrlToPad] No thumbnail found for url:', url);
+//   //   return null;
+//   // }
 
-  // await dbSaveUrlData({
-  //   media: media as MediaYouTube,
-  //   thumbnail
-  // });
+//   // await dbSaveUrlData({
+//   //   media: media as MediaYouTube,
+//   //   thumbnail
+//   // });
 
-  // log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
+//   // log.debug('[addUrlToPad] thumbnail:', media.url, thumbnail);
 
-  // await dbSetPadThumbnail(projectId, padId, thumbnail);
+//   // await dbSavePadThumbnail(projectId, padId, thumbnail);
 
-  // Update the store with the tile's video ID
-  project.send({
-    type: 'setPadMedia',
-    padId,
-    media
-  });
+//   // Update the store with the tile's video ID
+//   project.send({
+//     type: 'setPadMedia',
+//     padId,
+//     media
+//   });
 
-  return media;
-};
+//   return media;
+// };
 
 /**
  * Adds a file to a pad and generates a thumbnail
@@ -100,7 +95,8 @@ export const addUrlToPad = async ({
 export const addFileToPad = async ({
   file,
   padId,
-  project
+  project,
+  projectId
 }: AddFileToPadProps) => {
   try {
     const media = await getMediaMetadata(file);
@@ -131,7 +127,7 @@ export const addFileToPad = async ({
           thumbnail
         });
 
-        await dbSetPadThumbnail(padId, thumbnail);
+        await dbSavePadThumbnail(projectId, padId, thumbnail);
 
         // Update the store with the tile's video ID
         project.send({

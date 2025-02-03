@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import { useRouter } from '@/hooks/useProject/useRouter';
 import { isObjectEqual } from '@helpers/diff';
@@ -8,7 +8,6 @@ import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
 import { VOKeys } from '@model/constants';
 import {
-  deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
   getAllProjectDetails as dbGetAllProjectDetails,
   loadProjectState as dbLoadProjectState,
   saveProjectState as dbSaveProjectState,
@@ -71,7 +70,7 @@ export const ProjectProvider = ({
         setProjectId(snapshot.context.projectId);
 
         invalidateQueryKeys(queryClient, [
-          [...VOKeys.pads()],
+          [...VOKeys.allPads()],
           [...VOKeys.allMetadata()],
           [...VOKeys.players()]
         ]);
@@ -93,11 +92,11 @@ export const ProjectProvider = ({
           }
         });
 
-        const projectDetails = await dbGetAllProjectDetails();
+        // const projectDetails = await dbGetAllProjectDetails();
 
-        for (const { projectId, projectName, updatedAt } of projectDetails) {
-          log.info('project', projectId, projectName, updatedAt);
-        }
+        // for (const { projectId, projectName, updatedAt } of projectDetails) {
+        //   log.info('project', projectId, projectName, updatedAt);
+        // }
 
         // await wait(10000);
         return store;
@@ -112,7 +111,7 @@ export const ProjectProvider = ({
   });
 
   return (
-    <ProjectContext.Provider value={{ project, projectId }}>
+    <ProjectContext.Provider value={{ project, projectId, setProjectId }}>
       {children}
     </ProjectContext.Provider>
   );

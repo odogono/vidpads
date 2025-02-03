@@ -9,7 +9,8 @@ import {
   deleteDB as dbDeleteDB,
   getAllProjectDetails as dbGetAllProjectDetails,
   loadProject as dbLoadProject,
-  saveProject as dbSaveProject
+  saveProject as dbSaveProject,
+  saveProjectState as dbSaveProjectState
 } from '@model/db/api';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
 import {
@@ -20,12 +21,14 @@ import {
 } from '@model/serialise/store';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createStore } from '../store/store';
+import { StoreContextType } from '../store/types';
 import { usePadOperations } from './usePadOperations';
 
 const log = createLog('model/useProjects');
 
 export const useProjects = () => {
-  const { project } = useProject();
+  const { project, setProjectId } = useProject();
   const events = useEvents();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
@@ -34,26 +37,24 @@ export const useProjects = () => {
 
   const loadProjectFromJSON = useCallback(
     async (data: ProjectExport) => {
-      invalidateAllQueries(queryClient);
-
       // await deleteAllPadThumbnails();
+      const newStore = createStore();
+      newStore.send({ type: 'importProject', data });
+      const snapshot = newStore.getSnapshot();
 
-      project.send({ type: 'importProject', data });
+      await dbSaveProjectState(snapshot.context);
 
-      await Promise.all(
-        data.pads.map((pad) =>
-          addUrlToPad({ url: pad.source, padId: pad.id, project })
-        )
+      log.debug(
+        '[loadProjectFromJSON] save project',
+        snapshot.context.projectId
       );
 
-      events.emit('project:loaded', {
-        projectId: data.id,
-        projectName: data.name
-      });
+      setProjectId(data.id);
 
+      invalidateAllQueries(queryClient);
       return true;
     },
-    [queryClient, project, addUrlToPad, events]
+    [setProjectId, queryClient]
   );
 
   const importFromURLString = useCallback(
@@ -62,7 +63,7 @@ export const useProjects = () => {
 
       invalidateAllQueries(queryClient);
 
-      // await deleteAllPadThumbnails();
+      await deleteAllPadThumbnails();
 
       project.send({ type: 'importProject', data });
 
@@ -79,7 +80,7 @@ export const useProjects = () => {
 
       return true;
     },
-    [queryClient, project, addUrlToPad, events]
+    [queryClient, deleteAllPadThumbnails, project, events, addUrlToPad]
   );
 
   const exportProjectToJSON = useCallback(() => {
@@ -108,53 +109,50 @@ export const useProjects = () => {
     async (projectId: string) => {
       log.debug('Loading project:', projectId);
 
-      const project = await dbLoadProject(projectId);
+      // const project = await dbLoadProject(projectId);
 
-      if (!project) {
-        log.warn('Project not found:', projectId);
-        return false;
-      }
+      // if (!project) {
+      //   log.warn('Project not found:', projectId);
+      //   return false;
+      // }
 
-      await loadProjectFromJSON(project);
+      // await loadProjectFromJSON(project);
 
-      events.emit('project:loaded', { projectId, projectName: project.name });
+      setProjectId(projectId);
+      // events.emit('project:loaded', { projectId, projectName: project.name });
 
       return true;
     },
-    [events, loadProjectFromJSON]
+    [setProjectId]
   );
 
   const createNewProject = useCallback(async () => {
-    project.send({ type: 'newProject' });
+    const newStore = createStore();
+    const snapshot = newStore.getSnapshot();
+    const newProjectId = snapshot.context.projectId;
+    await dbSaveProjectState(snapshot.context);
 
-    invalidateAllQueries(queryClient);
+    log.debug('createNewProject', newProjectId);
 
-    await deleteAllPadThumbnails();
-
-    const projectId = project.getSnapshot().context.projectId;
-
-    events.emit('project:created', {
-      projectId: projectId!,
-      projectName: 'Untitled'
-    });
+    setProjectId(newProjectId);
 
     return true;
-  }, [project, queryClient, deleteAllPadThumbnails, events]);
+  }, [setProjectId]);
 
   const deleteEverything = useCallback(async () => {
     await dbDeleteDB();
-    queryClient.resetQueries();
     await createNewProject();
-  }, [createNewProject, queryClient]);
+  }, [createNewProject]);
 
   // Add mutation for saving project
   const saveProjectMutation = useMutation({
     mutationFn: async ({ projectName }: { projectName: string }) => {
-      const data = exportToJSON(project);
+      // const data = exportToJSON(project);
 
-      const saveData = {
+      const data = project.getSnapshot().context;
+      const saveData: StoreContextType = {
         ...data,
-        name: projectName,
+        projectName,
         updatedAt: new Date().toISOString()
       };
 

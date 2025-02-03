@@ -3,7 +3,7 @@
 import { useCallback, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
-import { usePlayerState } from '@model/hooks/usePlayersState';
+import { usePlayerState } from '@model/hooks/usePlayerState';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { cn } from '@nextui-org/react';

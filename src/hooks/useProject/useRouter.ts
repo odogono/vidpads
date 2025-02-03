@@ -6,7 +6,9 @@ import {
   useSearchParams
 } from 'next/navigation';
 
-import { generateShortUUID } from '@helpers/uuid';
+import { createLog } from '@helpers/log';
+
+const log = createLog('useProject/useRouter');
 
 export const useRouter = () => {
   const router = useNextRouter();
@@ -25,6 +27,8 @@ export const useRouter = () => {
     },
     [router, searchParams]
   );
+
+  // log.debug({ projectId });
 
   return {
     pathname,

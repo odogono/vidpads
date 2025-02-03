@@ -12,10 +12,14 @@ export const VOKeys = {
   projectDetails: () => [...VOKeys.projects(), 'details'] as const,
   project: (projectId: string) => [...VOKeys.projects(), projectId] as const,
 
-  pads: () => [...VOKeys.all, 'pad'] as const,
-  pad: (padId: string) => [...VOKeys.pads(), padId] as const,
-  padThumbnail: (padId: string) => [...VOKeys.pad(padId), 'thumbnail'] as const,
-  padInterval: (padId: string) => [...VOKeys.pad(padId), 'interval'] as const,
+  allPads: () => [...VOKeys.all, 'pads'] as const,
+  pads: (projectId: string) => [...VOKeys.all, 'pad', projectId] as const,
+  pad: (projectId: string, padId: string) =>
+    [...VOKeys.pads(projectId), padId] as const,
+  padThumbnail: (projectId: string, padId: string) =>
+    [...VOKeys.pad(projectId, padId), 'thumbnail'] as const,
+  padInterval: (projectId: string, padId: string) =>
+    [...VOKeys.pad(projectId, padId), 'interval'] as const,
 
   allMetadata: () => [...VOKeys.all, 'metadata'] as const,
   metadata: (mediaUrl: string) => [...VOKeys.allMetadata(), mediaUrl] as const,

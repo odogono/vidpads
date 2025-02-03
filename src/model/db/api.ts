@@ -3,7 +3,6 @@
 import {
   idbCreateObjectStore,
   idbDeleteDB,
-  idbDeleteRange,
   idbOpen,
   idbOpenTransaction
 } from '@helpers/idb';
@@ -17,7 +16,12 @@ import {
   MediaYouTube,
   ProjectExport
 } from '@model/types';
-import { isValidMediaUrl, toPadThumbnailUrl } from '../../helpers/metadata';
+import {
+  fromPadThumbnailUrl,
+  isValidMediaUrl,
+  isYouTubeMetadata,
+  toPadThumbnailUrl
+} from '../../helpers/metadata';
 import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');
@@ -45,7 +49,13 @@ const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
       keyPath: ['id', 'videoChunkIndex']
     });
     idbCreateObjectStore(db, 'images', { keyPath: 'id' });
-    idbCreateObjectStore(db, 'thumbnails', { keyPath: 'id' });
+    const thumbnailsStore = idbCreateObjectStore(db, 'thumbnails', {
+      keyPath: 'id'
+    });
+    if (thumbnailsStore) {
+      thumbnailsStore.createIndex('type', 'type', { unique: false });
+      thumbnailsStore.createIndex('projectId', 'projectId', { unique: false });
+    }
   }
 
   // Handle upgrade to version 2
@@ -131,7 +141,7 @@ export const loadProject = async (
   });
 };
 
-export const saveProject = async (project: ProjectExport): Promise<void> => {
+export const saveProject = async (project: StoreContextType): Promise<void> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const { projects, transaction } = idbOpenTransaction(
@@ -194,7 +204,7 @@ export const saveProjectState = async (
       'readwrite'
     );
 
-    log.info('saving project', project);
+    // log.info('saving project', project);
     const putRequest = projects.put(project);
 
     putRequest.onerror = () => {
@@ -810,7 +820,7 @@ export const deleteMediaData = async (url: string): Promise<void> => {
   });
 };
 
-export const setPadThumbnail = async (
+export const savePadThumbnail = async (
   projectId: string,
   padId: string,
   thumbnail: string
@@ -824,6 +834,8 @@ export const setPadThumbnail = async (
       ['thumbnails'],
       'readwrite'
     );
+
+    log.debug('[savePadThumbnail]', { projectId, padId, thumbnail });
 
     const request = thumbnails.put({
       id: thumbnailId,
@@ -875,7 +887,6 @@ export const getMediaThumbnail = async (
   media: Media | null | undefined
 ): Promise<string | null> => {
   if (!media) {
-    // log.debug('[getMediaThumbnail] Media is null or undefined');
     return null;
   }
 
@@ -901,18 +912,72 @@ export const getMediaThumbnail = async (
   });
 };
 
-export const deleteAllPadThumbnails = async (): Promise<number> => {
+export const saveMediaThumbnail = async (
+  media: Media,
+  thumbnail: string
+): Promise<string> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readwrite'
+    );
+
+    const type = isYouTubeMetadata(media) ? 'youtube' : 'url';
+
+    thumbnails.put({ id: media.url, type, thumbnail });
+
+    transaction.onerror = () => {
+      reject(transaction.error);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+      resolve(media.url);
+    };
+  });
+};
+
+export const deleteAllPadThumbnails = async (
+  projectId: string
+): Promise<number> => {
   const db = await openDB();
 
-  const count = await idbDeleteRange(
-    db,
-    'thumbnails',
-    IDBKeyRange.bound('pad-', 'pad-\uFFFF')
-  );
+  return new Promise((resolve, reject) => {
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readwrite'
+    );
 
-  log.debug('[deleteAllPadThumbnails] deleted pad thumbnails:', count);
+    let count = 0;
+    const request = thumbnails.getAll();
 
-  return count;
+    request.onerror = () => {
+      reject(request.error);
+    };
+
+    request.onsuccess = () => {
+      const result = request.result;
+      for (const thumbnail of result) {
+        if (thumbnail.type === 'pad') {
+          const { projectId: thumbnailProjectId } = fromPadThumbnailUrl(
+            thumbnail.id
+          );
+          if (thumbnailProjectId === projectId) {
+            thumbnails.delete(thumbnail.id);
+            count++;
+          }
+        }
+      }
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+      resolve(count);
+    };
+  });
 };
 
 export const copyPadThumbnail = async (
@@ -925,7 +990,7 @@ export const copyPadThumbnail = async (
     log.error('Source pad thumbnail not found:', sourcePadId);
     return null;
   }
-  return setPadThumbnail(projectId, targetPadId, sourceThumbnail);
+  return savePadThumbnail(projectId, targetPadId, sourceThumbnail);
 };
 
 export const deletePadThumbnail = async (

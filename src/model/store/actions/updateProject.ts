@@ -7,11 +7,11 @@ export const updateProject = (
 ): StoreContext => {
   const { project } = action;
 
-  const { id, name, createdAt, updatedAt } = project;
+  const { projectId, projectName, createdAt, updatedAt } = project;
 
   return update(context, {
-    projectId: id,
-    projectName: name,
+    projectId,
+    projectName,
     createdAt,
     updatedAt
   });

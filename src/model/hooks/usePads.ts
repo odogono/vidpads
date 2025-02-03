@@ -34,8 +34,18 @@ export const usePads = () => {
     [project]
   );
 
+  const padsWithMediaStr = useMemo(() => {
+    return pads
+      .map((pad) =>
+        getPadSourceUrl(pad) ? `${pad.id}: ${getPadSourceUrl(pad)}` : null
+      )
+      .filter(Boolean)
+      .join(', ');
+  }, [pads]);
+
   return {
     pads,
+    padsWithMediaStr,
     selectedPadId,
     isPadPlayEnabled,
     isPadSelectSourceEnabled,
@@ -45,7 +55,7 @@ export const usePads = () => {
 
 export const usePadsExtended = () => {
   const { pads, selectedPadId } = usePads();
-  const { urlToMetadata } = useMetadata();
+  const { urlToMetadata, urlToMetadataStr } = useMetadata();
 
   const { selectedPadSourceUrl, selectedPadStartAndEndTime } = useMemo(() => {
     const selectedPad = pads.find((pad) => pad.id === selectedPadId);
@@ -62,14 +72,21 @@ export const usePadsExtended = () => {
     () => pads.filter((pad) => getPadSourceUrl(pad)),
     [pads]
   );
+  const padsWithMediaStr = useMemo(() => {
+    return padsWithMedia
+      .map((pad) => `${pad.id}: ${getPadSourceUrl(pad)}`)
+      .join(', ');
+  }, [padsWithMedia]);
 
   return {
     pads,
     // padSourceUrls,
     padsWithMedia,
+    padsWithMediaStr,
     selectedPadSourceUrl,
     selectedPadStartAndEndTime,
-    urlToMetadata
+    urlToMetadata,
+    urlToMetadataStr
     // mediaIntervals
   };
 };
