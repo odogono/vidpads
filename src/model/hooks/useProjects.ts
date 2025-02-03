@@ -2,13 +2,9 @@ import { useCallback } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import { invalidateQueryKeys } from '@helpers/query';
+import { invalidateAllQueries, invalidateQueryKeys } from '@helpers/query';
 import { useProject } from '@hooks/useProject';
-import {
-  QUERY_KEY_PROJECT,
-  QUERY_KEY_PROJECTS,
-  QUERY_KEY_STATE
-} from '@model/constants';
+import { VOKeys } from '@model/constants';
 import {
   deleteDB as dbDeleteDB,
   getAllProjectDetails as dbGetAllProjectDetails,
@@ -38,7 +34,7 @@ export const useProjects = () => {
 
   const loadProjectFromJSON = useCallback(
     async (data: ProjectExport) => {
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_STATE]]);
+      invalidateAllQueries(queryClient);
 
       await deleteAllPadThumbnails();
 
@@ -64,7 +60,7 @@ export const useProjects = () => {
     async (urlString: string) => {
       const data = urlStringToProject(urlString);
 
-      invalidateQueryKeys(queryClient, [[QUERY_KEY_STATE]]);
+      invalidateAllQueries(queryClient);
 
       await deleteAllPadThumbnails();
 
@@ -131,7 +127,7 @@ export const useProjects = () => {
   const createNewProject = useCallback(async () => {
     project.send({ type: 'newProject' });
 
-    invalidateQueryKeys(queryClient, [[QUERY_KEY_PROJECT], [QUERY_KEY_STATE]]);
+    invalidateAllQueries(queryClient);
 
     await deleteAllPadThumbnails();
 
@@ -173,10 +169,7 @@ export const useProjects = () => {
     },
     onSuccess: () => {
       // Optionally invalidate queries that depend on project data
-      invalidateQueryKeys(queryClient, [
-        [QUERY_KEY_PROJECT],
-        [QUERY_KEY_PROJECTS]
-      ]);
+      invalidateQueryKeys(queryClient, [[...VOKeys.projects()]]);
     }
   });
 
@@ -196,7 +189,7 @@ export const useProjects = () => {
   const getAllProjectDetails = useCallback(async () => {
     try {
       return await queryClient.fetchQuery({
-        queryKey: [QUERY_KEY_PROJECTS],
+        queryKey: [...VOKeys.projectDetails()],
         queryFn: async () => {
           try {
             const projectDetails = await dbGetAllProjectDetails();

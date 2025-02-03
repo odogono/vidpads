@@ -1,16 +1,15 @@
 // export const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
-export const QUERY_KEY_PROJECT = 'project';
-export const QUERY_KEY_PROJECTS = 'projects';
-export const QUERY_KEY_STATE = 'store-state';
-export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
+// export const QUERY_KEY_PROJECT = 'project';
+// export const QUERY_KEY_PROJECTS = 'projects';
+// export const QUERY_KEY_STATE = 'store-state';
+// export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
 
 // todo - move to using these keys instead of the above
 export const VOKeys = {
   all: ['odgnVO'] as const,
 
-  store: () => [...VOKeys.all, 'store'] as const,
-
   projects: () => [...VOKeys.all, 'projects'] as const,
+  projectDetails: () => [...VOKeys.projects(), 'details'] as const,
   project: (projectId: string) => [...VOKeys.projects(), projectId] as const,
 
   pads: () => [...VOKeys.all, 'pad'] as const,

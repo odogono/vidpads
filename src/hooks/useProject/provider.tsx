@@ -9,6 +9,7 @@ import { invalidateQueryKeys } from '@helpers/query';
 import { VOKeys } from '@model/constants';
 import {
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
+  getAllProjectDetails as dbGetAllProjectDetails,
   loadProjectState as dbLoadProjectState,
   saveProjectState as dbSaveProjectState,
   isIndexedDBSupported
@@ -102,6 +103,12 @@ export const ProjectProvider = ({
             await dbSaveProjectState(snapshot.context);
           }
         });
+
+        const projectDetails = await dbGetAllProjectDetails();
+
+        for (const { projectId, projectName } of projectDetails) {
+          log.info('project', projectId, projectName);
+        }
 
         // await wait(10000);
         return store;

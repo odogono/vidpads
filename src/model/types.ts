@@ -1,5 +1,3 @@
-import { StoreContextType } from './store/types';
-
 export type ShowMode = 'pads' | 'sequencer';
 
 export interface Interval {
@@ -70,13 +68,13 @@ export interface Pipeline {
   operations: Operation[];
 }
 
-export interface Project {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  store: StoreContextType;
-}
+// export interface Project {
+//   id: string;
+//   name: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   store: StoreContextType;
+// }
 
 export interface Pad {
   id: string;
