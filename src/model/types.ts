@@ -25,7 +25,8 @@ export const OperationType = {
   AddEffect: 'addEffect',
   AddTransition: 'addTransition',
   Volume: 'volume',
-  PlaybackRate: 'playbackRate'
+  PlaybackRate: 'playbackRate',
+  Loop: 'loop'
 } as const;
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
@@ -51,6 +52,12 @@ export interface TrimOperation extends Operation {
   type: typeof OperationType.Trim;
   start: number;
   end: number;
+}
+
+export interface LoopOperation extends Operation {
+  type: typeof OperationType.Loop;
+  // once the end has reached, it will return back to this
+  start: number;
 }
 
 export type VolumeKeyPoint = {
@@ -81,7 +88,6 @@ export interface Pad {
   label?: string;
   isSelected?: boolean;
   isOneShot?: boolean;
-  isLooped?: boolean;
   volume?: number;
 
   pipeline: Pipeline;

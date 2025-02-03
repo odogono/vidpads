@@ -1,6 +1,7 @@
 import { roundNumberToDecimalPlaces } from '../helpers/number';
 import {
   Interval,
+  LoopOperation,
   Operation,
   OperationType,
   Pad,
@@ -97,6 +98,26 @@ export const addOrReplacePadOperation = (
   };
 };
 
+export const removePadOperation = (
+  pad: Pad | undefined,
+  type: OperationType
+) => {
+  if (!pad) {
+    return pad;
+  }
+
+  const operations = pad.pipeline.operations ?? [];
+
+  const newOperations = operations.filter(
+    (operation) => operation.type !== type
+  );
+
+  return {
+    ...pad,
+    pipeline: { ...pad.pipeline, operations: newOperations }
+  };
+};
+
 // export const exportToURL = (pad: Pad, projectId: string): string => {
 //   return toPadThumbnailUrl(pad.id, projectId);
 // };
@@ -190,4 +211,34 @@ export const getPadPlaybackRate = (
 
 export const getPadOperation = (pad: Pad, type: OperationType) => {
   return pad.pipeline?.operations?.find((operation) => operation.type === type);
+};
+
+export const isPadLooped = (pad: Pad | undefined): boolean => {
+  if (!pad) {
+    return false;
+  }
+
+  const loopOperation = getPadOperation(pad, OperationType.Loop);
+
+  if (!loopOperation) {
+    return false;
+  }
+
+  return true;
+};
+
+export const getPadLoopStart = (pad: Pad | undefined): number => {
+  if (!pad) {
+    return -1;
+  }
+
+  const op = getPadOperation(pad, OperationType.Loop) as
+    | LoopOperation
+    | undefined;
+
+  if (!op) {
+    return -1;
+  }
+
+  return op.start;
 };

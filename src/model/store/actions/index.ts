@@ -1,18 +1,16 @@
 import { OperationType, Pad } from '@model/types';
 import type {
   Emit,
-  SetEditActiveAction,
-  SetPadIsLoopedAction,
   SetPadIsOneShotAction,
   StoreContext,
-  UpdatePadSourceAction,
-  UpdateStartTimeAction
+  UpdatePadSourceAction
 } from '../types';
-import { addOrReplacePad, findPadById, update } from './helpers';
+import { addOrReplacePad, findPadById } from './helpers';
 
 export { applyPad } from './applyPad';
 export { applyPlaybackRateToPad } from './applyPlaybackRateToPad';
 export { applyTrimToPad } from './applyTrimToPad';
+export { applyLoopToPad } from './applyLoopToPad';
 export { applyVolumeToPad } from './applyVolumeToPad';
 export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';
@@ -43,20 +41,6 @@ export { setSequencerBpm } from './setSequencerBpm';
 export { setShowMode } from './setShowMode';
 export { updateProject } from './updateProject';
 
-export const setEditActive = (
-  context: StoreContext,
-  event: SetEditActiveAction,
-  { emit }: Emit
-): StoreContext => {
-  const { isEditActive } = event;
-  emit({ type: 'isEditActive', isEditActive });
-
-  return {
-    ...context,
-    isEditActive
-  };
-};
-
 export const setPadIsOneShot = (
   context: StoreContext,
   event: SetPadIsOneShotAction
@@ -68,21 +52,6 @@ export const setPadIsOneShot = (
   }
 
   const newPad = { ...pad, isOneShot };
-
-  return addOrReplacePad(context, newPad);
-};
-
-export const setPadIsLooped = (
-  context: StoreContext,
-  event: SetPadIsLoopedAction
-): StoreContext => {
-  const { padId, isLooped } = event;
-  const pad = findPadById(context, padId);
-  if (!pad) {
-    return context;
-  }
-
-  const newPad = { ...pad, isLooped };
 
   return addOrReplacePad(context, newPad);
 };
@@ -111,15 +80,4 @@ export const updatePadSource = (
   emit({ type: 'padUpdated', pad: newPad });
 
   return addOrReplacePad(context, newPad);
-};
-
-export const updateStartTime = (
-  context: StoreContext,
-  _event: UpdateStartTimeAction,
-  { emit }: Emit
-): StoreContext => {
-  const startTime = new Date().toISOString();
-  emit({ type: 'startTimeUpdated', startTime });
-
-  return update(context, { startTime });
 };

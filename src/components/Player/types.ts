@@ -47,6 +47,7 @@ export interface PlayerPlay extends PlayerEvent {
   start?: number;
   end?: number;
   isLoop?: boolean;
+  loopStart?: number;
   isOneShot?: boolean;
   volume?: number;
   playbackRate?: number;

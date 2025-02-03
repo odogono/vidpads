@@ -66,7 +66,11 @@ export const usePad = (padId?: string) => {
   const setPadIsLooped = useCallback(
     (padId: string, isLooped: boolean) => {
       if (pad) {
-        project.send({ type: 'setPadIsLooped', padId, isLooped });
+        project.send({
+          type: 'applyLoopToPad',
+          padId,
+          start: isLooped ? 0 : -1
+        });
       }
     },
     [pad, project]
@@ -90,11 +94,9 @@ export const usePad = (padId?: string) => {
     [pad, project]
   );
 
-  const isLooped = pad?.isLooped;
   const isPadOneShot = pad?.isOneShot;
 
   return {
-    isLooped,
     isPadOneShot,
     isPadPlayEnabled,
     isPadSelectSourceEnabled,

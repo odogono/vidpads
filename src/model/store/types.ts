@@ -66,10 +66,6 @@ export type UpdatePadSourceAction = {
   url: string;
 };
 
-export type UpdateStartTimeAction = {
-  type: 'updateStartTime';
-};
-
 export type InitialiseStoreAction = {
   type: 'initialiseStore';
 };
@@ -92,11 +88,6 @@ export type CopyPadAction = {
   targetPadId: string;
 };
 
-export type SetEditActiveAction = {
-  type: 'setEditActive';
-  isEditActive: boolean;
-};
-
 export type SetSelectedPadIdAction = {
   type: 'setSelectedPadId';
   padId: string | null;
@@ -108,17 +99,17 @@ export type SetPadIsOneShotAction = {
   isOneShot: boolean;
 };
 
-export type SetPadIsLoopedAction = {
-  type: 'setPadIsLooped';
-  padId: string;
-  isLooped: boolean;
-};
-
 export type ApplyTrimToPadAction = {
   type: 'applyTrimToPad';
   padId: string;
   start: number;
   end: number;
+};
+
+export type ApplyLoopToPadAction = {
+  type: 'applyLoopToPad';
+  padId: string;
+  start: number;
 };
 
 export type ApplyPlaybackRateToPadAction = {
@@ -256,16 +247,14 @@ export type SetSelectedEventsDurationAction = {
 
 export type Actions =
   | InitialiseStoreAction
-  | UpdateStartTimeAction
   | UpdatePadSourceAction
   | SetPadMediaAction
   | ClearPadAction
   | CopyPadAction
-  | SetEditActiveAction
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
   | ApplyTrimToPadAction
-  | SetPadIsLoopedAction
+  | ApplyLoopToPadAction
   | NewProjectAction
   | ImportProjectAction
   | UpdateProjectAction
