@@ -15,7 +15,7 @@ export const importProject = (
   const { data } = event;
 
   const pads = data.pads
-    .map((pad) => importPadFromJSON({ pad }))
+    .map((pad) => importPadFromJSON({ pad, options: { importSource: true } }))
     .filter(Boolean);
 
   log.debug('[importProject] pads:', pads);

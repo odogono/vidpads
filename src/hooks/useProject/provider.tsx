@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useRouter } from '@/hooks/useProject/useRouter';
 import { isObjectEqual } from '@helpers/diff';
@@ -16,6 +16,8 @@ import {
 import { createStore } from '@model/store/store';
 import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { usePadOperations } from '../../model/hooks/usePadOperations';
+import { getPadSourceUrl } from '../../model/pad';
 import { ProjectContext } from './context';
 
 const log = createLog('useProject/provider');
@@ -28,6 +30,7 @@ export const ProjectProvider = ({
   const queryClient = useQueryClient();
   const snapshotRef = useRef<StoreContextType | null>(null);
   const { setProjectId, projectId, importData } = useRouter();
+  const { addUrlToPad } = usePadOperations();
 
   const { data: project } = useSuspenseQuery({
     queryKey: VOKeys.project(projectId),
@@ -69,6 +72,30 @@ export const ProjectProvider = ({
         log.debug('E setting projectId', snapshot.context.projectId);
         setProjectId(snapshot.context.projectId);
 
+        // add all the pads to the project
+        await Promise.all(
+          snapshot.context.pads
+            .map((pad) => {
+              const url = getPadSourceUrl(pad);
+              return url
+                ? addUrlToPad({ url, padId: pad.id, projectId })
+                : null;
+            })
+            .filter(Boolean)
+        );
+
+        // snapshot.context.pads.forEach((pad) => {
+        //   const url = getPadSourceUrl(pad);
+
+        //   if (url)
+        //     log.debug('F adding url to pad', {
+        //       url,
+        //       padId: pad.id
+        //     });
+
+        //   if (url) addUrlToPad({ url, padId: pad.id, projectId });
+        // });
+
         invalidateQueryKeys(queryClient, [
           [...VOKeys.allPads()],
           [...VOKeys.allMetadata()],
@@ -109,6 +136,16 @@ export const ProjectProvider = ({
       }
     }
   });
+
+  useEffect(() => {
+    return () => {
+      log.debug(
+        '🎉 unmounting',
+        projectId,
+        project?.getSnapshot().context.projectId
+      );
+    };
+  }, [projectId, project]);
 
   return (
     <ProjectContext.Provider value={{ project, projectId, setProjectId }}>
