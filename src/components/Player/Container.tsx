@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
@@ -12,6 +12,7 @@ import {
   getPadVolume
 } from '@model/pad';
 import { Interval } from '@model/types';
+import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
 import {
   getPlayerDataState,
@@ -35,7 +36,12 @@ export const PlayerContainer = () => {
   const events = useEvents();
   const playingStackRef = useRef<string[]>([]);
 
-  const { updatePlayer: updatePlayerState } = usePlayersState();
+  const {
+    updatePlayer: updatePlayerState,
+    isLoading,
+    playerReadyCount
+  } = usePlayersState();
+  const [isLoaderVisible, setIsLoaderVisible] = useState(true);
 
   const { pads, players } = usePlayers();
 
@@ -92,6 +98,7 @@ export const PlayerContainer = () => {
   const handlePlayerPlaying = useCallback((e: PlayerPlaying) => {
     // log.debug('❤️ player:playing', e);
 
+    setIsLoaderVisible(false);
     showPlayer(e.padId);
 
     const stack = playingStackRef.current;
@@ -152,11 +159,13 @@ export const PlayerContainer = () => {
     [updatePlayerState]
   );
 
-  // useEffect(() => {
-  //   for (const player of playersState.values()) {
-  //     log.debug('❤️ player:ready cache', player);
-  //   }
-  // }, [playersState]);
+  useEffect(() => {
+    if (isLoading) {
+      setIsLoaderVisible(true);
+    } else {
+      // setIsLoaderVisible(false);
+    }
+  }, [isLoading]);
 
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {
@@ -205,6 +214,9 @@ export const PlayerContainer = () => {
 
   return (
     <>
+      {isLoaderVisible && (
+        <LoadingPlayer count={players.length} loadingCount={playerReadyCount} />
+      )}
       {players.map((player) => {
         return (
           <Player key={player.id} {...player} data-player-id={player.padId} />

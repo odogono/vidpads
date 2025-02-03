@@ -59,10 +59,21 @@ export const usePlayersState = () => {
       });
     }
   });
+  // get a count of how many players are not yet ready
+  const playerReadyCount = Array.from(players.values()).reduce(
+    (acc: number, player: PlayerHandler) => {
+      return player.isReady ? acc + 1 : acc;
+    },
+    0
+  );
+
+  const isLoading = playerReadyCount < players.size;
 
   return {
     updatePlayer,
-    players
+    players,
+    isLoading,
+    playerReadyCount
   };
 };
 

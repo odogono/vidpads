@@ -24,7 +24,7 @@ export const IntervalSlider = ({ pad, isEnabled }: IntervalSliderProps) => {
   // const { duration } = useMetadataByUrl(padSourceUrl);
   const {
     player: { duration }
-  } = usePlayerState(pad?.id, padSourceUrl);
+  } = usePlayerState(pad?.id ?? 'nyl', padSourceUrl);
   const { start: padStart, end: padEnd } = getPadInterval(pad, {
     start: 0,
     end: duration
