@@ -24,7 +24,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
   const [url, setUrl] = useState(lastMediaUrl ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const urlInputRef = useRef<HTMLInputElement>(null);
+
   const { addFileToPad, addUrlToPad } = usePadOperations();
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
 
@@ -80,9 +80,6 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
 
   const handleEnterUrl = useCallback(() => {
     setIsEnteringUrl(true);
-    setTimeout(() => {
-      urlInputRef.current?.focus();
-    }, 0);
   }, []);
 
   const handlePaste = useCallback(async () => {
@@ -121,7 +118,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
       ) : (
         <div className='flex flex-col gap-2'>
           <Input
-            ref={urlInputRef}
+            autoFocus
             className='vo-select-src-enter-url'
             validate={handleValidate}
             placeholder='Enter media URL'
