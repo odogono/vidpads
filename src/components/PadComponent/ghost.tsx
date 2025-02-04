@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react';
 
-import { GeneralTouchEvent } from './types';
+import { GeneralTouchEvent } from '@types';
 
 // this variable indicates whether this browser is safari
 const isSafari =

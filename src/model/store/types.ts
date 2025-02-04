@@ -66,10 +66,6 @@ export type UpdatePadSourceAction = {
   url: string;
 };
 
-export type InitialiseStoreAction = {
-  type: 'initialiseStore';
-};
-
 export type SetPadMediaAction = {
   type: 'setPadMedia';
   padId: string;
@@ -252,7 +248,6 @@ export type SetPadLabelAction = {
 };
 
 export type Actions =
-  | InitialiseStoreAction
   | UpdatePadSourceAction
   | SetPadMediaAction
   | ClearPadAction

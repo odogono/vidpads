@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { usePlayerState } from '@model/hooks/usePlayerState';
 import { Pad } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { PlayerPlaying, PlayerStopped } from '../Player/types';
 
-const log = createLog('PadComponent/usePlayerEvents');
+// const log = createLog('PadComponent/usePlayerEvents');
 
 export const usePlayerEvents = (pad: Pad) => {
   const events = useEvents();

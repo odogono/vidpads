@@ -1,6 +1,5 @@
 'use client';
 
-import { createLog } from '@helpers/log';
 import { Position } from '@types';
 
 interface MarqueeProps {

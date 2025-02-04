@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 
 import { usePlayerEvents } from '@components/PadComponent/usePlayerEvents';
-import { useEvents } from '@helpers/events';
+import { useEvents } from '@hooks/events';
 import { Pad } from '@model/types';
 
 export const SequencerPad = ({ pad }: { pad: Pad }) => {

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useKeyboard } from '@helpers/keyboard/useKeyboard';
+// import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
-import { GeneralDragEvent, GeneralTouchEvent, getClientPosition } from '@types';
+import { GeneralDragEvent, GeneralTouchEvent } from '@types';
 
 interface UseDnDProps {
   id: string;
@@ -15,28 +15,21 @@ interface UseDnDProps {
 
 export const log = createLog('sequencer/useDnD');
 
-export const useDnD = ({
-  id,
-  onTouchDown,
-  onTouchUp,
-  onDragStart,
-  onDragEnd,
-  dragThreshold = 10
-}: UseDnDProps) => {
+export const useDnD = ({ onTouchDown, onTouchUp, onDragEnd }: UseDnDProps) => {
   const [isDraggable, setIsDraggable] = useState(false);
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const [isTouched, setIsTouched] = useState(false);
-  const { isAltKeyDown } = useKeyboard();
+  // const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  // const [isTouched, setIsTouched] = useState(false);
+  // const { isAltKeyDown } = useKeyboard();
 
-  const handleDragStart = useCallback(
-    (e: GeneralDragEvent) => {
-      log.debug('handleDragStart');
-      e.dataTransfer?.setData('text/plain', 'This text may be dragged');
-      e.dataTransfer!.dropEffect = isAltKeyDown() ? 'copy' : 'move';
-      onDragStart?.(e);
-    },
-    [onDragStart, isAltKeyDown]
-  );
+  // const handleDragStart = useCallback(
+  //   (e: GeneralDragEvent) => {
+  //     log.debug('handleDragStart');
+  //     e.dataTransfer?.setData('text/plain', 'This text may be dragged');
+  //     e.dataTransfer!.dropEffect = isAltKeyDown() ? 'copy' : 'move';
+  //     onDragStart?.(e);
+  //   },
+  //   [onDragStart, isAltKeyDown]
+  // );
 
   const handleDragEnd = useCallback(
     (e: GeneralDragEvent) => {
@@ -45,42 +38,42 @@ export const useDnD = ({
     [onDragEnd]
   );
 
-  const handleTouchMove = useCallback(
-    (e: GeneralTouchEvent) => {
-      if (!isTouched) return;
-      const { x, y } = getClientPosition(e);
+  // const handleTouchMove = useCallback(
+  //   (e: GeneralTouchEvent) => {
+  //     if (!isTouched) return;
+  //     const { x, y } = getClientPosition(e);
 
-      const deltaX = x - startPosition.x;
-      const deltaY = y - startPosition.y;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      if (!isDraggable && distance > dragThreshold) {
-        setIsDraggable(true);
+  //     const deltaX = x - startPosition.x;
+  //     const deltaY = y - startPosition.y;
+  //     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+  //     if (!isDraggable && distance > dragThreshold) {
+  //       setIsDraggable(true);
 
-        // const event = new DragEvent('dragstart', {
-        //   bubbles: true,
-        //   cancelable: true,
-        //   dataTransfer: new DataTransfer(),
-        //   view: window
-        // });
-        // e.target?.dispatchEvent(event);
-        log.debug('handleTouchMove', { distance, dragThreshold }, e.target);
-        // handleDragStart(e as GeneralDragEvent);
-      }
+  //       // const event = new DragEvent('dragstart', {
+  //       //   bubbles: true,
+  //       //   cancelable: true,
+  //       //   dataTransfer: new DataTransfer(),
+  //       //   view: window
+  //       // });
+  //       // e.target?.dispatchEvent(event);
+  //       log.debug('handleTouchMove', { distance, dragThreshold }, e.target);
+  //       // handleDragStart(e as GeneralDragEvent);
+  //     }
 
-      // setStartPosition({ x, y });
-    },
-    [isTouched, startPosition.x, startPosition.y, isDraggable, dragThreshold]
-  );
+  //     // setStartPosition({ x, y });
+  //   },
+  //   [isTouched, startPosition.x, startPosition.y, isDraggable, dragThreshold]
+  // );
 
   const handleTouchDown = useCallback(
     (e: GeneralTouchEvent) => {
       log.debug('handleTouchDown');
-      setStartPosition(getClientPosition(e));
-      setIsTouched(true);
+      // setStartPosition(getClientPosition(e));
+      // setIsTouched(true);
       // setIsDraggable(false);
       onTouchDown?.(e);
     },
-    [onTouchDown, setIsTouched, setIsDraggable]
+    [onTouchDown]
   );
 
   const handleTouchUp = useCallback(
@@ -89,7 +82,7 @@ export const useDnD = ({
       if (isDraggable) {
         handleDragEnd(e as GeneralDragEvent);
       }
-      setIsTouched(false);
+      // setIsTouched(false);
       setIsDraggable(false);
       onTouchUp?.(e);
     },

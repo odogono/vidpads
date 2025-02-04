@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import {
   getPadInterval,

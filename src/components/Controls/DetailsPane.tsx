@@ -11,8 +11,8 @@ import {
 
 import { OpButton } from '@components/buttons/OpButton';
 import { OpPadLabelButton } from '@components/buttons/OpPadLabelButton';
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { usePad } from '@model/hooks/usePad';
 import { PaneProps } from './types';
 

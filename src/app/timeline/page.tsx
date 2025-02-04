@@ -19,19 +19,6 @@ const rectToString = (rect: Rect) => {
   )}, width: ${rect.width.toFixed(1)}, height: ${rect.height.toFixed(1)}`;
 };
 
-const eventItems = [
-  {
-    id: 1,
-    start: 100,
-    end: 200
-  },
-  {
-    id: 2,
-    start: 300,
-    end: 400
-  }
-];
-
 const Timeline = () => {
   const ref = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -41,7 +28,7 @@ const Timeline = () => {
   // const [scrollX, setScrollX] = useState(0);
   const screenBounds = useElementRect(ref);
   const [viewBounds, setViewBounds] = useState<Rect>(screenBounds);
-  const [worldBounds, setWorldBounds] = useState<Rect>({
+  const [worldBounds] = useState<Rect>({
     x: 0,
     y: 0,
     width: 3000, // 300% of screen width
@@ -107,7 +94,7 @@ const Timeline = () => {
     setZoom(snappedZoomAmount);
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  const handleScroll = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft } = scrollContainerRef.current;
 
@@ -174,8 +161,6 @@ const Timeline = () => {
 };
 
 const RulerCanvas = ({
-  zoom,
-  viewX,
   viewBounds,
   worldBounds
 }: {

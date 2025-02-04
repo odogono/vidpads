@@ -6,9 +6,9 @@ import {
   useSearchParams
 } from 'next/navigation';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 
-const log = createLog('useProject/useRouter');
+// const log = createLog('useProject/useRouter');
 
 export const useRouter = () => {
   const router = useNextRouter();

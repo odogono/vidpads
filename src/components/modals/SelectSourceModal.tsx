@@ -2,9 +2,9 @@
 
 import { useCallback, useRef, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { isValidSourceUrl } from '@helpers/metadata';
+import { useEvents } from '@hooks/events';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
@@ -12,7 +12,7 @@ import { useLastMediaUrl } from '@model/store/selectors';
 import { Button, Input } from '@nextui-org/react';
 import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 
-const log = createLog('SelectSourceModal');
+const log = createLog('SelectSourceModal', ['debug']);
 
 export type SelectSourceModalProps = CommonModalBase;
 
@@ -20,7 +20,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   const events = useEvents();
   const { projectId } = useProject();
   const [isEnteringUrl, setIsEnteringUrl] = useState(false);
-  const { ACCEPTED_FILE_TYPES } = usePadDnD('SelectSourceModal');
+  const { ACCEPTED_FILE_TYPES } = usePadDnD();
   const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
   const [url, setUrl] = useState(lastMediaUrl ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);

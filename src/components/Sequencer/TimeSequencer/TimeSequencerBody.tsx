@@ -1,10 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { quantizeSeconds } from '@/model/sequencerEvent';
-import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
@@ -17,9 +16,8 @@ import { useGridDimensions } from './hooks/useGridDimensions';
 import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
 import { useSequencerEvents } from './hooks/useSequencerEvents';
-import { useTriggers } from './hooks/useTriggers';
 
-const log = createLog('TimeSequencerBody');
+// const log = createLog('TimeSequencerBody');
 
 export interface SequencerBodyProps {
   canvasBpm?: number;

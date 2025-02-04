@@ -3,9 +3,10 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { useKeyboard } from '@helpers/keyboard';
-import { createLog } from '@helpers/log';
 
-const log = createLog('dial/useTouch');
+// import { createLog } from '@helpers/log';
+
+// const log = createLog('dial/useTouch');
 
 export interface UseTouchProps {
   value: number;

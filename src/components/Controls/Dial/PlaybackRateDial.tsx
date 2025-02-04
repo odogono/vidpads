@@ -3,7 +3,7 @@
 import { useCallback, useRef } from 'react';
 
 import { useTooltip } from '@components/Tooltip/useTooltip';
-import { useEvents } from '@helpers/events';
+import { useEvents } from '@hooks/events';
 // import { createLog } from '@helpers/log';
 import { getPadPlaybackRate, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';

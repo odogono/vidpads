@@ -10,15 +10,15 @@ import {
 
 import { VolumeOff } from 'lucide-react';
 
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { getPadLabel, getPadSourceUrl } from '@model/pad';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
-import { GeneralDragEvent } from '@types';
+import { GeneralDragEvent, GeneralTouchEvent } from '@types';
 import { useGhostDrag } from './ghost';
 import { useNullImage } from './useNullImage';
 import { usePlayerEvents } from './usePlayerEvents';
@@ -52,7 +52,7 @@ export const PadComponent = ({
     onDragOver,
     onDragEnd,
     onDrop
-  } = usePadDnD(`pad-${pad.id}`);
+  } = usePadDnD();
   const isDraggingOver = dragOverId === pad.id;
   const { selectedPadId, setSelectedPadId } = useSelectedPadId();
 
@@ -66,18 +66,15 @@ export const PadComponent = ({
     }
   }, [isDragging, removeGhost]);
 
-  const handlePointerDown = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement>) => {
-      // e.preventDefault();
-      // e.stopPropagation();
+  const handlePointerDown = useCallback(() => {
+    // e.preventDefault();
+    // e.stopPropagation();
 
-      if (isPlayerReady && isPlayEnabled) {
-        events.emit('pad:touchdown', { padId: pad.id });
-      }
-      setSelectedPadId(pad.id);
-    },
-    [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled]
-  );
+    if (isPlayerReady && isPlayEnabled) {
+      events.emit('pad:touchdown', { padId: pad.id });
+    }
+    setSelectedPadId(pad.id);
+  }, [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled]);
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -100,37 +97,34 @@ export const PadComponent = ({
     [updateGhost]
   );
 
-  const handlePointerUp = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement> | PointerEvent) => {
-      // e.preventDefault();
-      // e.stopPropagation();
+  const handlePointerUp = useCallback(() => {
+    // e.preventDefault();
+    // e.stopPropagation();
 
-      if (!isDragging) {
-        if (!thumbnail && isSelectSourceEnabled) {
-          onEmptyPadTouch(pad.id);
-        } else {
-          if (isPlayerReady && isPlayEnabled) {
-            events.emit('pad:touchup', { padId: pad.id });
-          }
-        }
+    if (!isDragging) {
+      if (!thumbnail && isSelectSourceEnabled) {
+        onEmptyPadTouch(pad.id);
       } else {
-        removeGhost();
-        setDraggingId(null);
+        if (isPlayerReady && isPlayEnabled) {
+          events.emit('pad:touchup', { padId: pad.id });
+        }
       }
-    },
-    [
-      isDragging,
-      thumbnail,
-      onEmptyPadTouch,
-      pad.id,
-      events,
-      removeGhost,
-      setDraggingId,
-      isPlayerReady,
-      isPlayEnabled,
-      isSelectSourceEnabled
-    ]
-  );
+    } else {
+      removeGhost();
+      setDraggingId(null);
+    }
+  }, [
+    isDragging,
+    thumbnail,
+    onEmptyPadTouch,
+    pad.id,
+    events,
+    removeGhost,
+    setDraggingId,
+    isPlayerReady,
+    isPlayEnabled,
+    isSelectSourceEnabled
+  ]);
 
   const handleDragStart = useCallback(
     (e: GeneralDragEvent) => {
@@ -140,7 +134,7 @@ export const PadComponent = ({
       if (dragImage) {
         e.dataTransfer?.setDragImage(dragImage, 0, 0);
       }
-      createGhost(e, elementRef.current!);
+      createGhost(e as GeneralTouchEvent, elementRef.current!);
 
       events.emit('video:stop', {
         url: getPadSourceUrl(pad) ?? '',

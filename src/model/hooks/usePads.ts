@@ -13,7 +13,7 @@ const log = createLog('model/usePads');
 
 export const usePads = () => {
   const { project } = useProject();
-  const pads = useSelector(project, (state) => state.context.pads) ?? [];
+  const pads = useSelector(project, (state) => state.context.pads);
   const isPadPlayEnabled = useSelector(
     project,
     (state) => state.context.isPadPlayEnabled ?? true

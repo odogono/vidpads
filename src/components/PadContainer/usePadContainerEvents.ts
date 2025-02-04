@@ -1,13 +1,13 @@
 import { useCallback, useEffect } from 'react';
 
-import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { safeParseInt } from '@helpers/number';
+import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { usePads } from '@model/hooks/usePads';
 
-const log = createLog('usePadContainerEvents');
+// const log = createLog('usePadContainerEvents');
 
 export const usePadContainerEvents = () => {
   const events = useEvents();

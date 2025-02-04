@@ -7,14 +7,13 @@ import { toast } from 'react-hot-toast';
 
 import { OpButton } from '@components/buttons/OpButton';
 import { OpInput } from '@components/buttons/OpInput';
-import { useEvents } from '@helpers/events';
-import { useKeyboard } from '@helpers/keyboard/useKeyboard';
-import { createLog } from '@helpers/log';
+import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
+// import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
-import { OpTimeInput, OpTimeInputRef } from '../../buttons/OpTimeInput';
 
-const log = createLog('SequencerPane');
+// const log = createLog('SequencerPane');
 
 export const SequencerPane = () => {
   const events = useEvents();
@@ -167,7 +166,7 @@ export const SequencerPane = () => {
         <OpTimeInput
           ref={timeRef}
           label='Time'
-          isDisabled={!hasSelectedEvents}
+          isEnabled={hasSelectedEvents}
           initialValue={0}
           defaultValue={0}
           range={[0, 100]}
@@ -178,7 +177,7 @@ export const SequencerPane = () => {
         <OpTimeInput
           ref={durationRef}
           label='Duration'
-          isDisabled={!hasSelectedEvents}
+          isEnabled={hasSelectedEvents}
           initialValue={0}
           defaultValue={0}
           range={[0, 100]}

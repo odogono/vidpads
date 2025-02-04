@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 
 const log = createLog('midi');
 

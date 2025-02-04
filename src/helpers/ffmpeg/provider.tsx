@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL } from '@ffmpeg/util';
 import { createLog } from '@helpers/log';
-import { QUERY_KEY_FFMPEG } from '@model/constants';
+// import { QUERY_KEY_FFMPEG } from '@model/constants';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { FFmpegContext } from './context';
 
@@ -15,6 +15,8 @@ const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/esm`;
 const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/esm`;
 
 const log = createLog('FFmpegProvider');
+
+const QUERY_KEY_FFMPEG = 'ffmpeg';
 
 export interface FFmpegProviderProps extends React.PropsWithChildren {
   loadOnMount?: boolean;

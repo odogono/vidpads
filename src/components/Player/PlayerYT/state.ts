@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { Interval } from '@model/types';
 import { createStore as createXStateStore } from '@xstate/store';
 import { PlayerPlay, PlayerStop } from '../types';

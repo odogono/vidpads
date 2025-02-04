@@ -1,6 +1,6 @@
 'use client';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { Position, getOffsetPosition } from '@types';
 
 interface HeaderProps {
@@ -8,7 +8,7 @@ interface HeaderProps {
   onTap: (pos: Position) => void;
 }
 
-const log = createLog('sequencer/header');
+// const log = createLog('sequencer/header');
 
 export const Header = ({ pixelsPerBeat, onTap }: HeaderProps) => {
   return (
