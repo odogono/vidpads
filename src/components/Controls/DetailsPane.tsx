@@ -17,24 +17,31 @@ import { usePad } from '@model/hooks/usePad';
 import { OpPadLabelButton } from '../buttons/OpPadLabelButton';
 import { PaneProps } from './types';
 
-const log = createLog('DetailsPane');
+const log = createLog('DetailsPane', ['debug']);
 
 export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const events = useEvents();
-  const { selectedPadId, setPadPlayEnabled, setPadSelectSourceEnabled } =
-    usePad();
-  const isEnabled = !!selectedPadId;
+  const {
+    pad,
+    isPadAssigned,
+    selectedPadId,
+    setPadPlayEnabled,
+    setPadSelectSourceEnabled,
+    padLabel,
+    setPadLabel
+  } = usePad();
+  const isEnabled = !!selectedPadId && isPadAssigned;
 
   const handleCut = useCallback(() => events.emit('cmd:cut'), [events]);
   const handleCopy = useCallback(() => events.emit('cmd:copy'), [events]);
   const handlePaste = useCallback(() => events.emit('cmd:paste'), [events]);
 
-  const handleLabelChange = useCallback((label: string) => {
-    log.debug('handleLabelChange', label);
-    // if (selectedPadId) {
-    //   events.emit('cmd:setPadLabel', { padId: selectedPadId, label });
-    // }
-  }, []);
+  const handleLabelChange = useCallback(
+    (label: string) => {
+      setPadLabel(label);
+    },
+    [setPadLabel]
+  );
 
   useEffect(() => {
     setPadPlayEnabled(false);
@@ -45,11 +52,22 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     };
   }, [setPadPlayEnabled, setPadSelectSourceEnabled]);
 
+  log.debug('render', {
+    isEnabled,
+    selectedPadId,
+    isPadAssigned,
+    pad: pad?.id,
+    padLabel
+  });
   return (
     <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
       {/* <Input isClearable size='sm' label='Label' disabled={!isEnabled} /> */}
 
-      <OpPadLabelButton isEnabled={isEnabled} onChange={handleLabelChange} />
+      <OpPadLabelButton
+        isEnabled={isEnabled}
+        onChange={handleLabelChange}
+        value={padLabel}
+      />
 
       <OpButton label='Cut' onPress={handleCut} isEnabled={isEnabled}>
         <ClipboardX />

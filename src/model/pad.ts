@@ -127,6 +127,14 @@ export const copyPad = (pad: Pad): Pad => {
   return JSON.parse(JSON.stringify(pad));
 };
 
+export const getPadLabel = (pad?: Pad | undefined): string | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  return pad.label;
+};
+
 export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
   if (!pad) {
     return undefined;

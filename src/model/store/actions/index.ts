@@ -40,7 +40,7 @@ export { setSelectedPadId } from './setSelectedPadId';
 export { setSequencerBpm } from './setSequencerBpm';
 export { setShowMode } from './setShowMode';
 export { updateProject } from './updateProject';
-
+export { setPadLabel } from './setPadLabel';
 export const setPadIsOneShot = (
   context: StoreContext,
   event: SetPadIsOneShotAction

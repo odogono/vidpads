@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 
 import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
+import { getPadLabel, getPadSourceUrl } from '../pad';
 
 export type UsePadResult = ReturnType<typeof usePad>;
 
@@ -94,12 +95,26 @@ export const usePad = (padId?: string) => {
     [pad, project]
   );
 
+  const setPadLabel = useCallback(
+    (label: string) => {
+      if (pad) {
+        project.send({ type: 'setPadLabel', padId: pad.id, label });
+      }
+    },
+    [pad, project]
+  );
+
+  const isPadAssigned = !!getPadSourceUrl(pad);
+
+  const padLabel = getPadLabel(pad);
+
   const isPadOneShot = pad?.isOneShot;
 
   return {
     isPadOneShot,
     isPadPlayEnabled,
     isPadSelectSourceEnabled,
+    isPadAssigned,
     pad,
     selectedPadId,
     setPadIsOneShot,
@@ -108,6 +123,8 @@ export const usePad = (padId?: string) => {
     setPadPlaybackRate,
     setPadPlayEnabled,
     setPadSelectSourceEnabled,
-    project
+    project,
+    padLabel,
+    setPadLabel
   };
 };

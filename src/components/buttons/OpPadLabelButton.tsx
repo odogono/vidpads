@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Tag } from 'lucide-react';
 
@@ -13,24 +13,26 @@ import { OpButton } from './OpButton';
 interface OpPadLabelButtonProps {
   isEnabled: boolean;
   onChange?: (label: string) => void;
+  value?: string;
 }
 
 export const OpPadLabelButton = ({
   isEnabled,
-  onChange
+  onChange,
+  value: initialValue
 }: OpPadLabelButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(initialValue ?? '');
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
-      console.debug('handleOpenChange', { isOpen, value });
       setIsOpen(isOpen);
+      setValue(initialValue ?? '');
       if (!isOpen) {
         onChange?.(value);
       }
     },
-    [onChange, value]
+    [initialValue, onChange, value]
   );
 
   const handleInputChange = useCallback(
@@ -51,6 +53,18 @@ export const OpPadLabelButton = ({
     [handleOpenChange]
   );
 
+  const trigger = useMemo(() => {
+    return (
+      <OpButton label='Label' isEnabled={isEnabled}>
+        <Tag />
+      </OpButton>
+    );
+  }, [isEnabled]);
+
+  if (!isEnabled) {
+    return trigger;
+  }
+
   return (
     <Popover
       placement='bottom'
@@ -59,20 +73,17 @@ export const OpPadLabelButton = ({
       isOpen={isOpen}
       onOpenChange={handleOpenChange}
     >
-      <PopoverTrigger>
-        <OpButton label='Label' isEnabled={isEnabled}>
-          <Tag />
-        </OpButton>
-      </PopoverTrigger>
+      <PopoverTrigger>{trigger}</PopoverTrigger>
       <PopoverContent className='bg-slate-600'>
         <div className='px-1 py-2 w-full'>
           <div className='mt-2 flex flex-col gap-2 w-full'>
             <Input
               autoFocus
+              value={value}
               isClearable
               label='Pad Label'
               size='sm'
-              maxLength={25}
+              maxLength={30}
               isDisabled={!isEnabled}
               className='bg-slate-600'
               onValueChange={handleInputChange}
