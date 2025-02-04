@@ -1,0 +1,112 @@
+{
+  "id": "5dfc6cf5",
+  "name": "808",
+  "version": "0.1.0",
+  "exportVersion": "1",
+  "pads": [
+    {
+      "id": "a1",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [{ "type": "trim", "start": 1, "end": 2 }]
+    },
+    {
+      "id": "a2",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [{ "type": "trim", "start": 17, "end": 17.1 }]
+    },
+    {
+      "id": "a3",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [{ "type": "trim", "start": 30.12, "end": 31 }]
+    },
+    {
+      "id": "a4",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [{ "type": "trim", "start": 170.29, "end": 171 }]
+    },
+    {
+      "id": "a5",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [
+        { "type": "trim", "start": 146.85, "end": 147.992 },
+        { "type": "playbackRate", "rate": 1 }
+      ]
+    },
+    {
+      "id": "a6",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [
+        { "type": "trim", "start": 91.605, "end": 184.212 },
+        { "type": "playbackRate", "rate": 1 }
+      ]
+    },
+    {
+      "id": "a11",
+      "source": "https://youtu.be/rtqTmUVjsuY",
+      "operations": [{ "type": "trim", "start": 286.768, "end": 290.431 }]
+    },
+    {
+      "id": "a12",
+      "source": "https://youtu.be/mFTpDtjkHV8",
+      "operations": [{ "type": "trim", "start": 28.91, "end": 31.171 }]
+    },
+    {
+      "id": "a13",
+      "source": "https://youtu.be/CYdOUyPcUm4",
+      "operations": [
+        { "type": "trim", "start": 126.457, "end": 130.12 },
+        { "type": "playbackRate", "rate": 1 }
+      ]
+    },
+    {
+      "id": "a14",
+      "source": "https://youtu.be/CYdOUyPcUm4",
+      "operations": [
+        { "type": "trim", "start": 600.713, "end": 604.593 },
+        { "type": "playbackRate", "rate": 1.29 },
+        { "type": "volume", "envelope": [{ "time": 0, "value": 0.47 }] }
+      ]
+    },
+    {
+      "id": "a15",
+      "source": "https://youtu.be/mFTpDtjkHV8",
+      "operations": [{ "type": "trim", "start": 0.905, "end": 179 }]
+    },
+    {
+      "id": "a16",
+      "source": "https://youtu.be/mFTpDtjkHV8",
+      "operations": [{ "type": "trim", "start": 25.891, "end": 179 }]
+    }
+  ],
+  "sequencer": {
+    "bpm": 60,
+    "startTime": 0,
+    "endTime": 45,
+    "events": {
+      "a15": [[0, 3.982]],
+      "a1": [
+        [0.372, 0.308],
+        [1.306, 0.308],
+        [2.222, 0.308],
+        [3.123, 0.308],
+        [4.038, 0.309],
+        [4.972, 0.309],
+        [5.906, 0.308],
+        [6.807, 0.309]
+      ],
+      "a3": [
+        [0.604, 0.185],
+        [1.739, 0.166],
+        [2.688, 0.184],
+        [3.656, 0.101],
+        [3.939, 0.151],
+        [4.806, 0.166],
+        [5.758, 0.148],
+        [6.856, 0.199]
+      ],
+      "a16": [[2.105, 1.691]]
+    }
+  },
+  "createdAt": "2025-01-24T15:48:57.341Z",
+  "updatedAt": "2025-01-30T19:49:40.128Z"
+}

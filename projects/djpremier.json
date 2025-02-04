@@ -1,0 +1,74 @@
+{
+  "id": "08978bb8",
+  "name": "DJ Premier on the Wheels of Steel",
+  "version": "0.1.0",
+  "exportVersion": "1",
+  "pads": [
+    {
+      "id": "a1",
+      "source": "https://youtu.be/Sff7Kc77QAY",
+      "operations": [{ "type": "trim", "start": 178.7, "end": 207.7 }]
+    },
+    {
+      "id": "a2",
+      "source": "https://youtu.be/WeoCOdbAy3s",
+      "operations": [{ "type": "trim", "start": 166.6, "end": 208 }]
+    },
+    {
+      "id": "a3",
+      "source": "https://youtu.be/TgelVkHEKdw",
+      "operations": [{ "type": "trim", "start": 214, "end": 264.4 }]
+    },
+    {
+      "id": "a4",
+      "source": "https://youtu.be/xnI8JEW7Ty4",
+      "operations": [{ "type": "trim", "start": 176, "end": 191.2 }]
+    },
+    {
+      "id": "a5",
+      "source": "https://youtu.be/FNj-m_s0ngA",
+      "operations": [{ "type": "trim", "start": 13.3, "end": 24.3 }]
+    },
+    {
+      "id": "a7",
+      "source": "https://youtu.be/TgelVkHEKdw",
+      "operations": [
+        { "type": "trim", "start": 69.735, "end": 71.538 },
+        { "type": "playbackRate", "rate": 0.82 },
+        { "type": "volume", "envelope": [{ "time": 0, "value": 0.8 }] }
+      ]
+    },
+    { "id": "a9", "source": "https://youtu.be/RDhkRQ2jY9Q" },
+    {
+      "id": "a10",
+      "source": "https://youtu.be/Sff7Kc77QAY",
+      "operations": [{ "type": "trim", "start": 33.3, "end": 35.9 }]
+    }
+  ],
+  "sequencer": {
+    "bpm": 60,
+    "startTime": 0,
+    "endTime": 30,
+    "events": {
+      "a10": [
+        [0.631, 0.916],
+        [2.113, 0.868],
+        [3.697, 0.862],
+        [5.225, 0.857],
+        [6.748, 0.883],
+        [8.314, 0.834],
+        [9.863, 0.47]
+      ],
+      "a7": [
+        [1.364, 0.815],
+        [2.947, 0.8],
+        [4.509, 0.8],
+        [6.032, 0.798],
+        [7.583, 0.781],
+        [9.113, 0.818]
+      ]
+    }
+  },
+  "createdAt": "2025-01-14T12:42:34.520Z",
+  "updatedAt": "2025-01-30T18:35:45.162Z"
+}

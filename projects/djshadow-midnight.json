@@ -1,0 +1,57 @@
+{
+  "id": "0854f993",
+  "name": "DJ Shadow - Midnight in a Perfect World",
+  "version": "0.1.0",
+  "exportVersion": "1",
+  "pads": [
+    { "id": "a1", "source": "https://youtu.be/InFbBlpDTfQ" },
+    {
+      "id": "a2",
+      "source": "https://youtu.be/-viwvgi9DYQ",
+      "operations": [
+        { "type": "trim", "start": 119.795, "end": 123.561 },
+        { "type": "playbackRate", "rate": 1 },
+        { "type": "volume", "envelope": [{ "time": 0, "value": 0.66 }] }
+      ]
+    },
+    {
+      "id": "a3",
+      "source": "https://youtu.be/Ruj4K1L25DI",
+      "operations": [{ "type": "trim", "start": 194, "end": 197.25 }]
+    },
+    {
+      "id": "a4",
+      "source": "https://youtu.be/Ldi3d1NtNhc",
+      "operations": [
+        { "type": "trim", "start": 301, "end": 305 },
+        { "type": "playbackRate", "rate": 1 }
+      ]
+    },
+    {
+      "id": "a5",
+      "source": "https://youtu.be/TYGaJr7G3Dc",
+      "operations": [{ "type": "trim", "start": 6.919, "end": 12.82 }]
+    },
+    {
+      "id": "a6",
+      "source": "https://youtu.be/4zFhsViLAjY",
+      "operations": [{ "type": "trim", "start": 7.72, "end": 23.079 }]
+    },
+    {
+      "id": "a7",
+      "source": "https://youtu.be/hF0zdkinPFI",
+      "operations": [{ "type": "trim", "start": 0.38, "end": 3.295 }]
+    },
+    {
+      "id": "a8",
+      "source": "https://youtu.be/PPeLOqijtko",
+      "operations": [
+        { "type": "trim", "start": 219.68, "end": 220.884 },
+        { "type": "volume", "envelope": [{ "time": 0, "value": 0.64 }] }
+      ]
+    }
+  ],
+  "sequencer": { "bpm": 60, "startTime": 0, "endTime": 30, "events": {} },
+  "createdAt": "2025-01-30T19:49:37.113Z",
+  "updatedAt": "2025-01-31T11:03:50.323Z"
+}
