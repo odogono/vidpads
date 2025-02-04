@@ -16,8 +16,8 @@ import { useModalState } from './useModalState';
 const log = createLog('CommonModal', ['debug']);
 
 export interface CommonModalRef {
-  onOpen: (props?: unknown) => void;
-  onClose: () => void;
+  open: (props?: unknown) => void;
+  close: () => void;
 }
 
 export interface CommonModalBase {
@@ -31,6 +31,7 @@ export interface CommonModalProps extends CommonModalBase {
   children: React.ReactNode;
   onOpen?: OnOpenProps;
   onOk?: () => Promise<boolean>;
+  onClose?: () => void;
 }
 
 export const CommonModal = ({
@@ -38,19 +39,25 @@ export const CommonModal = ({
   ref,
   children,
   onOpen: onOpenProp,
-  onOk
+  onOk,
+  onClose: onCloseProp
 }: CommonModalProps) => {
   const { isOpen, onOpen, onClose: onCloseModal } = useModalState();
 
+  const handleClose = useCallback(() => {
+    onCloseProp?.();
+    onCloseModal();
+  }, [onCloseProp, onCloseModal]);
+
   useImperativeHandle(ref, () => ({
-    onOpen: (props: unknown) => {
+    open: (props: unknown) => {
       if (onOpenProp) {
         onOpenProp(props);
       }
       onOpen();
     },
-    onClose: () => {
-      onCloseModal();
+    close: () => {
+      handleClose();
     }
   }));
 
@@ -61,17 +68,17 @@ export const CommonModal = ({
     }
 
     log.debug('onOk returned true');
-    onCloseModal();
-  }, [onOk, onCloseModal]);
+    handleClose();
+  }, [onOk, handleClose]);
 
   const handleCancel = useCallback(() => {
-    onCloseModal();
-  }, [onCloseModal]);
+    handleClose();
+  }, [handleClose]);
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onCloseModal}
+      onClose={handleClose}
       backdrop='blur'
       className='bg-background text-foreground'
     >

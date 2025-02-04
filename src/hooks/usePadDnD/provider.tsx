@@ -118,7 +118,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
           await clearPad({ sourcePadId, showToast: true });
         }
         if (sourceEventData) {
-          // todo tidy this up
+          // TODO tidy this up
           log.debug('delete event', sourceEventData);
           const event = JSON.parse(sourceEventData);
           store.send({

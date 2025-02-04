@@ -1,10 +1,3 @@
-// export const QUERY_KEY_PAD_THUMBNAIL = 'pad-thumbnail';
-// export const QUERY_KEY_PROJECT = 'project';
-// export const QUERY_KEY_PROJECTS = 'projects';
-// export const QUERY_KEY_STATE = 'store-state';
-// export const QUERY_KEY_STORE_INITIALISE = 'store-initialise';
-
-// todo - move to using these keys instead of the above
 export const VOKeys = {
   all: ['odgnVO'] as const,
 

@@ -24,6 +24,8 @@ export interface DeleteModalRef {
   onOpen: () => void;
 }
 
+// TODO convert to CommonModal
+
 export const DeleteModal = ({ ref }: DeleteModalProps) => {
   const { selectedPadId } = useSelectedPadId();
   const { isOpen, onOpen, onClose } = useModalState();

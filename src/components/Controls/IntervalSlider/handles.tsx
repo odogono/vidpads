@@ -109,7 +109,7 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
       onTouchStart: handleTouchStart,
       onTouchEnd: handleTouchEnd,
       onTouchMove: handleTouchMove
-      // todo - not working very well once moved close to bounds
+      // TODO not working very well once moved close to bounds
       // onWheel: handleWheel
     }
   };

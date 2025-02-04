@@ -151,7 +151,7 @@ const onHandlers = {
     };
   },
   timeUpdate: (context: SeqStoreContext) => {
-    // todo - not used
+    // TODO not used
     return context;
   },
   setEndTime: (context: SeqStoreContext, action: SetEndTimeEvent) => {

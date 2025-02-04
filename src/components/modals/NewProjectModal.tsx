@@ -24,6 +24,8 @@ export interface NewProjectModalProps {
   ref: React.RefObject<NewProjectModalRef | null>;
 }
 
+// TODO convert to CommonModal
+
 export const NewProjectModal = ({ ref }: NewProjectModalProps) => {
   const { isOpen, onOpen, onClose } = useModalState();
   const { createNewProject } = useProjects();

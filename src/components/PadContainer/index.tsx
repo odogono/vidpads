@@ -22,7 +22,7 @@ export const PadContainer = () => {
 
   const handlePadTouch = useCallback(
     (padId: string) => {
-      modalRef.current?.onOpen({ padId });
+      modalRef.current?.open({ padId });
     },
     [modalRef]
   );

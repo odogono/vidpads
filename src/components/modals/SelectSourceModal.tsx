@@ -6,6 +6,7 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { isValidSourceUrl } from '@helpers/metadata';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
 import { Button, Input } from '@nextui-org/react';
@@ -17,20 +18,30 @@ export type SelectSourceModalProps = CommonModalBase;
 
 export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   const events = useEvents();
+  const { projectId } = useProject();
   const [isEnteringUrl, setIsEnteringUrl] = useState(false);
-  const { ACCEPTED_FILE_TYPES } = usePadDnD();
+  const { ACCEPTED_FILE_TYPES } = usePadDnD('SelectSourceModal');
   const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
   const [url, setUrl] = useState(lastMediaUrl ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
   const { addFileToPad, addUrlToPad } = usePadOperations();
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
+
+  const close = useCallback(() => ref.current?.close(), [ref]);
+
+  const handleClose = useCallback(() => {
+    setIsEnteringUrl(false);
+    setUrl('');
+    setActiveIndex(null);
+  }, []);
 
   const handleUrlSubmit = async () => {
     if (handleValidate(url) === null && activeIndex) {
       setIsEnteringUrl(false);
       setLastMediaUrl(url);
 
-      await addUrlToPad({ url, padId: activeIndex });
+      await addUrlToPad({ url, padId: activeIndex, projectId });
     }
     return true;
   };
@@ -52,12 +63,12 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
           log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
           return;
         }
-        await addFileToPad({ file, padId: activeIndex });
-        ref.current?.onClose();
+        await addFileToPad({ file, padId: activeIndex, projectId });
+        close();
       }
       e.target.value = '';
     },
-    [activeIndex, addFileToPad, ACCEPTED_FILE_TYPES, ref]
+    [activeIndex, addFileToPad, ACCEPTED_FILE_TYPES, close, projectId]
   );
 
   const handleValidate = useCallback((value: string) => {
@@ -67,13 +78,17 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
     return 'Please enter a valid URL';
   }, []);
 
+  const handleEnterUrl = useCallback(() => {
+    setIsEnteringUrl(true);
+    setTimeout(() => {
+      urlInputRef.current?.focus();
+    }, 0);
+  }, []);
+
   const handlePaste = useCallback(async () => {
     events.emit('cmd:paste');
-    // if (activeIndex) {
-    //   await pastePadFromClipboard({ targetPadId: activeIndex });
-    ref.current?.onClose();
-    // }
-  }, [events]);
+    close();
+  }, [events, close]);
 
   return (
     <CommonModal
@@ -81,6 +96,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
       title='Select Media Source'
       onOk={handleUrlSubmit}
       onOpen={handleOpened as OnOpenProps}
+      onClose={handleClose}
     >
       <input
         type='file'
@@ -95,27 +111,31 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
       {!isEnteringUrl ? (
         <>
           <Button
-            onPress={() => setIsEnteringUrl(true)}
+            onPress={handleEnterUrl}
             className='w-full'
             variant='bordered'
           >
             Enter URL
           </Button>
-          <Button onPress={handlePaste} className='w-full' color='primary'>
-            Paste from clipboard
-          </Button>
         </>
       ) : (
         <div className='flex flex-col gap-2'>
           <Input
+            ref={urlInputRef}
+            className='vo-select-src-enter-url'
             validate={handleValidate}
             placeholder='Enter media URL'
+            isClearable
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyUp={(e) => e.key === 'Enter' && handleUrlSubmit()}
+            onClear={() => setUrl('')}
           />
         </div>
       )}
+      <Button onPress={handlePaste} className='w-full' color='primary'>
+        Paste from clipboard
+      </Button>
     </CommonModal>
   );
 };

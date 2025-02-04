@@ -94,7 +94,7 @@ export const usePadsExtended = () => {
 export const usePadDetails = (padId: string) => {
   const { project } = useProject();
 
-  // todo - use query
+  // TODO use query
   const getPadIntervalInternal = useCallback((): Interval | undefined => {
     const pad = project
       .getSnapshot()

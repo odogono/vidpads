@@ -25,6 +25,8 @@ export interface SaveProjectModalProps {
   ref: React.RefObject<SaveProjectModalRef | null>;
 }
 
+// TODO convert to CommonModal
+
 export const SaveProjectModal = ({ ref }: SaveProjectModalProps) => {
   const { isOpen, onOpen, onClose: onCloseModal } = useModalState();
   const { saveProject, projectName } = useProjects();

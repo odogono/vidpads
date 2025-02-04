@@ -25,6 +25,8 @@ export interface ImportProjectModalProps {
   ref: React.RefObject<ImportProjectModalRef | null>;
 }
 
+// TODO convert to CommonModal
+
 export const ImportProjectModal = ({ ref }: ImportProjectModalProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isOpen, onOpen, onClose } = useModalState();

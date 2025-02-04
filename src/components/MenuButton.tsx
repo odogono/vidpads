@@ -61,7 +61,7 @@ export const MenuButton = () => {
   }, [importProjectModalRef]);
 
   const handleDeleteEverything = useCallback(() => {
-    deleteEverythingModalRef.current?.onOpen();
+    deleteEverythingModalRef.current?.open();
   }, [deleteEverythingModalRef]);
 
   return (

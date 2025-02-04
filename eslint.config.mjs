@@ -18,7 +18,7 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    ignores: ['dist', '**/*.d.ts', './src/types/mp4box.d.ts']
+    ignores: ['dist', '**/*.d.ts']
   },
   {
     files: ['**/*.{ts,tsx}'],
