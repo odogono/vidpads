@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Inter, Kode_Mono } from 'next/font/google';
 
 import './globals.css';
 
@@ -15,6 +15,13 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin']
 });
+
+const kodeMono = Kode_Mono({
+  variable: '--font-kode-mono',
+  subsets: ['latin']
+});
+
+const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'ODGN VO PADS',
@@ -39,9 +46,12 @@ const RootLayout = ({
       className={`
         ${geistSans.variable} 
         ${geistMono.variable} 
+        ${kodeMono.variable}
+        ${inter.variable}
         bg-background 
         antialiased
         overflow-y-hidden
+        font-sans
       `}
     >
       <FullscreenContextProvider>{children}</FullscreenContextProvider>

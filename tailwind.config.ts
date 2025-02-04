@@ -16,6 +16,10 @@ export default {
         background: 'var(--background)',
         foreground: 'var(--foreground)'
       },
+      fontFamily: {
+        sans: ['var(--font-inter)'],
+        mono: ['var(--font-kode-mono)']
+      },
       keyframes: {
         'pad-pulse': {
           '0%, 100%': { transform: 'scale(1)' },
