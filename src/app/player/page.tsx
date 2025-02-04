@@ -3,9 +3,8 @@
 import { LoadingSuspense } from '@components/Loading';
 import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
-import { EventsProvider } from '@helpers/events';
-// import { FFmpegProvider } from '@helpers/ffmpeg/provider';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
+import { EventsProvider } from '@hooks/events/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
 import { NextUIProvider } from '@nextui-org/react';
 

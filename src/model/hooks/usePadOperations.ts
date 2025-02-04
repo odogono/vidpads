@@ -17,7 +17,6 @@ import {
 } from '@model';
 import { VOKeys } from '@model/constants';
 import {
-  copyPadThumbnail as dbCopyPadThumbnail,
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
   deletePadThumbnail as dbDeletePadThumbnail,
   getPadThumbnail as dbGetPadThumbnail,

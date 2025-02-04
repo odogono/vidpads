@@ -6,10 +6,8 @@ export const setSelectedPadId = (
   event: SetSelectedPadIdAction
 ): StoreContext => {
   const { padId } = event;
-  const isEditActive = !padId ? false : context.isEditActive;
 
   return update(context, {
-    isEditActive,
     selectedPadId: padId
   });
 };

@@ -9,8 +9,10 @@ export const findPadById = (
 
 export const addOrReplacePad = (
   context: StoreContext,
-  pad: Pad
+  pad?: Pad
 ): StoreContext => {
+  if (!pad) return context;
+
   const padIndex = context.pads.findIndex((p) => p.id === pad.id);
   const pads = [...context.pads];
 

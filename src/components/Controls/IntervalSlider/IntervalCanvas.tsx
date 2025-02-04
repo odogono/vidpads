@@ -9,14 +9,14 @@ import {
 } from 'react';
 
 import { useTooltip } from '@components/Tooltip/useTooltip';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Pad } from '@model/types';
 import { Rect } from '@types';
 import { Handle } from './handles';
 import { useTouch } from './useTouch';
 
-const log = createLog('IntervalCanvas');
+// const log = createLog('IntervalCanvas');
 
 export interface IntervalSliderProps {
   pad: Pad | undefined;

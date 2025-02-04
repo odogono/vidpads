@@ -28,7 +28,6 @@ export {
 } from './sequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';
-export { initialiseStore } from './initialiseStore';
 export { newProject } from './newProject';
 export { setLastMediaUrl } from './setLastMediaUrl';
 export { setLastImportUrl } from './setLastImportUrl';

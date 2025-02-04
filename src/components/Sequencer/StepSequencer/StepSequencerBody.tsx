@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { PlayHead } from '../TimeSequencer/components/PlayHead';
 
-const log = createLog('StepSequencerBody');
+// const log = createLog('StepSequencerBody');
 
 interface TriggerEvent {
   event: 'pad:touchdown' | 'pad:touchup';
@@ -30,7 +30,7 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
   const stepWidth = 40;
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
 
-  const { triggers, triggerKey } = useMemo(() => {
+  const { triggers } = useMemo(() => {
     const result = sequencerEvents.reduce((acc, e) => {
       const { time, duration, padId } = e;
 

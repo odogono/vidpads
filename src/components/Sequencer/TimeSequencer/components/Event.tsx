@@ -1,9 +1,9 @@
 'use client';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import type { SequencerRowEvent } from './Row';
 
-const log = createLog('sequencer/event');
+// const log = createLog('sequencer/event');
 
 export interface SequencerEventProps extends SequencerRowEvent {
   onTap: (padId: string, x: number) => void;

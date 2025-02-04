@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { cn } from '@helpers/tailwind';
 import { useTouch } from './useTouch';
@@ -22,7 +22,7 @@ interface DialProps {
   onDoubleTouch?: () => void;
 }
 
-const log = createLog('dial');
+// const log = createLog('dial');
 
 export const Dial = ({
   label,

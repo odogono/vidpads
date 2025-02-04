@@ -7,8 +7,8 @@ import {
   PlayerTimeUpdate
 } from '@components/Player/types';
 import { debounce } from '@helpers/debounce';
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { usePadTrimOperation } from '@model/hooks/usePadTrimOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';

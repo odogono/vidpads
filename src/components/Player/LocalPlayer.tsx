@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { extractVideoThumbnailFromVideo } from '@helpers/canvas';
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { usePadDetails } from '@model/hooks/usePads';
 import { usePlayerState } from '@model/hooks/usePlayerState';

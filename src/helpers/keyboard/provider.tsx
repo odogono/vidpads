@@ -2,8 +2,9 @@
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
-import { EventEmitterEvents, useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
+import { EventEmitterEvents } from '@hooks/events/types';
 import { KeyboardContext } from './context';
 
 const KEY_PAD_MAP = {
@@ -28,7 +29,7 @@ const KEY_PAD_MAP = {
 type EventMap = {
   [key: string]: {
     event: keyof EventEmitterEvents;
-    args?: unknown;
+    // args?: unknown;
     fn?: () => void;
   };
 };
@@ -36,7 +37,6 @@ type EventMap = {
 const EVENT_MAP: EventMap = {
   Escape: {
     event: 'player:stop-all',
-    args: undefined,
     // eslint-disable-next-line no-console
     fn: () => console.clear()
   },
@@ -136,8 +136,8 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (EVENT_MAP[code]) {
-        const { event, args, fn } = EVENT_MAP[code];
-        events.emit(event, args);
+        const { event, fn } = EVENT_MAP[code];
+        events.emit(event);
         if (fn) fn();
         return;
       }

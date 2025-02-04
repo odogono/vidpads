@@ -5,7 +5,7 @@ import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 
 export const BinComponent = () => {
   const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
-    usePadDnD('bin');
+    usePadDnD();
   const isDraggingOver =
     dragOverId === 'cut' || dragOverId === 'copy' || dragOverId === 'delete';
 
