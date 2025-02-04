@@ -94,7 +94,7 @@ export const exportToURLString = (store: StoreType) => {
 
 export const importProjectExport = (data: ProjectExport): StoreContext => {
   const pads = data.pads
-    .map((pad) => importPadFromJSON({ pad, options: { importSource: true } }))
+    .map((pad) => importPadFromJSON({ pad, importSource: true }))
     .filter(Boolean);
 
   const newContext: StoreContext = {
