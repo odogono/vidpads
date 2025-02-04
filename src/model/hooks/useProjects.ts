@@ -75,7 +75,7 @@ export const useProjects = () => {
 
       // await Promise.all(
       //   data.pads.map((pad) =>
-      //     addUrlToPad({ url: pad.source, padId: pad.id, projectId })
+      //     addUrlToPad({ url: getPadSourceUrl(pad), padId: pad.id, projectId })
       //   )
       // );
 

@@ -6,6 +6,7 @@ import {
   OperationType,
   Pad,
   PlaybackRateOperation,
+  SourceOperation,
   TrimOperation,
   VolumeOperation
 } from './types';
@@ -22,7 +23,7 @@ export const createPad = (id: string): Pad => {
 
 export const setPadSource = (
   pad: Pad | undefined,
-  source: string
+  source: string | undefined
 ): Pad | undefined => {
   if (!pad) {
     return pad;
@@ -34,7 +35,7 @@ export const setPadSource = (
       ...pad.pipeline,
       source: {
         type: OperationType.Source,
-        url: source
+        url: source ?? ''
       }
     }
   };
@@ -127,7 +128,20 @@ export const copyPad = (pad: Pad): Pad => {
 };
 
 export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
-  return pad?.pipeline.source?.url;
+  if (!pad) {
+    return undefined;
+  }
+
+  const pipelineSrc = pad?.pipeline.source?.url;
+  if (pipelineSrc) {
+    return pipelineSrc;
+  }
+  // look in the ops
+  const op = getPadOperation(pad, OperationType.Source);
+  if (op) {
+    return (op as SourceOperation).url;
+  }
+  return undefined;
 };
 
 export const getPadVolume = (pad: Pad | undefined, defaultTo: number = 1) => {

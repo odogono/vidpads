@@ -2,9 +2,11 @@ import {
   OperationType,
   Pad,
   PadExport,
+  SourceOperation,
   TrimOperation,
   VolumeOperation
 } from '@model/types';
+import { getPadInterval, getPadSourceUrl, getPadVolume } from '../../pad';
 import {
   exportPadToJSON,
   exportPadToURLString,
@@ -53,7 +55,12 @@ describe('pad serialization', () => {
       const exported = exportPadToJSON(simplePad);
       expect(exported).toEqual({
         id: 'pad1',
-        source: 'https://example.com/video.mp4'
+        operations: [
+          {
+            type: OperationType.Source,
+            url: 'https://example.com/video.mp4'
+          }
+        ]
       });
     });
 
@@ -61,8 +68,11 @@ describe('pad serialization', () => {
       const exported = exportPadToJSON(complexPad);
       expect(exported).toEqual({
         id: 'pad2',
-        source: 'https://example.com/video.mp4',
         operations: [
+          {
+            type: OperationType.Source,
+            url: 'https://example.com/video.mp4'
+          },
           {
             type: OperationType.Trim,
             start: 0,
@@ -94,7 +104,7 @@ describe('pad serialization', () => {
 
       const imported = importPadFromJSON({
         pad: padExport,
-        options: { importSource: true }
+        importSource: true
       });
       expect(imported).toEqual({
         id: 'pad1',
@@ -118,6 +128,22 @@ describe('pad serialization', () => {
       const imported = importPadFromJSON({ pad: undefined });
       expect(imported).toBeUndefined();
     });
+
+    it('should handle source being defined in operations', () => {
+      const pad: PadExport = {
+        id: 'pad1',
+        source: 'https://youtu.be/dQw4w9WgXcQ',
+        operations: [
+          {
+            type: OperationType.Source,
+            url: 'https://example.com/video.mp4'
+          } as SourceOperation
+        ]
+      };
+
+      const imported = importPadFromJSON({ pad, importSource: true });
+      expect(getPadSourceUrl(imported)).toBe('https://example.com/video.mp4');
+    });
   });
 
   describe('URL string serialization', () => {
@@ -129,7 +155,6 @@ describe('pad serialization', () => {
     it('should export a complex pad to URL string', () => {
       const exported = exportPadToURLString(complexPad);
       expect(exported).toBe(
-        // 'pad2[https%3A%2F%2Fexample.com%2Fvideo.mp4[t:0:10+v:0:1:5:0.5'
         'pad2[s:~sexample.com%2Fvideo.mp4+t:0:10+v:0:1:5:0.5'
       );
     });
@@ -137,24 +162,13 @@ describe('pad serialization', () => {
     it('should import a pad from URL string', () => {
       const urlString = 'pad1[s:~sexample.com%2Fvideo.mp4+t:0:10+v:0:1:5:0.5';
       const imported = importPadFromURLString(urlString);
-      expect(imported).toEqual({
-        id: 'pad1',
-        source: 'https://example.com/video.mp4',
-        operations: [
-          {
-            type: OperationType.Trim,
-            start: 0,
-            end: 10
-          },
-          {
-            type: OperationType.Volume,
-            envelope: [
-              { time: 0, value: 1 },
-              { time: 5, value: 0.5 }
-            ]
-          }
-        ]
-      });
+      const pad = importPadFromJSON({ pad: imported, importSource: true });
+
+      expect(pad?.id).toBe('pad1');
+      expect(getPadSourceUrl(pad)).toBe('https://example.com/video.mp4');
+      expect(getPadInterval(pad)?.start).toBe(0);
+      expect(getPadInterval(pad)?.end).toBe(10);
+      expect(getPadVolume(pad)).toBe(0.5);
     });
 
     it('should export a pad with a shortened YT url', () => {
@@ -166,6 +180,23 @@ describe('pad serialization', () => {
             type: OperationType.Source,
             url: 'https://youtu.be/dQw4w9WgXcQ'
           }
+        }
+      };
+
+      const exported = exportPadToURLString(pad);
+      expect(exported).toBe('pad1[s:~ydQw4w9WgXcQ');
+    });
+
+    it('should export a pad source op with a shortened YT url', () => {
+      const pad: Pad = {
+        ...simplePad,
+        pipeline: {
+          operations: [
+            {
+              type: OperationType.Source,
+              url: 'https://youtu.be/dQw4w9WgXcQ'
+            } as SourceOperation
+          ]
         }
       };
 

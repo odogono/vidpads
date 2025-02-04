@@ -13,11 +13,13 @@ import {
   OperationType,
   Pad,
   PadExport,
+  Pipeline,
   SourceOperation
 } from '@model/types';
 import {
   createPad,
   getPadInterval,
+  getPadSourceUrl,
   setPadInterval,
   setPadSource
 } from '../pad';
@@ -30,10 +32,6 @@ import {
 
 export interface ImportPadFromJSONProps {
   pad: PadExport | undefined;
-  options?: ImportPadFromJSONOptions;
-}
-
-export interface ImportPadFromJSONOptions {
   importSource?: boolean;
 }
 
@@ -41,7 +39,7 @@ const log = createLog('model/serialise/pad', ['debug']);
 
 export const importPadFromJSON = ({
   pad,
-  options = { importSource: false }
+  importSource = false
 }: ImportPadFromJSONProps): Pad | undefined => {
   if (!pad) {
     return undefined;
@@ -51,39 +49,50 @@ export const importPadFromJSON = ({
     ?.map(importOperationFromJSON)
     .filter(Boolean) as Operation[];
 
-  return {
-    id: pad.id,
-    pipeline: {
-      source: options.importSource
-        ? {
-            type: OperationType.Source,
-            url: pad.source
-          }
-        : undefined,
-      operations
-    }
+  const srcOp = operations?.find((op) => op.type === OperationType.Source) as
+    | SourceOperation
+    | undefined;
+  const filteredOps = srcOp
+    ? operations.filter((op) => op.type !== OperationType.Source)
+    : operations;
+
+  const pipeline: Pipeline = {
+    operations: filteredOps
   };
+
+  const source = srcOp ? srcOp.url : pad.source;
+
+  const result = {
+    id: pad.id,
+    pipeline
+  };
+
+  return setPadSource(result, importSource ? source : undefined);
 };
 
 export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
   const { id, pipeline } = pad;
 
-  const { source, operations } = pipeline;
+  const { operations } = pipeline;
+  const source = getPadSourceUrl(pad);
 
   if (!source) {
     return undefined;
   }
 
-  const result = {
-    id,
-    source: source.url
-  };
-
   const ops = operations
     ?.map(exportOperationToJSON)
     .filter(Boolean) as OperationExport[];
 
-  return ops && ops?.length > 0 ? { ...result, operations: ops } : result;
+  const opsWithSource = source
+    ? [{ type: OperationType.Source, url: source }, ...(ops ?? [])]
+    : ops;
+
+  return {
+    id,
+    operations: opsWithSource
+  };
+  // return ops && ops?.length > 0 ? { ...result, operations: ops } : result;
 };
 
 export const exportPadToURLString = (pad: Pad): string | undefined => {
@@ -92,11 +101,17 @@ export const exportPadToURLString = (pad: Pad): string | undefined => {
     return undefined;
   }
 
-  const { id, source, operations } = json;
+  const { id, operations } = json;
 
-  const sourceOps = source
-    ? [{ type: OperationType.Source, url: source }, ...(operations ?? [])]
-    : operations;
+  // reapply the source as an op, taking care
+  // to clear existing source ops
+  const sourceUrl = getPadSourceUrl(pad);
+  const filteredOps = operations?.filter(
+    (op) => op.type !== OperationType.Source
+  );
+  const sourceOps = sourceUrl
+    ? [{ type: OperationType.Source, url: sourceUrl }, ...(filteredOps ?? [])]
+    : filteredOps;
 
   const ops =
     sourceOps?.reduce((acc, op) => {
@@ -126,20 +141,20 @@ export const importPadFromURLString = (
     .map(importOperationFromURL)
     .filter(Boolean) as OperationExport[];
 
-  const source = ops.find((op) => op.type === OperationType.Source);
-  const sourceUrl = (source as SourceOperation | undefined)?.url;
-  const filteredOps = source
-    ? ops.filter((op) => op.type !== OperationType.Source)
-    : ops;
+  // const source = ops.find((op) => op.type === OperationType.Source);
+  // const sourceUrl = (source as SourceOperation | undefined)?.url;
+  // const filteredOps = source
+  //   ? ops.filter((op) => op.type !== OperationType.Source)
+  //   : ops;
 
-  const result = {
+  return {
     id,
-    source: sourceUrl ?? ''
+    operations: ops
   };
 
-  return filteredOps.length > 0
-    ? { ...result, operations: filteredOps }
-    : result;
+  // return filteredOps.length > 0
+  //   ? { ...result, operations: filteredOps }
+  //   : result;
 };
 
 export const exportPadToClipboard = (pad: Pad) => {
@@ -175,7 +190,7 @@ export const exportPadToClipboard = (pad: Pad) => {
 
 export const importPadFromClipboard = (
   urlString: string,
-  options: ImportPadFromJSONOptions = { importSource: true }
+  importSource: boolean = true
 ): Pad | undefined => {
   if (!urlString) {
     return undefined;
@@ -211,7 +226,9 @@ export const importPadFromClipboard = (
       return pad;
     }
     const imported = data ? importPadFromURLString(data) : undefined;
-    return imported ? importPadFromJSON({ pad: imported, options }) : undefined;
+    return imported
+      ? importPadFromJSON({ pad: imported, importSource })
+      : undefined;
   }
 
   const padUrlData = parsePadUrl(urlString);
@@ -220,15 +237,10 @@ export const importPadFromClipboard = (
     const imported = padUrlData.data
       ? importPadFromURLString(padUrlData.data)
       : undefined;
-    return imported ? importPadFromJSON({ pad: imported, options }) : undefined;
+    return imported
+      ? importPadFromJSON({ pad: imported, importSource })
+      : undefined;
   }
-
-  // if (urlString.startsWith('odgn-vo://pad')) {
-  //   const url = new URL(urlString);
-  //   const data = url.searchParams.get('d');
-  //   const imported = data ? importPadFromURLString(data) : undefined;
-  //   return imported ? importPadFromJSON({ pad: imported, options }) : undefined;
-  // }
 
   return undefined;
 };
