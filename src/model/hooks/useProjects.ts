@@ -1,19 +1,13 @@
 import { useCallback } from 'react';
 
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
-import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
-import {
-  invalidateAllQueries,
-  invalidateQueryKeys,
-  resetAllQueries
-} from '@helpers/query';
+import { invalidateQueryKeys, resetAllQueries } from '@helpers/query';
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import {
   deleteDB as dbDeleteDB,
   getAllProjectDetails as dbGetAllProjectDetails,
-  loadProject as dbLoadProject,
   saveProject as dbSaveProject,
   saveProjectState as dbSaveProjectState
 } from '@model/db/api';
@@ -24,21 +18,17 @@ import {
   exportToURLString,
   urlStringToProject
 } from '@model/serialise/store';
+import { createStore } from '@model/store/store';
+import { StoreContextType } from '@model/store/types';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createStore } from '../store/store';
-import { StoreContextType } from '../store/types';
-import { usePadOperations } from './usePadOperations';
 
 const log = createLog('model/useProjects');
 
 export const useProjects = () => {
   const { project, setProjectId } = useProject();
-  const events = useEvents();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
-  const { deleteAllPadThumbnails } = usePadOperations();
-  const { addUrlToPad } = usePadOperations();
 
   const loadProjectFromJSON = useCallback(
     async (data: ProjectExport) => {

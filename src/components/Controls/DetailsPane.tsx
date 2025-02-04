@@ -6,15 +6,14 @@ import {
   ClipboardCopy,
   ClipboardPaste,
   ClipboardX,
-  Tag,
   Trash2
 } from 'lucide-react';
 
 import { OpButton } from '@components/buttons/OpButton';
+import { OpPadLabelButton } from '@components/buttons/OpPadLabelButton';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
-import { OpPadLabelButton } from '../buttons/OpPadLabelButton';
 import { PaneProps } from './types';
 
 const log = createLog('DetailsPane', ['debug']);
@@ -61,8 +60,6 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   });
   return (
     <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
-      {/* <Input isClearable size='sm' label='Label' disabled={!isEnabled} /> */}
-
       <OpPadLabelButton
         isEnabled={isEnabled}
         onChange={handleLabelChange}

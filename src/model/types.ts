@@ -26,7 +26,8 @@ export const OperationType = {
   AddTransition: 'addTransition',
   Volume: 'volume',
   PlaybackRate: 'playbackRate',
-  Loop: 'loop'
+  Loop: 'loop',
+  Label: 'label'
 } as const;
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
@@ -40,6 +41,11 @@ export interface Operation {
 export interface SourceOperation extends Operation {
   type: typeof OperationType.Source;
   url: string;
+}
+
+export interface LabelOperation extends Operation {
+  type: typeof OperationType.Label;
+  label: string;
 }
 
 export interface PlaybackRateOperation extends Operation {
@@ -150,6 +156,7 @@ export interface ProjectExport {
 
 export interface PadExport {
   id: string;
+  label?: string | undefined;
   source?: string | undefined;
   operations?: OperationExport[] | undefined;
 }
