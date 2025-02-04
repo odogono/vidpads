@@ -6,6 +6,7 @@ import {
   ClipboardCopy,
   ClipboardPaste,
   ClipboardX,
+  Tag,
   Trash2
 } from 'lucide-react';
 
@@ -13,7 +14,7 @@ import { OpButton } from '@components/buttons/OpButton';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
-import { Input } from '@nextui-org/react';
+import { OpPadLabelButton } from '../buttons/OpPadLabelButton';
 import { PaneProps } from './types';
 
 const log = createLog('DetailsPane');
@@ -28,6 +29,13 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const handleCopy = useCallback(() => events.emit('cmd:copy'), [events]);
   const handlePaste = useCallback(() => events.emit('cmd:paste'), [events]);
 
+  const handleLabelChange = useCallback((label: string) => {
+    log.debug('handleLabelChange', label);
+    // if (selectedPadId) {
+    //   events.emit('cmd:setPadLabel', { padId: selectedPadId, label });
+    // }
+  }, []);
+
   useEffect(() => {
     setPadPlayEnabled(false);
     setPadSelectSourceEnabled(false);
@@ -39,7 +47,9 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
 
   return (
     <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
-      <Input isClearable size='sm' label='Label' disabled={!isEnabled} />
+      {/* <Input isClearable size='sm' label='Label' disabled={!isEnabled} /> */}
+
+      <OpPadLabelButton isEnabled={isEnabled} onChange={handleLabelChange} />
 
       <OpButton label='Cut' onPress={handleCut} isEnabled={isEnabled}>
         <ClipboardX />
