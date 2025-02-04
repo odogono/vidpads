@@ -242,46 +242,50 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   ]);
 
   // handles the oneshot or looped behaviour
-  useEffect(() => {
-    const checkProgress = () => {
-      const player = playerRef.current;
-      if (!player) return;
-      const isPlaying =
-        player.getPlayerState &&
-        player.getPlayerState() === PlayerState.PLAYING;
-      if (!isPlaying) return;
+  // useEffect(() => {
+  //   const checkProgress = () => {
+  //     const player = playerRef.current;
+  //     if (!player) return;
+  //     const isPlaying =
+  //       player.getPlayerState &&
+  //       player.getPlayerState() === PlayerState.PLAYING;
+  //     if (!isPlaying) return;
 
-      const currentTime = player.getCurrentTime();
-      if (currentTime >= endTimeRef.current) {
-        if (isLoopedRef.current) {
-          seekVideo({
-            url: mediaUrl,
-            padId: playerPadId,
-            time: startTimeRef.current,
-            inProgress: false,
-            requesterId: 'yt-player'
-          });
-        } else {
-          stopVideo({
-            url: mediaUrl,
-            padId: playerPadId,
-            time: player.getCurrentTime()
-          });
-        }
-      }
-    };
+  //     const currentTime = player.getCurrentTime();
+  //     if (currentTime >= endTimeRef.current) {
+  //       if (isLoopedRef.current) {
+  //         log.debug('[checkProgress] looping', {
+  //           time: currentTime,
+  //           endTime: endTimeRef.current
+  //         });
+  //         // seekVideo({
+  //         //   url: mediaUrl,
+  //         //   padId: playerPadId,
+  //         //   time: startTimeRef.current,
+  //         //   inProgress: false,
+  //         //   requesterId: 'yt-player'
+  //         // });
+  //       } else {
+  //         stopVideo({
+  //           url: mediaUrl,
+  //           padId: playerPadId,
+  //           time: player.getCurrentTime()
+  //         });
+  //       }
+  //     }
+  //   };
 
-    const intervalId = setInterval(checkProgress, 100);
-    return () => clearInterval(intervalId);
-  }, [
-    mediaUrl,
-    playerPadId,
-    stopVideo,
-    isLoopedRef,
-    startTimeRef,
-    endTimeRef,
-    seekVideo
-  ]);
+  //   const intervalId = setInterval(checkProgress, 100);
+  //   return () => clearInterval(intervalId);
+  // }, [
+  //   mediaUrl,
+  //   playerPadId,
+  //   stopVideo,
+  //   isLoopedRef,
+  //   startTimeRef,
+  //   endTimeRef,
+  //   seekVideo
+  // ]);
 
   return (
     <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />

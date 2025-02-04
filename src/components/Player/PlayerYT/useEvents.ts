@@ -55,7 +55,9 @@ export const usePlayerYTEvents = ({
   seekVideo,
   stopImmediate,
   setVolume,
-  setPlaybackRate
+  setPlaybackRate,
+  startTimeRef,
+  endTimeRef
 }: UsePlayerYTEventsProps) => {
   const events = useEvents();
   const { getPadInterval } = usePadDetails(playerPadId);
@@ -78,7 +80,7 @@ export const usePlayerYTEvents = ({
 
   const handleEnded = useCallback(
     (player: YTPlayer) => {
-      // log.debug('ended', mediaUrl);
+      log.debug('ended', mediaUrl);
       if (isLoopedRef.current) {
         playVideo({
           url: mediaUrl,
@@ -153,13 +155,33 @@ export const usePlayerYTEvents = ({
   );
 
   const updateTimeTracking = useCallback(() => {
-    // if (isBufferingRef.current) {
-    //   return;
-    // }
     const time = playerRef.current?.getCurrentTime();
     const duration = playerRef.current?.getDuration();
     // log.debug('updateTimeTracking', time, duration);
     if (time !== undefined && duration !== undefined) {
+      // handles the oneshot or looped behaviour
+      if (time >= endTimeRef.current) {
+        if (isLoopedRef.current) {
+          // log.debug('[updateTimeTracking] looping', {
+          //   time,
+          //   endTime: endTimeRef.current
+          // });
+          seekVideo({
+            url: mediaUrl,
+            padId: playerPadId,
+            time: startTimeRef.current,
+            inProgress: false,
+            requesterId: 'yt-player'
+          });
+        } else {
+          stopVideo({
+            url: mediaUrl,
+            padId: playerPadId,
+            time
+          });
+        }
+      }
+
       events.emit('player:time-update', {
         url: mediaUrl,
         padId: playerPadId,
@@ -171,7 +193,16 @@ export const usePlayerYTEvents = ({
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTimeTracking);
     }
-  }, [mediaUrl, playerPadId, events]);
+  }, [
+    endTimeRef,
+    events,
+    mediaUrl,
+    playerPadId,
+    isLoopedRef,
+    seekVideo,
+    startTimeRef,
+    stopVideo
+  ]);
 
   const startTimeTracking = useCallback(
     (player: YTPlayer) => {
