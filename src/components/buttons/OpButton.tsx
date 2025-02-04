@@ -20,7 +20,7 @@ export const OpButton = forwardRef(
       children: React.ReactNode;
       onPress?: () => void;
     },
-    ref: any
+    ref: React.Ref<HTMLButtonElement>
   ) => {
     const { getButtonProps } = useButton({
       isDisabled: !isEnabled,
@@ -39,16 +39,25 @@ export const OpButton = forwardRef(
       <button
         ref={ref}
         {...getButtonProps()}
-        className='flex flex-col items-center justify-center group cursor-pointer focus:outline-none'
+        className={`flex flex-col items-center justify-center group cursor-pointer focus:outline-none ${
+          !isEnabled && 'opacity-50 cursor-not-allowed'
+        }`}
       >
         <div
-          className={`${sizeClasses[size]} flex items-center justify-center bg-slate-400 group-hover:bg-slate-300 text-black rounded-lg aspect-square focus:outline-none`}
+          className={`${sizeClasses[size]} 
+          flex items-center justify-center 
+          ${isEnabled ? 'bg-slate-400 group-hover:bg-slate-300' : 'bg-slate-200'} 
+          text-black rounded-lg 
+          aspect-square 
+          focus:outline-none`}
         >
           {children}
         </div>
         {label && (
           <div
-            className='text-xs text-foreground/90 mt-2'
+            className={`text-xs mt-2 ${
+              isEnabled ? 'text-foreground/90' : 'text-foreground/60'
+            }`}
             style={{
               fontSize: '0.6rem',
               lineHeight: '0.75rem'

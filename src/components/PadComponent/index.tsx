@@ -12,13 +12,14 @@ import { VolumeOff } from 'lucide-react';
 
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
+import { MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { usePadLabel } from '@model/hooks/usePadLabel';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
+import { getPadLabel, getPadSourceUrl } from '@model/pad';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
 import { GeneralDragEvent } from '@types';
-import { MIME_TYPE_PAD } from '../../hooks/usePadDnD/constants';
-import { getPadSourceUrl } from '../../model/pad';
 import { useGhostDrag } from './ghost';
 import { useNullImage } from './useNullImage';
 import { usePlayerEvents } from './usePlayerEvents';
@@ -57,6 +58,8 @@ export const PadComponent = ({
   const { selectedPadId, setSelectedPadId } = useSelectedPadId();
 
   const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
+
+  const padLabel = getPadLabel(pad);
 
   useEffect(() => {
     if (!isDragging) {
@@ -236,9 +239,9 @@ export const PadComponent = ({
           ${isPlayerPlaying ? 'animate-opacity-pulse' : 'opacity-0'}
         `}
       ></span>
-      {pad.label && (
-        <span className='absolute bottom-2 left-1/2 -translate-x-1/2 rounded-lg text-xs bg-white/40 p-2 text-gray-50 select-none whitespace-nowrap text-ellipsis overflow-hidden max-w-[90%] text-center'>
-          {pad.label}
+      {padLabel && (
+        <span className='absolute bottom-2 left-1/2 -translate-x-1/2 rounded-lg text-xs font-semibold bg-black/50 p-2 text-gray-50 select-none whitespace-nowrap text-ellipsis overflow-hidden max-w-[90%] text-center'>
+          {padLabel}
         </span>
       )}
       <span className='absolute bottom-2 left-2 text-xs text-gray-400 select-none'>

@@ -245,6 +245,12 @@ export type SetSelectedEventsDurationAction = {
   duration: number;
 };
 
+export type SetPadLabelAction = {
+  type: 'setPadLabel';
+  padId: string;
+  label: string;
+};
+
 export type Actions =
   | InitialiseStoreAction
   | UpdatePadSourceAction
@@ -278,7 +284,8 @@ export type Actions =
   | SetSequencerStartTimeAction
   | SetSequencerEndTimeAction
   | SetSelectedEventsTimeAction
-  | SetSelectedEventsDurationAction;
+  | SetSelectedEventsDurationAction
+  | SetPadLabelAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
