@@ -1,49 +1,13 @@
-import { createLog } from '@helpers/log';
-import { generateShortUUID } from '@helpers/uuid';
-import { importPadFromJSON } from '@model/serialise/pad';
-import { importSequencerFromJSON } from '@model/serialise/sequencer';
-import { initialContext } from '@model/store/store';
+import { importProjectExport } from '@model/serialise/store';
 import { ImportProjectAction, StoreContext } from '@model/store/types';
-import { addOrReplacePad } from './helpers';
 
-const log = createLog('store/actions/importProject');
+// const log = createLog('store/actions/importProject');
 
 export const importProject = (
-  context: StoreContext,
+  _context: StoreContext,
   event: ImportProjectAction
 ): StoreContext => {
   const { data } = event;
 
-  const pads = data.pads
-    .map((pad) => importPadFromJSON({ pad, options: { importSource: true } }))
-    .filter(Boolean);
-
-  log.debug('[importProject] pads:', pads);
-
-  const newContext: StoreContext = {
-    ...initialContext,
-    projectId: data.id ?? generateShortUUID(),
-    projectName: data.name ?? 'Untitled',
-    selectedPadId: undefined,
-    createdAt: data.createdAt ?? new Date().toISOString(),
-    updatedAt: data.updatedAt ?? new Date().toISOString()
-  };
-
-  const sequencer = data.sequencer
-    ? importSequencerFromJSON(data.sequencer)
-    : undefined;
-
-  const contextWithSequencer = sequencer
-    ? {
-        ...newContext,
-        sequencer
-      }
-    : newContext;
-
-  return pads.reduce((acc, pad) => {
-    if (pad) {
-      return addOrReplacePad(acc, pad);
-    }
-    return acc;
-  }, contextWithSequencer);
+  return importProjectExport(data);
 };

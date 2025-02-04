@@ -12,7 +12,8 @@ import {
   OperationExport,
   OperationType,
   Pad,
-  PadExport
+  PadExport,
+  SourceOperation
 } from '@model/types';
 import {
   createPad,
@@ -73,15 +74,16 @@ export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
     return undefined;
   }
 
+  const result = {
+    id,
+    source: source.url
+  };
+
   const ops = operations
     ?.map(exportOperationToJSON)
     .filter(Boolean) as OperationExport[];
 
-  return {
-    id,
-    source: source.url,
-    operations: ops?.length > 0 ? ops : undefined
-  };
+  return ops && ops?.length > 0 ? { ...result, operations: ops } : result;
 };
 
 export const exportPadToURLString = (pad: Pad): string | undefined => {
@@ -92,8 +94,12 @@ export const exportPadToURLString = (pad: Pad): string | undefined => {
 
   const { id, source, operations } = json;
 
+  const sourceOps = source
+    ? [{ type: OperationType.Source, url: source }, ...(operations ?? [])]
+    : operations;
+
   const ops =
-    operations?.reduce((acc, op) => {
+    sourceOps?.reduce((acc, op) => {
       const url = exportOperationToURL(op);
       if (url) {
         acc.push(url);
@@ -103,30 +109,37 @@ export const exportPadToURLString = (pad: Pad): string | undefined => {
 
   const opsURL = ops.join('+') ?? '';
 
-  const sourceStr = encodeURIComponent(source);
-
-  return `${id}[${sourceStr}[${opsURL}`;
+  return `${id}[${opsURL}`;
 };
 
 export const importPadFromURLString = (
   urlString: string
 ): PadExport | undefined => {
-  const [id, sourceStr, opsStr] = urlString.split('[');
+  const [id, opsStr] = urlString.split('[');
 
-  const source = decodeURIComponent(sourceStr);
+  // const source = decodeURIComponent(sourceStr);
 
-  log.debug('[importPadFromURLString] opsStr:', { id, sourceStr, opsStr });
+  log.debug('[importPadFromURLString] opsStr:', { id, opsStr });
 
   const ops = opsStr
     .split('+')
     .map(importOperationFromURL)
     .filter(Boolean) as OperationExport[];
 
-  return {
+  const source = ops.find((op) => op.type === OperationType.Source);
+  const sourceUrl = (source as SourceOperation | undefined)?.url;
+  const filteredOps = source
+    ? ops.filter((op) => op.type !== OperationType.Source)
+    : ops;
+
+  const result = {
     id,
-    source,
-    operations: ops.length > 0 ? ops : undefined
+    source: sourceUrl ?? ''
   };
+
+  return filteredOps.length > 0
+    ? { ...result, operations: filteredOps }
+    : result;
 };
 
 export const exportPadToClipboard = (pad: Pad) => {
@@ -145,7 +158,7 @@ export const exportPadToClipboard = (pad: Pad) => {
     }) as Interval;
 
     // build a url with the start time and and the data
-    const url = new URL(source);
+    const url = new URL(source!);
 
     if (start !== -1) {
       url.searchParams.set('t', Math.round(start).toString());

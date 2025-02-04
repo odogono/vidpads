@@ -1,4 +1,9 @@
-import { OperationType, TrimOperation, VolumeOperation } from '@model/types';
+import {
+  OperationType,
+  SourceOperation,
+  TrimOperation,
+  VolumeOperation
+} from '@model/types';
 import {
   exportOperationToJSON,
   exportOperationToURL,
@@ -62,57 +67,76 @@ describe('Operation serialization', () => {
       expect(exportOperationToURL(undefined)).toBe('');
     });
 
-    it('should serialize and deserialize trim operations', () => {
-      const trimOperation: TrimOperation = {
-        type: OperationType.Trim,
-        start: 1.23456,
-        end: 4.56789
-      };
+    describe('trim operations', () => {
+      it('should serialize and deserialize trim operations', () => {
+        const trimOperation: TrimOperation = {
+          type: OperationType.Trim,
+          start: 1.23456,
+          end: 4.56789
+        };
 
-      const exported = exportOperationToURL(trimOperation);
-      const imported = importOperationFromURL(exported!);
+        const exported = exportOperationToURL(trimOperation);
+        const imported = importOperationFromURL(exported!);
 
-      expect(exported).toBe('t:1.235:4.568');
-      expect(imported).toEqual({
-        type: OperationType.Trim,
-        start: 1.235,
-        end: 4.568
+        expect(exported).toBe('t:1.235:4.568');
+        expect(imported).toEqual({
+          type: OperationType.Trim,
+          start: 1.235,
+          end: 4.568
+        });
       });
     });
 
-    it('should serialize and deserialize volume operations', () => {
-      const volumeOperation: VolumeOperation = {
-        type: OperationType.Volume,
-        envelope: [
-          { time: 0, value: 1 },
-          { time: 2.5, value: 0.5 }
-        ]
-      };
+    describe('source operations', () => {
+      it('should serialize and deserialize source operations', () => {
+        const sourceOperation: SourceOperation = {
+          type: OperationType.Source,
+          url: 'https://example.com/video.mp4'
+        };
 
-      const exported = exportOperationToURL(volumeOperation);
-      const imported = importOperationFromURL(exported!);
+        const exported = exportOperationToURL(sourceOperation);
+        const imported = importOperationFromURL(exported!);
 
-      expect(exported).toBe('v:0:1:2.5:0.5');
-      expect(imported).toEqual(volumeOperation);
+        expect(exported).toBe('s:~sexample.com%2Fvideo.mp4');
+        expect(imported).toEqual(sourceOperation);
+      });
+    });
+
+    describe('volume operations', () => {
+      it('should serialize and deserialize volume operations', () => {
+        const volumeOperation: VolumeOperation = {
+          type: OperationType.Volume,
+          envelope: [
+            { time: 0, value: 1 },
+            { time: 2.5, value: 0.5 }
+          ]
+        };
+
+        const exported = exportOperationToURL(volumeOperation);
+        const imported = importOperationFromURL(exported!);
+
+        expect(exported).toBe('v:0:1:2.5:0.5');
+        expect(imported).toEqual(volumeOperation);
+      });
+
+      it('should handle empty volume envelope', () => {
+        const volumeOperation: VolumeOperation = {
+          type: OperationType.Volume,
+          envelope: []
+        };
+
+        const exported = exportOperationToURL(volumeOperation);
+        const imported = importOperationFromURL(exported!);
+
+        expect(exported).toBe('v:');
+        expect(imported).toEqual(volumeOperation);
+      });
     });
 
     it('should handle invalid URL strings', () => {
       expect(
         importOperationFromURL('invalid:operation:string')
       ).toBeUndefined();
-    });
-
-    it('should handle empty volume envelope', () => {
-      const volumeOperation: VolumeOperation = {
-        type: OperationType.Volume,
-        envelope: []
-      };
-
-      const exported = exportOperationToURL(volumeOperation);
-      const imported = importOperationFromURL(exported!);
-
-      expect(exported).toBe('v:');
-      expect(imported).toEqual(volumeOperation);
     });
 
     it('should handle unknown operation types in URL', () => {

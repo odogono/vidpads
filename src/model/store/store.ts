@@ -1,6 +1,10 @@
+import {
+  createDate,
+  dateToISOString,
+  formatShortDate
+} from '@helpers/datetime';
+import { generateShortUUID } from '@helpers/uuid';
 import { createStore as createXstateStore } from '@xstate/store';
-import { formatShortDate } from '../../helpers/datetime';
-import { generateShortUUID } from '../../helpers/uuid';
 import { createPad } from '../pad';
 import * as actions from './actions';
 import type {
@@ -23,8 +27,8 @@ export const initialContext: StoreContextType = {
     startTime: 0,
     endTime: 30 // secs
   },
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+  createdAt: dateToISOString(),
+  updatedAt: dateToISOString(),
   pads: [
     createPad('a1'),
     createPad('a2'),
@@ -48,8 +52,8 @@ export const initialContext: StoreContextType = {
 export const createStore = (
   initialState?: StoreContextType | null | undefined
 ): StoreType => {
-  const date = new Date();
-  const dateString = date.toISOString();
+  const date = createDate();
+  const dateString = dateToISOString(date);
   const projectName = `Untitled ${formatShortDate(date)}`;
 
   const initial = {

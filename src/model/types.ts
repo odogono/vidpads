@@ -150,7 +150,7 @@ export interface ProjectExport {
 
 export interface PadExport {
   id: string;
-  source: string;
+  source?: string | undefined;
   operations?: OperationExport[] | undefined;
 }
 

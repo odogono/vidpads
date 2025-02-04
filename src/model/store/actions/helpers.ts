@@ -1,3 +1,4 @@
+import { dateToISOString } from '@helpers/datetime';
 import { StoreContext } from '@model/store/types';
 import { Pad } from '@model/types';
 
@@ -30,5 +31,5 @@ export const update = (
 ) => ({
   ...context,
   ...additional,
-  updatedAt: new Date().toISOString()
+  updatedAt: dateToISOString()
 });

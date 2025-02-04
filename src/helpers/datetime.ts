@@ -1,4 +1,13 @@
-import { format, formatDistanceToNow } from 'date-fns';
+import {
+  format,
+  formatDistanceToNow,
+  formatISO,
+  fromUnixTime,
+  getUnixTime,
+  parseISO
+} from 'date-fns';
+
+import { safeParseInt } from './number';
 
 // import { createLog } from '@helpers/log';
 
@@ -58,10 +67,50 @@ export const parseISO8601Duration = (duration: string) => {
   };
 };
 
-export const formatTimeAgo = (date: Date) => {
-  return formatDistanceToNow(date, { addSuffix: true });
+export const formatTimeAgo = (date: Date | string | undefined) => {
+  if (!date) {
+    return 'now';
+  }
+  return formatDistanceToNow(typeof date === 'string' ? parseISO(date) : date, {
+    addSuffix: true
+  });
 };
 
 export const formatShortDate = (date: Date) => {
   return format(date, 'MMM d, yyyy');
+};
+
+export const getUnixTimeFromDate = (
+  date: Date | string | undefined
+): number => {
+  if (!date) {
+    return 0;
+  }
+  return getUnixTime(typeof date === 'string' ? parseISO(date) : date);
+};
+
+export const getDateFromUnixTime = (
+  unixTime: number | string | undefined
+): Date => {
+  if (!unixTime) {
+    return new Date();
+  }
+  return fromUnixTime(
+    typeof unixTime === 'string' ? safeParseInt(unixTime) : unixTime
+  );
+};
+
+export const dateToISOString = (date?: Date): string => {
+  return formatISO(date ?? new Date());
+};
+
+export const isoStringToDate = (isoString: string): Date => {
+  return parseISO(isoString);
+};
+
+export const createDate = (dateString?: string | undefined): Date => {
+  if (!dateString) {
+    return new Date();
+  }
+  return parseISO(dateString);
 };

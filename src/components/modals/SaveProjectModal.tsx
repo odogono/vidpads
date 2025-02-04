@@ -80,6 +80,7 @@ export const SaveProjectModal = ({ ref }: SaveProjectModalProps) => {
                   setName(e.target.value);
                   setNameError(null);
                 }}
+                onClear={() => setName('')}
                 errorMessage={nameError}
                 isInvalid={!!nameError}
               />
