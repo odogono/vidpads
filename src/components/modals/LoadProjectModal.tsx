@@ -2,9 +2,15 @@
 
 import { useCallback, useImperativeHandle, useMemo, useState } from 'react';
 
-import { formatTimeAgo, getUnixTimeFromDate } from '@helpers/datetime';
+import {
+  formatShortDate,
+  formatTimeAgo,
+  getUnixTimeFromDate
+} from '@helpers/datetime';
 import { createLog } from '@helpers/log';
+import { isProjectNoteworthy } from '@model/helpers';
 import { useProjects } from '@model/hooks/useProjects';
+import { StoreContextType } from '@model/store/types';
 import {
   Button,
   Modal,
@@ -21,7 +27,6 @@ import {
   TableHeader,
   TableRow
 } from '@nextui-org/react';
-import { StoreContextType } from '../../model/store/types';
 import { useModalState } from './useModalState';
 
 const log = createLog('LoadProjectModal');
@@ -76,14 +81,24 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
   const handleOnOpen = useCallback(async () => {
     const projectDetails = await getAllProjectDetails();
     if (projectDetails) {
-      projectDetails.sort((a, b) => {
-        return (
-          getUnixTimeFromDate(b.updatedAt ?? '') -
-          getUnixTimeFromDate(a.updatedAt ?? '')
-        );
-      });
+      const filteredProjectDetails = projectDetails
+        .filter((p) => isProjectNoteworthy(p))
+        .map((project) => {
+          const { projectName, updatedAt } = project;
+          return projectName
+            ? project
+            : {
+                ...project,
+                projectName: `Untitled ${formatShortDate(updatedAt)}`
+              };
+        })
+        .toSorted((a, b) => {
+          return (
+            getUnixTimeFromDate(b.updatedAt) - getUnixTimeFromDate(a.updatedAt)
+          );
+        });
+      setProjectDetails(filteredProjectDetails);
     }
-    setProjectDetails(projectDetails ?? []);
     onOpen();
   }, [getAllProjectDetails, onOpen]);
 
@@ -136,10 +151,10 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
                     Name
                   </TableColumn>
                   <TableColumn className='bg-background text-foreground'>
-                    Updated At
+                    Updated
                   </TableColumn>
                 </TableHeader>
-                <TableBody items={items}>
+                <TableBody items={items} emptyContent='No projects found'>
                   {(item) => (
                     <TableRow key={item.projectId}>
                       <TableCell>{item.projectName}</TableCell>

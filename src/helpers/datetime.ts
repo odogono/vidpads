@@ -76,10 +76,30 @@ export const formatTimeAgo = (date: Date | string | undefined) => {
   });
 };
 
-export const formatShortDate = (date: Date) => {
-  return format(date, 'MMM d, yyyy');
+export const formatShortDate = (date?: Date | string | undefined) => {
+  const d = createDate(date);
+  return format(d, 'MMM d, yyyy');
 };
 
+/**
+ * Returns the Unix timestamp for the current date and time
+ */
+export const getUnixTimeFromNow = () => {
+  return getUnixTime(new Date());
+};
+
+/**
+ * Returns the Unix timestamp for the start of today
+ */
+export const getUnixTimeFromToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return getUnixTime(today);
+};
+
+/**
+ * Returns the Unix timestamp for a given date
+ */
 export const getUnixTimeFromDate = (
   date: Date | string | undefined
 ): number => {
@@ -89,6 +109,9 @@ export const getUnixTimeFromDate = (
   return getUnixTime(typeof date === 'string' ? parseISO(date) : date);
 };
 
+/**
+ * Returns a Date object from a Unix timestamp
+ */
 export const getDateFromUnixTime = (
   unixTime: number | string | undefined
 ): Date => {
@@ -100,17 +123,26 @@ export const getDateFromUnixTime = (
   );
 };
 
+/**
+ * Returns an ISO string from a Date object
+ */
 export const dateToISOString = (date?: Date): string => {
   return formatISO(date ?? new Date());
 };
 
+/**
+ * Returns a Date object from an ISO string
+ */
 export const isoStringToDate = (isoString: string): Date => {
   return parseISO(isoString);
 };
 
-export const createDate = (dateString?: string | undefined): Date => {
+/**
+ * Returns a Date object from a date string
+ */
+export const createDate = (dateString?: Date | string | undefined): Date => {
   if (!dateString) {
     return new Date();
   }
-  return parseISO(dateString);
+  return typeof dateString === 'string' ? parseISO(dateString) : dateString;
 };

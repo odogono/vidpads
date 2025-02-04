@@ -2,10 +2,11 @@ import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import { getPadThumbnail as dbGetPadThumbnail } from '@model/db/api';
 import { Pad } from '@model/types';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { createLog } from '../../helpers/log';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
-const log = createLog('usePadThumbnail');
+// import { createLog } from '@helpers/log';
+
+// const log = createLog('usePadThumbnail');
 
 export const usePadThumbnail = (pad: Pad) => {
   const { projectId } = useProject();

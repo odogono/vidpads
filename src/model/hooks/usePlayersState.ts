@@ -14,7 +14,7 @@ export interface PlayerHandler {
 
 type PlayerMap = Map<string, PlayerHandler>;
 
-const log = createLog('usePlayersState');
+const log = createLog('usePlayersState', ['debug']);
 
 export const usePlayersState = () => {
   const queryClient = useQueryClient();

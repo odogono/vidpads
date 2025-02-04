@@ -10,12 +10,9 @@ import { Sequencer } from '@components/Sequencer';
 import { ShareButton } from '@components/ShareButton';
 import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
-import { useWindowUrl } from '@hooks/useWindowUrl';
 import { useShowMode } from '@model/hooks/useShowMode';
 
 export const Main = () => {
-  useWindowUrl();
-
   const { isFullscreen, setIsFullscreen } = useFullscreen();
   const { isPadsVisible, isSequencerVisible } = useShowMode();
 

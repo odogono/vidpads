@@ -1,8 +1,7 @@
 'use client';
 
-import { ReactNode, useCallback, useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
 
-import { useEvents } from '@helpers/events';
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { usePadOperations } from '@model/hooks/usePadOperations';
@@ -28,11 +27,15 @@ const ACCEPTED_FILE_TYPES = [
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dropEffectRef = useRef<'copy' | 'move'>('copy');
+
   const {
-    store,
+    project,
+    projectId,
     addFileToPad,
     clearPad,
     copyPadToPad,
+    movePadToPad,
     cutPadToClipboard,
     copyPadToClipboard
   } = usePadOperations();
@@ -46,7 +49,8 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
         e.dataTransfer?.setData(mimeType, id);
         e.dataTransfer?.setData(MIME_TYPE_ID, id);
       }
-      e.dataTransfer!.dropEffect = isMetaKeyDown() ? 'copy' : 'move';
+      dropEffectRef.current = isMetaKeyDown() ? 'move' : 'copy';
+      e.dataTransfer!.dropEffect = dropEffectRef.current;
       e.dataTransfer!.setData(
         MIME_TYPE_DROP_EFFECT,
         e.dataTransfer!.dropEffect
@@ -60,6 +64,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
 
   const onDragEnd = useCallback(() => {
     setDraggingId(null);
+    dropEffectRef.current = 'copy';
   }, []);
 
   const onDragOver = useCallback(
@@ -121,7 +126,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
           // TODO tidy this up
           log.debug('delete event', sourceEventData);
           const event = JSON.parse(sourceEventData);
-          store.send({
+          project.send({
             ...event,
             type: 'removeSequencerEvent'
           });
@@ -140,7 +145,11 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (sourcePadId !== targetId) {
-          await copyPadToPad({ sourcePadId, targetPadId: targetId });
+          if (dropEffectRef.current === 'move') {
+            await movePadToPad({ sourcePadId, targetPadId: targetId });
+          } else {
+            await copyPadToPad({ sourcePadId, targetPadId: targetId });
+          }
           return;
         }
       }
@@ -153,17 +162,19 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
           log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
           return;
         }
-        await addFileToPad({ file, padId: targetId });
+        await addFileToPad({ file, padId: targetId, projectId });
         log.info(`Processed file ${file.name} for pad ${targetId}`);
       }
     },
     [
       clearPad,
-      store,
+      project,
       cutPadToClipboard,
       copyPadToClipboard,
+      movePadToPad,
       copyPadToPad,
-      addFileToPad
+      addFileToPad,
+      projectId
     ]
   );
 

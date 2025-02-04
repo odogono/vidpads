@@ -1,17 +1,10 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 import { createLog } from '@helpers/log';
-import {
-  MIME_TYPE_DROP_EFFECT,
-  MIME_TYPE_PAD,
-  MIME_TYPE_SEQ_EVENT
-} from '@hooks/usePadDnD/constants';
-import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { useStore } from '@model/store/useStore';
 import { SequencerEvent } from '@model/types';
-import { GeneralDragEvent, Position, getOffsetPosition } from '@types';
+import { Position } from '@types';
 import { Event } from './Event';
 
 export interface SequencerRowEvent extends SequencerEvent {
@@ -38,13 +31,7 @@ interface RowProps {
 
 const log = createLog('sequencer/row');
 
-export const Row = ({
-  padId,
-  rowIndex,
-  events,
-  onTap,
-  onEventDrop
-}: RowProps) => {
+export const Row = ({ padId, rowIndex, events }: RowProps) => {
   // const id = `seq-row-${padId}`;
 
   // const handleDrop = useCallback(
