@@ -14,11 +14,13 @@ import {
   saveProjectState as dbSaveProjectState,
   isIndexedDBSupported
 } from '@model/db/api';
+import { isProjectNoteworthy } from '@model/helpers';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { createStore } from '@model/store/store';
 import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { getUnixTimeFromDate } from '../../helpers/datetime';
 import { ProjectContext } from './context';
 
 const log = createLog('useProject/provider');
@@ -108,11 +110,24 @@ export const ProjectProvider = ({
           }
         });
 
-        // const projectDetails = await dbGetAllProjectDetails();
+        const projectDetails = await dbGetAllProjectDetails();
 
-        // for (const { projectId, projectName, updatedAt } of projectDetails) {
-        //   log.info('project', projectId, projectName, updatedAt);
-        // }
+        for (const {
+          projectId,
+          projectName,
+          createdAt,
+          updatedAt
+        } of projectDetails) {
+          const lifetime =
+            getUnixTimeFromDate(updatedAt) - getUnixTimeFromDate(createdAt);
+          log.info('project', projectId, projectName, updatedAt, {
+            lifetime,
+            isNoteWorthy: isProjectNoteworthy({
+              createdAt,
+              updatedAt
+            } as StoreContextType)
+          });
+        }
 
         // await wait(10000);
         return store;

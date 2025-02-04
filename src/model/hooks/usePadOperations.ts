@@ -35,7 +35,8 @@ import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
 const log = createLog('model/usePadOperations');
 
 export interface PadOperationsOptions {
-  showToast: boolean;
+  showToast?: boolean;
+  copyToClipboard?: boolean;
 }
 
 export const usePadOperations = () => {
@@ -129,49 +130,64 @@ export const usePadOperations = () => {
 
   const { mutateAsync: copyPadToPadOp } = useMutation({
     mutationFn: async ({ sourcePadId, targetPadId }: CopyPadToPadProps) => {
-      const targetPad = getPadById(project, targetPadId);
-      if (!targetPad) {
-        log.warn('[copyPad] Pad not found:', targetPadId);
-        return null;
-      }
-
-      // clear the target pad
-      await deletePadMediaOp(targetPad);
-
-      await dbCopyPadThumbnail(projectId, sourcePadId, targetPadId);
-
-      const sourcePad = getPadById(project, sourcePadId);
-      const sourcePadUrl = getPadSourceUrl(sourcePad);
-      if (sourcePadUrl) {
-        queryClient.invalidateQueries({
-          queryKey: VOKeys.metadata(sourcePadUrl)
-        });
-      }
-
-      const targetPadUrl = getPadSourceUrl(targetPad);
-      if (targetPadUrl) {
-        queryClient.invalidateQueries({
-          queryKey: VOKeys.metadata(targetPadUrl)
-        });
-      }
-
-      invalidateQueryKeys(queryClient, [
-        [...VOKeys.padThumbnail(projectId, targetPad.id)]
-      ]);
-
-      project.send({
-        type: 'copyPad',
+      const srcUrl = await copyPadOp({
         sourcePadId,
-        targetPadId,
-        copySourceOnly: isShiftKeyDown()
+        showToast: false,
+        copyToClipboard: false
       });
+
+      if (!srcUrl) {
+        log.debug('[copyPadToPad] could not copy pad:', sourcePadId);
+        return false;
+      }
+
+      const ok = await pastePadOp({
+        targetPadId,
+        showToast: false,
+        url: srcUrl
+      });
+
+      if (!ok) {
+        log.debug('[copyPadToPad] could not paste pad:', sourcePadId);
+        return false;
+      }
+
+      return true;
+    }
+  });
+
+  const { mutateAsync: movePadToPadOp } = useMutation({
+    mutationFn: async ({ sourcePadId, targetPadId }: CopyPadToPadProps) => {
+      const srcUrl = await cutPadOp({
+        sourcePadId,
+        showToast: false,
+        copyToClipboard: false
+      });
+
+      if (!srcUrl) {
+        log.debug('[movePadToPad] could not cut pad:', sourcePadId);
+        return false;
+      }
+
+      const ok = await pastePadOp({
+        targetPadId,
+        showToast: false,
+        url: srcUrl
+      });
+      if (!ok) {
+        log.debug('[movePadToPad] could not paste pad:', sourcePadId);
+        return false;
+      }
+
+      return true;
     }
   });
 
   const copyPadOp = useCallback(
     async ({
       sourcePadId,
-      showToast = true
+      showToast = true,
+      copyToClipboard = true
     }: Partial<PadOperationsOptions> & {
       sourcePadId: string;
     }) => {
@@ -187,14 +203,15 @@ export const usePadOperations = () => {
         return false;
       }
 
-      await writeToClipboard(urlString);
+      if (copyToClipboard) {
+        await writeToClipboard(urlString);
+      }
 
       if (showToast) {
         toast.success(`Copied ${sourcePadId} to clipboard`);
       }
 
-      return true;
-      // copyPadToPadOp({ sourcePadId: pad.id, targetPadId: pad.id });
+      return urlString;
     },
     [project]
   );
@@ -202,9 +219,13 @@ export const usePadOperations = () => {
   const pastePadOp = useCallback(
     async ({
       targetPadId,
-      showToast = true
-    }: Partial<PadOperationsOptions> & { targetPadId: string }) => {
-      const clipboard = await readFromClipboard();
+      showToast = true,
+      url
+    }: Partial<PadOperationsOptions> & {
+      targetPadId: string;
+      url?: string;
+    }) => {
+      const clipboard = url ?? (await readFromClipboard());
 
       log.debug('[pastePad] clipboard:', clipboard, { targetPadId });
 
@@ -296,7 +317,8 @@ export const usePadOperations = () => {
   const { mutateAsync: cutPadOp } = useMutation({
     mutationFn: async ({
       sourcePadId,
-      showToast = true
+      showToast = true,
+      copyToClipboard = true
     }: Partial<PadOperationsOptions> & { sourcePadId: string }) => {
       const pad = getPadById(project, sourcePadId);
       if (!pad) {
@@ -304,12 +326,13 @@ export const usePadOperations = () => {
         return false;
       }
 
-      if (
-        !(await copyPadOp({
-          sourcePadId,
-          showToast: false
-        }))
-      ) {
+      const url = await copyPadOp({
+        sourcePadId,
+        showToast: false,
+        copyToClipboard
+      });
+
+      if (!url) {
         log.debug('[cutPad] could not copy pad:', sourcePadId);
         return false;
       }
@@ -325,7 +348,7 @@ export const usePadOperations = () => {
         toast.success(`Cut ${sourcePadId} to clipboard`);
       }
 
-      return true;
+      return url;
     }
   });
 
@@ -368,9 +391,11 @@ export const usePadOperations = () => {
 
   return {
     project,
+    projectId,
     addFileToPad: addFileToPadOp,
     addUrlToPad: addUrlToPadOp,
     copyPadToPad: copyPadToPadOp,
+    movePadToPad: movePadToPadOp,
     clearPad: clearPadOp,
     deleteAllPadThumbnails,
     copyPadToClipboard: copyPadOp,

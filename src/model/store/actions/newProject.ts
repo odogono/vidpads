@@ -8,7 +8,7 @@ export const newProject = (): StoreContext => {
     ...initialContext,
     selectedPadId: undefined,
     projectId: generateShortUUID(),
-    projectName: 'Untitled',
+    projectName: '',
     createdAt: dateToISOString(),
     updatedAt: dateToISOString()
   };

@@ -7,6 +7,12 @@ import {
   idbOpenTransaction
 } from '@helpers/idb';
 import { createLog } from '@helpers/log';
+import {
+  fromPadThumbnailUrl,
+  isValidMediaUrl,
+  isYouTubeMetadata,
+  toPadThumbnailUrl
+} from '@helpers/metadata';
 import { StoreContextType } from '@model/store/types';
 import {
   Media,
@@ -16,12 +22,6 @@ import {
   MediaYouTube,
   ProjectExport
 } from '@model/types';
-import {
-  fromPadThumbnailUrl,
-  isValidMediaUrl,
-  isYouTubeMetadata,
-  toPadThumbnailUrl
-} from '../../helpers/metadata';
 import { getMediaType } from '../helpers';
 
 const log = createLog('db/api');

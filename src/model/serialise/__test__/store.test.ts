@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 
+import { isoStringToDate } from '@helpers/datetime';
 // import { createLog } from '@helpers/log';
 import {
   exportToURLString,
@@ -9,7 +10,6 @@ import {
 import { initialContext } from '@model/store/store';
 import { StoreContextType, StoreType } from '@model/store/types';
 import { OperationType, Pad, ProjectExport, TrimOperation } from '@model/types';
-import { isoStringToDate } from '../../../helpers/datetime';
 import { getPadInterval, getPadSourceUrl } from '../../pad';
 import {
   exportPadToJSON,

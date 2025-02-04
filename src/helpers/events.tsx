@@ -18,10 +18,10 @@ import {
   PlayerThumbnailExtracted,
   PlayerTimeUpdate
 } from '@components/Player/types';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { Media, MediaYouTube } from '../model/types';
 
-const log = createLog('events');
+// const log = createLog('events');
 
 export type EventEmitterEvents = {
   'pad:touchdown': {
@@ -68,19 +68,6 @@ export type EventEmitterEvents = {
     mediaUrl: string;
     property: keyof Media | keyof MediaYouTube;
     value: unknown;
-  };
-
-  'project:created': {
-    projectId: string;
-    projectName: string;
-  };
-  'project:loaded': {
-    projectId: string;
-    projectName: string;
-  };
-  'project:saved': {
-    projectId: string;
-    projectName: string;
   };
 
   'seq:play': undefined;

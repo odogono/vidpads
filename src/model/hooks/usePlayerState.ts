@@ -9,7 +9,6 @@ import {
   updateMetadataProperty as dbUpdateMetadataProperty
 } from '@model/db/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { invalidateQueryKeys } from '../../helpers/query';
 import { MediaYouTube } from '../types';
 
 export interface PlayerHandler {
@@ -30,7 +29,7 @@ const defaultPlayer: PlayerHandler = {
   playbackRates: []
 };
 
-const log = createLog('usePlayerState');
+const log = createLog('usePlayerState', ['debug']);
 
 export const usePlayerState = (padId: string, mediaUrl?: string) => {
   const queryClient = useQueryClient();

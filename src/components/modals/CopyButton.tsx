@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 
+import { writeToClipboard } from '@helpers/clipboard';
 import { createLog } from '@helpers/log';
 import { Button } from '@nextui-org/react';
-import { writeToClipboard } from '../../helpers/clipboard';
 
 export interface CopyButtonProps {
   text: string;

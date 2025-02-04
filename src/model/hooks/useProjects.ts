@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { dateToISOString, formatShortDate } from '@helpers/datetime';
 import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import {
@@ -25,7 +26,6 @@ import {
 } from '@model/serialise/store';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { dateToISOString } from '../../helpers/datetime';
 import { createStore } from '../store/store';
 import { StoreContextType } from '../store/types';
 import { usePadOperations } from './usePadOperations';
@@ -108,21 +108,8 @@ export const useProjects = () => {
 
   const loadProject = useCallback(
     async (projectId: string) => {
-      // log.debug('Loading project:', projectId);
-
-      // const project = await dbLoadProject(projectId);
-
-      // if (!project) {
-      //   log.warn('Project not found:', projectId);
-      //   return false;
-      // }
-
-      // await loadProjectFromJSON(project);
-
       queryClient.invalidateQueries({ queryKey: VOKeys.project(projectId) });
       setProjectId(projectId);
-      // events.emit('project:loaded', { projectId, projectName: project.name });
-
       return true;
     },
     [queryClient, setProjectId]
@@ -169,7 +156,10 @@ export const useProjects = () => {
   });
 
   const saveProject = useCallback(
-    async (projectName: string = 'Untitled') => {
+    async (projectName: string = '') => {
+      if (!projectName) {
+        projectName = `Untitled ${formatShortDate()}`;
+      }
       log.debug('Saving project:', projectName);
       await saveProjectMutation.mutateAsync({ projectName });
       const { error } = saveProjectMutation;

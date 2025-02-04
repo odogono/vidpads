@@ -2,7 +2,7 @@ import { Suspense, useCallback, useRef } from 'react';
 
 import { CommonModalRef } from '@components/modals/CommonModal';
 import { SelectSourceModal } from '@components/modals/SelectSourceModal';
-import { createLog } from '../../helpers/log';
+import { createLog } from '@helpers/log';
 import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 import { usePadContainerEvents } from './usePadContainerEvents';
@@ -31,7 +31,7 @@ export const PadContainer = () => {
 
   return (
     <div className='vo-pad-container flex mt-4 w-full flex-grow bg-slate-500 rounded-lg'>
-      <div className='grid grid-cols-4 landscape:grid-cols-8 gap-4 p-8 w-full h-full'>
+      <div className='grid grid-cols-4 landscape:grid-cols-8 gap-2 p-2 w-full h-full'>
         {pads.map((pad) => (
           <div
             key={`${projectId}-${pad.id}`}

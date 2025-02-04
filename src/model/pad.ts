@@ -1,4 +1,4 @@
-import { roundNumberToDecimalPlaces } from '../helpers/number';
+import { roundNumberToDecimalPlaces } from '@helpers/number';
 import {
   Interval,
   LoopOperation,
