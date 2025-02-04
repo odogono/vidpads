@@ -1,0 +1,260 @@
+{
+  "id": "5022695b",
+  "name": "Me, Myself, And I",
+  "version": "0.1.0",
+  "exportVersion": "1",
+  "pads": [
+    {
+      "id": "a1",
+      "label": "Soul. De La that is",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/zR9AlcgL6_0"
+        },
+        {
+          "type": "trim",
+          "start": 30.59,
+          "end": 82.8
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "label": "Proud, I'm proud of what i am",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/zR9AlcgL6_0"
+        },
+        {
+          "type": "trim",
+          "start": 121.161,
+          "end": 237
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.53
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "label": "Soul. De La that is",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/zR9AlcgL6_0"
+        },
+        {
+          "type": "trim",
+          "start": 19.092,
+          "end": 20.83
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1.22
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "label": "Rapper Dapper Snapper",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/PZ-5G4J8dvM"
+        },
+        {
+          "type": "trim",
+          "start": 0.873,
+          "end": 2.972
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1.08
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "label": "DougE Fresh Beat Box (Loop)",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/zcIpu_M75Cg"
+        },
+        {
+          "type": "trim",
+          "start": 13.612,
+          "end": 18.005
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.46
+            }
+          ]
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1.08
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/khtqLSXDjK0"
+        },
+        {
+          "type": "trim",
+          "start": 2.576,
+          "end": 5.627
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/khtqLSXDjK0"
+        },
+        {
+          "type": "trim",
+          "start": 0.563,
+          "end": 1.532
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 0.98
+        }
+      ]
+    },
+    {
+      "id": "a10",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/W_xMaCVfan8"
+        },
+        {
+          "type": "trim",
+          "start": 128.452,
+          "end": 128.922
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a11",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/kn_RRgsHvOI"
+        },
+        {
+          "type": "trim",
+          "start": 84.856,
+          "end": 186
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sequencer": {
+    "bpm": 60,
+    "startTime": 0,
+    "endTime": 30,
+    "events": {
+      "a3": [
+        [
+          0,
+          25.6
+        ]
+      ],
+      "a1": [
+        [
+          0.066,
+          0.8
+        ],
+        [
+          2.117,
+          0.8
+        ],
+        [
+          4.219,
+          0.8
+        ],
+        [
+          6.35,
+          0.8
+        ],
+        [
+          8.451,
+          0.8
+        ],
+        [
+          10.567,
+          0.8
+        ],
+        [
+          12.625,
+          0.8
+        ],
+        [
+          14.563,
+          0.8
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-02-04T09:35:00Z",
+  "updatedAt": "2025-02-04T21:43:51Z"
+}

@@ -10,7 +10,7 @@ export const FullScreenButton = ({
   return (
     <button
       onClick={() => setIsFullscreen(!isFullscreen)}
-      className='absolute top-4 left-4 bg-gray-800 hover:bg-gray-700 p-2 rounded-md z-20'
+      className='absolute top-16 left-3 bg-gray-800 hover:bg-gray-700 p-2 rounded-md z-20'
     >
       {isFullscreen ? (
         <svg

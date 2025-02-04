@@ -76,10 +76,11 @@ export const importPadFromJSON = ({
 };
 
 export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
-  const { id, label, pipeline } = pad;
+  const { id, pipeline } = pad;
 
   const { operations } = pipeline;
   const source = getPadSourceUrl(pad);
+  const label = getPadLabel(pad);
 
   if (!source) {
     return undefined;
@@ -179,11 +180,11 @@ export const importPadFromURLString = (
 };
 
 export const exportPadToClipboard = (pad: Pad) => {
-  const json = exportPadToJSON(pad);
-  if (!json) {
+  const source = getPadSourceUrl(pad);
+
+  if (!source) {
     return '';
   }
-  const { source } = json;
 
   const data = exportPadToURLString(pad);
 

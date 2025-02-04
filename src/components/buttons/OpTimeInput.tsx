@@ -32,7 +32,7 @@ export const OpTimeInput = ({
   range,
   isEnabled
 }: OpTimeInputProps) => {
-  const { setIsEnabled: setKeyboardEnabled } = useKeyboard();
+  const { isMetaKeyDown, setIsEnabled: setKeyboardEnabled } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
     formatTimeToString(initialValue)
   );
@@ -83,12 +83,15 @@ export const OpTimeInput = ({
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLInputElement>) => {
       if (!isEnabled) return;
+      const isMeta = isMetaKeyDown();
+
+      const increment = isMeta ? 0.001 : 0.01;
 
       const [min, max] = range ? range : [0, 100];
 
       const currentSeconds = formatTimeStringToSeconds(inputValue);
       log.debug('handleWheel', { currentSeconds, min, max, inputValue, range });
-      const delta = e.deltaY < 0 ? 0.01 : -0.01;
+      const delta = e.deltaY < 0 ? increment : -increment;
       const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
       // log.debug('handleWheel', { newValue });
 
@@ -97,7 +100,7 @@ export const OpTimeInput = ({
       onChange?.(newValue);
       (e.target as HTMLInputElement).blur();
     },
-    [isEnabled, range, inputValue, onChange]
+    [isEnabled, isMetaKeyDown, range, inputValue, onChange]
   );
 
   // if (description === 'Start') log.debug('TimeInput', inputValue);

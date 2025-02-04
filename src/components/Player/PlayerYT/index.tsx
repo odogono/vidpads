@@ -11,7 +11,6 @@ import {
   PlayerStop
 } from '../types';
 import { PlayerStateToString } from './helpers';
-import { PlayerState } from './types';
 import { usePlayerYTEvents } from './useEvents';
 import { destroyPlayer, initializePlayer } from './youtube';
 
