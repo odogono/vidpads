@@ -6,7 +6,12 @@ import {
   TrimOperation,
   VolumeOperation
 } from '@model/types';
-import { getPadInterval, getPadSourceUrl, getPadVolume } from '../../pad';
+import {
+  getPadInterval,
+  getPadLabel,
+  getPadSourceUrl,
+  getPadVolume
+} from '../../pad';
 import {
   exportPadToJSON,
   exportPadToURLString,
@@ -144,6 +149,17 @@ describe('pad serialization', () => {
       const imported = importPadFromJSON({ pad, importSource: true });
       expect(getPadSourceUrl(imported)).toBe('https://example.com/video.mp4');
     });
+
+    it('should serialise the label', () => {
+      const pad: Pad = {
+        ...simplePad,
+        label: 'Test Label'
+      };
+
+      const exported = exportPadToJSON(pad);
+      const imported = importPadFromJSON({ pad: exported, importSource: true });
+      expect(imported?.label).toBe('Test Label');
+    });
   });
 
   describe('URL string serialization', () => {
@@ -202,6 +218,23 @@ describe('pad serialization', () => {
 
       const exported = exportPadToURLString(pad);
       expect(exported).toBe('pad1[s:~ydQw4w9WgXcQ');
+    });
+
+    it('should serialise the label', () => {
+      const pad: Pad = {
+        ...simplePad,
+        label: 'Test Label'
+      };
+
+      const exported = exportPadToURLString(pad);
+
+      const importedJson = importPadFromURLString(exported);
+      const imported = importPadFromJSON({
+        pad: importedJson,
+        importSource: true
+      });
+
+      expect(getPadLabel(imported)).toBe('Test Label');
     });
   });
 });

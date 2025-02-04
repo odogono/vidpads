@@ -14,7 +14,6 @@ import { useEvents } from '@helpers/events';
 import { createLog } from '@helpers/log';
 import { MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
-import { usePadLabel } from '@model/hooks/usePadLabel';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { getPadLabel, getPadSourceUrl } from '@model/pad';
 import { useSelectedPadId } from '@model/store/selectors';

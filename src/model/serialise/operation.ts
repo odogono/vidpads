@@ -1,5 +1,6 @@
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import {
+  LabelOperation,
   LoopOperation,
   Operation,
   OperationExport,
@@ -123,7 +124,8 @@ const OperationTypeCodes: Record<OperationType, string> = {
   [OperationType.Resize]: 'r',
   [OperationType.AddEffect]: 'a',
   [OperationType.AddTransition]: 't',
-  [OperationType.Loop]: 'l'
+  [OperationType.Loop]: 'l',
+  [OperationType.Label]: 'b'
 } as const;
 
 export const exportOperationToURL = (
@@ -143,6 +145,11 @@ export const exportOperationToURL = (
     const { url } = operation as SourceOperation;
     const shortUrl = shortenUrl(url);
     return `${code}:${shortUrl}`;
+  }
+
+  if (operation.type === OperationType.Label) {
+    const { label } = operation as LabelOperation;
+    return `${code}:${encodeURIComponent(label)}`;
   }
 
   if (operation.type === OperationType.PlaybackRate) {
@@ -184,6 +191,14 @@ export const importOperationFromURL = (
     } as SourceOperation;
   }
 
+  if (type === OperationTypeCodes[OperationType.Label]) {
+    const [label] = rest;
+    const decodedLabel = decodeURIComponent(label);
+    return {
+      type: OperationType.Label,
+      label: decodedLabel
+    } as LabelOperation;
+  }
   if (type === OperationTypeCodes[OperationType.PlaybackRate]) {
     const [rate] = rest;
     return {

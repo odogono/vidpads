@@ -8,6 +8,7 @@ import {
 import { isYouTubeUrl, isYouTubeVideoId } from '@helpers/youtube';
 import {
   Interval,
+  LabelOperation,
   Operation,
   OperationExport,
   OperationType,
@@ -19,6 +20,7 @@ import {
 import {
   createPad,
   getPadInterval,
+  getPadLabel,
   getPadSourceUrl,
   setPadInterval,
   setPadSource
@@ -61,17 +63,20 @@ export const importPadFromJSON = ({
   };
 
   const source = srcOp ? srcOp.url : pad.source;
+  const { id, label } = pad;
 
   const result = {
-    id: pad.id,
+    id,
     pipeline
   };
 
-  return setPadSource(result, importSource ? source : undefined);
+  const resultWithLabel = label ? { ...result, label } : result;
+
+  return setPadSource(resultWithLabel, importSource ? source : undefined);
 };
 
 export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
-  const { id, pipeline } = pad;
+  const { id, label, pipeline } = pad;
 
   const { operations } = pipeline;
   const source = getPadSourceUrl(pad);
@@ -88,11 +93,14 @@ export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
     ? [{ type: OperationType.Source, url: source }, ...(ops ?? [])]
     : ops;
 
-  return {
-    id,
-    operations: opsWithSource
-  };
-  // return ops && ops?.length > 0 ? { ...result, operations: ops } : result;
+  const result = { id };
+  const resultWithLabel = label ? { ...result, label } : result;
+  const resultWithOps =
+    opsWithSource && opsWithSource?.length > 0
+      ? { ...resultWithLabel, operations: opsWithSource }
+      : resultWithLabel;
+
+  return resultWithOps;
 };
 
 export const exportPadToURLString = (pad: Pad): string | undefined => {
@@ -113,8 +121,16 @@ export const exportPadToURLString = (pad: Pad): string | undefined => {
     ? [{ type: OperationType.Source, url: sourceUrl }, ...(filteredOps ?? [])]
     : filteredOps;
 
+  const label = getPadLabel(pad);
+  const filteredLabelOps = sourceOps?.filter(
+    (op) => op.type !== OperationType.Label
+  );
+  const labelOps = label
+    ? [{ type: OperationType.Label, label }, ...(filteredLabelOps ?? [])]
+    : filteredLabelOps;
+
   const ops =
-    sourceOps?.reduce((acc, op) => {
+    labelOps?.reduce((acc, op) => {
       const url = exportOperationToURL(op);
       if (url) {
         acc.push(url);
@@ -128,11 +144,13 @@ export const exportPadToURLString = (pad: Pad): string | undefined => {
 };
 
 export const importPadFromURLString = (
-  urlString: string
+  urlString?: string
 ): PadExport | undefined => {
-  const [id, opsStr] = urlString.split('[');
+  if (!urlString) {
+    return undefined;
+  }
 
-  // const source = decodeURIComponent(sourceStr);
+  const [id, opsStr] = urlString.split('[');
 
   log.debug('[importPadFromURLString] opsStr:', { id, opsStr });
 
@@ -141,20 +159,23 @@ export const importPadFromURLString = (
     .map(importOperationFromURL)
     .filter(Boolean) as OperationExport[];
 
+  const labelOp = ops.find((op) => op.type === OperationType.Label);
+  const filteredOps = ops.filter((op) => op.type !== OperationType.Label);
+
+  const label = (labelOp as LabelOperation | undefined)?.label;
+
   // const source = ops.find((op) => op.type === OperationType.Source);
   // const sourceUrl = (source as SourceOperation | undefined)?.url;
   // const filteredOps = source
   //   ? ops.filter((op) => op.type !== OperationType.Source)
   //   : ops;
 
-  return {
+  const result = {
     id,
-    operations: ops
+    operations: filteredOps
   };
 
-  // return filteredOps.length > 0
-  //   ? { ...result, operations: filteredOps }
-  //   : result;
+  return label ? { ...result, label } : result;
 };
 
 export const exportPadToClipboard = (pad: Pad) => {
