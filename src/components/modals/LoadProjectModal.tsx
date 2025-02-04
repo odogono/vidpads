@@ -34,6 +34,8 @@ export interface LoadProjectModalProps {
   ref: React.RefObject<LoadProjectModalRef | null>;
 }
 
+// TODO convert to CommonModal
+
 export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
   const { isOpen, onOpen, onClose } = useModalState();
   const { getAllProjectDetails, loadProject } = useProjects();

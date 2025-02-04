@@ -72,7 +72,7 @@ export const formatTimeToString = (timeInSeconds: number) => {
 
 export const formatTimeStringToSeconds = (timeString: string) => {
   if (!timeString) {
-    // todo: get rid of throwing errors
+    // TODO get rid of throwing errors
     throw new Error('Invalid time string');
   }
   // try and parse just as a number first
@@ -116,4 +116,17 @@ export const formatTimeStringToSeconds = (timeString: string) => {
   }
 
   return totalSeconds;
+};
+
+/**
+ * Waits for a given number of milliseconds
+ * @param time Number of milliseconds to wait
+ * @returns Promise that resolves after the given time
+ */
+export const wait = async (time: number = 1000): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
 };

@@ -111,7 +111,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       if (!player) return;
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
-      // todo - implement better controll of this property
+      // TODO implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
       // and then set it to true again after the seek is complete
       const allowSeekAhead = !inProgress;
@@ -123,7 +123,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         });
         player.seekTo(time, allowSeekAhead);
       } catch {
-        // todo - caused by another play request coming in while the player is still loading
+        // TODO caused by another play request coming in while the player is still loading
         log.debug('[seekVideo] ⚠️ error seeking video');
         log.debug('[seekVideo] state', {
           player,

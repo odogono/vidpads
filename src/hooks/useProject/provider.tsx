@@ -6,6 +6,7 @@ import { useRouter } from '@/hooks/useProject/useRouter';
 import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
+import { wait } from '@helpers/time';
 import { VOKeys } from '@model/constants';
 import {
   getAllProjectDetails as dbGetAllProjectDetails,
@@ -13,11 +14,11 @@ import {
   saveProjectState as dbSaveProjectState,
   isIndexedDBSupported
 } from '@model/db/api';
+import { usePadOperations } from '@model/hooks/usePadOperations';
+import { getPadSourceUrl } from '@model/pad';
 import { createStore } from '@model/store/store';
 import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { usePadOperations } from '../../model/hooks/usePadOperations';
-import { getPadSourceUrl } from '../../model/pad';
 import { ProjectContext } from './context';
 
 const log = createLog('useProject/provider');
@@ -84,18 +85,6 @@ export const ProjectProvider = ({
             .filter(Boolean)
         );
 
-        // snapshot.context.pads.forEach((pad) => {
-        //   const url = getPadSourceUrl(pad);
-
-        //   if (url)
-        //     log.debug('F adding url to pad', {
-        //       url,
-        //       padId: pad.id
-        //     });
-
-        //   if (url) addUrlToPad({ url, padId: pad.id, projectId });
-        // });
-
         invalidateQueryKeys(queryClient, [
           [...VOKeys.allPads()],
           [...VOKeys.allMetadata()],
@@ -152,12 +141,4 @@ export const ProjectProvider = ({
       {children}
     </ProjectContext.Provider>
   );
-};
-
-const wait = async (time: number = 1000): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, time);
-  });
 };

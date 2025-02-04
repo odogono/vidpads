@@ -73,7 +73,7 @@ export const useControlsEvents = ({
 
       if (start === 0 && end === -1) return;
 
-      // todo: this shouldn't be done here
+      // TODO this shouldn't be done here
       await applyPadTrimOperation({
         pad,
         start,

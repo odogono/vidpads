@@ -3,8 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
-import { usePad } from '@model/hooks/usePad';
-import { Card, CardHeader, cn } from '@nextui-org/react';
+import { cn } from '@nextui-org/react';
 import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
@@ -15,7 +14,7 @@ import { ControlsLoading } from './loading';
 
 export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const { selectedPadId } = usePad();
+  // const { selectedPadId } = usePad();
   // const [selectedPane, setSelectedPane] = useState<PaneState>('details');
 
   const { selectedControlPane, goToPreviousControlPane, goToNextControlPane } =
