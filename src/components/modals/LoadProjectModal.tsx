@@ -2,7 +2,7 @@
 
 import { useCallback, useImperativeHandle, useMemo, useState } from 'react';
 
-import { formatTimeAgo } from '@helpers/datetime';
+import { formatTimeAgo, getUnixTimeFromDate } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
 import {
@@ -78,8 +78,8 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
     if (projectDetails) {
       projectDetails.sort((a, b) => {
         return (
-          new Date(b.updatedAt ?? '').getTime() -
-          new Date(a.updatedAt ?? '').getTime()
+          getUnixTimeFromDate(b.updatedAt ?? '') -
+          getUnixTimeFromDate(a.updatedAt ?? '')
         );
       });
     }
@@ -143,9 +143,7 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
                   {(item) => (
                     <TableRow key={item.projectId}>
                       <TableCell>{item.projectName}</TableCell>
-                      <TableCell>
-                        {formatTimeAgo(new Date(item.updatedAt ?? ''))}
-                      </TableCell>
+                      <TableCell>{formatTimeAgo(item.updatedAt)}</TableCell>
                     </TableRow>
                   )}
                 </TableBody>

@@ -25,6 +25,7 @@ import {
 } from '@model/serialise/store';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { dateToISOString } from '../../helpers/datetime';
 import { createStore } from '../store/store';
 import { StoreContextType } from '../store/types';
 import { usePadOperations } from './usePadOperations';
@@ -149,7 +150,7 @@ export const useProjects = () => {
       const saveData: StoreContextType = {
         ...data,
         projectName,
-        updatedAt: new Date().toISOString()
+        updatedAt: dateToISOString()
       };
 
       log.debug('Saving project:', data);

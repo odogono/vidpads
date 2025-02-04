@@ -123,19 +123,19 @@ describe('pad serialization', () => {
   describe('URL string serialization', () => {
     it('should export a simple pad to URL string', () => {
       const exported = exportPadToURLString(simplePad);
-      expect(exported).toBe('pad1[https%3A%2F%2Fexample.com%2Fvideo.mp4[');
+      expect(exported).toBe('pad1[s:~sexample.com%2Fvideo.mp4');
     });
 
     it('should export a complex pad to URL string', () => {
       const exported = exportPadToURLString(complexPad);
       expect(exported).toBe(
-        'pad2[https%3A%2F%2Fexample.com%2Fvideo.mp4[t:0:10+v:0:1:5:0.5'
+        // 'pad2[https%3A%2F%2Fexample.com%2Fvideo.mp4[t:0:10+v:0:1:5:0.5'
+        'pad2[s:~sexample.com%2Fvideo.mp4+t:0:10+v:0:1:5:0.5'
       );
     });
 
     it('should import a pad from URL string', () => {
-      const urlString =
-        'pad1[https%3A%2F%2Fexample.com%2Fvideo.mp4[t:0:10+v:0:1:5:0.5';
+      const urlString = 'pad1[s:~sexample.com%2Fvideo.mp4+t:0:10+v:0:1:5:0.5';
       const imported = importPadFromURLString(urlString);
       expect(imported).toEqual({
         id: 'pad1',
@@ -155,6 +155,22 @@ describe('pad serialization', () => {
           }
         ]
       });
+    });
+
+    it('should export a pad with a shortened YT url', () => {
+      const pad: Pad = {
+        ...simplePad,
+        pipeline: {
+          ...simplePad.pipeline,
+          source: {
+            type: OperationType.Source,
+            url: 'https://youtu.be/dQw4w9WgXcQ'
+          }
+        }
+      };
+
+      const exported = exportPadToURLString(pad);
+      expect(exported).toBe('pad1[s:~ydQw4w9WgXcQ');
     });
   });
 });

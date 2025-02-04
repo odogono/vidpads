@@ -5,16 +5,26 @@ import {
   OperationExport,
   OperationType,
   PlaybackRateOperation,
+  SourceOperation,
   TrimOperation,
   VolumeKeyPoint,
   VolumeOperation
 } from '@model/types';
+import { expandUrl, shortenUrl } from './helpers';
 
 export const exportOperationToJSON = (
   operation: Operation | undefined
 ): OperationExport | undefined => {
   if (!operation) {
     return undefined;
+  }
+
+  if (operation.type === OperationType.Source) {
+    const { url } = operation as SourceOperation;
+    return {
+      type: operation.type,
+      url: url
+    } as SourceOperation;
   }
 
   if (operation.type === OperationType.PlaybackRate) {
@@ -61,6 +71,14 @@ export const importOperationFromJSON = (
 ): Operation | undefined => {
   if (!operation) {
     return undefined;
+  }
+
+  if (operation.type === OperationType.Source) {
+    const { url } = operation as SourceOperation;
+    return {
+      type: operation.type,
+      url: url
+    } as SourceOperation;
   }
 
   if (operation.type === OperationType.PlaybackRate) {
@@ -121,6 +139,12 @@ export const exportOperationToURL = (
     return '';
   }
 
+  if (operation.type === OperationType.Source) {
+    const { url } = operation as SourceOperation;
+    const shortUrl = shortenUrl(url);
+    return `${code}:${shortUrl}`;
+  }
+
   if (operation.type === OperationType.PlaybackRate) {
     const { rate } = operation as PlaybackRateOperation;
     return `${code}:${roundDP(rate)}`;
@@ -150,6 +174,15 @@ export const importOperationFromURL = (
   urlString: string
 ): OperationExport | undefined => {
   const [type, ...rest] = urlString.split(':');
+
+  if (type === OperationTypeCodes[OperationType.Source]) {
+    const [url] = rest;
+    const expandedUrl = expandUrl(url);
+    return {
+      type: OperationType.Source,
+      url: expandedUrl
+    } as SourceOperation;
+  }
 
   if (type === OperationTypeCodes[OperationType.PlaybackRate]) {
     const [rate] = rest;

@@ -8,43 +8,43 @@ import {
 
 describe('doEventsIntersect', () => {
   it('should return false for events with different padIds', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '2', time: 2, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '2', time: 2, duration: 4 };
 
     expect(doEventsIntersect(evtA, evtB)).toBe(false);
   });
 
   it('should return true when events overlap in the middle', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 2, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 2, duration: 4 };
 
     expect(doEventsIntersect(evtA, evtB)).toBe(true);
   });
 
   it('should return true when events touch at endpoints', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 4, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 4, duration: 4 };
 
     expect(doEventsIntersect(evtA, evtB)).toBe(true);
   });
 
   it('should return false when events do not overlap', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 5, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 5, duration: 4 };
 
     expect(doEventsIntersect(evtA, evtB)).toBe(false);
   });
 
   it('should return true when one event contains another', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 8 };
-    const evtB: SequencerEvent = { padId: '1', time: 2, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 8 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 2, duration: 4 };
 
     expect(doEventsIntersect(evtA, evtB)).toBe(true);
   });
 
   it('should handle events in reverse order', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 4, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 0, duration: 6 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 4, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 0, duration: 6 };
 
     expect(doEventsIntersect(evtA, evtB)).toBe(true);
   });
@@ -52,11 +52,12 @@ describe('doEventsIntersect', () => {
 
 describe('joinEvents', () => {
   it('should join two adjacent events', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 4, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 4, duration: 4 };
 
     const result = joinEvents(evtA, evtB);
     expect(result).toEqual({
+      id: 0,
       padId: '1',
       time: 0,
       duration: 8
@@ -64,11 +65,12 @@ describe('joinEvents', () => {
   });
 
   it('should join two overlapping events', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 6 };
-    const evtB: SequencerEvent = { padId: '1', time: 4, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 6 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 4, duration: 4 };
 
     const result = joinEvents(evtA, evtB);
     expect(result).toEqual({
+      id: 1,
       padId: '1',
       time: 0,
       duration: 8
@@ -76,11 +78,12 @@ describe('joinEvents', () => {
   });
 
   it('should handle events in reverse order', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 4, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 0, duration: 6 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 4, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 0, duration: 6 };
 
     const result = joinEvents(evtA, evtB);
     expect(result).toEqual({
+      id: 2,
       padId: '1',
       time: 0,
       duration: 8
@@ -88,11 +91,12 @@ describe('joinEvents', () => {
   });
 
   it('should join when one event contains another', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 8 };
-    const evtB: SequencerEvent = { padId: '1', time: 2, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 8 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 2, duration: 4 };
 
     const result = joinEvents(evtA, evtB);
     expect(result).toEqual({
+      id: 3,
       padId: '1',
       time: 0,
       duration: 8
@@ -100,11 +104,12 @@ describe('joinEvents', () => {
   });
 
   it('should preserve padId from earlier event', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 2, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 2, duration: 4 };
 
     const result = joinEvents(evtA, evtB);
     expect(result).toEqual({
+      id: 4,
       padId: '1',
       time: 0,
       duration: 6
@@ -112,11 +117,12 @@ describe('joinEvents', () => {
   });
 
   it('should handle events with gap between them', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '1', time: 6, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 6, duration: 4 };
 
     const result = joinEvents(evtA, evtB);
     expect(result).toEqual({
+      id: 5,
       padId: '1',
       time: 0,
       duration: 10
@@ -124,20 +130,20 @@ describe('joinEvents', () => {
   });
 
   it('should return the first event when joining events with different padIds', () => {
-    const evtA: SequencerEvent = { padId: '1', time: 0, duration: 4 };
-    const evtB: SequencerEvent = { padId: '2', time: 2, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 2, padId: '2', time: 2, duration: 4 };
 
     const result = joinEvents(evtA, evtB);
-    expect(result).toEqual(evtA);
+    expect(result).toEqual({ ...evtA, id: 6 });
   });
 });
 
 describe('getIntersectingEvents', () => {
   const events: SequencerEvent[] = [
-    { padId: '1', time: 0, duration: 4 }, // 0-4
-    { padId: '2', time: 2, duration: 4 }, // 2-6
-    { padId: '3', time: 8, duration: 4 }, // 8-12
-    { padId: '4', time: 10, duration: 2 } // 10-12
+    { id: 1, padId: '1', time: 0, duration: 4 }, // 0-4
+    { id: 2, padId: '2', time: 2, duration: 4 }, // 2-6
+    { id: 3, padId: '3', time: 8, duration: 4 }, // 8-12
+    { id: 4, padId: '4', time: 10, duration: 2 } // 10-12
   ];
 
   it('should find events that overlap with start of range for specific padIds', () => {
@@ -198,8 +204,8 @@ describe('getIntersectingEvents', () => {
 describe('mergeEvents', () => {
   it('should merge events', () => {
     const events = [
-      { padId: '1', time: 0, duration: 4 },
-      { padId: '2', time: 2, duration: 4 }
+      { id: 1, padId: '1', time: 0, duration: 4 },
+      { id: 2, padId: '2', time: 2, duration: 4 }
     ];
 
     const result = mergeEvents(...events);
@@ -210,8 +216,8 @@ describe('mergeEvents', () => {
 
   it('should merge identical events', () => {
     const events = [
-      { padId: '1', time: 0, duration: 4 },
-      { padId: '1', time: 0, duration: 4 }
+      { id: 1, padId: '1', time: 0, duration: 4 },
+      { id: 1, padId: '1', time: 0, duration: 4 }
     ];
 
     const result = mergeEvents(...events);

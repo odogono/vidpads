@@ -1,17 +1,26 @@
 // import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
-import { StoreType } from '@model/store/types';
+import { StoreContext, StoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
 import { version as appVersion } from '../../../package.json';
+import {
+  dateToISOString,
+  getDateFromUnixTime,
+  getUnixTimeFromDate
+} from '../../helpers/datetime';
 import { safeParseInt } from '../../helpers/number';
+import { addOrReplacePad } from '../store/actions/helpers';
+import { initialContext } from '../store/store';
 import {
   exportPadToJSON,
   exportPadToURLString,
+  importPadFromJSON,
   importPadFromURLString
 } from './pad';
 import {
   exportSequencerToJSON,
   exportSequencerToURLString,
+  importSequencerFromJSON,
   importSequencerFromURLString
 } from './sequencer';
 
@@ -42,8 +51,8 @@ export const exportToJSON = (store: StoreType): ProjectExport => {
     exportVersion: `${EXPORT_JSON_VERSION}`,
     pads: padsJSON,
     sequencer: sequencerJSON,
-    createdAt: createdAt ?? new Date().toISOString(),
-    updatedAt: updatedAt ?? new Date().toISOString()
+    createdAt: createdAt ?? dateToISOString(),
+    updatedAt: updatedAt ?? dateToISOString()
   } as ProjectExport;
 };
 
@@ -62,13 +71,13 @@ export const exportToURLString = (store: StoreType) => {
 
   const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
 
-  const createTimeMs = createdAt ? new Date(createdAt).getTime() : 0;
-  const updateTimeMs = updatedAt ? new Date(updatedAt).getTime() : 0;
+  const createTimeSecs = getUnixTimeFromDate(createdAt);
+  const updateTimeSecs = getUnixTimeFromDate(updatedAt);
 
   // base64 encode the project name
   const projectNameBase64 = projectName ? encodeURIComponent(projectName) : '';
 
-  let result = `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeMs}|${updateTimeMs}`;
+  let result = `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeSecs}|${updateTimeSecs}`;
 
   if (padsURL.length > 0) {
     result += `|${padsURL.join('(')}`;
@@ -83,13 +92,46 @@ export const exportToURLString = (store: StoreType) => {
   return result;
 };
 
+export const importProjectExport = (data: ProjectExport): StoreContext => {
+  const pads = data.pads
+    .map((pad) => importPadFromJSON({ pad, options: { importSource: true } }))
+    .filter(Boolean);
+
+  const newContext: StoreContext = {
+    ...initialContext,
+    projectId: data.id ?? generateShortUUID(),
+    projectName: data.name ?? 'Untitled',
+    selectedPadId: undefined,
+    createdAt: data.createdAt ?? dateToISOString(),
+    updatedAt: data.updatedAt ?? dateToISOString()
+  };
+
+  const sequencer = data.sequencer
+    ? importSequencerFromJSON(data.sequencer)
+    : undefined;
+
+  const contextWithSequencer = sequencer
+    ? {
+        ...newContext,
+        sequencer
+      }
+    : newContext;
+
+  return pads.reduce((acc, pad) => {
+    if (pad) {
+      return addOrReplacePad(acc, pad);
+    }
+    return acc;
+  }, contextWithSequencer);
+};
+
 export const urlStringToProject = (urlString: string) => {
   const [
     version,
     projectId,
     projectNameBase64,
-    createTimeMs,
-    updateTimeMs,
+    createTimeSecs,
+    updateTimeSecs,
     padsURL,
     sequencerURL
   ] = urlString.split('|');
@@ -98,8 +140,8 @@ export const urlStringToProject = (urlString: string) => {
     throw new Error(`Unsupported export version: ${version}`);
   }
 
-  const createdAt = new Date(safeParseInt(createTimeMs));
-  const updatedAt = new Date(safeParseInt(updateTimeMs));
+  const createdAt = getDateFromUnixTime(createTimeSecs);
+  const updatedAt = getDateFromUnixTime(updateTimeSecs);
 
   const projectName = decodeURIComponent(projectNameBase64);
 
@@ -116,8 +158,8 @@ export const urlStringToProject = (urlString: string) => {
     id: projectId,
     name: projectName,
     exportVersion: `${version}`,
-    createdAt: createdAt.toISOString(),
-    updatedAt: updatedAt.toISOString(),
+    createdAt: dateToISOString(createdAt),
+    updatedAt: dateToISOString(updatedAt),
     pads,
     sequencer
   } as ProjectExport;
