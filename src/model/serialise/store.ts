@@ -75,7 +75,9 @@ export const exportToURLString = (store: StoreType) => {
   const updateTimeSecs = getUnixTimeFromDate(updatedAt);
 
   // base64 encode the project name
-  const projectNameBase64 = projectName ? encodeURIComponent(projectName) : '';
+  const projectNameBase64 = projectName
+    ? btoa(encodeURIComponent(projectName))
+    : '';
 
   let result = `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeSecs}|${updateTimeSecs}`;
 
@@ -143,7 +145,7 @@ export const urlStringToProject = (urlString: string) => {
   const createdAt = getDateFromUnixTime(createTimeSecs);
   const updatedAt = getDateFromUnixTime(updateTimeSecs);
 
-  const projectName = decodeURIComponent(projectNameBase64);
+  const projectName = decodeURIComponent(atob(projectNameBase64));
 
   const pads = padsURL
     .split('(')

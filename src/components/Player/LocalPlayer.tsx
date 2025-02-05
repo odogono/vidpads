@@ -90,16 +90,19 @@ export const LocalPlayer = ({
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
 
+      // save the event so we can emit it later
       playEventRef.current = { ...props };
+
+      const video = videoRef.current;
 
       if (isPlayingRef.current && isLoopedRef.current) {
         stopTimeTracking();
-        videoRef.current.pause();
+        video.pause();
         isPlayingRef.current = false;
         return;
       }
 
-      const currentTime = videoRef.current?.currentTime ?? 0;
+      const currentTime = video.currentTime;
       const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
       const endTime =
         (end ?? Number.MAX_SAFE_INTEGER) === -1
@@ -122,35 +125,31 @@ export const LocalPlayer = ({
       endTimeRef.current = endTime;
       isLoopedRef.current = isLoop ?? false;
 
-      videoRef.current.playbackRate = playbackRate ?? 1;
-      videoRef.current.volume = volume ?? 1;
+      video.playbackRate = playbackRate ?? 1;
+      video.volume = volume ?? 1;
 
       if (isResume) {
         if (currentTime < startTime || currentTime > endTime) {
-          videoRef.current.currentTime = startTime;
+          video.currentTime = startTime;
         }
       } else {
-        videoRef.current.currentTime = startTime;
+        video.currentTime = startTime;
       }
 
-      log.debug(
-        'playVideo',
-        'waiting for sufficient buffer',
-        videoRef.current?.readyState
-      );
+      log.debug('playVideo', 'waiting for sufficient buffer', video.readyState);
       // Wait for sufficient buffer
       await new Promise((resolve) => {
-        if (videoRef.current?.readyState >= 3) {
+        if (video.readyState >= 3) {
           resolve(void 0);
         } else {
-          videoRef.current?.addEventListener('canplay', resolve, {
+          video.addEventListener('canplay', resolve, {
             once: true
           });
         }
       });
 
       isPlayingRef.current = true;
-      videoRef.current.play();
+      video.play();
       startTimeTracking();
     },
     [mediaUrl, playerPadId, startTimeTracking, stopTimeTracking]

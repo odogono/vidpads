@@ -210,12 +210,24 @@ export const PadComponent = ({
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
           ${isReady ? 'opacity-100' : 'opacity-20'}
         `}
-      style={{ touchAction: 'none', WebkitTouchCallout: 'none' }}
+      style={{
+        touchAction: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        // Add these properties to prevent magnifying glass
+        WebkitTapHighlightColor: 'transparent',
+        // Prevent text selection and callouts
+        userSelect: 'none'
+        // Prevent touch callout
+        // touchCallout: 'none'
+      }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onContextMenu={handleContextMenu}
-      {...dragProps}
+      // Also add this attribute to prevent text selection
+      suppressContentEditableWarning={true}
+      // {...dragProps}
     >
       {thumbnail && (
         <div className='w-full h-full absolute inset-0 rounded-lg'>

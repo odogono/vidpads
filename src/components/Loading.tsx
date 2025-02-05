@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { Container } from '@components/Container';
 import { createLog } from '@helpers/log';
 
-const log = createLog('Loading');
+const log = createLog('Loading', ['debug']);
 
 export const LoadingContainer = ({
   message = 'Loading ...'
