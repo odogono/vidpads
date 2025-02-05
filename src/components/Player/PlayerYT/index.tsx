@@ -50,6 +50,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         (end ?? Number.MAX_SAFE_INTEGER) === -1
           ? Number.MAX_SAFE_INTEGER
           : (end ?? Number.MAX_SAFE_INTEGER);
+      const currentTime = player.getCurrentTime();
 
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
@@ -74,7 +75,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       }
 
       if (isResume) {
-        if (player.getCurrentTime() > endTime) {
+        if (currentTime < startTime || currentTime > endTime) {
           player.seekTo(startTime, true);
         }
       } else {
@@ -82,7 +83,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       }
       player.playVideo();
 
-      return [player.getCurrentTime(), player.getDuration()] as PlayerReturn;
+      return [currentTime, player.getDuration()] as PlayerReturn;
     },
     [mediaUrl, playerPadId]
   );
