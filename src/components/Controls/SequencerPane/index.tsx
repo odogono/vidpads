@@ -158,11 +158,6 @@ export const SequencerPane = () => {
           value={`${endTime}`}
           onChange={(value: string) => setEndTime(Number(value))}
         />
-        <OpInput
-          label='BPM'
-          value={`${bpm}`}
-          onChange={(value: string) => setBpm(Number(value))}
-        />
         <OpTimeInput
           ref={timeRef}
           label='Time'

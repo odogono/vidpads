@@ -126,7 +126,7 @@ export const LocalPlayer = ({
       videoRef.current.volume = volume ?? 1;
 
       if (isResume) {
-        if (currentTime > endTime) {
+        if (currentTime < startTime || currentTime > endTime) {
           videoRef.current.currentTime = startTime;
         }
       } else {
