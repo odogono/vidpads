@@ -165,6 +165,18 @@ export type SetPadSelectSourceEnabledAction = {
   isEnabled: boolean;
 };
 
+export type SetPadChokeGroupAction = {
+  type: 'setPadChokeGroup';
+  padId: string;
+  group: number;
+};
+
+export type SetPadPlayPriorityAction = {
+  type: 'setPadPlayPriority';
+  padId: string;
+  priority: number;
+};
+
 export type ApplyPadAction = {
   type: 'applyPad';
   pad: Pad;
@@ -280,7 +292,9 @@ export type Actions =
   | SetSequencerEndTimeAction
   | SetSelectedEventsTimeAction
   | SetSelectedEventsDurationAction
-  | SetPadLabelAction;
+  | SetPadLabelAction
+  | SetPadChokeGroupAction
+  | SetPadPlayPriorityAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

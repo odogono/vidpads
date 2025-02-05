@@ -27,7 +27,9 @@ export const OperationType = {
   Volume: 'volume',
   PlaybackRate: 'playbackRate',
   Loop: 'loop',
-  Label: 'label'
+  Label: 'label',
+  ChokeGroup: 'chokeGroup',
+  PlayPriority: 'playPriority'
 } as const;
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
@@ -70,6 +72,16 @@ export type VolumeKeyPoint = {
   time: number;
   value: number;
 };
+
+export interface ChokeGroupOperation extends Operation {
+  type: typeof OperationType.ChokeGroup;
+  group: number;
+}
+
+export interface PlayPriorityOperation extends Operation {
+  type: typeof OperationType.PlayPriority;
+  priority: number;
+}
 
 export interface VolumeOperation extends Operation {
   type: typeof OperationType.Volume;
@@ -158,6 +170,8 @@ export interface PadExport {
   id: string;
   label?: string | undefined;
   source?: string | undefined;
+  playPriority?: number | undefined;
+  chokeGroup?: number | undefined;
   operations?: OperationExport[] | undefined;
 }
 

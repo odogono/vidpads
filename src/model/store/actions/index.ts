@@ -40,6 +40,9 @@ export { setSequencerBpm } from './setSequencerBpm';
 export { setShowMode } from './setShowMode';
 export { updateProject } from './updateProject';
 export { setPadLabel } from './setPadLabel';
+export { setPadChokeGroup } from './setPadChokeGroup';
+export { setPadPlayPriority } from './setPadPlayPriority';
+
 export const setPadIsOneShot = (
   context: StoreContext,
   event: SetPadIsOneShotAction

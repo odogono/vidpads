@@ -9,7 +9,13 @@ import {
 } from '@model/serialise/store';
 import { initialContext } from '@model/store/store';
 import { StoreContextType, StoreType } from '@model/store/types';
-import { OperationType, Pad, ProjectExport, TrimOperation } from '@model/types';
+import {
+  OperationType,
+  Pad,
+  ProjectExport,
+  SourceOperation,
+  TrimOperation
+} from '@model/types';
 import { getPadInterval, getPadSourceUrl } from '../../pad';
 import {
   exportPadToJSON,
@@ -135,11 +141,11 @@ describe('exportPadToURLString', () => {
     const pad: Pad = {
       id: 'pad1',
       pipeline: {
-        source: {
-          type: OperationType.Source,
-          url: 'odgn-vo://media/vid2'
-        },
         operations: [
+          {
+            type: OperationType.Source,
+            url: 'odgn-vo://media/vid2'
+          } as SourceOperation,
           {
             type: OperationType.Trim,
             start: 1.23,
@@ -149,14 +155,23 @@ describe('exportPadToURLString', () => {
       }
     };
 
-    const json = exportPadToJSON(pad);
+    // const json = exportPadToJSON(pad);
 
     const exported = exportPadToURLString(pad);
 
     const imported = importPadFromURLString(exported!);
 
-    expect(imported).toEqual(json);
-
+    expect(imported).toEqual({
+      id: 'pad1',
+      source: 'odgn-vo://media/vid2',
+      operations: [
+        {
+          type: OperationType.Trim,
+          start: 1.23,
+          end: 4.56
+        } as TrimOperation
+      ]
+    });
     // log.debug(JSON.stringify(imported, null, 2));
   });
 });

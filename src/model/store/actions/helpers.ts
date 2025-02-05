@@ -9,7 +9,7 @@ export const findPadById = (
 
 export const addOrReplacePad = (
   context: StoreContext,
-  pad?: Pad
+  pad?: Pad | undefined
 ): StoreContext => {
   if (!pad) return context;
 

@@ -1,10 +1,12 @@
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import {
+  ChokeGroupOperation,
   LabelOperation,
   LoopOperation,
   Operation,
   OperationExport,
   OperationType,
+  PlayPriorityOperation,
   PlaybackRateOperation,
   SourceOperation,
   TrimOperation,
@@ -58,12 +60,36 @@ export const exportOperationToJSON = (
 
   if (operation.type === OperationType.Loop) {
     const { start } = operation as LoopOperation;
+    if (start === undefined || start === -1) {
+      return undefined;
+    }
     return {
       type: operation.type,
       start: roundDP(start)
     } as LoopOperation;
   }
 
+  if (operation.type === OperationType.ChokeGroup) {
+    const { group } = operation as ChokeGroupOperation;
+    if (group === undefined) {
+      return undefined;
+    }
+    return {
+      type: operation.type,
+      group: group
+    } as ChokeGroupOperation;
+  }
+
+  if (operation.type === OperationType.PlayPriority) {
+    const { priority } = operation as PlayPriorityOperation;
+    if (priority === undefined) {
+      return undefined;
+    }
+    return {
+      type: operation.type,
+      priority: priority
+    } as PlayPriorityOperation;
+  }
   return undefined;
 };
 
@@ -112,6 +138,19 @@ export const importOperationFromJSON = (
     return { type: OperationType.Loop, start } as LoopOperation;
   }
 
+  if (operation.type === OperationType.ChokeGroup) {
+    const { group } = operation as ChokeGroupOperation;
+    return { type: OperationType.ChokeGroup, group } as ChokeGroupOperation;
+  }
+
+  if (operation.type === OperationType.PlayPriority) {
+    const { priority } = operation as PlayPriorityOperation;
+    return {
+      type: OperationType.PlayPriority,
+      priority
+    } as PlayPriorityOperation;
+  }
+
   return undefined;
 };
 
@@ -125,7 +164,9 @@ const OperationTypeCodes: Record<OperationType, string> = {
   [OperationType.AddEffect]: 'a',
   [OperationType.AddTransition]: 't',
   [OperationType.Loop]: 'l',
-  [OperationType.Label]: 'b'
+  [OperationType.Label]: 'b',
+  [OperationType.ChokeGroup]: 'c',
+  [OperationType.PlayPriority]: 'p'
 } as const;
 
 export const exportOperationToURL = (
@@ -171,7 +212,23 @@ export const exportOperationToURL = (
 
   if (operation.type === OperationType.Loop) {
     const { start } = operation as LoopOperation;
-    return `${code}:${roundDP(start)}`;
+    if (start !== undefined && start !== -1) {
+      return `${code}:${roundDP(start)}`;
+    }
+  }
+
+  if (operation.type === OperationType.ChokeGroup) {
+    const { group } = operation as ChokeGroupOperation;
+    if (group !== undefined) {
+      return `${code}:${group}`;
+    }
+  }
+
+  if (operation.type === OperationType.PlayPriority) {
+    const { priority } = operation as PlayPriorityOperation;
+    if (priority !== undefined) {
+      return `${code}:${priority}`;
+    }
   }
 
   return '';
@@ -223,6 +280,22 @@ export const importOperationFromURL = (
       type: OperationType.Loop,
       start: parseFloat(start)
     } as LoopOperation;
+  }
+
+  if (type === OperationTypeCodes[OperationType.ChokeGroup]) {
+    const [group] = rest;
+    return {
+      type: OperationType.ChokeGroup,
+      group: parseInt(group)
+    } as ChokeGroupOperation;
+  }
+
+  if (type === OperationTypeCodes[OperationType.PlayPriority]) {
+    const [priority] = rest;
+    return {
+      type: OperationType.PlayPriority,
+      priority: parseInt(priority)
+    } as PlayPriorityOperation;
   }
 
   if (type === OperationTypeCodes[OperationType.Volume]) {
