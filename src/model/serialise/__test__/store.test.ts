@@ -18,7 +18,6 @@ import {
 } from '@model/types';
 import { getPadInterval, getPadSourceUrl } from '../../pad';
 import {
-  exportPadToJSON,
   exportPadToURLString,
   importPadFromJSON,
   importPadFromURLString

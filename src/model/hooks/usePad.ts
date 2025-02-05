@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
-import { getPadLabel, getPadSourceUrl } from '../pad';
+import { getPadIsOneShot, getPadLabel, getPadSourceUrl } from '../pad';
 
 export type UsePadResult = ReturnType<typeof usePad>;
 
@@ -108,7 +108,7 @@ export const usePad = (padId?: string) => {
 
   const padLabel = getPadLabel(pad);
 
-  const isPadOneShot = pad?.isOneShot;
+  const isPadOneShot = getPadIsOneShot(pad);
 
   return {
     isPadOneShot,

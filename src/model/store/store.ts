@@ -1,7 +1,7 @@
 import { createDate, dateToISOString } from '@helpers/datetime';
 import { generateShortUUID } from '@helpers/uuid';
+import { createPad } from '@model/pad';
 import { createStore as createXstateStore } from '@xstate/store';
-import { createPad } from '../pad';
 import * as actions from './actions';
 import type {
   Actions,

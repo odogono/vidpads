@@ -1,5 +1,6 @@
 import {
   OperationType,
+  PlaybackOperation,
   SourceOperation,
   TrimOperation,
   VolumeOperation
@@ -49,6 +50,38 @@ describe('Operation serialization', () => {
 
       expect(exported).toEqual(volumeOperation);
       expect(imported).toEqual(volumeOperation);
+    });
+
+    describe('playback operations', () => {
+      it('should handle playback operations', () => {
+        const playbackOperation: PlaybackOperation = {
+          type: OperationType.Playback,
+          isOneShot: true,
+          resume: true,
+          priority: 1,
+          chokeGroup: 1
+        };
+
+        const exported = exportOperationToJSON(playbackOperation);
+        const imported = importOperationFromJSON(exported);
+
+        expect(exported).toEqual(playbackOperation);
+        expect(imported).toEqual(playbackOperation);
+      });
+
+      it('should handle undefined playback operations', () => {
+        const playbackOperation: PlaybackOperation = {
+          type: OperationType.Playback,
+          isOneShot: true,
+          resume: true
+        };
+
+        const exported = exportOperationToJSON(playbackOperation);
+        const imported = importOperationFromJSON(exported);
+
+        expect(exported).toEqual(playbackOperation);
+        expect(imported).toEqual(playbackOperation);
+      });
     });
 
     it('should handle unknown operation types', () => {
@@ -130,6 +163,38 @@ describe('Operation serialization', () => {
 
         expect(exported).toBe('v:');
         expect(imported).toEqual(volumeOperation);
+      });
+    });
+
+    describe('playback operations', () => {
+      it('should serialize and deserialize playback operations', () => {
+        const playbackOperation: PlaybackOperation = {
+          type: OperationType.Playback,
+          isOneShot: true,
+          resume: true,
+          priority: 1,
+          chokeGroup: 1
+        };
+
+        const exported = exportOperationToURL(playbackOperation);
+        const imported = importOperationFromURL(exported!);
+
+        expect(exported).toBe('p:1:1:1:1');
+        expect(imported).toEqual(playbackOperation);
+      });
+
+      it('should handle undefined playback operations', () => {
+        const playbackOperation: PlaybackOperation = {
+          type: OperationType.Playback,
+          isOneShot: false,
+          resume: true
+        };
+
+        const exported = exportOperationToURL(playbackOperation);
+        const imported = importOperationFromURL(exported!);
+
+        expect(exported).toBe('p:0:1::');
+        expect(imported).toEqual(playbackOperation);
       });
     });
 

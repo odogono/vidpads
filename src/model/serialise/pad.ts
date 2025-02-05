@@ -7,7 +7,6 @@ import {
 } from '@helpers/metadata';
 import { isYouTubeUrl, isYouTubeVideoId } from '@helpers/youtube';
 import {
-  ChokeGroupOperation,
   Interval,
   LabelOperation,
   Operation,
@@ -15,21 +14,21 @@ import {
   OperationType,
   Pad,
   PadExport,
-  PlayPriorityOperation,
+  PlaybackOperation,
   SourceOperation
 } from '@model/types';
 import {
   createPad,
-  getPadChokeGroup,
   getPadInterval,
   getPadLabel,
-  getPadPlayPriority,
   getPadSourceUrl,
   setPadChokeGroup,
   setPadInterval,
+  setPadIsOneShot,
   setPadLabel,
   setPadOperations,
   setPadPlayPriority,
+  setPadPlaybackResume,
   setPadSource
 } from '../pad';
 import {
@@ -71,32 +70,28 @@ export const importPadFromJSON = ({
   );
   const label = (labelOp as LabelOperation | undefined)?.label ?? pad.label;
 
-  const [opsWithoutPlayPriority, playPriorityOp] = extractOp(
+  const [opsWithoutPlayback, playbackOp] = extractOp(
     opsWithoutLabel,
-    OperationType.PlayPriority
+    OperationType.Playback
   );
-  const playPriority =
-    (playPriorityOp as PlayPriorityOperation | undefined)?.priority ??
-    pad.playPriority;
-  const [opsWithoutChokeGroup, chokeGroupOp] = extractOp(
-    opsWithoutPlayPriority,
-    OperationType.ChokeGroup
-  );
-  const chokeGroup =
-    (chokeGroupOp as ChokeGroupOperation | undefined)?.group ?? pad.chokeGroup;
 
-  const finalOps = opsWithoutChokeGroup;
+  const { isOneShot, resume, priority, chokeGroup } =
+    (playbackOp as PlaybackOperation | undefined) ?? {};
+
+  const finalOps = opsWithoutPlayback;
 
   const { id } = pad;
 
   const a = createPad(id);
   const b = setPadOperations(a, finalOps);
   const c = setPadLabel(b, label);
-  const d = setPadPlayPriority(c, playPriority);
+  const d = setPadPlayPriority(c, priority);
   const e = setPadChokeGroup(d, chokeGroup);
-  const f = importSource ? setPadSource(e, sourceUrl) : e;
+  const f = setPadIsOneShot(e, isOneShot);
+  const g = setPadPlaybackResume(f, resume);
+  const h = importSource ? setPadSource(g, sourceUrl) : g;
 
-  return f;
+  return h;
 };
 
 export const exportPadToJSON = (
@@ -126,25 +121,25 @@ export const exportPadToJSON = (
   const label =
     (labelOp as LabelOperation | undefined)?.label ?? getPadLabel(pad);
 
-  const [opsWithoutPlayPriority, playPriorityOp] = extractOp(
-    opsWithoutLabel,
-    OperationType.PlayPriority,
-    asOperations
-  );
-  const playPriority =
-    (playPriorityOp as PlayPriorityOperation | undefined)?.priority ??
-    getPadPlayPriority(pad);
+  // const [opsWithoutPlayPriority, playPriorityOp] = extractOp(
+  //   opsWithoutLabel,
+  //   OperationType.PlayPriority,
+  //   asOperations
+  // );
+  // const playPriority =
+  //   (playPriorityOp as PlayPriorityOperation | undefined)?.priority ??
+  //   getPadPlayPriority(pad);
 
-  const [opsWithoutChokeGroup, chokeGroupOp] = extractOp(
-    opsWithoutPlayPriority,
-    OperationType.ChokeGroup,
-    asOperations
-  );
-  const chokeGroup =
-    (chokeGroupOp as ChokeGroupOperation | undefined)?.group ??
-    getPadChokeGroup(pad);
+  // const [opsWithoutChokeGroup, chokeGroupOp] = extractOp(
+  //   opsWithoutPlayPriority,
+  //   OperationType.ChokeGroup,
+  //   asOperations
+  // );
+  // const chokeGroup =
+  //   (chokeGroupOp as ChokeGroupOperation | undefined)?.group ??
+  //   getPadChokeGroup(pad);
 
-  const finalOps = opsWithoutChokeGroup;
+  const finalOps = opsWithoutLabel;
 
   if (!sourceUrl && finalOps.length === 0) {
     return undefined;
@@ -174,18 +169,18 @@ export const exportPadToJSON = (
     'source',
     sourceUrl
   );
-  const resultWithPlayPriority = applyToPadExport(
-    resultWithSource,
-    'playPriority',
-    playPriority
-  );
-  const resultWithChokeGroup = applyToPadExport(
-    resultWithPlayPriority,
-    'chokeGroup',
-    chokeGroup
-  );
+  // const resultWithPlayPriority = applyToPadExport(
+  //   resultWithSource,
+  //   'playPriority',
+  //   playPriority
+  // );
+  // const resultWithChokeGroup = applyToPadExport(
+  //   resultWithPlayPriority,
+  //   'chokeGroup',
+  //   chokeGroup
+  // );
 
-  return applyToPadExport(resultWithChokeGroup, 'operations', finalOps);
+  return applyToPadExport(resultWithSource, 'operations', finalOps);
 };
 
 const applyToPadExport = (

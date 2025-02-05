@@ -1,12 +1,11 @@
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import {
-  ChokeGroupOperation,
   Interval,
   LoopOperation,
   Operation,
   OperationType,
   Pad,
-  PlayPriorityOperation,
+  PlaybackOperation,
   PlaybackRateOperation,
   SourceOperation,
   TrimOperation,
@@ -274,12 +273,21 @@ export const setPadChokeGroup = (
   pad: Pad | undefined,
   chokeGroup: number | undefined
 ): Pad | undefined => {
-  if (!pad || chokeGroup === undefined || chokeGroup === 0) {
+  if (!pad) {
     return pad;
   }
 
-  const op = { type: OperationType.ChokeGroup, group: chokeGroup };
-  return addOrReplacePadOperation(pad, op);
+  const op = getPadPlaybackOperation(pad);
+
+  if (!op && !chokeGroup) {
+    return pad;
+  }
+
+  const newOp = op
+    ? { ...op, chokeGroup }
+    : { type: OperationType.Playback, chokeGroup };
+
+  return addOrReplacePadOperation(pad, newOp);
 };
 
 export const getPadChokeGroup = (pad: Pad | undefined): number | undefined => {
@@ -287,25 +295,34 @@ export const getPadChokeGroup = (pad: Pad | undefined): number | undefined => {
     return undefined;
   }
 
-  const op = getPadOperation(pad, OperationType.ChokeGroup);
+  const op = getPadPlaybackOperation(pad);
 
   if (!op) {
     return undefined;
   }
 
-  return (op as ChokeGroupOperation).group;
+  return op.chokeGroup;
 };
 
 export const setPadPlayPriority = (
   pad: Pad | undefined,
   playPriority: number | undefined
 ): Pad | undefined => {
-  if (!pad || playPriority === undefined || playPriority === 0) {
+  if (!pad) {
     return pad;
   }
 
-  const op = { type: OperationType.PlayPriority, priority: playPriority };
-  return addOrReplacePadOperation(pad, op);
+  const op = getPadPlaybackOperation(pad);
+
+  if (!op && !playPriority) {
+    return pad;
+  }
+
+  const newOp = op
+    ? { ...op, priority: playPriority }
+    : { type: OperationType.Playback, priority: playPriority };
+
+  return addOrReplacePadOperation(pad, newOp);
 };
 
 export const getPadPlayPriority = (
@@ -315,13 +332,13 @@ export const getPadPlayPriority = (
     return undefined;
   }
 
-  const op = getPadOperation(pad, OperationType.PlayPriority);
+  const op = getPadPlaybackOperation(pad);
 
   if (!op) {
     return undefined;
   }
 
-  return (op as PlayPriorityOperation).priority;
+  return op.priority;
 };
 
 export const setPadLoop = (
@@ -357,4 +374,108 @@ export const getPadLoopStart = (pad: Pad | undefined): number => {
   }
 
   return op.start;
+};
+
+export const getPadPlaybackOperation = (
+  pad: Pad | undefined
+): PlaybackOperation | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  const op = getPadOperation(pad, OperationType.Playback) as
+    | PlaybackOperation
+    | undefined;
+
+  if (isPadPlaybackOperationEmpty(op)) {
+    return undefined;
+  }
+
+  return op;
+};
+
+export const isPadPlaybackOperationEmpty = (
+  op: PlaybackOperation | undefined
+): boolean => {
+  if (!op) {
+    return true;
+  }
+
+  if (!op.isOneShot && !op.priority && !op.chokeGroup && !op.resume) {
+    return true;
+  }
+
+  return false;
+};
+
+export const setPadIsOneShot = (
+  pad: Pad | undefined,
+  isOneShot: boolean | undefined
+): Pad | undefined => {
+  if (!pad) {
+    return pad;
+  }
+
+  const op = getPadPlaybackOperation(pad);
+
+  if (!op && !isOneShot) {
+    return pad;
+  }
+
+  const newOp = op
+    ? { ...op, isOneShot }
+    : { type: OperationType.Playback, isOneShot };
+
+  return addOrReplacePadOperation(pad, newOp);
+};
+
+export const getPadIsOneShot = (pad: Pad | undefined): boolean => {
+  if (!pad) {
+    return false;
+  }
+
+  const op = getPadOperation(pad, OperationType.Playback);
+
+  if (!op) {
+    return false;
+  }
+
+  return (op as PlaybackOperation).isOneShot ?? false;
+};
+
+export const setPadPlaybackResume = (
+  pad: Pad | undefined,
+  resume: boolean | undefined
+): Pad | undefined => {
+  if (!pad) {
+    return pad;
+  }
+
+  const op = getPadPlaybackOperation(pad);
+
+  if (!op && !resume) {
+    return pad;
+  }
+
+  const newOp = op
+    ? { ...op, resume }
+    : { type: OperationType.Playback, resume };
+
+  return addOrReplacePadOperation(pad, newOp);
+};
+
+export const getPadPlaybackResume = (
+  pad: Pad | undefined
+): boolean | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  const op = getPadPlaybackOperation(pad);
+
+  if (!op) {
+    return undefined;
+  }
+
+  return (op as PlaybackOperation).resume;
 };

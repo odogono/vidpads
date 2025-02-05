@@ -58,7 +58,7 @@ export const StatePane = () => {
       <PadStateButton
         label='One Shot'
         onPress={handleOneShot}
-        isActive={pad?.isOneShot ?? false}
+        isActive={isPadOneShot}
         isEnabled={!!selectedPadId}
       />
       <PadStateButton

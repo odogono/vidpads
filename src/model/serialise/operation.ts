@@ -1,18 +1,18 @@
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import {
-  ChokeGroupOperation,
   LabelOperation,
   LoopOperation,
   Operation,
   OperationExport,
   OperationType,
-  PlayPriorityOperation,
+  PlaybackOperation,
   PlaybackRateOperation,
   SourceOperation,
   TrimOperation,
   VolumeKeyPoint,
   VolumeOperation
 } from '@model/types';
+import { isPadPlaybackOperationEmpty } from '../pad';
 import { expandUrl, shortenUrl } from './helpers';
 
 export const exportOperationToJSON = (
@@ -69,26 +69,16 @@ export const exportOperationToJSON = (
     } as LoopOperation;
   }
 
-  if (operation.type === OperationType.ChokeGroup) {
-    const { group } = operation as ChokeGroupOperation;
-    if (group === undefined) {
-      return undefined;
-    }
+  if (operation.type === OperationType.Playback) {
+    const { isOneShot, resume, priority, chokeGroup } =
+      operation as PlaybackOperation;
     return {
       type: operation.type,
-      group: group
-    } as ChokeGroupOperation;
-  }
-
-  if (operation.type === OperationType.PlayPriority) {
-    const { priority } = operation as PlayPriorityOperation;
-    if (priority === undefined) {
-      return undefined;
-    }
-    return {
-      type: operation.type,
-      priority: priority
-    } as PlayPriorityOperation;
+      isOneShot,
+      resume,
+      priority,
+      chokeGroup
+    } as PlaybackOperation;
   }
   return undefined;
 };
@@ -138,17 +128,21 @@ export const importOperationFromJSON = (
     return { type: OperationType.Loop, start } as LoopOperation;
   }
 
-  if (operation.type === OperationType.ChokeGroup) {
-    const { group } = operation as ChokeGroupOperation;
-    return { type: OperationType.ChokeGroup, group } as ChokeGroupOperation;
-  }
+  if (operation.type === OperationType.Playback) {
+    if (isPadPlaybackOperationEmpty(operation as PlaybackOperation)) {
+      return undefined;
+    }
 
-  if (operation.type === OperationType.PlayPriority) {
-    const { priority } = operation as PlayPriorityOperation;
+    const { isOneShot, resume, priority, chokeGroup } =
+      operation as PlaybackOperation;
+
     return {
-      type: OperationType.PlayPriority,
-      priority
-    } as PlayPriorityOperation;
+      type: OperationType.Playback,
+      isOneShot,
+      resume,
+      priority,
+      chokeGroup
+    } as PlaybackOperation;
   }
 
   return undefined;
@@ -165,8 +159,7 @@ const OperationTypeCodes: Record<OperationType, string> = {
   [OperationType.AddTransition]: 't',
   [OperationType.Loop]: 'l',
   [OperationType.Label]: 'b',
-  [OperationType.ChokeGroup]: 'c',
-  [OperationType.PlayPriority]: 'p'
+  [OperationType.Playback]: 'p'
 } as const;
 
 export const exportOperationToURL = (
@@ -217,18 +210,15 @@ export const exportOperationToURL = (
     }
   }
 
-  if (operation.type === OperationType.ChokeGroup) {
-    const { group } = operation as ChokeGroupOperation;
-    if (group !== undefined) {
-      return `${code}:${group}`;
-    }
-  }
-
-  if (operation.type === OperationType.PlayPriority) {
-    const { priority } = operation as PlayPriorityOperation;
-    if (priority !== undefined) {
-      return `${code}:${priority}`;
-    }
+  if (operation.type === OperationType.Playback) {
+    const { isOneShot, resume, priority, chokeGroup } =
+      operation as PlaybackOperation;
+    const parts = [];
+    parts.push(isOneShot ? '1' : '0');
+    parts.push(resume ? '1' : '0');
+    parts.push(priority !== undefined ? priority.toString() : '');
+    parts.push(chokeGroup !== undefined ? chokeGroup.toString() : '');
+    return `${code}:${parts.join(':')}`;
   }
 
   return '';
@@ -282,20 +272,15 @@ export const importOperationFromURL = (
     } as LoopOperation;
   }
 
-  if (type === OperationTypeCodes[OperationType.ChokeGroup]) {
-    const [group] = rest;
+  if (type === OperationTypeCodes[OperationType.Playback]) {
+    const [isOneShot, resume, priority, chokeGroup] = rest;
     return {
-      type: OperationType.ChokeGroup,
-      group: parseInt(group)
-    } as ChokeGroupOperation;
-  }
-
-  if (type === OperationTypeCodes[OperationType.PlayPriority]) {
-    const [priority] = rest;
-    return {
-      type: OperationType.PlayPriority,
-      priority: parseInt(priority)
-    } as PlayPriorityOperation;
+      type: OperationType.Playback,
+      isOneShot: isOneShot === '1',
+      resume: resume === '1',
+      priority: priority !== '' ? parseInt(priority) : undefined,
+      chokeGroup: chokeGroup !== '' ? parseInt(chokeGroup) : undefined
+    } as PlaybackOperation;
   }
 
   if (type === OperationTypeCodes[OperationType.Volume]) {
