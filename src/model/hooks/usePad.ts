@@ -4,7 +4,14 @@ import { useCallback } from 'react';
 
 import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
-import { getPadIsOneShot, getPadLabel, getPadSourceUrl } from '../pad';
+import {
+  getPadChokeGroup,
+  getPadIsOneShot,
+  getPadLabel,
+  getPadPlayPriority,
+  getPadPlaybackResume,
+  getPadSourceUrl
+} from '../pad';
 
 export type UsePadResult = ReturnType<typeof usePad>;
 
@@ -104,14 +111,56 @@ export const usePad = (padId?: string) => {
     [pad, project]
   );
 
+  const setPadChokeGroup = useCallback(
+    (chokeGroup: number | undefined) => {
+      if (pad) {
+        project.send({
+          type: 'setPadChokeGroup',
+          padId: pad.id,
+          group: chokeGroup
+        });
+      }
+    },
+    [pad, project]
+  );
+
+  const setPadPlayPriority = useCallback(
+    (playPriority: number | undefined) => {
+      if (pad) {
+        project.send({
+          type: 'setPadPlayPriority',
+          padId: pad.id,
+          priority: playPriority
+        });
+      }
+    },
+    [pad, project]
+  );
+
+  const setPadPlaybackResume = useCallback(
+    (padId: string, resume: boolean | undefined) => {
+      if (pad) {
+        project.send({ type: 'setPadPlaybackResume', padId, resume });
+      }
+    },
+    [pad, project]
+  );
+
   const isPadAssigned = !!getPadSourceUrl(pad);
 
   const padLabel = getPadLabel(pad);
 
   const isPadOneShot = getPadIsOneShot(pad);
 
+  const chokeGroup = getPadChokeGroup(pad);
+  const playPriority = getPadPlayPriority(pad);
+
+  const isResume = getPadPlaybackResume(pad);
+
   return {
     isPadOneShot,
+    chokeGroup,
+    playPriority,
     isPadPlayEnabled,
     isPadSelectSourceEnabled,
     isPadAssigned,
@@ -125,6 +174,10 @@ export const usePad = (padId?: string) => {
     setPadSelectSourceEnabled,
     project,
     padLabel,
-    setPadLabel
+    setPadLabel,
+    setPadChokeGroup,
+    setPadPlayPriority,
+    setPadPlaybackResume,
+    isResume
   };
 };

@@ -3,6 +3,7 @@
 import { forwardRef } from 'react';
 
 import { useButton } from '@nextui-org/react';
+import { OpLabel } from './OpLabel';
 
 export const OpButton = forwardRef(
   (
@@ -11,7 +12,7 @@ export const OpButton = forwardRef(
       isEnabled = true,
       children,
       onPress,
-      size = 'md',
+      size = 'lg',
       ...props
     }: {
       label?: string;
@@ -53,19 +54,7 @@ export const OpButton = forwardRef(
         >
           {children}
         </div>
-        {label && (
-          <div
-            className={`text-xs mt-2 ${
-              isEnabled ? 'text-foreground/90' : 'text-foreground/60'
-            }`}
-            style={{
-              fontSize: '0.6rem',
-              lineHeight: '0.75rem'
-            }}
-          >
-            {label}
-          </div>
-        )}
+        <OpLabel label={label} isEnabled={isEnabled} />
       </button>
     );
   }

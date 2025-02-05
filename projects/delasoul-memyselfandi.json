@@ -6,12 +6,9 @@
   "pads": [
     {
       "id": "a1",
-      "label": "Soul. De La that is",
+      "label": "Me, Myself, And I",
+      "source": "https://youtu.be/zR9AlcgL6_0",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/zR9AlcgL6_0"
-        },
         {
           "type": "trim",
           "start": 30.59,
@@ -26,11 +23,8 @@
     {
       "id": "a3",
       "label": "Proud, I'm proud of what i am",
+      "source": "https://youtu.be/zR9AlcgL6_0",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/zR9AlcgL6_0"
-        },
         {
           "type": "trim",
           "start": 121.161,
@@ -50,11 +44,8 @@
     {
       "id": "a4",
       "label": "Soul. De La that is",
+      "source": "https://youtu.be/zR9AlcgL6_0",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/zR9AlcgL6_0"
-        },
         {
           "type": "trim",
           "start": 19.092,
@@ -69,11 +60,8 @@
     {
       "id": "a5",
       "label": "Rapper Dapper Snapper",
+      "source": "https://youtu.be/PZ-5G4J8dvM",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/PZ-5G4J8dvM"
-        },
         {
           "type": "trim",
           "start": 0.873,
@@ -86,17 +74,18 @@
         {
           "type": "playbackRate",
           "rate": 1.08
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
         }
       ]
     },
     {
       "id": "a6",
       "label": "DougE Fresh Beat Box (Loop)",
+      "source": "https://youtu.be/zcIpu_M75Cg",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/zcIpu_M75Cg"
-        },
         {
           "type": "trim",
           "start": 13.612,
@@ -123,15 +112,12 @@
     },
     {
       "id": "a7",
+      "source": "https://youtu.be/khtqLSXDjK0",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/khtqLSXDjK0"
-        },
         {
           "type": "trim",
           "start": 2.576,
-          "end": 5.627
+          "end": 5.607
         },
         {
           "type": "loop",
@@ -141,11 +127,8 @@
     },
     {
       "id": "a9",
+      "source": "https://youtu.be/khtqLSXDjK0",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/khtqLSXDjK0"
-        },
         {
           "type": "trim",
           "start": 0.563,
@@ -163,11 +146,8 @@
     },
     {
       "id": "a10",
+      "source": "https://youtu.be/W_xMaCVfan8",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/W_xMaCVfan8"
-        },
         {
           "type": "trim",
           "start": 128.452,
@@ -181,16 +161,17 @@
               "value": 0.44
             }
           ]
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
         }
       ]
     },
     {
       "id": "a11",
+      "source": "https://youtu.be/kn_RRgsHvOI",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/kn_RRgsHvOI"
-        },
         {
           "type": "trim",
           "start": 84.856,
@@ -256,5 +237,5 @@
     }
   },
   "createdAt": "2025-02-04T09:35:00Z",
-  "updatedAt": "2025-02-04T21:43:51Z"
+  "updatedAt": "2025-02-05T11:57:14Z"
 }

@@ -17,7 +17,11 @@ interface VolumeDialProps {
 
 // const log = createLog('dial');
 
-export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
+export const VolumeDial = ({
+  pad,
+  setPadVolume,
+  isEnabled
+}: VolumeDialProps) => {
   const events = useEvents();
   const { setToolTip, hideToolTip } = useTooltip();
   const padVolume = getPadVolume(pad, 1);
@@ -73,6 +77,7 @@ export const VolumeDial = ({ pad, setPadVolume }: VolumeDialProps) => {
       onChange={handleValueChange}
       onChangeEnd={handleValueChangeEnd}
       onDoubleTouch={handleDoubleTouch}
+      isEnabled={isEnabled}
     />
   );
 };

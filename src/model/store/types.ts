@@ -162,13 +162,19 @@ export type SetPadSelectSourceEnabledAction = {
 export type SetPadChokeGroupAction = {
   type: 'setPadChokeGroup';
   padId: string;
-  group: number;
+  group: number | undefined;
 };
 
 export type SetPadPlayPriorityAction = {
   type: 'setPadPlayPriority';
   padId: string;
-  priority: number;
+  priority: number | undefined;
+};
+
+export type SetPadPlaybackResumeAction = {
+  type: 'setPadPlaybackResume';
+  padId: string;
+  resume: boolean | undefined;
 };
 
 export type ApplyPadAction = {
@@ -287,7 +293,8 @@ export type Actions =
   | SetSelectedEventsDurationAction
   | SetPadLabelAction
   | SetPadChokeGroupAction
-  | SetPadPlayPriorityAction;
+  | SetPadPlayPriorityAction
+  | SetPadPlaybackResumeAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
