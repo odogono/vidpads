@@ -10,6 +10,7 @@ import {
   getPadInterval,
   getPadIsOneShot,
   getPadLoopStart,
+  getPadPlayPriority,
   getPadPlaybackRate,
   getPadPlaybackResume,
   getPadSourceUrl,
@@ -23,7 +24,6 @@ import {
   getPlayerDataState,
   hidePlayer,
   setPlayerDataState,
-  setPlayerZIndex,
   showPlayer
 } from './helpers';
 import {
@@ -35,11 +35,64 @@ import {
 } from './types';
 import { usePlayers } from './usePlayers';
 
-const log = createLog('player/container', ['debug']);
+const log = createLog('player/container');
+
+interface PlayingStack {
+  id: string;
+  priority: number;
+}
+
+const usePlayingStack = () => {
+  const ref = useRef<PlayingStack[]>([]);
+
+  const hideStackPlayer = useCallback((hideId: string) => {
+    const stack = ref.current;
+    if (stack.length > 1) {
+      hidePlayer(hideId);
+      ref.current = stack.filter(({ id }) => id !== hideId);
+    }
+
+    // remove the player from the stack
+    setPlayerDataState(hideId, 'stopped');
+  }, []);
+
+  const showStackPlayer = useCallback(
+    (showId: string, priority: number | undefined) => {
+      const stack = ref.current;
+
+      // remove players that are not playing
+      const playingStack = stack.filter(({ id }) => {
+        const active = getPlayerDataState(id) === 'playing';
+        if (!active) {
+          hidePlayer(id);
+        }
+        return active;
+      });
+
+      // places the new player on top of the stack
+      const newStack = [
+        ...playingStack.filter(({ id }) => id !== showId),
+        { id: showId, priority: priority ?? 0 }
+      ];
+
+      // sort the stack by priority
+      const sortedStack = newStack.sort((a, b) => a.priority - b.priority);
+
+      // Update z-index of all players based on stack position
+      sortedStack.forEach(({ id }, index) => showPlayer(id, index + 1));
+
+      ref.current = sortedStack;
+    },
+    []
+  );
+
+  return { playingStackRef: ref, hideStackPlayer, showStackPlayer };
+};
 
 export const PlayerContainer = () => {
   const events = useEvents();
-  const playingStackRef = useRef<string[]>([]);
+
+  const { hideStackPlayer, showStackPlayer } = usePlayingStack();
 
   const {
     updatePlayer: updatePlayerState,
@@ -65,7 +118,8 @@ export const PlayerContainer = () => {
       const isLoop = isPadLooped(pad);
       const loopStart = getPadLoopStart(pad);
       const isResume = getPadPlaybackResume(pad);
-      // const chokeGroup = getPadChokeGroup(pad);
+      const chokeGroup = getPadChokeGroup(pad);
+      const playPriority = getPadPlayPriority(pad);
 
       const { start, end } = getPadInterval(pad, {
         start: 0,
@@ -84,7 +138,9 @@ export const PlayerContainer = () => {
         end,
         volume,
         playbackRate,
-        isResume
+        isResume,
+        chokeGroup,
+        playPriority
       });
     },
     [events, pads]
@@ -106,59 +162,27 @@ export const PlayerContainer = () => {
     [events, pads]
   );
 
-  const handlePlayerPlaying = useCallback((e: PlayerPlaying) => {
-    // log.debug('❤️ player:playing', e);
+  const handlePlayerPlaying = useCallback(
+    (e: PlayerPlaying) => {
+      // log.debug('❤️ player:playing', e);
 
-    setIsLoaderVisible(false);
-    showPlayer(e.padId);
+      setIsLoaderVisible(false);
 
-    const stack = playingStackRef.current;
+      showStackPlayer(e.padId, e.playPriority);
+    },
+    [showStackPlayer]
+  );
 
-    // remove stopped state players
-    const playingStack = stack.filter((id) => {
-      const active = getPlayerDataState(id) === 'playing';
-      if (!active) {
-        hidePlayer(id);
-      }
-      return active;
-    });
+  const handlePlayerStopped = useCallback(
+    (e: PlayerStopped) => {
+      // log.debug('❤️ player:stopped', e);
 
-    const newStack = [...playingStack.filter((id) => id !== e.padId), e.padId];
-
-    // Update z-index of all players based on stack position
-    newStack.forEach((id, index) => setPlayerZIndex(id, index + 1));
-
-    // log.debug('stack players:', newStack.length);
-    // for (const index in players) {
-    //   const id = players[index].padId;
-    //   const playerElement = getPlayerElement(id);
-    //   const zIndex = playerElement?.style.zIndex;
-    //   const opacity = playerElement?.style.opacity;
-    //   const state = playerElement?.dataset.state;
-    //   const stackp = newStack.indexOf(id);
-    //   log.debug('player', { id, zIndex, opacity, state, stackp });
-    // }
-
-    playingStackRef.current = newStack;
-  }, []);
-
-  const handlePlayerStopped = useCallback((e: PlayerStopped) => {
-    // log.debug('❤️ player:stopped', e);
-
-    const stack = playingStackRef.current;
-
-    if (stack.length > 1) {
-      hidePlayer(e.padId);
-      const newStack = stack.filter((id) => id !== e.padId);
-      playingStackRef.current = newStack;
-    } else {
-      setPlayerDataState(e.padId, 'stopped');
-    }
-  }, []);
+      hideStackPlayer(e.padId);
+    },
+    [hideStackPlayer]
+  );
 
   const handlePlayerSeek = useCallback((e: PlayerSeek) => {
-    // log.debug('❤️ player:seek', e);
-
     showPlayer(e.padId);
   }, []);
 

@@ -16,8 +16,8 @@ import {
   PlayerStop
 } from '../types';
 import type { PlayerReturn } from './index';
-import { usePlayerYTState } from './state';
 import { PlayerState } from './types';
+import { usePlayerYTState } from './usePlayerYTState';
 
 const log = createLog('player/yt/events', ['debug']);
 
@@ -65,12 +65,14 @@ export const usePlayerYTEvents = ({
   const isBufferingRef = useRef(false);
   const animationRef = useRef<number | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
+  const playEventRef = useRef<PlayerPlay | undefined>(undefined);
   const {
     onPlayerUpdate: cOnPlayerUpdate,
     onPlayerDestroyed: cOnPlayerDestroyed
   } = usePlayerState(playerPadId, mediaUrl);
 
   const { handlePlayerStateChange } = usePlayerYTState({
+    playEventRef,
     intervals: interval ? [interval] : [],
     mediaUrl,
     playerPadId,
@@ -301,8 +303,10 @@ export const usePlayerYTEvents = ({
 
   useEffect(() => {
     // prevent start/stop/seek/... from triggering before the player is ready
-    const evtPlayVideo = (e: PlayerEvent) =>
-      isReady ? playVideo(e as PlayerPlay) : undefined;
+    const evtPlayVideo = (e: PlayerPlay) => {
+      playEventRef.current = e;
+      return isReady ? playVideo(e) : undefined;
+    };
     const evtStopVideo = (e: PlayerEvent) =>
       isReady ? stopVideo(e as PlayerStop) : undefined;
     const evtExtractThumbnail = (e: PlayerEvent) =>

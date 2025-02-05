@@ -11,14 +11,14 @@ export const hidePlayer = (padId: string) => {
   return playerElement;
 };
 
-export const showPlayer = (padId: string) => {
+export const showPlayer = (padId: string, zIndex: number = 100) => {
   const playerElement = document.querySelector(
     `[data-player-id="${padId}"]`
   ) as HTMLElement | null;
   if (playerElement) {
     playerElement.style.transition = 'none'; // Disable transition
     playerElement.style.opacity = '1';
-    playerElement.style.zIndex = '100'; // Bring to front
+    playerElement.style.zIndex = `${zIndex}`; // Bring to front
     playerElement.dataset.state = 'playing';
   }
   return playerElement;
