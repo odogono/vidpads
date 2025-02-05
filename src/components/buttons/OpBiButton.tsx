@@ -5,7 +5,6 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { Button, cn } from '@nextui-org/react';
 
 export const OpBiButton = ({
-  label,
   onPressUp,
   onPressDown,
   size = 'md'
@@ -38,19 +37,6 @@ export const OpBiButton = ({
         >
           <ArrowDown />
         </Button>
-      </div>
-      <div className='flex gap-2 justify-center mt-2'>
-        {label && (
-          <div
-            className='text-xs text-foreground/90'
-            style={{
-              fontSize: '0.6rem',
-              lineHeight: '0.75rem'
-            }}
-          >
-            {label}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -10,17 +10,21 @@ export const OpSwitch = ({
   onChange
 }: {
   label: string;
-  isSelected: boolean;
+  isSelected: boolean | undefined;
   isEnabled: boolean;
   onChange: (value: boolean) => void;
 }) => {
+  // const [value, setValue] = useState(isSelected ?? false);
   return (
     <div className='flex flex-col items-center justify-center '>
       <div className='h-12 flex items-center justify-center'>
         <Switch
           size='md'
-          isSelected={isSelected}
-          onValueChange={(value: boolean) => onChange(value)}
+          isSelected={isSelected ?? false}
+          onValueChange={(value: boolean) => {
+            // setValue(value);
+            onChange(value);
+          }}
           isDisabled={!isEnabled}
         />
       </div>

@@ -6,10 +6,12 @@ import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import {
+  getPadChokeGroup,
   getPadInterval,
   getPadIsOneShot,
   getPadLoopStart,
   getPadPlaybackRate,
+  getPadPlaybackResume,
   getPadSourceUrl,
   getPadVolume,
   isPadLooped
@@ -62,6 +64,9 @@ export const PlayerContainer = () => {
       const isOneShot = getPadIsOneShot(pad);
       const isLoop = isPadLooped(pad);
       const loopStart = getPadLoopStart(pad);
+      const isResume = getPadPlaybackResume(pad);
+      // const chokeGroup = getPadChokeGroup(pad);
+
       const { start, end } = getPadInterval(pad, {
         start: 0,
         end: Number.MAX_SAFE_INTEGER
@@ -78,7 +83,8 @@ export const PlayerContainer = () => {
         start,
         end,
         volume,
-        playbackRate
+        playbackRate,
+        isResume
       });
     },
     [events, pads]

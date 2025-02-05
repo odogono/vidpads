@@ -1,7 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { Tag } from 'lucide-react';
-
 import {
   Dropdown,
   DropdownItem,
