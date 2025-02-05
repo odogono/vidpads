@@ -13,7 +13,7 @@ import { PaneProps } from './types';
 
 export type StatePaneProps = PaneProps;
 
-const log = createLog('Controls/StatePane');
+const log = createLog('Controls/StatePane', ['debug']);
 export const StatePane = () => {
   const {
     chokeGroup,
