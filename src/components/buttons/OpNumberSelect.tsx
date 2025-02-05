@@ -27,23 +27,19 @@ export const OpNumberSelect = ({
   label,
   isEnabled,
   onChange,
-  value: initialValue
+  value
 }: OpNumberSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [value, setValue] = useState(initialValue ?? -1);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setIsOpen(isOpen);
-    // setValue(initialValue ?? 0);
-    if (!isOpen) {
-      // onChange?.(value);
-    }
   }, []);
 
   const trigger = useMemo(() => {
+    const btnLabel = items.find((item) => item.key === value)?.label ?? 'Off';
     return (
       <OpButton label={label} isEnabled={isEnabled}>
-        {items.find((item) => item.key === value)?.label}
+        {btnLabel}
       </OpButton>
     );
   }, [isEnabled, label, value]);
@@ -63,7 +59,7 @@ export const OpNumberSelect = ({
       <DropdownMenu
         items={items}
         onAction={(key) => {
-          setValue(Number(key));
+          // setValue(Number(key));
           onChange?.(Number(key));
         }}
       >

@@ -30,7 +30,7 @@ export interface PlayerEvent {
   requestId?: string;
 }
 
-export interface PlayerPlaying extends PlayerEvent {
+export interface PlayerPlaying extends PlayerPlay {
   time: number;
 }
 
@@ -52,6 +52,8 @@ export interface PlayerPlay extends PlayerEvent {
   volume?: number;
   playbackRate?: number;
   isResume?: boolean;
+  chokeGroup?: number | undefined;
+  playPriority?: number | undefined;
 }
 
 export interface PlayerSetVolume extends PlayerEvent {

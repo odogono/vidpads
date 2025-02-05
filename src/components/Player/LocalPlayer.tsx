@@ -10,6 +10,7 @@ import { MediaVideo } from '@model/types';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,
+  PlayerPlaying,
   PlayerProps,
   PlayerReadyState,
   PlayerSeek,
@@ -38,6 +39,7 @@ export const LocalPlayer = ({
   const isLoopedRef = useRef(false);
   const isPlayingRef = useRef(false);
   const animationRef = useRef<number | null>(null);
+  const playEventRef = useRef<PlayerPlay | undefined>(undefined);
   const {
     onPlayerUpdate: cOnPlayerUpdate,
     onPlayerDestroyed: cOnPlayerDestroyed
@@ -80,19 +82,15 @@ export const LocalPlayer = ({
   }, []);
 
   const playVideo = useCallback(
-    ({
-      start,
-      end,
-      isLoop,
-      url,
-      padId,
-      volume,
-      playbackRate,
-      isResume
-    }: PlayerPlay) => {
+    (props: PlayerPlay) => {
+      const { start, end, isLoop, url, padId, volume, playbackRate, isResume } =
+        props;
+
       if (!videoRef.current) return;
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
+
+      playEventRef.current = { ...props };
 
       if (isPlayingRef.current && isLoopedRef.current) {
         stopTimeTracking();
@@ -108,17 +106,17 @@ export const LocalPlayer = ({
           ? Number.MAX_SAFE_INTEGER
           : (end ?? Number.MAX_SAFE_INTEGER);
 
-      log.debug('playVideo', {
-        currentTime,
-        startTime,
-        endTime,
-        isLoop,
-        url,
-        padId,
-        volume,
-        playbackRate,
-        isResume
-      });
+      // log.debug('playVideo', {
+      //   currentTime,
+      //   startTime,
+      //   endTime,
+      //   isLoop,
+      //   url,
+      //   padId,
+      //   volume,
+      //   playbackRate,
+      //   isResume
+      // });
 
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
@@ -228,12 +226,12 @@ export const LocalPlayer = ({
   );
 
   const handlePlaying = useCallback(() => {
-    events.emit('player:playing', {
-      url: mediaUrl,
-      padId: playerPadId,
+    const event = {
+      ...playEventRef.current,
       time: videoRef.current?.currentTime ?? 0
-    });
-  }, [events, mediaUrl, playerPadId]);
+    } as PlayerPlaying;
+    events.emit('player:playing', event);
+  }, [events]);
 
   const handlePaused = useCallback(() => {
     // log.debug('handlePaused', playerPadId);
