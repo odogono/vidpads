@@ -35,71 +35,16 @@ import {
 } from './types';
 import { usePlayers } from './usePlayers';
 
-const log = createLog('player/container');
-
-interface PlayingStack {
-  id: string;
-  priority: number;
-}
-
-const usePlayingStack = () => {
-  const ref = useRef<PlayingStack[]>([]);
-
-  const hideStackPlayer = useCallback((hideId: string) => {
-    const stack = ref.current;
-    if (stack.length > 1) {
-      hidePlayer(hideId);
-      ref.current = stack.filter(({ id }) => id !== hideId);
-    }
-
-    // remove the player from the stack
-    setPlayerDataState(hideId, 'stopped');
-  }, []);
-
-  const showStackPlayer = useCallback(
-    (showId: string, priority: number | undefined) => {
-      const stack = ref.current;
-
-      // remove players that are not playing
-      const playingStack = stack.filter(({ id }) => {
-        const active = getPlayerDataState(id) === 'playing';
-        if (!active) {
-          hidePlayer(id);
-        }
-        return active;
-      });
-
-      // places the new player on top of the stack
-      const newStack = [
-        ...playingStack.filter(({ id }) => id !== showId),
-        { id: showId, priority: priority ?? 0 }
-      ];
-
-      // sort the stack by priority
-      const sortedStack = newStack.sort((a, b) => a.priority - b.priority);
-
-      // Update z-index of all players based on stack position
-      sortedStack.forEach(({ id }, index) => showPlayer(id, index + 1));
-
-      ref.current = sortedStack;
-    },
-    []
-  );
-
-  return { playingStackRef: ref, hideStackPlayer, showStackPlayer };
-};
+const log = createLog('player/container', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();
 
-  const { hideStackPlayer, showStackPlayer } = usePlayingStack();
+  const { hideStackPlayer, showStackPlayer, getChokeGroupPlayers } =
+    usePlayingStack();
 
-  const {
-    updatePlayer: updatePlayerState,
-    isLoading,
-    playerReadyCount
-  } = usePlayersState();
-  const [isLoaderVisible, setIsLoaderVisible] = useState(true);
+  const { updatePlayer: updatePlayerState, playerReadyCount } =
+    usePlayersState();
 
   const { pads, players } = usePlayers();
 
@@ -164,13 +109,21 @@ export const PlayerContainer = () => {
 
   const handlePlayerPlaying = useCallback(
     (e: PlayerPlaying) => {
-      // log.debug('❤️ player:playing', e);
+      const { chokeGroup } = e;
 
-      setIsLoaderVisible(false);
+      if (chokeGroup !== undefined) {
+        // stop all players in the same choke group
+        const players = getChokeGroupPlayers(chokeGroup);
+        players.forEach((player) => {
+          const { url, padId } = player;
+          if (padId === e.padId) return;
+          events.emit('video:stop', { url, padId, time: 0 });
+        });
+      }
 
-      showStackPlayer(e.padId, e.playPriority);
+      showStackPlayer(e);
     },
-    [showStackPlayer]
+    [events, showStackPlayer, getChokeGroupPlayers]
   );
 
   const handlePlayerStopped = useCallback(
@@ -193,14 +146,6 @@ export const PlayerContainer = () => {
     },
     [updatePlayerState]
   );
-
-  useEffect(() => {
-    if (isLoading) {
-      setIsLoaderVisible(true);
-    } else {
-      // setIsLoaderVisible(false);
-    }
-  }, [isLoading]);
 
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {
@@ -249,9 +194,8 @@ export const PlayerContainer = () => {
 
   return (
     <>
-      {isLoaderVisible && (
-        <LoadingPlayer count={players.length} loadingCount={playerReadyCount} />
-      )}
+      <LoadingPlayer count={players.length} loadingCount={playerReadyCount} />
+
       {players.map((player) => {
         return (
           <Player key={player.id} {...player} data-player-id={player.padId} />
@@ -259,4 +203,60 @@ export const PlayerContainer = () => {
       })}
     </>
   );
+};
+
+const usePlayingStack = () => {
+  const ref = useRef<PlayerPlaying[]>([]);
+
+  const hideStackPlayer = useCallback((hideId: string) => {
+    const stack = ref.current;
+    if (stack.length > 1) {
+      hidePlayer(hideId);
+      ref.current = stack.filter(({ padId }) => padId !== hideId);
+    }
+
+    // remove the player from the stack
+    setPlayerDataState(hideId, 'stopped');
+  }, []);
+
+  const showStackPlayer = useCallback((player: PlayerPlaying) => {
+    const showId = player.padId;
+    const stack = ref.current;
+
+    // remove players that are not playing
+    const playingStack = stack.filter(({ padId }) => {
+      const active = getPlayerDataState(padId) === 'playing';
+      if (!active) {
+        hidePlayer(padId);
+      }
+      return active;
+    });
+
+    // places the new player on top of the stack
+    const newStack = [
+      ...playingStack.filter(({ padId }) => padId !== showId),
+      player
+    ];
+
+    // sort the stack by priority
+    const sortedStack = newStack.sort(
+      (a, b) => (a.playPriority ?? 0) - (b.playPriority ?? 0)
+    );
+
+    // Update z-index of all players based on stack position
+    sortedStack.forEach(({ padId }, index) => showPlayer(padId, index + 1));
+
+    ref.current = sortedStack;
+  }, []);
+
+  const getChokeGroupPlayers = useCallback((chokeGroup: number) => {
+    return ref.current.filter(({ chokeGroup: group }) => group === chokeGroup);
+  }, []);
+
+  return {
+    playingStackRef: ref,
+    hideStackPlayer,
+    showStackPlayer,
+    getChokeGroupPlayers
+  };
 };
