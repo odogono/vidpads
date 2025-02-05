@@ -5,12 +5,14 @@ import { useCallback, useRef } from 'react';
 // import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { cn } from '@helpers/tailwind';
+import { OpLabel } from '../../buttons/OpLabel';
 import { useTouch } from './useTouch';
 
 interface DialProps {
   label?: string;
   ref?: React.RefObject<HTMLDivElement>;
   value?: number;
+  isEnabled?: boolean;
   className?: string;
   size?: string;
   defaultValue?: number;
@@ -34,7 +36,8 @@ export const Dial = ({
   maxValue = 1,
   onChange,
   onChangeEnd,
-  onDoubleTouch
+  onDoubleTouch,
+  isEnabled = true
 }: DialProps) => {
   const startAngle = -135;
   const endAngle = 135;
@@ -82,7 +85,7 @@ export const Dial = ({
   const angle = valueToAngle(value);
 
   return (
-    <div className='flex flex-col gap-2 items-center'>
+    <div className='flex flex-col  items-center'>
       <div
         ref={ref}
         className={cn(
@@ -99,7 +102,7 @@ export const Dial = ({
           <div className='notch bg-slate-700 w-[8%] h-[30%]' />
         </div>
       </div>
-      {label && <label className='text-sm'>{label}</label>}
+      <OpLabel label={label} isEnabled={isEnabled} />
     </div>
   );
 };

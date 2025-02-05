@@ -2,29 +2,37 @@
 
 import { useCallback } from 'react';
 
+import { OpSwitch } from '@components/buttons/OpSwitch';
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
 import { isPadLooped } from '@model/pad';
+import { OpNumberSelect } from '../buttons/OpNumberSelect';
 import { PlaybackRateDial } from './Dial/PlaybackRateDial';
 import { VolumeDial } from './Dial/VolumeDial';
-import { PadStateButton } from './PadStateButton';
 import { PaneProps } from './types';
 
 export type StatePaneProps = PaneProps;
 
-const log = createLog('Controls/StatePane', ['debug']);
+const log = createLog('Controls/StatePane');
 export const StatePane = () => {
   const {
+    chokeGroup,
+    playPriority,
     isPadOneShot,
     pad,
     setPadIsLooped,
     setPadIsOneShot,
     selectedPadId,
     setPadVolume,
-    setPadPlaybackRate
+    setPadPlaybackRate,
+    setPadChokeGroup,
+    setPadPlayPriority,
+    setPadPlaybackResume,
+    isResume
   } = usePad();
 
   const isLooped = isPadLooped(pad);
+  const isEnabled = !!selectedPadId;
 
   const handleOneShot = useCallback(() => {
     if (!pad) return;
@@ -37,6 +45,32 @@ export const StatePane = () => {
     setPadIsLooped(pad.id, !isLooped);
   }, [pad, isLooped, setPadIsLooped]);
 
+  const handleChokeGroup = useCallback(
+    (value: number) => {
+      if (!pad) return;
+      log.debug('handleChokeGroup', pad.id, value);
+      setPadChokeGroup(value === -1 ? undefined : value);
+    },
+    [pad, setPadChokeGroup]
+  );
+
+  const handlePlayPriority = useCallback(
+    (value: number) => {
+      if (!pad) return;
+      log.debug('handlePlayPriority', pad.id, value);
+      setPadPlayPriority(value === -1 ? undefined : value);
+    },
+    [pad, setPadPlayPriority]
+  );
+
+  const handleResume = useCallback(
+    (value: boolean) => {
+      if (!pad) return;
+      setPadPlaybackResume(pad.id, value);
+    },
+    [pad, setPadPlaybackResume]
+  );
+
   log.debug('StatePane', {
     isLooped,
     isPadOneShot,
@@ -44,28 +78,42 @@ export const StatePane = () => {
   });
 
   return (
-    <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center '>
-      <VolumeDial
-        pad={pad}
-        setPadVolume={setPadVolume}
-        isEnabled={!!selectedPadId}
-      />
+    <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
+      <VolumeDial pad={pad} setPadVolume={setPadVolume} isEnabled={isEnabled} />
       <PlaybackRateDial
         pad={pad}
         setPadPlaybackRate={setPadPlaybackRate}
-        isEnabled={!!selectedPadId}
+        isEnabled={isEnabled}
       />
-      <PadStateButton
+      <OpSwitch
         label='One Shot'
-        onPress={handleOneShot}
-        isActive={isPadOneShot}
-        isEnabled={!!selectedPadId}
+        isSelected={isPadOneShot}
+        onChange={handleOneShot}
+        isEnabled={isEnabled}
       />
-      <PadStateButton
+      <OpSwitch
         label='Loop'
-        onPress={handleLooped}
-        isActive={isLooped ?? false}
-        isEnabled={!!selectedPadId}
+        isSelected={isLooped}
+        onChange={handleLooped}
+        isEnabled={isEnabled}
+      />
+      <OpSwitch
+        label='Resume'
+        isSelected={isResume}
+        onChange={handleResume}
+        isEnabled={isEnabled}
+      />
+      <OpNumberSelect
+        label='Choke Group'
+        value={chokeGroup}
+        onChange={handleChokeGroup}
+        isEnabled={isEnabled}
+      />
+      <OpNumberSelect
+        label='Play Priority'
+        value={playPriority}
+        onChange={handlePlayPriority}
+        isEnabled={isEnabled}
       />
     </div>
   );
