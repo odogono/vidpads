@@ -183,7 +183,7 @@ export const exportOperationToURL = (
 
   if (operation.type === OperationType.Label) {
     const { label } = operation as LabelOperation;
-    return `${code}:${encodeURIComponent(label)}`;
+    return `${code}:${btoa(encodeURIComponent(label))}`;
   }
 
   if (operation.type === OperationType.PlaybackRate) {
@@ -240,7 +240,7 @@ export const importOperationFromURL = (
 
   if (type === OperationTypeCodes[OperationType.Label]) {
     const [label] = rest;
-    const decodedLabel = decodeURIComponent(label);
+    const decodedLabel = decodeURIComponent(atob(label));
     return {
       type: OperationType.Label,
       label: decodedLabel

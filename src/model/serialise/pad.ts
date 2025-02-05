@@ -250,7 +250,7 @@ export const importPadFromURLString = (
   log.debug('[importPadFromURLString] opsStr:', { id, opsStr });
 
   const ops = opsStr
-    .split('+')
+    ?.split('+')
     .map(importOperationFromURL)
     .filter(Boolean) as OperationExport[];
 
