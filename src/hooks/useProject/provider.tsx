@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useRouter } from '@/hooks/useProject/useRouter';
+import { getUnixTimeFromDate } from '@helpers/datetime';
 import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
@@ -17,13 +18,13 @@ import {
 import { isProjectNoteworthy } from '@model/helpers';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { getPadSourceUrl } from '@model/pad';
+import { urlStringToProject } from '@model/serialise/store';
 import { createStore } from '@model/store/store';
 import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { getUnixTimeFromDate } from '../../helpers/datetime';
 import { ProjectContext } from './context';
 
-const log = createLog('useProject/provider');
+const log = createLog('useProject/provider', ['debug']);
 
 export const ProjectProvider = ({
   children
@@ -44,32 +45,41 @@ export const ProjectProvider = ({
         return createStore();
       }
 
+      log.debug('A loading project', projectId);
+
       try {
-        log.debug('A deleting pad thumbnails');
-        // await dbDeleteAllPadThumbnails();
-        if (importData) {
-          log.debug('TODO - import data');
+        // const importedProject = await importProject(importData);
+
+        const { store, isNew } = importData
+          ? await importProject(importData)
+          : await loadProject(projectId);
+
+        if (!store) {
+          log.debug('project not loaded', projectId);
+          return createStore();
         }
-
-        // another alternative is to parse the data here
-        // save it, and then set the projectId
-
-        const projectState = await dbLoadProjectState(projectId);
-        const isNewProject = !projectState;
-
-        if (isNewProject) {
-          log.debug('B creating new project', projectId);
-        }
-
-        const store = createStore(projectState);
 
         const snapshot = store.getSnapshot();
+        const loadedProjectId = snapshot.context.projectId;
 
-        if (isNewProject) {
-          log.debug('C saving new project', projectId, snapshot.context);
+        if (isNew) {
+          log.debug('C saving new project', loadedProjectId, snapshot.context);
           await dbSaveProjectState(snapshot.context);
         } else {
-          log.debug('D using existing project', projectId, snapshot.context);
+          log.debug(
+            'D using existing project',
+            loadedProjectId,
+            snapshot.context
+          );
+        }
+
+        if (importData) {
+          queryClient.invalidateQueries({
+            queryKey: VOKeys.project(projectId)
+          });
+          queryClient.invalidateQueries({
+            queryKey: VOKeys.project(loadedProjectId)
+          });
         }
 
         log.debug('E setting projectId', snapshot.context.projectId);
@@ -80,6 +90,7 @@ export const ProjectProvider = ({
           snapshot.context.pads
             .map((pad) => {
               const url = getPadSourceUrl(pad);
+              log.debug('adding pad', pad.id, url);
               return url
                 ? addUrlToPad({ url, padId: pad.id, projectId })
                 : null;
@@ -120,7 +131,7 @@ export const ProjectProvider = ({
         } of projectDetails) {
           const lifetime =
             getUnixTimeFromDate(updatedAt) - getUnixTimeFromDate(createdAt);
-          log.info('project', projectId, projectName, updatedAt, {
+          log.debug('project', projectId, projectName, updatedAt, {
             lifetime,
             isNoteWorthy: isProjectNoteworthy({
               createdAt,
@@ -156,4 +167,24 @@ export const ProjectProvider = ({
       {children}
     </ProjectContext.Provider>
   );
+};
+
+const loadProject = async (projectId: string) => {
+  const projectState = await dbLoadProjectState(projectId);
+  const isNewProject = !projectState;
+  const store = createStore(projectState);
+
+  return { store, isNew: isNewProject };
+};
+
+const importProject = async (importData: string | null) => {
+  if (!importData) {
+    return { store: null, isNew: false };
+  }
+
+  const data = urlStringToProject(importData);
+  const store = createStore();
+  store.send({ type: 'importProject', data });
+
+  return { store, isNew: true };
 };

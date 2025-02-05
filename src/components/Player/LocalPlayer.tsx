@@ -21,7 +21,7 @@ import {
 
 type LocalPlayerProps = PlayerProps;
 
-const log = createLog('player/local', ['debug']);
+const log = createLog('player/local');
 
 export const LocalPlayer = ({
   id,
@@ -82,7 +82,7 @@ export const LocalPlayer = ({
   }, []);
 
   const playVideo = useCallback(
-    (props: PlayerPlay) => {
+    async (props: PlayerPlay) => {
       const { start, end, isLoop, url, padId, volume, playbackRate, isResume } =
         props;
 
@@ -106,17 +106,17 @@ export const LocalPlayer = ({
           ? Number.MAX_SAFE_INTEGER
           : (end ?? Number.MAX_SAFE_INTEGER);
 
-      // log.debug('playVideo', {
-      //   currentTime,
-      //   startTime,
-      //   endTime,
-      //   isLoop,
-      //   url,
-      //   padId,
-      //   volume,
-      //   playbackRate,
-      //   isResume
-      // });
+      log.debug('playVideo', {
+        currentTime,
+        startTime,
+        endTime,
+        isLoop,
+        url,
+        padId,
+        volume,
+        playbackRate,
+        isResume
+      });
 
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
@@ -132,6 +132,22 @@ export const LocalPlayer = ({
       } else {
         videoRef.current.currentTime = startTime;
       }
+
+      log.debug(
+        'playVideo',
+        'waiting for sufficient buffer',
+        videoRef.current?.readyState
+      );
+      // Wait for sufficient buffer
+      await new Promise((resolve) => {
+        if (videoRef.current?.readyState >= 3) {
+          resolve(void 0);
+        } else {
+          videoRef.current?.addEventListener('canplay', resolve, {
+            once: true
+          });
+        }
+      });
 
       isPlayingRef.current = true;
       videoRef.current.play();
@@ -231,6 +247,7 @@ export const LocalPlayer = ({
       time: videoRef.current?.currentTime ?? 0
     } as PlayerPlaying;
     events.emit('player:playing', event);
+    log.debug('❤️ player:playing', event);
   }, [events]);
 
   const handlePaused = useCallback(() => {
@@ -263,6 +280,11 @@ export const LocalPlayer = ({
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    video.playsInline = true;
+    video.preload = 'auto';
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
 
     if (showControls) {
       video.controls = true;

@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { VOKeys } from '../../model/constants';
 import { PlayerProps } from './types';
 
-const log = createLog('player/usePlayers');
+const log = createLog('player/usePlayers', ['debug']);
 
 type PlayersResult = [string, PlayerProps[]];
 

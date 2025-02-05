@@ -13,7 +13,7 @@ import {
 import { VOKeys } from '../constants';
 import { Media, MediaYouTube } from '../types';
 
-const log = createLog('model/useMetadata');
+const log = createLog('model/useMetadata', ['debug']);
 
 export const useMetadata = () => {
   const isMounted = typeof window !== 'undefined';

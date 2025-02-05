@@ -31,7 +31,7 @@ import { Media, MediaYouTube, Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
 
-const log = createLog('model/usePadOperations');
+const log = createLog('model/usePadOperations', ['debug']);
 
 export interface PadOperationsOptions {
   showToast?: boolean;

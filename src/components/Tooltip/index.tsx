@@ -18,7 +18,13 @@ export const Tooltip = () => {
 
   return (
     <div
-      className={`absolute z-[900] w-[6vh] h-[2vh] ${bgColor} text-black text-center flex items-center justify-center`}
+      className={`
+        absolute 
+        z-[900] 
+        w-[6.8rem] 
+        ${bgColor} text-black 
+        font-mono text-sm text-center 
+        flex items-center justify-center`}
       style={{
         top: y,
         left: x,
