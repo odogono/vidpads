@@ -1,10 +1,12 @@
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import {
+  ChokeGroupOperation,
   Interval,
   LoopOperation,
   Operation,
   OperationType,
   Pad,
+  PlayPriorityOperation,
   PlaybackRateOperation,
   SourceOperation,
   TrimOperation,
@@ -21,6 +23,17 @@ export const createPad = (id: string): Pad => {
   };
 };
 
+export const setPadOperations = (
+  pad: Pad | undefined,
+  operations: Operation[]
+) => {
+  if (!pad) {
+    return pad;
+  }
+
+  return { ...pad, pipeline: { ...pad.pipeline, operations } };
+};
+
 export const setPadSource = (
   pad: Pad | undefined,
   source: string | undefined
@@ -28,17 +41,23 @@ export const setPadSource = (
   if (!pad) {
     return pad;
   }
+  const op = { type: OperationType.Source, url: source ?? '' };
 
-  return {
-    ...pad,
-    pipeline: {
-      ...pad.pipeline,
-      source: {
-        type: OperationType.Source,
-        url: source ?? ''
-      }
-    }
-  };
+  return addOrReplacePadOperation(pad, op);
+};
+
+export const setPadLabel = (
+  pad: Pad | undefined,
+  label: string | undefined
+): Pad | undefined => {
+  if (!pad || !label) {
+    return pad;
+  }
+
+  // const op = { type: OperationType.Label, label: label ?? '' };
+
+  // return addOrReplacePadOperation(pad, op);
+  return { ...pad, label };
 };
 
 export const setPadInterval = (
@@ -140,15 +159,17 @@ export const getPadSourceUrl = (pad?: Pad | undefined): string | undefined => {
     return undefined;
   }
 
+  const op = getPadOperation(pad, OperationType.Source);
+
+  if (op) {
+    return (op as SourceOperation).url;
+  }
+
   const pipelineSrc = pad?.pipeline.source?.url;
   if (pipelineSrc) {
     return pipelineSrc;
   }
-  // look in the ops
-  const op = getPadOperation(pad, OperationType.Source);
-  if (op) {
-    return (op as SourceOperation).url;
-  }
+
   return undefined;
 };
 
@@ -247,6 +268,79 @@ export const isPadLooped = (pad: Pad | undefined): boolean => {
   }
 
   return true;
+};
+
+export const setPadChokeGroup = (
+  pad: Pad | undefined,
+  chokeGroup: number | undefined
+): Pad | undefined => {
+  if (!pad || chokeGroup === undefined || chokeGroup === 0) {
+    return pad;
+  }
+
+  const op = { type: OperationType.ChokeGroup, group: chokeGroup };
+  return addOrReplacePadOperation(pad, op);
+};
+
+export const getPadChokeGroup = (pad: Pad | undefined): number | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  const op = getPadOperation(pad, OperationType.ChokeGroup);
+
+  if (!op) {
+    return undefined;
+  }
+
+  return (op as ChokeGroupOperation).group;
+};
+
+export const setPadPlayPriority = (
+  pad: Pad | undefined,
+  playPriority: number | undefined
+): Pad | undefined => {
+  if (!pad || playPriority === undefined || playPriority === 0) {
+    return pad;
+  }
+
+  const op = { type: OperationType.PlayPriority, priority: playPriority };
+  return addOrReplacePadOperation(pad, op);
+};
+
+export const getPadPlayPriority = (
+  pad: Pad | undefined
+): number | undefined => {
+  if (!pad) {
+    return undefined;
+  }
+
+  const op = getPadOperation(pad, OperationType.PlayPriority);
+
+  if (!op) {
+    return undefined;
+  }
+
+  return (op as PlayPriorityOperation).priority;
+};
+
+export const setPadLoop = (
+  pad: Pad | undefined,
+  start: number | undefined
+): Pad | undefined => {
+  if (!pad) {
+    return pad;
+  }
+
+  if (start === undefined || start === -1) {
+    return removePadOperation(pad, OperationType.Loop);
+  }
+
+  const op = {
+    type: OperationType.Loop,
+    start: roundNumberToDecimalPlaces(start)
+  };
+  return addOrReplacePadOperation(pad, op);
 };
 
 export const getPadLoopStart = (pad: Pad | undefined): number => {

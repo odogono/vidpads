@@ -7,6 +7,7 @@ import {
 } from '@helpers/metadata';
 import { isYouTubeUrl, isYouTubeVideoId } from '@helpers/youtube';
 import {
+  ChokeGroupOperation,
   Interval,
   LabelOperation,
   Operation,
@@ -14,15 +15,21 @@ import {
   OperationType,
   Pad,
   PadExport,
-  Pipeline,
+  PlayPriorityOperation,
   SourceOperation
 } from '@model/types';
 import {
   createPad,
+  getPadChokeGroup,
   getPadInterval,
   getPadLabel,
+  getPadPlayPriority,
   getPadSourceUrl,
+  setPadChokeGroup,
   setPadInterval,
+  setPadLabel,
+  setPadOperations,
+  setPadPlayPriority,
   setPadSource
 } from '../pad';
 import {
@@ -47,91 +54,183 @@ export const importPadFromJSON = ({
     return undefined;
   }
 
-  const operations = pad.operations
-    ?.map(importOperationFromJSON)
-    .filter(Boolean) as Operation[];
+  const operations =
+    (pad.operations
+      ?.map(importOperationFromJSON)
+      .filter(Boolean) as Operation[]) ?? [];
 
-  const srcOp = operations?.find((op) => op.type === OperationType.Source) as
-    | SourceOperation
-    | undefined;
-  const filteredOps = srcOp
-    ? operations.filter((op) => op.type !== OperationType.Source)
-    : operations;
+  const [opsWithoutSource, sourceOp] = extractOp(
+    operations,
+    OperationType.Source
+  );
+  const sourceUrl =
+    (sourceOp as SourceOperation | undefined)?.url ?? pad.source;
+  const [opsWithoutLabel, labelOp] = extractOp(
+    opsWithoutSource,
+    OperationType.Label
+  );
+  const label = (labelOp as LabelOperation | undefined)?.label ?? pad.label;
 
-  const pipeline: Pipeline = {
-    operations: filteredOps
-  };
+  const [opsWithoutPlayPriority, playPriorityOp] = extractOp(
+    opsWithoutLabel,
+    OperationType.PlayPriority
+  );
+  const playPriority =
+    (playPriorityOp as PlayPriorityOperation | undefined)?.priority ??
+    pad.playPriority;
+  const [opsWithoutChokeGroup, chokeGroupOp] = extractOp(
+    opsWithoutPlayPriority,
+    OperationType.ChokeGroup
+  );
+  const chokeGroup =
+    (chokeGroupOp as ChokeGroupOperation | undefined)?.group ?? pad.chokeGroup;
 
-  const source = srcOp ? srcOp.url : pad.source;
-  const { id, label } = pad;
+  const finalOps = opsWithoutChokeGroup;
 
-  const result = {
-    id,
-    pipeline
-  };
+  const { id } = pad;
 
-  const resultWithLabel = label ? { ...result, label } : result;
+  const a = createPad(id);
+  const b = setPadOperations(a, finalOps);
+  const c = setPadLabel(b, label);
+  const d = setPadPlayPriority(c, playPriority);
+  const e = setPadChokeGroup(d, chokeGroup);
+  const f = importSource ? setPadSource(e, sourceUrl) : e;
 
-  return setPadSource(resultWithLabel, importSource ? source : undefined);
+  return f;
 };
 
-export const exportPadToJSON = (pad: Pad): PadExport | undefined => {
+export const exportPadToJSON = (
+  pad: Pad,
+  asOperations: boolean = false
+): PadExport | undefined => {
   const { id, pipeline } = pad;
 
   const { operations } = pipeline;
-  const source = getPadSourceUrl(pad);
-  const label = getPadLabel(pad);
-
-  if (!source) {
-    return undefined;
-  }
-
   const ops = operations
     ?.map(exportOperationToJSON)
     .filter(Boolean) as OperationExport[];
 
-  const opsWithSource = source
-    ? [{ type: OperationType.Source, url: source }, ...(ops ?? [])]
-    : ops;
+  const [opsWithoutSource, sourceOp] = extractOp(
+    ops,
+    OperationType.Source,
+    asOperations
+  );
+  const sourceUrl =
+    (sourceOp as SourceOperation | undefined)?.url ?? getPadSourceUrl(pad);
+
+  const [opsWithoutLabel, labelOp] = extractOp(
+    opsWithoutSource,
+    OperationType.Label,
+    asOperations
+  );
+  const label =
+    (labelOp as LabelOperation | undefined)?.label ?? getPadLabel(pad);
+
+  const [opsWithoutPlayPriority, playPriorityOp] = extractOp(
+    opsWithoutLabel,
+    OperationType.PlayPriority,
+    asOperations
+  );
+  const playPriority =
+    (playPriorityOp as PlayPriorityOperation | undefined)?.priority ??
+    getPadPlayPriority(pad);
+
+  const [opsWithoutChokeGroup, chokeGroupOp] = extractOp(
+    opsWithoutPlayPriority,
+    OperationType.ChokeGroup,
+    asOperations
+  );
+  const chokeGroup =
+    (chokeGroupOp as ChokeGroupOperation | undefined)?.group ??
+    getPadChokeGroup(pad);
+
+  const finalOps = opsWithoutChokeGroup;
+
+  if (!sourceUrl && finalOps.length === 0) {
+    return undefined;
+  }
 
   const result = { id };
-  const resultWithLabel = label ? { ...result, label } : result;
-  const resultWithOps =
-    opsWithSource && opsWithSource?.length > 0
-      ? { ...resultWithLabel, operations: opsWithSource }
-      : resultWithLabel;
 
-  return resultWithOps;
+  if (asOperations) {
+    const sourceOp = sourceUrl
+      ? applyOp(finalOps, {
+          type: OperationType.Source,
+          url: sourceUrl
+        } as SourceOperation)
+      : finalOps;
+    const labelOp = label
+      ? applyOp(sourceOp, {
+          type: OperationType.Label,
+          label
+        } as LabelOperation)
+      : sourceOp;
+    return applyToPadExport(result, 'operations', labelOp);
+  }
+
+  const resultWithLabel = applyToPadExport(result, 'label', label);
+  const resultWithSource = applyToPadExport(
+    resultWithLabel,
+    'source',
+    sourceUrl
+  );
+  const resultWithPlayPriority = applyToPadExport(
+    resultWithSource,
+    'playPriority',
+    playPriority
+  );
+  const resultWithChokeGroup = applyToPadExport(
+    resultWithPlayPriority,
+    'chokeGroup',
+    chokeGroup
+  );
+
+  return applyToPadExport(resultWithChokeGroup, 'operations', finalOps);
+};
+
+const applyToPadExport = (
+  pad: PadExport,
+  key: keyof PadExport,
+  value: unknown
+) => {
+  if (!value || (Array.isArray(value) && value.length === 0)) {
+    return pad;
+  }
+  return { ...pad, [key]: value };
+};
+
+const extractOp = (
+  ops: Operation[] | undefined,
+  type: OperationType,
+  remove: boolean = true
+): [Operation[], Operation | undefined] => {
+  if (!ops) {
+    return [[], undefined];
+  }
+  const op = ops.find((op) => op.type === type);
+  if (!op) {
+    return [ops, undefined];
+  }
+  return remove ? [ops.filter((op) => op.type !== type), op] : [ops, op];
+};
+
+const applyOp = (ops: Operation[], op: Operation) => {
+  return [op, ...ops.filter((o) => o.type !== op.type)];
 };
 
 export const exportPadToURLString = (pad: Pad): string | undefined => {
-  const json = exportPadToJSON(pad);
+  // export, but ask to keep the operations
+  const json = exportPadToJSON(pad, true);
+
+  // console.debug('[exportPadToURLString] json:', JSON.stringify(json, null, 2));
   if (!json) {
     return undefined;
   }
 
   const { id, operations } = json;
 
-  // reapply the source as an op, taking care
-  // to clear existing source ops
-  const sourceUrl = getPadSourceUrl(pad);
-  const filteredOps = operations?.filter(
-    (op) => op.type !== OperationType.Source
-  );
-  const sourceOps = sourceUrl
-    ? [{ type: OperationType.Source, url: sourceUrl }, ...(filteredOps ?? [])]
-    : filteredOps;
-
-  const label = getPadLabel(pad);
-  const filteredLabelOps = sourceOps?.filter(
-    (op) => op.type !== OperationType.Label
-  );
-  const labelOps = label
-    ? [{ type: OperationType.Label, label }, ...(filteredLabelOps ?? [])]
-    : filteredLabelOps;
-
   const ops =
-    labelOps?.reduce((acc, op) => {
+    operations?.reduce((acc, op) => {
       const url = exportOperationToURL(op);
       if (url) {
         acc.push(url);
@@ -160,23 +259,24 @@ export const importPadFromURLString = (
     .map(importOperationFromURL)
     .filter(Boolean) as OperationExport[];
 
-  const labelOp = ops.find((op) => op.type === OperationType.Label);
-  const filteredOps = ops.filter((op) => op.type !== OperationType.Label);
-
+  const [opsWithoutLabel, labelOp] = extractOp(ops, OperationType.Label);
   const label = (labelOp as LabelOperation | undefined)?.label;
 
-  // const source = ops.find((op) => op.type === OperationType.Source);
-  // const sourceUrl = (source as SourceOperation | undefined)?.url;
-  // const filteredOps = source
-  //   ? ops.filter((op) => op.type !== OperationType.Source)
-  //   : ops;
+  const [opsWithoutSource, sourceOp] = extractOp(
+    opsWithoutLabel,
+    OperationType.Source
+  );
+  const source = (sourceOp as SourceOperation | undefined)?.url;
 
   const result = {
     id,
-    operations: filteredOps
+    operations: opsWithoutSource
   };
 
-  return label ? { ...result, label } : result;
+  const resultWithLabel = applyToPadExport(result, 'label', label);
+  const resultWithSource = applyToPadExport(resultWithLabel, 'source', source);
+
+  return resultWithSource;
 };
 
 export const exportPadToClipboard = (pad: Pad) => {

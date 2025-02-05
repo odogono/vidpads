@@ -60,12 +60,7 @@ describe('pad serialization', () => {
       const exported = exportPadToJSON(simplePad);
       expect(exported).toEqual({
         id: 'pad1',
-        operations: [
-          {
-            type: OperationType.Source,
-            url: 'https://example.com/video.mp4'
-          }
-        ]
+        source: 'https://example.com/video.mp4'
       });
     });
 
@@ -73,11 +68,8 @@ describe('pad serialization', () => {
       const exported = exportPadToJSON(complexPad);
       expect(exported).toEqual({
         id: 'pad2',
+        source: 'https://example.com/video.mp4',
         operations: [
-          {
-            type: OperationType.Source,
-            url: 'https://example.com/video.mp4'
-          },
           {
             type: OperationType.Trim,
             start: 0,
@@ -114,15 +106,15 @@ describe('pad serialization', () => {
       expect(imported).toEqual({
         id: 'pad1',
         pipeline: {
-          source: {
-            type: OperationType.Source,
-            url: 'https://example.com/video.mp4'
-          },
           operations: [
             {
               type: OperationType.Trim,
               start: 0,
               end: 10
+            },
+            {
+              type: OperationType.Source,
+              url: 'https://example.com/video.mp4'
             }
           ]
         }
