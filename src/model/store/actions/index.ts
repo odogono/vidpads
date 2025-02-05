@@ -34,3 +34,4 @@ export { setPadLabel } from './setPadLabel';
 export { setPadChokeGroup } from './setPadChokeGroup';
 export { setPadPlayPriority } from './setPadPlayPriority';
 export { setPadIsOneShot } from './setPadIsOneShot';
+export { setPadPlaybackResume } from './setPadPlayResume';

@@ -51,6 +51,7 @@ export interface PlayerPlay extends PlayerEvent {
   isOneShot?: boolean;
   volume?: number;
   playbackRate?: number;
+  isResume?: boolean;
 }
 
 export interface PlayerSetVolume extends PlayerEvent {

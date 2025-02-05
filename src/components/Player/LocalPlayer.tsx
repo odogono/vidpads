@@ -20,7 +20,7 @@ import {
 
 type LocalPlayerProps = PlayerProps;
 
-const log = createLog('player/local');
+const log = createLog('player/local', ['debug']);
 
 export const LocalPlayer = ({
   id,
@@ -80,7 +80,16 @@ export const LocalPlayer = ({
   }, []);
 
   const playVideo = useCallback(
-    ({ start, end, isLoop, url, padId, volume, playbackRate }: PlayerPlay) => {
+    ({
+      start,
+      end,
+      isLoop,
+      url,
+      padId,
+      volume,
+      playbackRate,
+      isResume
+    }: PlayerPlay) => {
       if (!videoRef.current) return;
       if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
@@ -92,11 +101,24 @@ export const LocalPlayer = ({
         return;
       }
 
+      const currentTime = videoRef.current?.currentTime ?? 0;
       const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
       const endTime =
         (end ?? Number.MAX_SAFE_INTEGER) === -1
           ? Number.MAX_SAFE_INTEGER
           : (end ?? Number.MAX_SAFE_INTEGER);
+
+      log.debug('playVideo', {
+        currentTime,
+        startTime,
+        endTime,
+        isLoop,
+        url,
+        padId,
+        volume,
+        playbackRate,
+        isResume
+      });
 
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
@@ -104,7 +126,14 @@ export const LocalPlayer = ({
 
       videoRef.current.playbackRate = playbackRate ?? 1;
       videoRef.current.volume = volume ?? 1;
-      videoRef.current.currentTime = startTime;
+
+      if (isResume) {
+        if (currentTime > endTime) {
+          videoRef.current.currentTime = startTime;
+        }
+      } else {
+        videoRef.current.currentTime = startTime;
+      }
 
       isPlayingRef.current = true;
       videoRef.current.play();
@@ -207,7 +236,7 @@ export const LocalPlayer = ({
   }, [events, mediaUrl, playerPadId]);
 
   const handlePaused = useCallback(() => {
-    // log.debug('handlePaused', id, playerPadId);
+    // log.debug('handlePaused', playerPadId);
     events.emit('player:stopped', {
       url: mediaUrl,
       padId: playerPadId,

@@ -36,14 +36,13 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <div className='controls-container mt-4 p-2 bg-slate-500 rounded-lg flex flex-row'>
+    <div className='controls-container mt-4 p-2   rounded-lg flex flex-row'>
       <div className='switcher rounded-lg  flex flex-row'>
         <OpBiButton
-          label='State'
           onPressUp={goToPreviousControlPane}
           onPressDown={goToNextControlPane}
         ></OpBiButton>
-        <div className='switcher-indicator m-2 flex flex-col gap-2 justify-center'>
+        <div className='switcher-indicator m-2 flex flex-col gap-2 justify-center items-center '>
           <Indicator isActive={selectedControlPane === 'state'} />
           <Indicator isActive={selectedControlPane === 'interval'} />
           <Indicator isActive={selectedControlPane === 'details'} />

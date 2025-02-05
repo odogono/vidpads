@@ -34,7 +34,16 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   // });
 
   const playVideo = useCallback(
-    ({ url, padId, start, end, isLoop, volume, playbackRate }: PlayerPlay) => {
+    ({
+      url,
+      padId,
+      start,
+      end,
+      isLoop,
+      volume,
+      playbackRate,
+      isResume
+    }: PlayerPlay) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
@@ -58,7 +67,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         isLoop,
         volume: setVolume,
         playbackRate,
-        playbackRates: player.getAvailablePlaybackRates()
+        playbackRates: player.getAvailablePlaybackRates(),
+        isResume
       });
 
       if (setVolume === 0) {
@@ -69,7 +79,13 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         player.setPlaybackRate(playbackRate ?? 1);
       }
 
-      player.seekTo(startTime, true);
+      if (isResume) {
+        if (player.getCurrentTime() > endTime) {
+          player.seekTo(startTime, true);
+        }
+      } else {
+        player.seekTo(startTime, true);
+      }
       player.playVideo();
 
       return [player.getCurrentTime(), player.getDuration()] as PlayerReturn;

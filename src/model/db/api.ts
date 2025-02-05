@@ -24,7 +24,7 @@ import {
 } from '@model/types';
 import { getMediaType } from '../helpers';
 
-const log = createLog('db/api');
+const log = createLog('db/api', ['debug']);
 
 const DB_NAME = 'odgn-vo';
 const DB_VERSION = 2;
@@ -835,7 +835,7 @@ export const savePadThumbnail = async (
       'readwrite'
     );
 
-    log.debug('[savePadThumbnail]', { projectId, padId, thumbnail });
+    log.debug('[savePadThumbnail]', { projectId, padId });
 
     const request = thumbnails.put({
       id: thumbnailId,

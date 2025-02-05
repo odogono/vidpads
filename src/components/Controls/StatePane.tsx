@@ -57,7 +57,6 @@ export const StatePane = () => {
   const handlePlayPriority = useCallback(
     (value: number) => {
       if (!pad) return;
-      log.debug('handlePlayPriority', pad.id, value);
       setPadPlayPriority(value === -1 ? undefined : value);
     },
     [pad, setPadPlayPriority]
@@ -66,19 +65,21 @@ export const StatePane = () => {
   const handleResume = useCallback(
     (value: boolean) => {
       if (!pad) return;
+      log.debug('handleResume', pad.id, { value, isResume });
       setPadPlaybackResume(pad.id, value);
     },
-    [pad, setPadPlaybackResume]
+    [pad, setPadPlaybackResume, isResume]
   );
 
   log.debug('StatePane', {
     isLooped,
     isPadOneShot,
-    pad: pad?.id
+    pad: pad?.id,
+    isResume
   });
 
   return (
-    <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
+    <div className='w-full h-full bg-slate-500 rounded-lg p-2 flex gap-6 items-center justify-center'>
       <VolumeDial pad={pad} setPadVolume={setPadVolume} isEnabled={isEnabled} />
       <PlaybackRateDial
         pad={pad}
