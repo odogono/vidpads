@@ -1,4 +1,13 @@
 import {
+  createPad,
+  getPadInterval,
+  getPadIsOneShot,
+  getPadLabel,
+  getPadSourceUrl,
+  getPadVolume,
+  setPadIsOneShot
+} from '@model/pad';
+import {
   OperationType,
   Pad,
   PadExport,
@@ -6,12 +15,6 @@ import {
   TrimOperation,
   VolumeOperation
 } from '@model/types';
-import {
-  getPadInterval,
-  getPadLabel,
-  getPadSourceUrl,
-  getPadVolume
-} from '../../pad';
 import {
   exportPadToJSON,
   exportPadToURLString,
@@ -103,6 +106,7 @@ describe('pad serialization', () => {
         pad: padExport,
         importSource: true
       });
+
       expect(imported).toEqual({
         id: 'pad1',
         pipeline: {
@@ -151,6 +155,36 @@ describe('pad serialization', () => {
       const exported = exportPadToJSON(pad);
       const imported = importPadFromJSON({ pad: exported, importSource: true });
       expect(imported?.label).toBe('Test Label');
+    });
+
+    describe('playback operations', () => {
+      it('should serialise and deserialise oneshot', () => {
+        const pad: Pad = createPad('pad1');
+        const a = setPadIsOneShot(pad, true);
+
+        const exported = exportPadToJSON(a!);
+
+        const imported = importPadFromJSON({
+          pad: exported,
+          importSource: true
+        });
+
+        expect(getPadIsOneShot(imported)).toBe(true);
+      });
+
+      it('should serialise and deserialise false oneshot', () => {
+        const pad: Pad = createPad('pad1');
+        const a = setPadIsOneShot(pad, false);
+
+        const exported = exportPadToJSON(a!);
+
+        const imported = importPadFromJSON({
+          pad: exported,
+          importSource: true
+        });
+
+        expect(getPadIsOneShot(imported)).toBe(false);
+      });
     });
   });
 

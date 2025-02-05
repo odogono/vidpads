@@ -28,8 +28,7 @@ export const OperationType = {
   PlaybackRate: 'playbackRate',
   Loop: 'loop',
   Label: 'label',
-  ChokeGroup: 'chokeGroup',
-  PlayPriority: 'playPriority'
+  Playback: 'playback'
 } as const;
 
 export type OperationType = (typeof OperationType)[keyof typeof OperationType];
@@ -56,6 +55,14 @@ export interface PlaybackRateOperation extends Operation {
   preservePitch: boolean;
 }
 
+export interface PlaybackOperation extends Operation {
+  type: typeof OperationType.Playback;
+  isOneShot?: boolean | undefined;
+  priority?: number | undefined;
+  chokeGroup?: number | undefined;
+  resume?: boolean | undefined;
+}
+
 export interface TrimOperation extends Operation {
   type: typeof OperationType.Trim;
   start: number;
@@ -72,16 +79,6 @@ export type VolumeKeyPoint = {
   time: number;
   value: number;
 };
-
-export interface ChokeGroupOperation extends Operation {
-  type: typeof OperationType.ChokeGroup;
-  group: number;
-}
-
-export interface PlayPriorityOperation extends Operation {
-  type: typeof OperationType.PlayPriority;
-  priority: number;
-}
 
 export interface VolumeOperation extends Operation {
   type: typeof OperationType.Volume;
@@ -105,8 +102,6 @@ export interface Pad {
   id: string;
   label?: string;
   isSelected?: boolean;
-  isOneShot?: boolean;
-  volume?: number;
 
   pipeline: Pipeline;
 }

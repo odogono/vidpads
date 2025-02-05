@@ -60,12 +60,6 @@ export interface StoreContextType {
   updatedAt: string;
 }
 
-export type UpdatePadSourceAction = {
-  type: 'updatePadSource';
-  padId: string;
-  url: string;
-};
-
 export type SetPadMediaAction = {
   type: 'setPadMedia';
   padId: string;
@@ -260,7 +254,6 @@ export type SetPadLabelAction = {
 };
 
 export type Actions =
-  | UpdatePadSourceAction
   | SetPadMediaAction
   | ClearPadAction
   | CopyPadAction

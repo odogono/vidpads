@@ -1,12 +1,3 @@
-import { OperationType, Pad } from '@model/types';
-import type {
-  Emit,
-  SetPadIsOneShotAction,
-  StoreContext,
-  UpdatePadSourceAction
-} from '../types';
-import { addOrReplacePad, findPadById } from './helpers';
-
 export { applyPad } from './applyPad';
 export { applyPlaybackRateToPad } from './applyPlaybackRateToPad';
 export { applyTrimToPad } from './applyTrimToPad';
@@ -42,44 +33,4 @@ export { updateProject } from './updateProject';
 export { setPadLabel } from './setPadLabel';
 export { setPadChokeGroup } from './setPadChokeGroup';
 export { setPadPlayPriority } from './setPadPlayPriority';
-
-export const setPadIsOneShot = (
-  context: StoreContext,
-  event: SetPadIsOneShotAction
-): StoreContext => {
-  const { padId, isOneShot } = event;
-  const pad = findPadById(context, padId);
-  if (!pad) {
-    return context;
-  }
-
-  const newPad = { ...pad, isOneShot };
-
-  return addOrReplacePad(context, newPad);
-};
-
-export const updatePadSource = (
-  context: StoreContext,
-  event: UpdatePadSourceAction,
-  { emit }: Emit
-): StoreContext => {
-  const pad = findPadById(context, event.padId);
-  if (!pad) {
-    return context;
-  }
-
-  const newPad: Pad = {
-    ...pad,
-    pipeline: {
-      ...pad.pipeline,
-      source: {
-        type: OperationType.Source,
-        url: event.url
-      }
-    }
-  };
-
-  emit({ type: 'padUpdated', pad: newPad });
-
-  return addOrReplacePad(context, newPad);
-};
+export { setPadIsOneShot } from './setPadIsOneShot';

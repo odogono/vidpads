@@ -7,6 +7,7 @@ import { useEvents } from '@hooks/events';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import {
   getPadInterval,
+  getPadIsOneShot,
   getPadLoopStart,
   getPadPlaybackRate,
   getPadSourceUrl,
@@ -58,7 +59,7 @@ export const PlayerContainer = () => {
         return;
       }
 
-      const isOneShot = pad.isOneShot ?? false;
+      const isOneShot = getPadIsOneShot(pad);
       const isLoop = isPadLooped(pad);
       const loopStart = getPadLoopStart(pad);
       const { start, end } = getPadInterval(pad, {
@@ -90,7 +91,7 @@ export const PlayerContainer = () => {
       const url = getPadSourceUrl(pad);
       if (!url) return;
 
-      const isOneShot = pad.isOneShot ?? false;
+      const isOneShot = getPadIsOneShot(pad);
 
       if (!isOneShot) {
         events.emit('video:stop', { url, padId, time: 0 });
