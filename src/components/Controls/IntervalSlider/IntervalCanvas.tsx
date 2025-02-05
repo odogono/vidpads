@@ -9,14 +9,14 @@ import {
 } from 'react';
 
 import { useTooltip } from '@components/Tooltip/useTooltip';
-// import { createLog } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Pad } from '@model/types';
 import { Rect } from '@types';
 import { Handle } from './handles';
 import { useTouch } from './useTouch';
 
-// const log = createLog('IntervalCanvas');
+const log = createLog('IntervalCanvas', ['debug']);
 
 export interface IntervalSliderProps {
   pad: Pad | undefined;
@@ -65,6 +65,9 @@ export const IntervalCanvas = ({
 
   const intervalToX = useCallback(
     (time: number) => {
+      if (!duration) {
+        return trackArea.x;
+      }
       return time * (trackArea.width / duration) + trackArea.x;
     },
     [duration, trackArea.width, trackArea.x]
@@ -227,13 +230,6 @@ export const IntervalCanvas = ({
       trackHeight
     );
 
-    // drawHandles(ctx, {
-    //   x: startX,
-    //   y: trackY,
-    //   width: endX - startX,
-    //   height
-    // });
-
     // Draw the current time line
     ctx.strokeStyle = 'red';
     ctx.beginPath();
@@ -295,7 +291,7 @@ export const IntervalCanvas = ({
     [xToInterval, onSeek, onIntervalChange, intervalStart, hideToolTip]
   );
 
-  // log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
+  log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
 
   return (
     <div className='pointer-events-none relative w-full h-full bg-slate-800 rounded-sm'>
@@ -352,35 +348,3 @@ export const IntervalCanvas = ({
     </div>
   );
 };
-
-// const drawHandles = (
-//   ctx: CanvasRenderingContext2D,
-//   { x, y, width, height }: Rect
-// ) => {
-//   ctx.fillStyle = 'gold';
-//   // top border
-//   ctx.fillRect(x, 0, width, intervalBorderWidth);
-
-//   // bottom border
-//   ctx.fillRect(x, height - intervalBorderWidth, width, intervalBorderWidth);
-
-//   // left handle
-//   ctx.roundRect(x - handleWidth, 0, handleWidth, height, [5, 0, 0, 5]);
-//   ctx.fill();
-
-//   // right handle
-//   ctx.roundRect(x + width, 0, handleWidth - 2.5, height, [0, 5, 5, 0]);
-//   ctx.fill();
-
-//   const sy = y + height / 2 - 10;
-//   const sx = x - handleWidth / 2;
-//   ctx.strokeStyle = 'black';
-//   ctx.beginPath();
-//   ctx.moveTo(sx - 2, sy);
-//   ctx.lineTo(sx - 2, sy + 20);
-//   ctx.stroke();
-//   ctx.beginPath();
-//   ctx.moveTo(sx + 2, sy);
-//   ctx.lineTo(sx + 2, sy + 20);
-//   ctx.stroke();
-// };

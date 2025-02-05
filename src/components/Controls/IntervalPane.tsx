@@ -21,14 +21,6 @@ export const IntervalPane = () => {
     return null;
   }
 
-  // if (!selectedPadId) {
-  //   return (
-  //     <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
-  //       <h3 className='font-semibold text-foreground/90'>No Pad Selected</h3>
-  //     </div>
-  //   );
-  // }
-
   return (
     <>
       <div className='pane-interval w-full h-full bg-slate-500 p-2 rounded-lg flex flex-col gap-2'>
