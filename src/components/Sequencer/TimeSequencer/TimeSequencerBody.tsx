@@ -2,11 +2,12 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-// import { createLog } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
+import { quantizeSeconds } from '../../../model/sequencerEvent';
 import { Header } from './components/Header';
 import { Marquee } from './components/Marquee';
 import { PlayHead } from './components/PlayHead';
@@ -17,7 +18,7 @@ import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
 import { useSequencerEvents } from './hooks/useSequencerEvents';
 
-// const log = createLog('TimeSequencerBody');
+const log = createLog('TimeSequencerBody');
 
 export interface SequencerBodyProps {
   canvasBpm?: number;
@@ -46,9 +47,10 @@ export const TimeSequencerBody = ({
     eventIds: sequencerEventIds,
     toggleEvent,
     moveEvents,
-    // addEvent,
+    addEvent,
     getEventsAtTime,
     selectEvents,
+    selectEventsAtTime,
     selectedEvents,
     selectedEventIds,
     endTime
@@ -114,19 +116,6 @@ export const TimeSequencerBody = ({
 
   const handleMarqueeSelectEnd = useCallback(
     (rect: Rect, isFinished?: boolean, isLongPress?: boolean) => {
-      // const x = Math.max(0, rect.x - 10);
-      // const time = pixelsToSeconds(x, pixelsPerBeat, canvasBpm);
-      // const duration = pixelsToSeconds(rect.width, pixelsPerBeat, canvasBpm);
-
-      // const { rowHeight } = getGridDimensions();
-      // const startRowIndex = Math.floor(rect.y / rowHeight) - 1;
-      // const endRowIndex = Math.floor((rect.y + rect.height) / rowHeight) - 1;
-
-      // const padIds = Array.from(
-      //   { length: endRowIndex - startRowIndex + 1 },
-      //   (_, index) => `a${startRowIndex + index + 1}`
-      // );
-
       const { time, duration, padIds } = convertGridRectToTime(rect);
 
       const hasSelectedEvents = selectedEventIds.length > 0;
@@ -141,7 +130,7 @@ export const TimeSequencerBody = ({
         } else if (rect.width <= 5 && rect.height <= 5) {
           if (hasSelectedEvents) {
             // deselect all events
-            selectEvents([], -1, -1);
+            selectEventsAtTime([], -1, -1);
           } else {
             const eventsAtTime = getEventsAtTime(padIds[0], time);
 
@@ -149,24 +138,29 @@ export const TimeSequencerBody = ({
               const lastEvent = eventsAtTime[eventsAtTime.length - 1];
               const evtDuration = lastEvent?.duration ?? 0.5;
               setLastEventDuration(evtDuration);
+              // selectEvents(eventsAtTime, lastEvent.time, evtDuration);
+              selectEvents(eventsAtTime.slice(0, 1));
+            } else {
+              addEvent(padIds[0], quantizeSeconds(time, 4), lastEventDuration);
             }
 
             // const quantizedTime = quantizeSeconds(time, 0.5);
-            toggleEvent(padIds[0], time, time + lastEventDuration);
+            // toggleEvent(padIds[0], time, time + lastEventDuration);
           }
         } else {
           // Normal marquee selection
-          selectEvents(padIds, time, duration);
+          selectEventsAtTime(padIds, time, duration);
         }
       }
     },
     [
       convertGridRectToTime,
       selectedEventIds.length,
-      selectEvents,
+      selectEventsAtTime,
       getEventsAtTime,
-      toggleEvent,
-      lastEventDuration
+      selectEvents,
+      lastEventDuration,
+      addEvent
     ]
   );
 
@@ -179,10 +173,10 @@ export const TimeSequencerBody = ({
       //   isFinished
       // );
       if (!isFinished) {
-        selectEvents(padIds, time, duration);
+        selectEventsAtTime(padIds, time, duration);
       }
     },
-    [convertGridRectToTime, selectEvents]
+    [convertGridRectToTime, selectEventsAtTime]
   );
 
   const moveRowIndex = useRef(-1);
@@ -190,6 +184,7 @@ export const TimeSequencerBody = ({
     (pos: Position, start: Position, isFinished?: boolean) => {
       // convert pos to ms
       const time = pixelsToSeconds(pos.x, pixelsPerBeat, canvasBpm);
+
       // const startRowIndex = convertYToPadId(start.y).rowIndex;
       const currentRowIndex = convertYToPadId(start.y + pos.y).rowIndex;
 

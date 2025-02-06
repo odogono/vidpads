@@ -100,6 +100,18 @@ export const useSequencer = () => {
   );
 
   const selectEvents = useCallback(
+    (evts: SequencerEvent[]) => {
+      project.send({
+        type: 'selectSequencerEvents',
+        padIds: evts.map((e) => e.padId),
+        time: evts[0].time,
+        duration: evts[0].duration
+      });
+    },
+    [project]
+  );
+
+  const selectEventsAtTime = useCallback(
     (padIds: string[], time: number, duration: number) => {
       project.send({ type: 'selectSequencerEvents', padIds, time, duration });
     },
@@ -149,6 +161,7 @@ export const useSequencer = () => {
     clearEvents,
     addEvent,
     removeEvent,
+    selectEventsAtTime,
     selectEvents,
     selectedEvents,
     selectedEventIds,

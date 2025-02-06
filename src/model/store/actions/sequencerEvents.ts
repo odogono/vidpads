@@ -5,6 +5,7 @@ import {
   joinEvents,
   mergeEvents,
   padIdToRowIndex,
+  quantizeEvents,
   removeEvents,
   rowIndexToPadId
 } from '@model/sequencerEvent';
@@ -204,7 +205,7 @@ export const moveSequencerEvents = (
   }));
 
   const quantizedEvents = isFinished
-    ? movedEvents //quantizeEvents(movedEvents, 16)
+    ? quantizeEvents(movedEvents, 4, false)
     : movedEvents;
 
   // log.debug('moveSequencerEvents moved', movedEvents.length);
