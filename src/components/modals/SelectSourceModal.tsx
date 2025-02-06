@@ -67,7 +67,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
       }
       e.target.value = '';
     },
-    [activeIndex, addFileToPad, ACCEPTED_FILE_TYPES, close, projectId]
+    [activeIndex, addFileToPad, close, projectId]
   );
 
   const handleValidate = useCallback((value: string) => {

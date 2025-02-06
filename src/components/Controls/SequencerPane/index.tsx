@@ -26,8 +26,6 @@ export const SequencerPane = () => {
   const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
 
   const {
-    bpm,
-    setBpm,
     clearEvents,
     startTime,
     endTime,

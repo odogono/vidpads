@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useSequencer } from '@model/hooks/useSequencer';
 import { Pad, SequencerEvent } from '@model/types';
@@ -18,7 +18,7 @@ import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
 import { useSequencerEvents } from './hooks/useSequencerEvents';
 
-const log = createLog('TimeSequencerBody');
+// const log = createLog('TimeSequencerBody');
 
 export interface SequencerBodyProps {
   canvasBpm?: number;
@@ -45,7 +45,6 @@ export const TimeSequencerBody = ({
     bpm,
     events: sequencerEvents,
     eventIds: sequencerEventIds,
-    toggleEvent,
     moveEvents,
     addEvent,
     getEventsAtTime,
