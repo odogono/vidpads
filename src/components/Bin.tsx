@@ -1,13 +1,116 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { ClipboardCopy, ClipboardX } from 'lucide-react';
 
+import { createLog } from '@helpers/log';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { MIME_TYPE_BIN, MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
+import { OnDropProps } from '@hooks/usePadDnD/context';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { usePadOperations } from '@model/hooks/usePadOperations';
+
+const log = createLog('Bin');
 
 export const BinComponent = () => {
-  const { isDragging, dragOverId, onDragLeave, onDragOver, onDrop } =
-    usePadDnD();
-  const isDraggingOver =
-    dragOverId === 'cut' || dragOverId === 'copy' || dragOverId === 'delete';
+  const cutRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
+  const deleteRef = useRef<HTMLDivElement>(null);
+  const { isDragging, registerDropTarget, unregisterDropTarget } = usePadDnD();
+
+  const { clearPad, cutPadToClipboard, copyPadToClipboard } =
+    usePadOperations();
+
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
+  const handleOver = useCallback(({ targetId, mimeType }: OnDropProps) => {
+    if (mimeType !== MIME_TYPE_PAD) {
+      setDragOverId(null);
+      return false;
+    }
+
+    setDragOverId(targetId);
+
+    return true;
+  }, []);
+
+  const handleLeave = useCallback((props: OnDropProps) => {
+    log.debug('handleLeave', props);
+
+    setDragOverId(null);
+
+    return false;
+  }, []);
+
+  const handleDrop = useCallback(
+    async ({ sourceId, targetId, mimeType }: OnDropProps) => {
+      setDragOverId(null);
+
+      if (mimeType !== MIME_TYPE_PAD) {
+        return false;
+      }
+
+      switch (targetId) {
+        case 'delete':
+          await clearPad({ sourcePadId: sourceId, showToast: true });
+          break;
+        case 'cut':
+          await cutPadToClipboard({ sourcePadId: sourceId, showToast: true });
+          break;
+        case 'copy':
+          await copyPadToClipboard({ sourcePadId: sourceId, showToast: true });
+          break;
+        default:
+          break;
+      }
+
+      return true;
+    },
+    [clearPad, copyPadToClipboard, cutPadToClipboard]
+  );
+
+  useEffect(() => {
+    if (deleteRef.current) {
+      registerDropTarget({
+        id: 'delete',
+        element: deleteRef.current,
+        mimeType: MIME_TYPE_BIN,
+        onOver: handleOver,
+        onDrop: handleDrop,
+        onLeave: handleLeave
+      });
+    }
+    if (cutRef.current) {
+      registerDropTarget({
+        id: 'cut',
+        element: cutRef.current,
+        mimeType: MIME_TYPE_BIN,
+        onOver: handleOver,
+        onDrop: handleDrop,
+        onLeave: handleLeave
+      });
+    }
+    if (copyRef.current) {
+      registerDropTarget({
+        id: 'copy',
+        element: copyRef.current,
+        mimeType: MIME_TYPE_BIN,
+        onOver: handleOver,
+        onDrop: handleDrop,
+        onLeave: handleLeave
+      });
+    }
+    return () => {
+      unregisterDropTarget('delete');
+      unregisterDropTarget('cut');
+      unregisterDropTarget('copy');
+    };
+  }, [
+    registerDropTarget,
+    unregisterDropTarget,
+    handleDrop,
+    handleLeave,
+    handleOver
+  ]);
 
   return (
     <div className='vo-bin-container absolute left-1/2 -translate-x-1/2 top-[30vh] z-50'>
@@ -22,17 +125,12 @@ export const BinComponent = () => {
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 translate-y-10 pointer-events-none hidden'
         }
-        ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
+        ${dragOverId ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
       `}
-        // onDragOver={(e) => onDragOver(e, 'bin')}
-        // onDragLeave={() => onDragLeave('bin')}
-        // onDrop={(e) => onDrop(e, 'bin')}
       >
         <div
+          ref={cutRef}
           className='w-full h-full flex items-center justify-center'
-          onDragOver={(e) => onDragOver(e, 'cut')}
-          onDragLeave={() => onDragLeave('cut')}
-          onDrop={(e) => onDrop(e, 'cut')}
         >
           <ClipboardX
             className={`
@@ -42,10 +140,8 @@ export const BinComponent = () => {
           />
         </div>
         <div
+          ref={copyRef}
           className=' w-full h-full flex items-center justify-center'
-          onDragOver={(e) => onDragOver(e, 'copy')}
-          onDragLeave={() => onDragLeave('copy')}
-          onDrop={(e) => onDrop(e, 'copy')}
         >
           <ClipboardCopy
             className={`
@@ -56,10 +152,8 @@ export const BinComponent = () => {
         </div>
 
         <div
+          ref={deleteRef}
           className=' w-full h-full flex items-center justify-center'
-          onDragOver={(e) => onDragOver(e, 'delete')}
-          onDragLeave={() => onDragLeave('delete')}
-          onDrop={(e) => onDrop(e, 'delete')}
         >
           <TrashIcon
             className={`

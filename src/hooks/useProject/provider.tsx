@@ -65,7 +65,7 @@ export const ProjectProvider = ({
 
         if (isNew) {
           log.debug('C new project', loadedProjectId, snapshot.context);
-          // await dbSaveProjectState(snapshot.context);
+          await dbSaveProjectState(snapshot.context);
         } else {
           log.debug(
             'D using existing project',

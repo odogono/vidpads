@@ -1,200 +1,284 @@
 'use client';
 
-import { ReactNode, useCallback, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+
+import { createPortal } from 'react-dom';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
-import { usePadOperations } from '@model/hooks/usePadOperations';
+import { useEvents } from '@hooks/events';
+import { DragGhost } from '@hooks/usePadDnD/DragGhost';
 import { GeneralDragEvent } from '@types';
-import {
-  MIME_TYPE_DROP_EFFECT,
-  MIME_TYPE_ID,
-  MIME_TYPE_PAD,
-  MIME_TYPE_SEQ_EVENT
-} from './constants';
-import { PadDnDContext } from './context';
+import { PadDnDContext, RegisterDropTargetProps } from './context';
 
 const log = createLog('PadDnDProvider');
 
-const ACCEPTED_FILE_TYPES = [
-  // 'image/png',
-  // 'image/jpeg',
-  // 'image/jpg',
-  'video/mp4',
-  'video/mov'
-];
-
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
+  const events = useEvents();
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [draggingMimeType, setDraggingMimeType] = useState<string | null>(null);
+  const [draggingElement, setDraggingElement] = useState<HTMLElement | null>(
+    null
+  );
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const dropEffectRef = useRef<'copy' | 'move'>('copy');
-
-  const {
-    project,
-    projectId,
-    addFileToPad,
-    clearPad,
-    copyPadToPad,
-    movePadToPad,
-    cutPadToClipboard,
-    copyPadToClipboard
-  } = usePadOperations();
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const dropTargets = useRef<Map<string, RegisterDropTargetProps>>(new Map());
 
   const { isMetaKeyDown } = useKeyboard();
 
-  const onDragStart = useCallback(
-    (e: GeneralDragEvent, id: string, mimeType?: string) => {
-      if (mimeType) {
-        e.dataTransfer?.clearData();
-        e.dataTransfer?.setData(mimeType, id);
-        e.dataTransfer?.setData(MIME_TYPE_ID, id);
-      }
-      dropEffectRef.current = isMetaKeyDown() ? 'move' : 'copy';
-      e.dataTransfer!.dropEffect = dropEffectRef.current;
-      e.dataTransfer!.setData(
-        MIME_TYPE_DROP_EFFECT,
-        e.dataTransfer!.dropEffect
-      );
-      log.debug('onDragStart', id, mimeType, e.dataTransfer?.dropEffect);
-
-      setDraggingId(id);
-    },
-    [isMetaKeyDown]
-  );
-
-  const onDragEnd = useCallback(() => {
-    setDraggingId(null);
-    dropEffectRef.current = 'copy';
+  const registerDropTarget = useCallback((props: RegisterDropTargetProps) => {
+    dropTargets.current.set(props.id, props);
   }, []);
 
-  const onDragOver = useCallback(
+  const unregisterDropTarget = useCallback((id: string) => {
+    dropTargets.current.delete(id);
+  }, []);
+
+  const onDragStart = useCallback(
+    (e: React.PointerEvent, id: string, mimeType: string) => {
+      e.preventDefault();
+      e.currentTarget.setPointerCapture(e.pointerId);
+
+      const pos = { x: e.clientX, y: e.clientY };
+
+      log.debug('onDragStart', id, pos);
+
+      setIsDragging(false);
+      setDraggingId(id);
+      setDraggingMimeType(mimeType);
+      setDraggingElement(e.currentTarget as HTMLElement);
+      setStartPosition(pos);
+      setDragPosition(pos);
+    },
+    []
+  );
+
+  const triggerDragLeave = useCallback(
+    (id: string) => {
+      const target = dropTargets.current.get(id);
+      if (target) {
+        target.onLeave?.({
+          sourceId: draggingId ?? 'file',
+          targetId: id,
+          mimeType: draggingMimeType ?? 'unknown',
+          dropEffect: 'none'
+        });
+      }
+    },
+    [draggingId, draggingMimeType]
+  );
+
+  const onDragMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!draggingId) return false;
+
+      const pos = { x: e.clientX, y: e.clientY };
+      if (!isDragging) {
+        const dragThreshold = 30;
+
+        const deltaX = pos.x - startPosition.x;
+        const deltaY = pos.y - startPosition.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        if (!isDragging && distance > dragThreshold) {
+          setIsDragging(true);
+          setDragPosition(pos);
+          return true;
+        }
+      } else {
+        setDragPosition(pos);
+
+        // Check for drop targets
+        let foundTarget: string | null = null;
+        dropTargets.current.forEach(({ element }, targetId) => {
+          const rect = element.getBoundingClientRect();
+          if (
+            pos.x >= rect.left &&
+            pos.x <= rect.right &&
+            pos.y >= rect.top &&
+            pos.y <= rect.bottom
+          ) {
+            foundTarget = targetId;
+          }
+        });
+
+        // Update dragOverId if we found a target
+        if (foundTarget !== dragOverId) {
+          // the target changed
+          const dropEffect = isMetaKeyDown() ? 'move' : 'copy';
+
+          if (dragOverId && dragOverId !== draggingId) {
+            triggerDragLeave(dragOverId);
+          }
+
+          if (foundTarget && foundTarget !== draggingId) {
+            const target = dropTargets.current.get(foundTarget);
+            if (target) {
+              target.onOver?.({
+                file: undefined,
+                sourceId: draggingId ?? 'file',
+                targetId: foundTarget,
+                mimeType: draggingMimeType ?? 'unknown',
+                dropEffect
+              });
+            }
+          }
+
+          setDragOverId(foundTarget);
+        }
+
+        return true;
+      }
+      return false;
+    },
+    [
+      draggingId,
+      isDragging,
+      startPosition.x,
+      startPosition.y,
+      dragOverId,
+      isMetaKeyDown,
+      triggerDragLeave,
+      draggingMimeType
+    ]
+  );
+
+  const onDragEnd = useCallback(
+    (e: React.PointerEvent) => {
+      setDraggingId(null);
+      setDragOverId(null);
+      if (!isDragging) return;
+
+      if (dragOverId && draggingId && draggingId !== dragOverId) {
+        const target = dropTargets.current.get(dragOverId);
+        const dropEffect = isMetaKeyDown() ? 'move' : 'copy';
+        if (target) {
+          target.onDrop?.({
+            sourceId: draggingId,
+            targetId: dragOverId,
+            mimeType: draggingMimeType ?? 'unknown',
+            dropEffect
+          });
+        }
+      }
+      e.currentTarget.releasePointerCapture(e.pointerId);
+
+      // log.debug('onDragEnd', { draggingId, dragOverId });
+    },
+    [dragOverId, draggingId, draggingMimeType, isDragging, isMetaKeyDown]
+  );
+
+  const onNativeDragOver = useCallback(
     (e: GeneralDragEvent, id: string) => {
       e.preventDefault();
-      setDragOverId(id);
 
-      const isBin =
-        id === 'bin' || id === 'cut' || id === 'copy' || id === 'delete';
+      const target = dropTargets.current.get(id);
 
-      // Check if this is a pad being dragged
-      const isPadDrag = e.dataTransfer?.types.includes(MIME_TYPE_PAD);
+      if (target) {
+        const item = e.dataTransfer?.items[0];
+        const file = e.dataTransfer?.files[0];
+        const mimeType = item?.type ?? file?.type ?? 'unknown';
+        const dropEffect = e.dataTransfer?.dropEffect ?? 'copy';
 
-      if (isPadDrag) {
-        // Only show drop indicator if dragging onto a different pad
-        if (draggingId !== id) {
-          setDragOverId(id);
-        }
-        return;
+        const accepted = target.onOver?.({
+          sourceId: draggingId ?? 'file',
+          targetId: id,
+          mimeType,
+          dropEffect
+        });
+
+        setDragOverId(accepted || mimeType === 'unknown' ? id : null);
       }
-
-      // Handle file drag (existing code)
-      if (!isBin) {
-        const types = Array.from(e.dataTransfer?.items ?? []).map(
-          (item) => item.type
-        );
-        if (types.some((type) => ACCEPTED_FILE_TYPES.includes(type))) {
-          setDragOverId(id);
-        }
-      }
-
-      // log.debug('handleDragOver', id);
     },
     [draggingId]
   );
 
-  const onDragLeave = useCallback(() => {
+  const onNativeDragLeave = useCallback(() => {
     setDragOverId(null);
   }, []);
 
-  const onDrop = useCallback(
-    async (e: GeneralDragEvent, targetId: string) => {
+  const onNativeDrop = useCallback(
+    async (e: GeneralDragEvent) => {
       e.preventDefault();
-      setDragOverId(null);
-      setDraggingId(null);
 
-      // Check if this is a pad being dropped
-      const sourceId = e.dataTransfer?.getData(MIME_TYPE_ID);
-      const sourcePadId = e.dataTransfer?.getData(MIME_TYPE_PAD);
-      const sourceEventData = e.dataTransfer?.getData(MIME_TYPE_SEQ_EVENT);
+      log.debug('[onNativeDrop]', { dragOverId });
 
-      log.debug('handleDrop', sourceId, targetId, e.dataTransfer?.dropEffect);
+      if (dragOverId) {
+        const target = dropTargets.current.get(dragOverId);
+        if (target) {
+          const item = e.dataTransfer?.items[0];
+          const file = e.dataTransfer?.files[0];
+          const mimeType = item?.type ?? file?.type ?? 'unknown';
 
-      if (targetId === 'delete') {
-        if (sourcePadId) {
-          await clearPad({ sourcePadId, showToast: true });
-        }
-        if (sourceEventData) {
-          // TODO tidy this up
-          log.debug('delete event', sourceEventData);
-          const event = JSON.parse(sourceEventData);
-          project.send({
-            ...event,
-            type: 'removeSequencerEvent'
+          log.debug('onNativeDrop', mimeType, e.dataTransfer);
+
+          target.onDrop?.({
+            sourceId: 'file',
+            targetId: dragOverId,
+            file,
+            mimeType,
+            dropEffect: e.dataTransfer?.dropEffect ?? 'copy'
           });
         }
-        return;
-      }
-      if (sourcePadId) {
-        if (targetId === 'cut') {
-          await cutPadToClipboard({ sourcePadId, showToast: true });
-          return;
-        }
-
-        if (targetId === 'copy') {
-          await copyPadToClipboard({ sourcePadId, showToast: true });
-          return;
-        }
-
-        if (sourcePadId !== targetId) {
-          if (dropEffectRef.current === 'move') {
-            await movePadToPad({ sourcePadId, targetPadId: targetId });
-          } else {
-            await copyPadToPad({ sourcePadId, targetPadId: targetId });
-          }
-          return;
-        }
       }
 
-      // Handle file drop (existing code)
-      const files = Array.from(e.dataTransfer?.files ?? []);
-      if (files.length > 0) {
-        const file = files[0];
-        if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-          log.warn('Invalid file type. Please use PNG, JPEG, or MP4 files.');
-          return;
-        }
-        await addFileToPad({ file, padId: targetId, projectId });
-        log.info(`Processed file ${file.name} for pad ${targetId}`);
-      }
+      setDragOverId(null);
+      setDraggingId(null);
     },
-    [
-      clearPad,
-      project,
-      cutPadToClipboard,
-      copyPadToClipboard,
-      movePadToPad,
-      copyPadToPad,
-      addFileToPad,
-      projectId
-    ]
+    [dragOverId]
   );
+
+  const handleCancel = useCallback(() => {
+    if (dragOverId && dragOverId !== draggingId) {
+      triggerDragLeave(dragOverId);
+    }
+
+    setDraggingId(null);
+    setDragOverId(null);
+    setIsDragging(false);
+    setDraggingMimeType(null);
+  }, [dragOverId, draggingId, triggerDragLeave]);
+
+  useEffect(() => {
+    events.on('cmd:cancel', handleCancel);
+    return () => {
+      events.off('cmd:cancel', handleCancel);
+    };
+  }, [handleCancel, events]);
 
   return (
     <PadDnDContext.Provider
       value={{
-        ACCEPTED_FILE_TYPES,
-        isDragging: draggingId !== null,
+        isDragging: isDragging && !!draggingId,
         draggingId,
         setDraggingId,
-        dragOverId,
         setDragOverId,
         onDragStart,
-        onDragLeave,
-        onDragOver,
+        onNativeDrop,
+        onNativeDragLeave,
+        onNativeDragOver,
         onDragEnd,
-        onDrop
+        onDragMove,
+        dragPosition,
+        registerDropTarget,
+        unregisterDropTarget
       }}
     >
       {children}
+      {isDragging &&
+        draggingId &&
+        createPortal(
+          <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }}>
+            <DragGhost
+              id={draggingId}
+              position={dragPosition}
+              element={draggingElement}
+            />
+          </div>,
+          document.body
+        )}
     </PadDnDContext.Provider>
   );
 };

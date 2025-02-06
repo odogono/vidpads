@@ -36,7 +36,7 @@ type EventMap = {
 
 const EVENT_MAP: EventMap = {
   Escape: {
-    event: 'player:stop-all',
+    event: 'cmd:cancel',
     // eslint-disable-next-line no-console
     fn: () => console.clear()
   },
