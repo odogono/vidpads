@@ -319,7 +319,7 @@ export const usePlayerYTEvents = ({
 
     events.on('video:start', evtPlayVideo);
     events.on('video:stop', evtStopVideo);
-    events.on('player:stop-all', evtStopAll);
+    events.on('cmd:cancel', evtStopAll);
     events.on('video:seek', handleSeek);
     events.on('video:extract-thumbnail', evtExtractThumbnail);
     events.on('player:ready', handleReady);
@@ -330,7 +330,7 @@ export const usePlayerYTEvents = ({
       stopTimeTracking();
       events.off('video:start', evtPlayVideo);
       events.off('video:stop', evtStopVideo);
-      events.off('player:stop-all', evtStopAll);
+      events.off('cmd:cancel', evtStopAll);
       events.off('video:seek', handleSeek);
       events.off('video:extract-thumbnail', evtExtractThumbnail);
       events.off('player:ready', handleReady);

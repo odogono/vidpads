@@ -21,7 +21,7 @@ import {
 
 type LocalPlayerProps = PlayerProps;
 
-const log = createLog('player/local');
+const log = createLog('player/local', ['debug']);
 
 export const LocalPlayer = ({
   id,
@@ -310,7 +310,7 @@ export const LocalPlayer = ({
   useEffect(() => {
     events.on('video:start', playVideo);
     events.on('video:stop', stopVideo);
-    events.on('player:stop-all', stopAll);
+    events.on('cmd:cancel', stopAll);
     events.on('video:seek', seekVideo);
     events.on('video:extract-thumbnail', extractThumbnail);
     events.on('player:set-volume', setVolume);
@@ -318,7 +318,7 @@ export const LocalPlayer = ({
     return () => {
       events.off('video:start', playVideo);
       events.off('video:stop', stopVideo);
-      events.off('player:stop-all', stopAll);
+      events.off('cmd:cancel', stopAll);
       events.off('video:seek', seekVideo);
       events.off('video:extract-thumbnail', extractThumbnail);
       events.off('player:set-volume', setVolume);

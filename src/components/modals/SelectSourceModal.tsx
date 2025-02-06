@@ -2,10 +2,10 @@
 
 import { useCallback, useRef, useState } from 'react';
 
+import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
 import { isValidSourceUrl } from '@helpers/metadata';
 import { useEvents } from '@hooks/events';
-import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
@@ -20,7 +20,6 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   const events = useEvents();
   const { projectId } = useProject();
   const [isEnteringUrl, setIsEnteringUrl] = useState(false);
-  const { ACCEPTED_FILE_TYPES } = usePadDnD();
   const { lastMediaUrl, setLastMediaUrl } = useLastMediaUrl();
   const [url, setUrl] = useState(lastMediaUrl ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);

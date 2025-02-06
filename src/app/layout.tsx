@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter, Kode_Mono } from 'next/font/google';
 
 import './globals.css';
 
+import { EventsProvider } from '@hooks/events/provider';
 import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
 
 const geistSans = Geist({
@@ -54,7 +55,9 @@ const RootLayout = ({
         font-sans
       `}
     >
-      <FullscreenContextProvider>{children}</FullscreenContextProvider>
+      <EventsProvider>
+        <FullscreenContextProvider>{children}</FullscreenContextProvider>
+      </EventsProvider>
     </body>
   </html>
 );

@@ -43,7 +43,7 @@ export interface ImportPadFromJSONProps {
   importSource?: boolean;
 }
 
-const log = createLog('model/serialise/pad', ['debug']);
+const log = createLog('model/serialise/pad');
 
 export const importPadFromJSON = ({
   pad,

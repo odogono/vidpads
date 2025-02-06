@@ -1,26 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  type PointerEvent as ReactPointerEvent
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { VolumeOff } from 'lucide-react';
 
+import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
+import { OnDropProps } from '@hooks/usePadDnD/context';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
+import { usePadOperations } from '@model/hooks/usePadOperations';
 import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { getPadLabel, getPadSourceUrl } from '@model/pad';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
-import { GeneralDragEvent, GeneralTouchEvent } from '@types';
-import { useGhostDrag } from './ghost';
-import { useNullImage } from './useNullImage';
 import { usePlayerEvents } from './usePlayerEvents';
 
 export interface PadComponentProps {
@@ -30,7 +25,7 @@ export interface PadComponentProps {
   onEmptyPadTouch: (padId: string) => void;
 }
 
-const log = createLog('PadComponent', ['debug']);
+const log = createLog('PadComponent');
 
 export const PadComponent = ({
   isPlayEnabled,
@@ -41,40 +36,58 @@ export const PadComponent = ({
   const events = useEvents();
   const elementRef = useRef<HTMLDivElement>(null);
   const { thumbnail } = usePadThumbnail(pad);
-  const dragImage = useNullImage();
-  const { createGhost, removeGhost, updateGhost } = useGhostDrag();
   const {
-    isDragging,
-    setDraggingId,
-    dragOverId,
     onDragStart,
-    onDragLeave,
-    onDragOver,
+    onDragMove,
+    onNativeDragLeave,
+    onNativeDragOver,
     onDragEnd,
-    onDrop
+    onNativeDrop,
+    registerDropTarget,
+    unregisterDropTarget
   } = usePadDnD();
-  const isDraggingOver = dragOverId === pad.id;
+
+  const {
+    projectId,
+    addFileToPad,
+
+    copyPadToPad,
+    movePadToPad
+  } = usePadOperations();
+
+  const [isDragOver, setIsDragOver] = useState(false);
   const { selectedPadId, setSelectedPadId } = useSelectedPadId();
 
   const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
 
   const padLabel = getPadLabel(pad);
 
-  useEffect(() => {
-    if (!isDragging) {
-      removeGhost();
-    }
-  }, [isDragging, removeGhost]);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (isPlayerReady && isPlayEnabled) {
+        events.emit('pad:touchdown', { padId: pad.id });
+      }
+      setSelectedPadId(pad.id);
 
-  const handlePointerDown = useCallback(() => {
-    // e.preventDefault();
-    // e.stopPropagation();
+      onDragStart(e, pad.id, MIME_TYPE_PAD);
+    },
+    [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled, onDragStart]
+  );
 
-    if (isPlayerReady && isPlayEnabled) {
-      events.emit('pad:touchdown', { padId: pad.id });
-    }
-    setSelectedPadId(pad.id);
-  }, [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled]);
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      const isDragging = onDragMove(e, pad.id, MIME_TYPE_PAD);
+
+      if (isDragging && isPlayerPlaying) {
+        events.emit('video:stop', {
+          url: getPadSourceUrl(pad) ?? '',
+          padId: pad.id,
+          time: 0
+        });
+      }
+    },
+    [events, isPlayerPlaying, onDragMove, pad]
+  );
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -84,24 +97,11 @@ export const PadComponent = ({
     []
   );
 
-  const handlePointerMove = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement> | PointerEvent) => {
-      // e.preventDefault();
-      // e.stopPropagation();
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      onDragEnd(e, pad.id);
 
-      const { clientX, clientY } = e;
-      requestAnimationFrame(() => {
-        updateGhost(clientX, clientY);
-      });
-    },
-    [updateGhost]
-  );
-
-  const handlePointerUp = useCallback(() => {
-    // e.preventDefault();
-    // e.stopPropagation();
-
-    if (!isDragging) {
+      // if (!isDragging) {
       if (!thumbnail && isSelectSourceEnabled) {
         onEmptyPadTouch(pad.id);
       } else {
@@ -109,104 +109,109 @@ export const PadComponent = ({
           events.emit('pad:touchup', { padId: pad.id });
         }
       }
-    } else {
-      removeGhost();
-      setDraggingId(null);
+    },
+    [
+      onDragEnd,
+      pad.id,
+      thumbnail,
+      isSelectSourceEnabled,
+      onEmptyPadTouch,
+      isPlayerReady,
+      isPlayEnabled,
+      events
+    ]
+  );
+
+  const handleOver = useCallback(({ targetId, mimeType }: OnDropProps) => {
+    // log.debug('handleOver', { file, sourceId, targetId, mimeType });
+
+    if (mimeType !== MIME_TYPE_PAD && !ACCEPTED_FILE_TYPES.includes(mimeType)) {
+      log.debug('handleOver', targetId, mimeType, 'rejected');
+      setIsDragOver(false);
+      return false;
     }
-  }, [
-    isDragging,
-    thumbnail,
-    onEmptyPadTouch,
-    pad.id,
-    events,
-    removeGhost,
-    setDraggingId,
-    isPlayerReady,
-    isPlayEnabled,
-    isSelectSourceEnabled
-  ]);
 
-  const handleDragStart = useCallback(
-    (e: GeneralDragEvent) => {
-      onDragStart(e, pad.id, MIME_TYPE_PAD);
+    setIsDragOver(true);
+    return true;
+  }, []);
 
-      // Use the empty canvas as the drag image
-      if (dragImage) {
-        e.dataTransfer?.setDragImage(dragImage, 0, 0);
-      }
-      createGhost(e as GeneralTouchEvent, elementRef.current!);
+  const handleLeave = useCallback(
+    ({ file, sourceId, targetId }: OnDropProps) => {
+      log.debug('handleLeave', { file, sourceId, targetId });
 
-      events.emit('video:stop', {
-        url: getPadSourceUrl(pad) ?? '',
-        padId: pad.id,
-        time: 0
-      });
+      setIsDragOver(false);
+
+      return false;
     },
-    [dragImage, createGhost, onDragStart, events, pad]
+    []
   );
-
   const handleDrop = useCallback(
-    (e: GeneralDragEvent) => {
-      onDrop(e, pad.id);
-    },
-    [pad.id, onDrop]
-  );
-
-  const handleDragOver = useCallback(
-    (e: DragEvent) => {
-      const { clientX, clientY } = e;
-
-      requestAnimationFrame(() => {
-        updateGhost(clientX, clientY);
+    async ({ file, sourceId, targetId, mimeType, dropEffect }: OnDropProps) => {
+      log.debug('handleDrop', {
+        file,
+        sourceId,
+        targetId,
+        mimeType,
+        dropEffect
       });
-    },
-    [updateGhost]
-  );
 
-  // Add onDragEnd handler to clean up
-  const handleDragEnd = useCallback(() => {
-    // log.debug('handleDragEnd', isDragging);
-    // Ensure we clean up even if the component is about to unmount
-    requestAnimationFrame(() => {
-      removeGhost();
-      onDragEnd(pad.id);
-    });
-  }, [removeGhost, onDragEnd, pad.id]);
+      setIsDragOver(false);
+      if (
+        mimeType !== MIME_TYPE_PAD &&
+        !ACCEPTED_FILE_TYPES.includes(mimeType)
+      ) {
+        return false;
+      }
+
+      if (mimeType === MIME_TYPE_PAD) {
+        if (dropEffect === 'move') {
+          await movePadToPad({ sourcePadId: sourceId, targetPadId: targetId });
+        } else {
+          await copyPadToPad({ sourcePadId: sourceId, targetPadId: targetId });
+        }
+
+        return true;
+      }
+
+      // file drop
+      if (file) {
+        await addFileToPad({ file, padId: targetId, projectId });
+      }
+
+      return false;
+    },
+    [addFileToPad, copyPadToPad, movePadToPad, projectId]
+  );
 
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('pointerup', handlePointerUp);
-      document.addEventListener('pointermove', handlePointerMove);
-      document.addEventListener('dragover', handleDragOver, { passive: true });
+    if (elementRef.current) {
+      registerDropTarget({
+        id: pad.id,
+        mimeType: MIME_TYPE_PAD,
+        element: elementRef.current,
+        onOver: handleOver,
+        onDrop: handleDrop,
+        onLeave: handleLeave
+      });
+      return () => unregisterDropTarget(pad.id);
     }
-
-    return () => {
-      document.removeEventListener('pointerup', handlePointerUp);
-      document.removeEventListener('pointermove', handlePointerMove);
-      document.removeEventListener('dragover', handleDragOver);
-    };
-  }, [isDragging, handlePointerUp, handlePointerMove, handleDragOver]);
-
-  const dragProps = {
-    // Native drag and drop handlers
-    draggable: !!thumbnail,
-    onDragStart: thumbnail ? handleDragStart : undefined,
-    onDragEnd: thumbnail ? handleDragEnd : undefined,
-    onDragOver: (e: React.DragEvent<HTMLDivElement>) => onDragOver(e, pad.id),
-    onDragLeave: () => onDragLeave(pad.id),
-    onDrop: handleDrop
-  };
+  }, [
+    pad.id,
+    registerDropTarget,
+    unregisterDropTarget,
+    handleDrop,
+    handleOver,
+    handleLeave
+  ]);
 
   const isReady = !!thumbnail ? isPlayerReady : true;
-
-  if (thumbnail) log.debug('render', pad.id, thumbnail);
 
   return (
     <div
       ref={elementRef}
       className={`
           w-full min-h-[44px] h-full rounded-lg cursor-pointer transition-all relative select-none touch-none
-          ${isDraggingOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
+          ${isDragOver ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
           ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
           ${isReady ? 'opacity-100' : 'opacity-20'}
         `}
@@ -227,7 +232,9 @@ export const PadComponent = ({
       onContextMenu={handleContextMenu}
       // Also add this attribute to prevent text selection
       suppressContentEditableWarning={true}
-      // {...dragProps}
+      onDragOver={(e) => onNativeDragOver(e, pad.id)}
+      onDragLeave={() => onNativeDragLeave(pad.id)}
+      onDrop={(e) => onNativeDrop(e, pad.id)}
     >
       {thumbnail && (
         <div className='w-full h-full absolute inset-0 rounded-lg'>

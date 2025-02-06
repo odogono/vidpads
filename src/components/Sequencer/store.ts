@@ -322,7 +322,7 @@ export const useSequencerStore = () => {
 
   const handleStop = useCallback(() => {
     store.send({ type: 'stop' });
-    events.emit('player:stop-all');
+    events.emit('cmd:cancel');
   }, [store, events]);
 
   const handleRecord = useCallback(() => {

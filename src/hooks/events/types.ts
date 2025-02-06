@@ -45,11 +45,10 @@ export type EventEmitterEvents = {
   'player:stopped': PlayerStopped;
   'player:time-update': PlayerTimeUpdate;
 
-  'player:stop-all': undefined;
-
   'player:set-volume': PlayerSetVolume;
   'player:set-playback-rate': PlayerSetPlaybackRate;
 
+  'cmd:cancel': undefined;
   'cmd:copy': undefined;
   'cmd:cut': undefined;
   'cmd:paste': undefined;
