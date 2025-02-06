@@ -43,6 +43,18 @@ export const IntervalSlider = ({ pad, isEnabled }: IntervalSliderProps) => {
 
   return (
     <div
+      suppressContentEditableWarning={true}
+      style={{
+        touchAction: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        // Add these properties to prevent magnifying glass
+        WebkitTapHighlightColor: 'transparent',
+        // Prevent text selection and callouts
+        userSelect: 'none'
+        // Prevent touch callout
+        // touchCallout: 'none'
+      }}
       className={cn(
         'vo-interval-slider w-full h-[60%] min-h-[44px] bg-white',
         !isEnabled && 'opacity-50'

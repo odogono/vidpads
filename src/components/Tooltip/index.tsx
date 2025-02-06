@@ -1,20 +1,23 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import { formatTimeToString } from '@helpers/time';
 import { useSelector } from '@xstate/store/react';
 import { store } from './store';
 
+// TODO this should be a portal
 export const Tooltip = () => {
   const time = useSelector(store, (state) => state.context.time);
   const x = useSelector(store, (state) => state.context.pos[0]);
   const y = useSelector(store, (state) => state.context.pos[1]);
 
-  if (x === -1) return null;
-
-  const timeString = formatTimeToString(time);
+  const timeString = useMemo(() => formatTimeToString(time), [time]);
 
   const bgColor = 'bg-yellow-500';
   const borderColor = 'border-t-yellow-500';
+
+  if (x === -1) return null;
 
   return (
     <div
@@ -26,6 +29,8 @@ export const Tooltip = () => {
         font-mono text-sm text-center 
         flex items-center justify-center`}
       style={{
+        // safari fix - https://stackoverflow.com/a/62934196/2377677
+        display: 'inline-block',
         top: y,
         left: x,
         transform: 'translateX(-35%)',

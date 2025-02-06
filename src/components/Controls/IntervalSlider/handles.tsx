@@ -71,7 +71,7 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    e.currentTarget.setPointerCapture(e.touches[0].identifier);
+    // e.currentTarget.setPointerCapture(e.touches[0].identifier);
     // log.debug('Touch start');
     setIsTouching(true);
   }, []);
@@ -79,7 +79,7 @@ const useEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
-      e.currentTarget.releasePointerCapture(e.touches[0].identifier);
+      // e.currentTarget.releasePointerCapture(e.touches[0].identifier);
       // log.debug('Touch end');
       setIsTouching(false);
       onDragEnd?.();
