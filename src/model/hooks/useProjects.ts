@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { compress } from '@helpers/compress';
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys, resetAllQueries } from '@helpers/query';
@@ -82,9 +83,16 @@ export const useProjects = () => {
     return exportToJSONString(project);
   }, [project]);
 
-  const exportProjectToURLString = useCallback(() => {
-    return exportToURLString(project);
-  }, [project]);
+  const exportProjectToURLString = useCallback(
+    async (doCompress: boolean = false) => {
+      const urlString = exportToURLString(project);
+      if (doCompress) {
+        return await compress(urlString);
+      }
+      return urlString;
+    },
+    [project]
+  );
 
   const importFromJSONString = useCallback(
     async (json: string) => {

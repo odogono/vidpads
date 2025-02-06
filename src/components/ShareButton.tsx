@@ -15,7 +15,8 @@ export const ShareButton = () => {
   const { createNewUrl } = useShareUrl();
 
   const handleOnPress = useCallback(async () => {
-    const url = createNewUrl({ d: exportToURLString() });
+    const d = await exportToURLString(true);
+    const url = createNewUrl({ d });
     await writeToClipboard(url);
 
     toast.success('Copied to clipboard');
