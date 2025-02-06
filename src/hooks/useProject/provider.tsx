@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useRouter } from '@/hooks/useProject/useRouter';
+import { decompress } from '@helpers/compress';
 import { getUnixTimeFromDate } from '@helpers/datetime';
 import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
@@ -24,7 +25,7 @@ import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { ProjectContext } from './context';
 
-const log = createLog('useProject/provider', ['debug']);
+const log = createLog('useProject/provider');
 
 export const ProjectProvider = ({
   children
@@ -63,8 +64,8 @@ export const ProjectProvider = ({
         const loadedProjectId = snapshot.context.projectId;
 
         if (isNew) {
-          log.debug('C saving new project', loadedProjectId, snapshot.context);
-          await dbSaveProjectState(snapshot.context);
+          log.debug('C new project', loadedProjectId, snapshot.context);
+          // await dbSaveProjectState(snapshot.context);
         } else {
           log.debug(
             'D using existing project',
@@ -90,7 +91,7 @@ export const ProjectProvider = ({
           snapshot.context.pads
             .map((pad) => {
               const url = getPadSourceUrl(pad);
-              log.debug('adding pad', pad.id, url);
+              // log.debug('adding pad', pad.id, url);
               return url
                 ? addUrlToPad({ url, padId: pad.id, projectId })
                 : null;
@@ -182,7 +183,7 @@ const importProject = async (importData: string | null) => {
     return { store: null, isNew: false };
   }
 
-  const data = urlStringToProject(importData);
+  const data = urlStringToProject(await decompress(importData));
   const store = createStore();
   store.send({ type: 'importProject', data });
 

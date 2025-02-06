@@ -21,7 +21,7 @@ export const generateUUID = (): string => {
 export const generateShortUUID = (): string => {
   // Get current timestamp in hex (last 6 chars)
   const timestamp = Date.now().toString(16).slice(-6);
-  // Add 2 random chars
-  const random = Math.random().toString(16).slice(2, 4);
+  // Add 4 random chars
+  const random = Math.random().toString(16).slice(2, 6);
   return timestamp + random;
 };

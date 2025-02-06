@@ -1,6 +1,6 @@
 'use client';
 
-import { useImperativeHandle } from 'react';
+import { useEffect, useImperativeHandle, useState } from 'react';
 
 import { useShareUrl } from '@hooks/useShareUrl';
 // import { createLog } from '@helpers/log';
@@ -34,8 +34,17 @@ export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
   const { exportToJSONString, exportToURLString } = useProjects();
   const { createNewUrl } = useShareUrl();
 
+  const [url, setUrl] = useState('');
+
   const json = exportToJSONString();
-  const url = createNewUrl({ d: exportToURLString() });
+
+  useEffect(() => {
+    const fetchUrl = async () => {
+      const d = await exportToURLString(true);
+      setUrl(createNewUrl({ d }));
+    };
+    fetchUrl();
+  }, [exportToURLString, createNewUrl]);
 
   useImperativeHandle(ref, () => ({
     onOpen
