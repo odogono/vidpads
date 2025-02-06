@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { Container } from '@components/Container';
+import { LoadingSpinner } from '@components/LoadingSpinner';
 import { createLog } from '@helpers/log';
 
 const log = createLog('Loading', ['debug']);
@@ -13,8 +14,8 @@ export const LoadingContainer = ({
   log.debug('[LoadingContainer] ⚠️', message);
   return (
     <Container>
-      <div className='flex items-center justify-center h-screen'>
-        <div className='w-8 h-8 border-4 border-gray-600 mr-4 border-t-gray-400 rounded-full animate-spin' />
+      <div className='flex items-center justify-center h-screen gap-4'>
+        <LoadingSpinner />
         <div className='text-gray-400'>{message}</div>
       </div>
     </Container>
