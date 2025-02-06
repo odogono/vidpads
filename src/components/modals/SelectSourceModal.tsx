@@ -9,7 +9,7 @@ import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
-import { Button, Input } from '@nextui-org/react';
+import { Button, Input } from "@heroui/react";
 import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 
 const log = createLog('SelectSourceModal', ['debug']);

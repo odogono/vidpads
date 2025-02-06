@@ -5,12 +5,12 @@ import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
-import { NextUIProvider } from '@nextui-org/react';
+import { HeroUIProvider } from "@heroui/react";
 
 const Player = () => {
   return (
     <LoadingSuspense>
-      <NextUIProvider disableAnimation className='w-full h-full flex flex-col'>
+      <HeroUIProvider disableAnimation className='w-full h-full flex flex-col'>
         <QueryClientContextProvider>
           <KeyboardProvider>
             <LoadingSuspense message='Loading project...'>
@@ -20,7 +20,7 @@ const Player = () => {
             </LoadingSuspense>
           </KeyboardProvider>
         </QueryClientContextProvider>
-      </NextUIProvider>
+      </HeroUIProvider>
     </LoadingSuspense>
   );
 };

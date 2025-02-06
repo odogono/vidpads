@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { writeToClipboard } from '@helpers/clipboard';
 import { useShareUrl } from '@hooks/useShareUrl';
 import { useProjects } from '@model/hooks/useProjects';
-import { Button } from '@nextui-org/react';
+import { Button } from "@heroui/react";
 
 export const ShareButton = () => {
   const { exportToURLString } = useProjects();

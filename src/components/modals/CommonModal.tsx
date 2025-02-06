@@ -10,7 +10,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { useModalState } from './useModalState';
 
 const log = createLog('CommonModal', ['debug']);

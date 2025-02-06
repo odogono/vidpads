@@ -2,7 +2,7 @@
 
 import { ArrowDown, ArrowUp } from 'lucide-react';
 
-import { Button, cn } from '@nextui-org/react';
+import { Button, cn } from "@heroui/react";
 
 export const OpBiButton = ({
   onPressUp,

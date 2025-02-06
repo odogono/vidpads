@@ -7,7 +7,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { OpButton } from './OpButton';
 
 interface OpPadLabelButtonProps {

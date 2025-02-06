@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch } from '@nextui-org/react';
+import { Switch } from "@heroui/react";
 import { OpLabel } from './OpLabel';
 
 export const OpSwitch = ({

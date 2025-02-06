@@ -4,7 +4,7 @@ import {
   CardBody,
   CardHeader,
   Skeleton
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const ControlsLoading = () => {
   return (

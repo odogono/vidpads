@@ -1,7 +1,7 @@
 'use client';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
-import { Input } from '@nextui-org/react';
+import { Input } from "@heroui/react";
 
 export const OpInput = ({
   label,

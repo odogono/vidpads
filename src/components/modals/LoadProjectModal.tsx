@@ -26,7 +26,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { useModalState } from './useModalState';
 
 const log = createLog('LoadProjectModal');

@@ -4,7 +4,7 @@ import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 
 import { writeToClipboard } from '@helpers/clipboard';
 import { createLog } from '@helpers/log';
-import { Button } from '@nextui-org/react';
+import { Button } from "@heroui/react";
 
 export interface CopyButtonProps {
   text: string;

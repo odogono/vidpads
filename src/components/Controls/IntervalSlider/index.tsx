@@ -6,7 +6,7 @@ import { createLog } from '@helpers/log';
 import { usePlayerState } from '@model/hooks/usePlayerState';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
-import { cn } from '@nextui-org/react';
+import { cn } from "@heroui/react";
 import { useControlsEvents } from '../hooks/useControlsEvents';
 import { IntervalCanvas, IntervalCanvasRef } from './IntervalCanvas';
 

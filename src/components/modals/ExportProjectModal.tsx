@@ -13,7 +13,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { CopyButton } from './CopyButton';
 import { useModalState } from './useModalState';
 

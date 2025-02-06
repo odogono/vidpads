@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react';
 
-import { useButton } from '@nextui-org/react';
+import { useButton } from "@heroui/react";
 import { OpLabel } from './OpLabel';
 
 export const OpButton = forwardRef(

@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
-import { cn } from '@nextui-org/react';
+import { cn } from "@heroui/react";
 import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';

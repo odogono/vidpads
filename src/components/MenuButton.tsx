@@ -11,7 +11,7 @@ import {
   DropdownMenu,
   DropdownSection,
   DropdownTrigger
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { CommonModalRef } from './modals/CommonModal';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import {

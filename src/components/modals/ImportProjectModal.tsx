@@ -12,7 +12,7 @@ import {
   ModalFooter,
   ModalHeader,
   Textarea
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { useModalState } from './useModalState';
 
 const log = createLog('ImportProjectModal');
