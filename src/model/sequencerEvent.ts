@@ -69,17 +69,21 @@ export const doEventsIntersect = (
  */
 export const quantizeEvents = (
   evts: SequencerEvent[],
-  quantizeStep: number = 1
+  quantizeStep: number = 1,
+  quantizeDuration: boolean = true
 ) => {
   return evts.map((evt) => ({
     ...evt,
     time: quantizeSeconds(evt.time, quantizeStep),
-    duration: quantizeSeconds(evt.duration, quantizeStep)
+    duration: quantizeDuration
+      ? quantizeSeconds(evt.duration, quantizeStep)
+      : evt.duration
   }));
 };
 
 export const quantizeSeconds = (seconds: number, quantizeStep: number = 1) => {
-  return Math.max(0, Math.floor(seconds / quantizeStep) * quantizeStep);
+  return Math.max(0, Math.round(seconds * quantizeStep) / quantizeStep);
+  // return Math.max(0, Math.floor(seconds / quantizeStep) * quantizeStep);
 };
 
 export const areEventsEqual = (evtA: SequencerEvent, evtB: SequencerEvent) => {
