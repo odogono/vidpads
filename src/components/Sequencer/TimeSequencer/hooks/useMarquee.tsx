@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { getOffsetPosition } from '@helpers/dom';
 import { createLog } from '@helpers/log';
 import { isPointInRect } from '@helpers/number';
-import { Position, Rect, getOffsetPosition } from '@types';
+import { Position, Rect } from '@types';
 
 const log = createLog('useMarquee');
 

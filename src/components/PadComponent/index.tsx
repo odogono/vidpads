@@ -213,7 +213,7 @@ export const PadComponent = ({
           w-full min-h-[44px] h-full rounded-lg cursor-pointer transition-all relative select-none touch-none
           ${isReady ? 'opacity-100' : 'opacity-20'}
           ${isDragOver ? 'bg-c2 scale-105' : 'bg-c1 hover:bg-c1'}
-          ${selectedPadId === pad.id ? 'border-2 border-blue-500' : ''}
+          ${selectedPadId === pad.id ? 'border-2 border-selected' : ''}
         `}
       style={{
         touchAction: 'none',

@@ -56,8 +56,8 @@ export const MenuButton = () => {
     <>
       <Dropdown
         classNames={{
-          base: 'before:bg-default-200', // change arrow background
-          content: 'py-1 px-1 border border-default-200' // simplified background
+          base: 'before:bg-c1', // change arrow background
+          content: 'py-1 px-1 bg-c1' // simplified background
         }}
       >
         <DropdownTrigger>
@@ -67,6 +67,7 @@ export const MenuButton = () => {
         </DropdownTrigger>
         <DropdownMenu
           aria-label='Main options'
+          className='bg-c1 text-foreground'
           onAction={(key) => {
             if (key === 'new-project') {
               handleNewProject();
@@ -81,9 +82,6 @@ export const MenuButton = () => {
             } else if (key === 'delete-everything') {
               handleDeleteEverything();
             }
-          }}
-          classNames={{
-            base: 'text-default-500 data-[hover=true]:bg-default-100 data-[hover=true]:text-default-900' // dropdown item colors
           }}
         >
           <DropdownItem key='new-project'>New Project</DropdownItem>

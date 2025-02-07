@@ -1,9 +1,15 @@
-import { useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
-import { cn } from "@heroui/react";
+import { cn } from '@heroui/react';
 
 const log = createLog('OpTimeInput', ['debug']);
 
@@ -36,6 +42,11 @@ export const OpTimeInput = ({
   const [inputValue, setInputValue] = useState<string>(
     formatTimeToString(initialValue)
   );
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const lastValue = useRef<number>(initialValue);
+  const lastPointerPos = useRef<{ x: number; y: number } | null>(null);
+  const dragTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     // log.debug('TimeInput', description, initialValue);
@@ -103,7 +114,82 @@ export const OpTimeInput = ({
     [isEnabled, isMetaKeyDown, range, inputValue, onChange]
   );
 
-  // if (description === 'Start') log.debug('TimeInput', inputValue);
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLInputElement>) => {
+      if (!isDragging || !isEnabled) return;
+
+      const dx = lastPointerPos.current
+        ? e.clientX - lastPointerPos.current.x
+        : 0;
+      const dy = lastPointerPos.current
+        ? e.clientY - lastPointerPos.current.y
+        : 0;
+
+      // Update last position
+      lastPointerPos.current = { x: e.clientX, y: e.clientY };
+
+      // Calculate base sensitivity
+      const baseSensitivity = isMetaKeyDown() ? 0.0001 : 0.001;
+
+      // Calculate movement magnitude and apply exponential scaling
+      const movement = dx - dy;
+      const exponentialFactor = 1.8; // Adjust this to control how quickly sensitivity increases
+      const scaledDelta =
+        Math.sign(movement) *
+        Math.pow(Math.abs(movement), exponentialFactor) *
+        baseSensitivity;
+
+      const [min, max] = range ? range : [0, 100];
+      const currentSeconds = lastValue.current;
+      const newValue = Math.max(
+        min,
+        Math.min(max, currentSeconds + scaledDelta)
+      );
+
+      lastValue.current = newValue;
+      setInputValue(formatTimeToString(newValue));
+      onChange?.(newValue);
+    },
+    [isDragging, isEnabled, isMetaKeyDown, range, onChange]
+  );
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLInputElement>) => {
+    if (!isEnabled) return;
+
+    // Start a timeout to initiate drag after a short delay
+    dragTimeout.current = window.setTimeout(() => {
+      setIsDragging(true);
+      dragStartPos.current = { x: e.clientX, y: e.clientY };
+      lastPointerPos.current = { x: e.clientX, y: e.clientY };
+      lastValue.current = formatTimeStringToSeconds(inputValue);
+      document.body.style.cursor = 'ew-resize';
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }, 200); // 200ms delay before starting drag
+  };
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLInputElement>) => {
+      if (dragTimeout.current) {
+        clearTimeout(dragTimeout.current);
+        dragTimeout.current = null;
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+      setIsDragging(false);
+      dragStartPos.current = null;
+      lastPointerPos.current = null;
+      document.body.style.cursor = 'default';
+    },
+    []
+  );
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dragTimeout.current) {
+        clearTimeout(dragTimeout.current);
+      }
+    };
+  }, []);
 
   return (
     <div className='time-input flex flex-col items-center justify-center'>
@@ -111,16 +197,25 @@ export const OpTimeInput = ({
         className={cn(
           `rounded-r-none cursor-ns-resize text-sm p-2 outline-none w-[6.8rem] font-mono text-center`,
           'hover:border-default-400 ',
-          !isEnabled ? 'bg-gray-800 text-gray-500' : 'hover:bg-gray-600'
+          !isEnabled
+            ? 'bg-secondary-800 text-secondary-500'
+            : 'hover:bg-primary-300 bg-primary',
+          isDragging && 'cursor-ew-resize'
         )}
         type='text'
         disabled={!isEnabled}
         value={inputValue}
         onChange={handleInput}
         onKeyDown={handleKeyDown}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onLostPointerCapture={handlePointerUp}
         onBlur={(e) => {
-          handleChange(e);
-          setKeyboardEnabled(true);
+          if (!isDragging) {
+            handleChange(e);
+            setKeyboardEnabled(true);
+          }
         }}
         onFocus={(e) => {
           setKeyboardEnabled(false);

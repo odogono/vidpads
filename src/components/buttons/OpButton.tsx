@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react';
 
-import { useButton } from "@heroui/react";
+import { useButton } from '@heroui/react';
 import { OpLabel } from './OpLabel';
 
 export const OpButton = forwardRef(
@@ -47,7 +47,7 @@ export const OpButton = forwardRef(
         <div
           className={`${sizeClasses[size]} 
           flex items-center justify-center 
-          ${isEnabled ? 'bg-slate-400 group-hover:bg-slate-300' : 'bg-slate-200'} 
+          ${isEnabled ? 'bg-primary text-foreground group-hover:bg-primary-300' : 'bg-primary'} 
           text-black rounded-lg 
           aspect-square 
           focus:outline-none`}

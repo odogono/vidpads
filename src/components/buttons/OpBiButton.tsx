@@ -2,7 +2,7 @@
 
 import { ArrowDown, ArrowUp } from 'lucide-react';
 
-import { Button, cn } from "@heroui/react";
+import { Button } from '@heroui/react';
 
 export const OpBiButton = ({
   onPressUp,
@@ -21,21 +21,21 @@ export const OpBiButton = ({
           size={size}
           aria-label={'Up'}
           onPress={onPressUp}
-          className={cn(
-            'aspect-[2/1] bg-slate-400 hover:bg-slate-300 text-black rounded-b-none border-b-[1px] border-slate-600'
-          )}
+          className={
+            'aspect-[2/1] bg-primary hover:bg-primary-300 text-black rounded-b-none border-b-[1px] border-primary-300'
+          }
         >
-          <ArrowUp />
+          <ArrowUp color='var(--foreground)' />
         </Button>
         <Button
           size={size}
           aria-label={'Down'}
           onPress={onPressDown}
-          className={cn(
-            'aspect-[2/1] bg-slate-400 hover:bg-slate-300 text-black rounded-t-none'
-          )}
+          className={
+            'aspect-[2/1] bg-primary hover:bg-primary-300 text-black rounded-t-none'
+          }
         >
-          <ArrowDown />
+          <ArrowDown color='var(--foreground)' />
         </Button>
       </div>
     </div>

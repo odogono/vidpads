@@ -13,6 +13,7 @@ import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Pad } from '@model/types';
 import { Rect } from '@types';
+import { getComputedColor } from '../../../helpers/dom';
 import { Handle } from './handles';
 import { useTouch } from './useTouch';
 
@@ -217,12 +218,11 @@ export const IntervalCanvas = ({
     ctx.imageSmoothingEnabled = false;
     ctx.lineWidth = 1;
 
-    // draw the track
-    ctx.fillStyle = 'gray';
+    // Update the fillStyle and strokeStyle to use computed colors
+    ctx.fillStyle = getComputedColor('var(--c2)');
     ctx.fillRect(trackX, trackY, trackWidth, trackHeight);
 
-    // draw the interval
-    ctx.fillStyle = 'lightblue';
+    ctx.fillStyle = getComputedColor('var(--c4)');
     ctx.fillRect(
       intervalStartX,
       trackY,
@@ -230,8 +230,7 @@ export const IntervalCanvas = ({
       trackHeight
     );
 
-    // Draw the current time line
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = getComputedColor('var(--c3)');
     ctx.beginPath();
     ctx.moveTo(lineX + 0.5, trackY);
     ctx.lineTo(lineX + 0.5, trackY + trackHeight);
@@ -294,10 +293,10 @@ export const IntervalCanvas = ({
   log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
 
   return (
-    <div className='pointer-events-none relative w-full h-full bg-slate-800 rounded-sm'>
+    <div className='pointer-events-none relative w-full h-full bg-c1 rounded-sm'>
       <canvas
         ref={canvasRef}
-        className='absolute w-full h-full '
+        className='absolute w-full h-full rounded-sm'
         style={{
           imageRendering: 'pixelated',
           touchAction: 'none',
@@ -318,7 +317,7 @@ export const IntervalCanvas = ({
       <div
         className='absolute'
         style={{
-          backgroundColor: '#DAA520',
+          backgroundColor: 'var(--c7)',
           top: 0,
           left: intervalStartX,
           width: intervalEndX - intervalStartX,
@@ -328,7 +327,7 @@ export const IntervalCanvas = ({
       <div
         className='absolute'
         style={{
-          backgroundColor: '#DAA520',
+          backgroundColor: 'var(--c7)',
           top: trackArea.y + trackArea.height,
           left: intervalStartX,
           width: intervalEndX - intervalStartX,

@@ -2,7 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
+import { CommonModalRef } from '@components/modals/CommonModal';
+import { DeleteModal } from '@components/modals/DeleteModal';
 import { cn } from '@heroui/react';
 import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
@@ -20,7 +21,7 @@ export const ControlsLoaded = () => {
   const { selectedControlPane, goToPreviousControlPane, goToNextControlPane } =
     useControlPane();
 
-  const modalRef = useRef<DeleteModalRef | null>(null);
+  const modalRef = useRef<CommonModalRef | null>(null);
   // used to prevent hydration error
   // since selectedPadId is undefined on the server
   useEffect(() => {
@@ -28,7 +29,7 @@ export const ControlsLoaded = () => {
   }, []);
 
   const showDeleteModal = useCallback(() => {
-    modalRef.current?.onOpen();
+    modalRef.current?.open();
   }, [modalRef]);
 
   if (!isMounted) {
@@ -68,8 +69,8 @@ const Indicator = ({ isActive }: { isActive: boolean }) => {
     <div className='switcher-indicator'>
       <div
         className={cn(
-          'aspect-square rounded-full w-[0.5vh] h-[0.5vh] bg-black ',
-          isActive && 'bg-red-500'
+          'aspect-square rounded-full w-[0.5vh] h-[0.5vh] bg-c0 ',
+          isActive && 'bg-c3'
         )}
       ></div>
     </div>

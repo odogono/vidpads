@@ -1,83 +1,25 @@
 'use client';
 
-import { useCallback, useImperativeHandle } from 'react';
+import { useCallback } from 'react';
 
-// import { createLog } from '@helpers/log';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useSelectedPadId } from '@model/store/selectors';
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader
-} from "@heroui/react";
-import { useModalState } from './useModalState';
+import { CommonModal, CommonModalBase } from './CommonModal';
 
-// const log = createLog('Controls');
-
-export interface DeleteModalProps {
-  ref: React.RefObject<DeleteModalRef | null>;
-}
-export interface DeleteModalRef {
-  onOpen: () => void;
-}
-
-// TODO convert to CommonModal
-
-export const DeleteModal = ({ ref }: DeleteModalProps) => {
+export const DeleteModal = ({ ref }: CommonModalBase) => {
   const { selectedPadId } = useSelectedPadId();
-  const { isOpen, onOpen, onClose } = useModalState();
   const { clearPad } = usePadOperations();
 
   const handleDelete = useCallback(async () => {
-    if (!selectedPadId) return;
+    if (!selectedPadId) return false;
     await clearPad({ sourcePadId: selectedPadId });
-    onClose();
-  }, [selectedPadId, clearPad, onClose]);
-
-  useImperativeHandle(ref, () => ({
-    onOpen
-  }));
+    return true;
+  }, [selectedPadId, clearPad]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      backdrop='blur'
-      className='bg-background text-foreground'
-    >
-      <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className='flex flex-col gap-1'>
-              Confirm Delete
-            </ModalHeader>
-            <ModalBody>
-              <p>Are you sure you want to delete this pad?</p>
-              <p className='text-sm text-gray-500'>
-                This action cannot be undone.
-              </p>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                variant='ghost'
-                onPress={onClose}
-                className='bg-background text-foreground'
-              >
-                Cancel
-              </Button>
-              <Button
-                onPress={handleDelete}
-                className='bg-red-500 text-foreground'
-              >
-                Delete
-              </Button>
-            </ModalFooter>
-          </>
-        )}
-      </ModalContent>
-    </Modal>
+    <CommonModal ref={ref} title='Delete Pad' onOk={handleDelete}>
+      <p>Are you sure you want to delete this pad?</p>
+      <p className='text-sm text-gray-500'>This action cannot be undone.</p>
+    </CommonModal>
   );
 };

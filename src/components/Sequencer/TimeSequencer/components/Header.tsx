@@ -1,7 +1,8 @@
 'use client';
 
 // import { createLog } from '@helpers/log';
-import { Position, getOffsetPosition } from '@types';
+import { getOffsetPosition } from '@helpers/dom';
+import { Position } from '@types';
 
 interface HeaderProps {
   pixelsPerBeat: number;
