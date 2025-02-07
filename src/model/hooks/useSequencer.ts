@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useEvents } from '@hooks/events';
 // import { createLog } from '@helpers/log';
 import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
@@ -8,17 +9,21 @@ import { SequencerEvent } from '../types';
 
 // const log = createLog('sequencer/useSequencer');
 
+/**
+ * Interface from the state store to the sequencer
+ * @returns
+ */
 export const useSequencer = () => {
   const { project } = useProject();
+  const events = useEvents();
 
-  const startTime =
-    useSelector(project, (state) => state.context.sequencer?.startTime) ?? 0;
+  const time =
+    useSelector(project, (state) => state.context.sequencer?.time) ?? 0;
   const endTime =
     useSelector(project, (state) => state.context.sequencer?.endTime) ?? 30;
 
-  const setStartTime = useCallback(
-    (startTime: number) =>
-      project.send({ type: 'setSequencerStartTime', startTime }),
+  const setTime = useCallback(
+    (time: number) => project.send({ type: 'setSequencerTime', time }),
     [project]
   );
 
@@ -26,6 +31,24 @@ export const useSequencer = () => {
     (endTime: number) => project.send({ type: 'setSequencerEndTime', endTime }),
     [project]
   );
+
+  const play = useCallback(() => {
+    events.emit('seq:play');
+  }, [events]);
+
+  const record = useCallback(() => {
+    events.emit('seq:record');
+  }, [events]);
+
+  const stop = useCallback(() => {
+    events.emit('seq:stop', {
+      time: performance.now()
+    });
+  }, [events]);
+
+  const rewind = useCallback(() => {
+    events.emit('seq:rewind');
+  }, [events]);
 
   const bpm = useSelector(
     project,
@@ -35,14 +58,14 @@ export const useSequencer = () => {
   const evtStr = (e: SequencerEvent) =>
     `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
 
-  const events = useSelector(
+  const seqEvents = useSelector(
     project,
     (state) => state.context.sequencer?.events
   );
 
-  const selectedEvents = events.filter((e) => e.isSelected);
-  const selectedEventIds = selectedEvents.map((e) => evtStr(e)).join(',');
-  const eventIds = events.map((e) => evtStr(e)).join(',');
+  const seqSelectedEvents = seqEvents.filter((e) => e.isSelected);
+  const seqSelectedEventIds = seqSelectedEvents.map((e) => evtStr(e)).join(',');
+  const seqEventIds = seqEvents.map((e) => evtStr(e)).join(',');
 
   const setBpm = useCallback(
     (bpm: number) => {
@@ -146,14 +169,20 @@ export const useSequencer = () => {
 
   const getEventsAtTime = useCallback(
     (padId: string, time: number) =>
-      getIntersectingEvents(events, time, 0.001, [padId]),
-    [events]
+      getIntersectingEvents(seqEvents, time, 0.001, [padId]),
+    [seqEvents]
   );
 
   return {
+    play,
+    record,
+    stop,
+    rewind,
     bpm,
-    events,
-    eventIds,
+    seqEvents,
+    seqEventIds,
+    seqSelectedEvents,
+    seqSelectedEventIds,
     setBpm,
     toggleEvent,
     stepToTime,
@@ -163,12 +192,10 @@ export const useSequencer = () => {
     removeEvent,
     selectEventsAtTime,
     selectEvents,
-    selectedEvents,
-    selectedEventIds,
     moveEvents,
-    startTime,
+    time,
     endTime,
-    setStartTime,
+    setTime,
     setEndTime,
     setSelectedEventsTime,
     setSelectedEventsDuration,

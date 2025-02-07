@@ -5,25 +5,25 @@ import { secondsToPixels } from '../helpers/timeConversion';
 
 interface UseSelectedEventsRectProps {
   padCount: number;
-  selectedEvents: SequencerEvent[];
+  seqSelectedEvents: SequencerEvent[];
   pixelsPerBeat: number;
   canvasBpm: number;
-  selectedEventIds: string;
+  seqSelectedEventIds: string;
   getGridDimensions: () => { gridHeight: number; rowHeight: number };
 }
 
 export const useSelectedEventsRect = ({
   padCount,
-  selectedEvents,
+  seqSelectedEvents,
   pixelsPerBeat,
   canvasBpm,
-  selectedEventIds,
+  seqSelectedEventIds,
   getGridDimensions
 }: UseSelectedEventsRectProps) => {
   return useMemo(() => {
     const { rowHeight } = getGridDimensions();
 
-    const { minX, minY, maxX, maxY } = selectedEvents.reduce(
+    const { minX, minY, maxX, maxY } = seqSelectedEvents.reduce(
       (acc, e) => {
         const { time, duration } = e;
         const x = secondsToPixels(time, pixelsPerBeat, canvasBpm);
@@ -64,5 +64,5 @@ export const useSelectedEventsRect = ({
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [padCount, selectedEventIds]);
+  }, [padCount, seqSelectedEventIds]);
 };

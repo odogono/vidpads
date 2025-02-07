@@ -43,15 +43,15 @@ export const TimeSequencerBody = ({
 
   const {
     bpm,
-    events: sequencerEvents,
-    eventIds: sequencerEventIds,
+    seqEvents,
+    seqEventIds,
     moveEvents,
     addEvent,
     getEventsAtTime,
     selectEvents,
     selectEventsAtTime,
-    selectedEvents,
-    selectedEventIds,
+    seqSelectedEvents,
+    seqSelectedEventIds,
     endTime
   } = useSequencer();
 
@@ -59,8 +59,8 @@ export const TimeSequencerBody = ({
     secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
 
   useSequencerEvents({
-    sequencerEvents,
-    sequencerEventIds,
+    seqEvents,
+    seqEventIds,
     setPlayHeadPosition,
     pixelsPerBeat,
     bpm,
@@ -70,10 +70,10 @@ export const TimeSequencerBody = ({
   const selectedEventsRect: Rect = useSelectedEventsRect({
     getGridDimensions,
     padCount,
-    selectedEvents,
+    seqSelectedEvents,
     pixelsPerBeat,
     canvasBpm,
-    selectedEventIds
+    seqSelectedEventIds
   });
 
   // useEffect(() => {
@@ -117,7 +117,7 @@ export const TimeSequencerBody = ({
     (rect: Rect, isFinished?: boolean, isLongPress?: boolean) => {
       const { time, duration, padIds } = convertGridRectToTime(rect);
 
-      const hasSelectedEvents = selectedEventIds.length > 0;
+      const hasSelectedEvents = seqSelectedEventIds.length > 0;
 
       if (isFinished) {
         if (isLongPress) {
@@ -154,7 +154,7 @@ export const TimeSequencerBody = ({
     },
     [
       convertGridRectToTime,
-      selectedEventIds.length,
+      seqSelectedEventIds.length,
       selectEventsAtTime,
       getEventsAtTime,
       selectEvents,
@@ -224,14 +224,14 @@ export const TimeSequencerBody = ({
     onSelectUpdate: (rect: Rect, isFinished?: boolean) =>
       handleMarqueeSelectEnd(rect, isFinished, isLongTouch),
     onMoveUpdate: handleMarqueeMoveUpdate,
-    hasSelectedEvents: selectedEventIds.length > 0,
+    hasSelectedEvents: seqSelectedEventIds.length > 0,
     selectedEventsRect
   });
 
   const rows = useMemo(() => {
     // log.debug('events', sequencerEvents.length, sequencerEvents);
     return Array.from({ length: padCount }, (_, index) => {
-      const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
+      const events = seqEvents.filter((e) => e.padId === `a${index + 1}`);
       const rowEvents = events.map((e: SequencerEvent) => {
         const { time, duration } = e;
         // convert time to ms
@@ -260,7 +260,7 @@ export const TimeSequencerBody = ({
     });
     // stop constant re-rendering from sequencerEvents
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasBpm, padCount, pixelsPerBeat, sequencerEventIds]);
+  }, [canvasBpm, padCount, pixelsPerBeat, seqEventIds]);
 
   const handlePlayHeadMove = useCallback(
     (pos: Position) => {

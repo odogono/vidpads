@@ -12,7 +12,7 @@ export {
   removeSequencerEvent,
   moveSequencerEvents,
   selectSequencerEvents,
-  setSequencerStartTime,
+  setSequencerTime,
   setSequencerEndTime,
   setSelectedEventsTime,
   setSelectedEventsDuration

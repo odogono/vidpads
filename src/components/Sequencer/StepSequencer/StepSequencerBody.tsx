@@ -20,18 +20,13 @@ export interface SequencerBodyProps {
 
 export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
   const events = useEvents();
-  const {
-    bpm,
-    events: sequencerEvents,
-    toggleEvent,
-    timeToStep
-  } = useSequencer();
+  const { bpm, seqEvents, toggleEvent, timeToStep } = useSequencer();
   const barCount = 24;
   const stepWidth = 40;
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
 
   const { triggers } = useMemo(() => {
-    const result = sequencerEvents.reduce((acc, e) => {
+    const result = seqEvents.reduce((acc, e) => {
       const { time, duration, padId } = e;
 
       acc.push({ event: 'pad:touchdown', time, padId });
@@ -42,7 +37,7 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
     result.sort((a, b) => a.time - b.time);
     const triggerKey = result.map((e) => e.time).join(',');
     return { triggers: result, triggerKey };
-  }, [sequencerEvents]);
+  }, [seqEvents]);
 
   const triggerIndex = useRef(0);
 
@@ -60,7 +55,7 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
 
   const cells = useMemo(() => {
     return Array.from({ length: padCount }, (_, index) => {
-      const events = sequencerEvents.filter((e) => e.padId === `a${index + 1}`);
+      const events = seqEvents.filter((e) => e.padId === `a${index + 1}`);
       const activeIndexes = events.map((e) => {
         const sp = timeToStep(e.time);
         // log.debug('sp', { time: e.time, sp });
@@ -76,7 +71,7 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
         activeIndexes
       });
     });
-  }, [padCount, sequencerEvents, handleCellTap, timeToStep]);
+  }, [padCount, seqEvents, handleCellTap, timeToStep]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number }) => {
