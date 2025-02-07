@@ -14,50 +14,38 @@ import {
 } from '@heroui/react';
 import { CommonModalRef } from './modals/CommonModal';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
-import {
-  ExportProjectModal,
-  ExportProjectModalRef
-} from './modals/ExportProjectModal';
-import {
-  ImportProjectModal,
-  ImportProjectModalRef
-} from './modals/ImportProjectModal';
-import {
-  LoadProjectModal,
-  LoadProjectModalRef
-} from './modals/LoadProjectModal';
-import { NewProjectModal, NewProjectModalRef } from './modals/NewProjectModal';
-import {
-  SaveProjectModal,
-  SaveProjectModalRef
-} from './modals/SaveProjectModal';
+import { ExportProjectModal } from './modals/ExportProjectModal';
+import { ImportProjectModal } from './modals/ImportProjectModal';
+import { LoadProjectModal } from './modals/LoadProjectModal';
+import { NewProjectModal } from './modals/NewProjectModal';
+import { SaveProjectModal } from './modals/SaveProjectModal';
 
 export const MenuButton = () => {
-  const newProjectModalRef = useRef<NewProjectModalRef | null>(null);
-  const loadProjectModalRef = useRef<LoadProjectModalRef | null>(null);
-  const saveProjectModalRef = useRef<SaveProjectModalRef | null>(null);
-  const exportProjectModalRef = useRef<ExportProjectModalRef | null>(null);
-  const importProjectModalRef = useRef<ImportProjectModalRef | null>(null);
+  const newProjectModalRef = useRef<CommonModalRef | null>(null);
+  const loadProjectModalRef = useRef<CommonModalRef | null>(null);
+  const saveProjectModalRef = useRef<CommonModalRef | null>(null);
+  const exportProjectModalRef = useRef<CommonModalRef | null>(null);
+  const importProjectModalRef = useRef<CommonModalRef | null>(null);
   const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
 
   const handleNewProject = useCallback(() => {
-    newProjectModalRef.current?.onOpen();
+    newProjectModalRef.current?.open();
   }, [newProjectModalRef]);
 
   const handleLoadProject = useCallback(() => {
-    loadProjectModalRef.current?.onOpen();
+    loadProjectModalRef.current?.open();
   }, [loadProjectModalRef]);
 
   const handleSaveProject = useCallback(() => {
-    saveProjectModalRef.current?.onOpen();
+    saveProjectModalRef.current?.open();
   }, [saveProjectModalRef]);
 
   const handleExportProject = useCallback(() => {
-    exportProjectModalRef.current?.onOpen();
+    exportProjectModalRef.current?.open();
   }, [exportProjectModalRef]);
 
   const handleImportProject = useCallback(() => {
-    importProjectModalRef.current?.onOpen();
+    importProjectModalRef.current?.open();
   }, [importProjectModalRef]);
 
   const handleDeleteEverything = useCallback(() => {

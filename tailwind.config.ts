@@ -66,6 +66,20 @@ export default {
           colors: {
             background: 'var(--background)',
             foreground: 'var(--foreground)',
+            default: {
+              50: '#e6f5fd',
+              100: '#cedde1',
+              200: '#b4c6ca',
+              300: '#344749',
+              400: '#7d979b',
+              500: '#647d82',
+              600: '#4c6166',
+              700: '#344749',
+              800: '#1b2b2d',
+              900: '#001111',
+              DEFAULT: '#647d82',
+              foreground: 'var(--foreground)'
+            },
             primary: {
               50: '#e6f5fd',
               100: '#cedde1',
