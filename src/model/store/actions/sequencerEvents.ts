@@ -18,13 +18,13 @@ import {
   SetSelectedEventsDurationAction,
   SetSelectedEventsTimeAction,
   SetSequencerEndTimeAction,
-  SetSequencerStartTimeAction,
+  SetSequencerTimeAction,
   StoreContext,
   ToggleSequencerEventAction
 } from '../types';
 import { update } from './helpers';
 
-const log = createLog('sequencer/events', ['debug']);
+const log = createLog('sequencer/events');
 
 export const toggleSequencerEvent = (
   context: StoreContext,
@@ -216,23 +216,21 @@ export const moveSequencerEvents = (
   return update(context, { sequencer: { ...sequencer, events: newEvents } });
 };
 
-export const setSequencerStartTime = (
+export const setSequencerTime = (
   context: StoreContext,
-  action: SetSequencerStartTimeAction,
+  action: SetSequencerTimeAction,
   { emit }: Emit
 ): StoreContext => {
-  const { startTime } = action;
-  const value = Math.max(
-    0,
-    Math.min(startTime, context.sequencer?.endTime ?? 0)
-  );
+  const { time } = action;
+  const value = Math.max(0, Math.min(time, context.sequencer?.endTime ?? 0));
   emit({
     type: 'sequencerTimesUpdated',
-    startTime: value,
+    time: value,
     endTime: context.sequencer?.endTime ?? 0
   });
+  log.debug('setSequencerTime', { time, value });
   return update(context, {
-    sequencer: { ...context.sequencer, startTime: value }
+    sequencer: { ...context.sequencer, time: value }
   });
 };
 
@@ -242,14 +240,11 @@ export const setSequencerEndTime = (
   { emit }: Emit
 ): StoreContext => {
   const { endTime } = action;
-  const value = Math.max(
-    0,
-    Math.max(endTime, context.sequencer?.startTime ?? 0)
-  );
+  const value = Math.max(0, Math.max(endTime, context.sequencer?.time ?? 0));
 
   emit({
     type: 'sequencerTimesUpdated',
-    startTime: context.sequencer?.startTime ?? 0,
+    time: context.sequencer?.time ?? 0,
     endTime: value
   });
 

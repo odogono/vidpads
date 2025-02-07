@@ -43,7 +43,7 @@ export interface StoreContextType {
   sequencer: {
     bpm: number;
     events: SequencerEvent[];
-    startTime: number;
+    time: number;
     endTime: number;
   };
 
@@ -233,9 +233,9 @@ export type MoveSequencerEventsAction = {
   isFinished?: boolean;
 };
 
-export type SetSequencerStartTimeAction = {
-  type: 'setSequencerStartTime';
-  startTime: number;
+export type SetSequencerTimeAction = {
+  type: 'setSequencerTime';
+  time: number;
 };
 
 export type SetSequencerEndTimeAction = {
@@ -287,7 +287,7 @@ export type Actions =
   | RemoveSequencerEventAction
   | SelectSequencerEventsAction
   | MoveSequencerEventsAction
-  | SetSequencerStartTimeAction
+  | SetSequencerTimeAction
   | SetSequencerEndTimeAction
   | SetSelectedEventsTimeAction
   | SetSelectedEventsDurationAction
@@ -301,9 +301,9 @@ export type PadUpdatedEvent = {
   pad: Pad;
 };
 
-export type StartTimeUpdatedEvent = {
-  type: 'startTimeUpdated';
-  startTime: string;
+export type TimeUpdatedEvent = {
+  type: 'timeUpdated';
+  time: string;
 };
 
 export type StoreInitialisedEvent = {
@@ -317,13 +317,13 @@ export type IsEditActiveEvent = {
 
 export type SequencerTimesUpdatedEvent = {
   type: 'sequencerTimesUpdated';
-  startTime: number;
+  time: number;
   endTime: number;
 };
 
 export type EmittedEvents =
   | PadUpdatedEvent
-  | StartTimeUpdatedEvent
+  | TimeUpdatedEvent
   | StoreInitialisedEvent
   | IsEditActiveEvent
   | SequencerTimesUpdatedEvent;

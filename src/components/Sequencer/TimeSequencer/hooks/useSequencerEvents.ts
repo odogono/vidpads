@@ -23,8 +23,8 @@ interface UseSequencerEventsProps {
   pixelsPerBeat: number;
   bpm: number;
   canvasBpm: number;
-  sequencerEvents: SequencerEvent[];
-  sequencerEventIds: string;
+  seqEvents: SequencerEvent[];
+  seqEventIds: string;
 }
 
 // const log = createLog('seq/useSequencerEvents');
@@ -34,8 +34,8 @@ export const useSequencerEvents = ({
   pixelsPerBeat,
   bpm,
   canvasBpm,
-  sequencerEvents,
-  sequencerEventIds
+  seqEvents,
+  seqEventIds
 }: UseSequencerEventsProps) => {
   const events = useEvents();
   const lastTimeUpdate = useRef(0);
@@ -87,7 +87,7 @@ export const useSequencerEvents = ({
 
   // creates a binary tree of trigger events
   const triggerTree: TriggerNode | undefined = useMemo(() => {
-    const result = sequencerEvents.reduce(
+    const result = seqEvents.reduce(
       (tree, e) => {
         if (!e) return tree;
         const { time, duration, padId } = e;
@@ -120,7 +120,7 @@ export const useSequencerEvents = ({
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequencerEventIds, pixelsPerBeat, canvasBpm, bpm]);
+  }, [seqEventIds, pixelsPerBeat, canvasBpm, bpm]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
