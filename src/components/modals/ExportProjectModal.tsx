@@ -1,36 +1,15 @@
 'use client';
 
-import { useEffect, useImperativeHandle, useState } from 'react';
+import { useCallback, useState } from 'react';
 
+import { Input } from '@heroui/react';
 import { useShareUrl } from '@hooks/useShareUrl';
 // import { createLog } from '@helpers/log';
 import { useProjects } from '@model/hooks/useProjects';
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader
-} from "@heroui/react";
+import { CommonModal, CommonModalBase } from './CommonModal';
 import { CopyButton } from './CopyButton';
-import { useModalState } from './useModalState';
 
-// const log = createLog('ExportProjectModal');
-
-export interface ExportProjectModalRef {
-  onOpen: () => void;
-}
-
-export interface ExportProjectModalProps {
-  ref: React.RefObject<ExportProjectModalRef | null>;
-}
-
-// TODO convert to CommonModal
-
-export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
-  const { isOpen, onOpen, onClose } = useModalState();
+export const ExportProjectModal = ({ ref }: CommonModalBase) => {
   const { exportToJSONString, exportToURLString } = useProjects();
   const { createNewUrl } = useShareUrl();
 
@@ -38,7 +17,7 @@ export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
 
   const json = exportToJSONString();
 
-  useEffect(() => {
+  const handleOpen = useCallback(async () => {
     const fetchUrl = async () => {
       const d = await exportToURLString(true);
       setUrl(createNewUrl({ d }));
@@ -46,64 +25,34 @@ export const ExportProjectModal = ({ ref }: ExportProjectModalProps) => {
     fetchUrl();
   }, [exportToURLString, createNewUrl]);
 
-  useImperativeHandle(ref, () => ({
-    onOpen
-  }));
-
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      backdrop='blur'
-      className='bg-background text-foreground'
+    <CommonModal
+      ref={ref}
+      title='Export Project'
+      onOpen={handleOpen}
+      showCancel={false}
     >
-      <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className='flex flex-col gap-1'>
-              Export Project
-            </ModalHeader>
-            <ModalBody>
-              <div className='flex flex-row gap-2 items-center'>
-                <Input
-                  isReadOnly
-                  className='w-full'
-                  label='URL'
-                  variant='bordered'
-                  defaultValue={url}
-                />
-                <CopyButton text={url} />
-              </div>
+      <div className='flex flex-row gap-2 items-center'>
+        <Input
+          isReadOnly
+          className='w-full'
+          label='URL'
+          variant='bordered'
+          defaultValue={url}
+        />
+        <CopyButton text={url} />
+      </div>
 
-              <div className='flex flex-row gap-2 items-center'>
-                <Input
-                  isReadOnly
-                  className='w-full'
-                  label='JSON'
-                  variant='bordered'
-                  defaultValue={json}
-                />
-                <CopyButton text={json} />
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                variant='ghost'
-                onPress={onClose}
-                className='bg-stone-600 hover:bg-stone-700 text-foreground'
-              >
-                Cancel
-              </Button>
-              <Button
-                onPress={onClose}
-                className='hover:bg-sky-600 bg-sky-500 text-foreground'
-              >
-                Ok
-              </Button>
-            </ModalFooter>
-          </>
-        )}
-      </ModalContent>
-    </Modal>
+      <div className='flex flex-row gap-2 items-center'>
+        <Input
+          isReadOnly
+          className='w-full'
+          label='JSON'
+          variant='bordered'
+          defaultValue={json}
+        />
+        <CopyButton text={json} />
+      </div>
+    </CommonModal>
   );
 };

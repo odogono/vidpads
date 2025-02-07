@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   formatShortDate,
@@ -8,16 +8,7 @@ import {
   getUnixTimeFromDate
 } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
-import { isProjectNoteworthy } from '@model/helpers';
-import { useProjects } from '@model/hooks/useProjects';
-import { StoreContextType } from '@model/store/types';
 import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Pagination,
   Selection,
   Table,
@@ -26,23 +17,15 @@ import {
   TableColumn,
   TableHeader,
   TableRow
-} from "@heroui/react";
-import { useModalState } from './useModalState';
+} from '@heroui/react';
+import { isProjectNoteworthy } from '@model/helpers';
+import { useProjects } from '@model/hooks/useProjects';
+import { StoreContextType } from '@model/store/types';
+import { CommonModal, CommonModalBase } from './CommonModal';
 
 const log = createLog('LoadProjectModal');
 
-export interface LoadProjectModalRef {
-  onOpen: () => void;
-}
-
-export interface LoadProjectModalProps {
-  ref: React.RefObject<LoadProjectModalRef | null>;
-}
-
-// TODO convert to CommonModal
-
-export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
-  const { isOpen, onOpen, onClose } = useModalState();
+export const LoadProjectModal = ({ ref }: CommonModalBase) => {
   const { getAllProjectDetails, loadProject } = useProjects();
   const [selectedProjectId, setSelectedProjectId] = useState<
     string | undefined
@@ -65,18 +48,16 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
     try {
       if (!selectedProjectId) {
         log.error('No project selected');
-        return;
+        return false;
       }
 
       await loadProject(selectedProjectId);
-      onClose();
     } catch (error) {
       log.error('Failed to load project:', error);
       // Handle error (show toast, etc)
-    } finally {
-      // setIsLoading(false);
     }
-  }, [selectedProjectId, loadProject, onClose]);
+    return true;
+  }, [selectedProjectId, loadProject]);
 
   const handleOnOpen = useCallback(async () => {
     const projectDetails = await getAllProjectDetails();
@@ -99,90 +80,56 @@ export const LoadProjectModal = ({ ref }: LoadProjectModalProps) => {
         });
       setProjectDetails(filteredProjectDetails);
     }
-    onOpen();
-  }, [getAllProjectDetails, onOpen]);
-
-  useImperativeHandle(ref, () => ({
-    onOpen: handleOnOpen
-  }));
+  }, [getAllProjectDetails]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      backdrop='blur'
-      className='bg-background text-foreground min-w-[640px]'
+    <CommonModal
+      ref={ref}
+      title='Load Project'
+      onOpen={handleOnOpen}
+      onOk={handleLoadProject}
     >
-      <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className='flex flex-col gap-1'>
-              Load Project
-            </ModalHeader>
-            <ModalBody>
-              <Table
-                aria-label='Project Names'
-                color='default'
-                classNames={{
-                  wrapper: 'min-w-[600px] text-foreground bg-background',
-                  base: 'min-w-[600px] text-foreground'
-                }}
-                selectionMode='single'
-                onSelectionChange={(e: Selection) => {
-                  setSelectedProjectId(
-                    (e as Set<string>).values().next().value
-                  );
-                }}
-                bottomContent={
-                  <div className='flex w-full justify-center'>
-                    <Pagination
-                      isCompact
-                      showControls
-                      color='secondary'
-                      page={page}
-                      total={pages}
-                      onChange={(page) => setPage(page)}
-                    />
-                  </div>
-                }
-              >
-                <TableHeader className='bg-background text-foreground'>
-                  <TableColumn className='bg-background text-foreground'>
-                    Name
-                  </TableColumn>
-                  <TableColumn className='bg-background text-foreground'>
-                    Updated
-                  </TableColumn>
-                </TableHeader>
-                <TableBody items={items} emptyContent='No projects found'>
-                  {(item) => (
-                    <TableRow key={item.projectId}>
-                      <TableCell>{item.projectName}</TableCell>
-                      <TableCell>{formatTimeAgo(item.updatedAt)}</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                variant='ghost'
-                onPress={onClose}
-                className='bg-stone-600 hover:bg-stone-700 text-foreground'
-              >
-                Cancel
-              </Button>
-              <Button
-                onPress={handleLoadProject}
-                className='hover:bg-sky-600 bg-sky-500 text-foreground'
-                isDisabled={!selectedProjectId}
-              >
-                Load
-              </Button>
-            </ModalFooter>
-          </>
-        )}
-      </ModalContent>
-    </Modal>
+      <Table
+        aria-label='Project Names'
+        color='default'
+        className='vo-theme'
+        classNames={{
+          wrapper: 'text-foreground bg-background',
+          base: 'text-foreground'
+        }}
+        selectionMode='single'
+        onSelectionChange={(e: Selection) => {
+          setSelectedProjectId((e as Set<string>).values().next().value);
+        }}
+        bottomContent={
+          <div className='flex w-full justify-center'>
+            <Pagination
+              isCompact
+              showControls
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        }
+      >
+        <TableHeader className='bg-background text-foreground'>
+          <TableColumn className='bg-background text-foreground'>
+            Name
+          </TableColumn>
+          <TableColumn className='bg-background text-foreground'>
+            Updated
+          </TableColumn>
+        </TableHeader>
+        <TableBody items={items} emptyContent='No projects found'>
+          {(item) => (
+            <TableRow key={item.projectId}>
+              <TableCell>{item.projectName}</TableCell>
+              <TableCell>{formatTimeAgo(item.updatedAt)}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CommonModal>
   );
 };
