@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Load environment variables from .env file
+if [ -f .env.deploy ]; then
+    export $(grep -v '^#' .env.deploy | xargs)
+else
+    echo ".env.deploy file not found"
+    exit 1
+fi
+
+# Check if required variables are set
+if [ -z "$USER" ] || [ -z "$HOST" ] || [ -z "$DIR" ]; then
+    echo "Error: USER, HOST, and DIR must be set in the .env.deploy file"
+    exit 1
+fi
+
+bun run build && rsync -avz --delete public/ ${USER}@${HOST}:~/${DIR}
+
+exit 0
