@@ -1,16 +1,19 @@
 'use client';
 
 import { useKeyboard } from '@helpers/keyboard/useKeyboard';
-import { Input } from "@heroui/react";
+import { Input } from '@heroui/react';
+import { OpLabel } from './OpLabel';
 
 export const OpInput = ({
   label,
   value,
-  onChange
+  onChange,
+  isEnabled = true
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  isEnabled: boolean;
 }) => {
   const { setIsEnabled } = useKeyboard();
   return (
@@ -18,6 +21,7 @@ export const OpInput = ({
       <Input
         className='min-w-[44px] min-h-[44px] w-16'
         type='number'
+        color='primary'
         maxLength={9999}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -33,17 +37,7 @@ export const OpInput = ({
         }}
       />
 
-      {label && (
-        <div
-          className='text-xs text-foreground/90 mt-2'
-          style={{
-            fontSize: '0.6rem',
-            lineHeight: '0.75rem'
-          }}
-        >
-          {label}
-        </div>
-      )}
+      <OpLabel label={label} isEnabled={isEnabled} />
     </div>
   );
 };

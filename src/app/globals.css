@@ -3,11 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background: #302C23;
+  --background: #3D4040;
   --foreground: #FEFEFE;
 
   --page     : #3BBAF9;
   --video-off: #0a0a0a;
+  --selected : #EAFF00;
 
   --c0: #302C23;
   --c1: #3d4040;
@@ -21,12 +22,12 @@
   --c9: #F4D58D;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #302C23;
     --foreground: #FEFEFE;
   }
-}
+} */
 
 body {
   color      : var(--foreground);

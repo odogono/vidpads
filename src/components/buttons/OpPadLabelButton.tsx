@@ -2,12 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { Tag } from 'lucide-react';
 
-import {
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@heroui/react";
+import { Input, Popover, PopoverContent, PopoverTrigger } from '@heroui/react';
 import { OpButton } from './OpButton';
 
 interface OpPadLabelButtonProps {
@@ -74,7 +69,7 @@ export const OpPadLabelButton = ({
       onOpenChange={handleOpenChange}
     >
       <PopoverTrigger>{trigger}</PopoverTrigger>
-      <PopoverContent className='bg-slate-600'>
+      <PopoverContent className='bg-background'>
         <div className='px-1 py-2 w-full'>
           <div className='mt-2 flex flex-col gap-2 w-full'>
             <Input
@@ -82,10 +77,11 @@ export const OpPadLabelButton = ({
               value={value}
               isClearable
               label='Pad Label'
+              variant='bordered'
               size='sm'
               maxLength={30}
               isDisabled={!isEnabled}
-              className='bg-slate-600'
+              className='bg-background'
               onValueChange={handleInputChange}
               onKeyDown={handleKeyDown}
               onClear={() => onChange?.('')}

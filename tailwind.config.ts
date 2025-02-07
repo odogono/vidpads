@@ -26,7 +26,8 @@ export default {
         c8: 'var(--c8)',
         c9: 'var(--c9)',
         page: 'var(--page)',
-        'video-off': 'var(--video-off)'
+        'video-off': 'var(--video-off)',
+        selected: 'var(--selected)'
       },
       fontFamily: {
         sans: ['var(--font-inter)'],
@@ -63,6 +64,10 @@ export default {
     heroui({
       themes: {
         'vo-theme': {
+          variables: {
+            '--heroui-divider-color': 'var(--foreground)',
+            '--heroui-divider-opacity': '0.3'
+          },
           colors: {
             background: 'var(--background)',
             foreground: 'var(--foreground)',

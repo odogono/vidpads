@@ -161,7 +161,7 @@ export const Handle = ({
       className='absolute pointer-events-auto cursor-ew-resize flex items-center justify-center'
       style={{
         left,
-        backgroundColor: '#DAA520',
+        backgroundColor: 'var(--c7)',
         width,
         height,
         borderRadius
