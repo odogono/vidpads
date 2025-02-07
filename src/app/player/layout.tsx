@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { Tooltip } from '@components/Tooltip';
 import { useFullscreen } from '@hooks/useFullScreen';
 
+// TODO sort this out
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   const { isFullscreen, areScreenDimsVisible } = useFullscreen();
 
@@ -15,6 +16,7 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
       <div
         className={`
           vo-root-a
+          overflow-y-hidden
           ${
             isFullscreen
               ? `
@@ -24,7 +26,7 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
               : `flex 
           w-screen 
           h-[100dvh] 
-          bg-sky-200 
+          bg-page 
           justify-center items-center`
           }
           
@@ -38,7 +40,7 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
             ${
               isFullscreen
                 ? 'w-screen h-screen bg-black'
-                : `w-full h-full bg-slate-700
+                : `w-full h-full bg-c0
                 oh-blimey-this-is-a-mess
             portrait:lg:rounded-2xl 
             landscape:lg:rounded-2xl 

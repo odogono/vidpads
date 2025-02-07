@@ -11,7 +11,7 @@ import {
   DropdownMenu,
   DropdownSection,
   DropdownTrigger
-} from "@heroui/react";
+} from '@heroui/react';
 import { CommonModalRef } from './modals/CommonModal';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import {
@@ -69,16 +69,11 @@ export const MenuButton = () => {
       <Dropdown
         classNames={{
           base: 'before:bg-default-200', // change arrow background
-          content:
-            'py-1 px-1 border border-default-200 bg-background text-foreground' // simplified background
+          content: 'py-1 px-1 border border-default-200' // simplified background
         }}
       >
         <DropdownTrigger>
-          <Button
-            isIconOnly
-            variant='flat'
-            className=' bg-slate-700 hover:bg-slate-600'
-          >
+          <Button color='primary' isIconOnly>
             <Menu />
           </Button>
         </DropdownTrigger>
@@ -107,15 +102,21 @@ export const MenuButton = () => {
 
           <DropdownItem key='load-project'>Load Project</DropdownItem>
 
-          <DropdownItem key='save-project'>Save Project</DropdownItem>
+          <DropdownItem key='save-project' showDivider>
+            Save Project
+          </DropdownItem>
 
           <DropdownItem key='import-project'>Import Project</DropdownItem>
 
-          <DropdownItem key='export-project'>Export Project</DropdownItem>
+          <DropdownItem key='export-project' showDivider>
+            Export Project
+          </DropdownItem>
 
-          <DropdownItem key='delete-everything'>Delete Everything</DropdownItem>
+          <DropdownItem key='delete-everything' showDivider>
+            Delete Everything
+          </DropdownItem>
 
-          <DropdownSection showDivider aria-label='About'>
+          <DropdownSection aria-label='About'>
             <DropdownItem key='about'>About</DropdownItem>
           </DropdownSection>
         </DropdownMenu>

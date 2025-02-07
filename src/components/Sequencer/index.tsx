@@ -13,7 +13,7 @@ export const Sequencer = () => {
   const padCount = pads?.length ?? 1;
 
   return (
-    <div className='vo-seq flex mt-4 w-full flex-grow bg-slate-500 rounded-lg'>
+    <div className='vo-seq flex mt-4 w-full flex-grow bg-c2 rounded-lg'>
       <div
         className='grid grid-cols-2 w-full'
         style={{

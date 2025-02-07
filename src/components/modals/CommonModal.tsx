@@ -10,7 +10,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader
-} from "@heroui/react";
+} from '@heroui/react';
 import { useModalState } from './useModalState';
 
 const log = createLog('CommonModal', ['debug']);
@@ -80,7 +80,7 @@ export const CommonModal = ({
       isOpen={isOpen}
       onClose={handleClose}
       backdrop='blur'
-      className='bg-background text-foreground'
+      className='vo-theme bg-background text-foreground'
     >
       <ModalContent>
         {() => (
@@ -88,17 +88,10 @@ export const CommonModal = ({
             <ModalHeader className='flex flex-col gap-1'>{title}</ModalHeader>
             <ModalBody>{children}</ModalBody>
             <ModalFooter>
-              <Button
-                variant='ghost'
-                onPress={handleCancel}
-                className='bg-stone-600 hover:bg-stone-700 text-foreground'
-              >
+              <Button color='secondary' onPress={handleCancel}>
                 Cancel
               </Button>
-              <Button
-                onPress={handleOk}
-                className='hover:bg-sky-600 bg-sky-500 text-foreground'
-              >
+              <Button color='primary' onPress={handleOk}>
                 Ok
               </Button>
             </ModalFooter>

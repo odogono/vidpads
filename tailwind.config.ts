@@ -1,20 +1,32 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import type { Config } from 'tailwindcss';
 
-const { heroui } = require("@heroui/react");
+const { heroui } = require('@heroui/react');
 
 export default {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}"
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
     extend: {
       colors: {
         background: 'var(--background)',
-        foreground: 'var(--foreground)'
+        foreground: 'var(--foreground)',
+        c0: 'var(--c0)',
+        c1: 'var(--c1)',
+        c2: 'var(--c2)',
+        c3: 'var(--c3)',
+        c4: 'var(--c4)',
+        c5: 'var(--c5)',
+        c6: 'var(--c6)',
+        c7: 'var(--c7)',
+        c8: 'var(--c8)',
+        c9: 'var(--c9)',
+        page: 'var(--page)',
+        'video-off': 'var(--video-off)'
       },
       fontFamily: {
         sans: ['var(--font-inter)'],
@@ -48,7 +60,44 @@ export default {
   darkMode: 'class',
   plugins: [
     require('tailwindcss-motion'),
-    heroui(),
+    heroui({
+      themes: {
+        'vo-theme': {
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            primary: {
+              50: '#e6f5fd',
+              100: '#cedde1',
+              200: '#b4c6ca',
+              300: '#98aeb2',
+              400: '#7d979b',
+              500: '#647d82',
+              600: '#4c6166',
+              700: '#344749',
+              800: '#1b2b2d',
+              900: '#001111',
+              DEFAULT: '#647d82',
+              foreground: 'var(--foreground)'
+            },
+            secondary: {
+              50: '#e6f7f7',
+              100: '#cfdfe0',
+              200: '#b5c8ca',
+              300: '#99b2b4',
+              400: '#7d9b9f',
+              500: '#638185',
+              600: '#4c6567',
+              700: '#35484a',
+              800: '#1d2c2e',
+              900: '#001014',
+              DEFAULT: '#35484a',
+              foreground: 'var(--foreground)'
+            }
+          }
+        }
+      }
+    }),
     ({
       addUtilities
     }: {
