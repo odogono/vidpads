@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Circle, Play, Rewind, Square, Trash } from 'lucide-react';
+import { Circle, Play, Repeat2, Rewind, Square, Trash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { OpButton } from '@components/buttons/OpButton';
 import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
-import { useSequencer } from '@model/hooks/useSequencer';
+import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
 const log = createLog('SequencerPane');
@@ -18,13 +18,16 @@ export const SequencerPane = () => {
   const events = useEvents();
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+  // const [isPlaying, setIsPlaying] = useState(false);
+  // const [isRecording, setIsRecording] = useState(false);
   const durationRef = useRef<OpTimeInputRef | null>(null);
   const timeRef = useRef<OpTimeInputRef | null>(null);
   const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
 
   const {
+    isPlaying,
+    isRecording,
+    isLooped,
     play,
     record,
     stop,
@@ -34,11 +37,12 @@ export const SequencerPane = () => {
     endTime,
     setTime,
     setEndTime,
+    setLooped,
     seqSelectedEvents,
     seqSelectedEventIds,
     setSelectedEventsTime,
     setSelectedEventsDuration
-  } = useSequencer();
+  } = useTimeSequencer();
 
   const handleStop = useCallback(() => {
     if (showRewind) {
@@ -48,33 +52,32 @@ export const SequencerPane = () => {
     }
   }, [showRewind, rewind, stop]);
 
-  const handlePlayStarted = useCallback(() => {
-    setIsPlaying(true);
-    setIsRecording(false);
-    setShowRewind(false);
-  }, [setIsPlaying, setIsRecording, setShowRewind]);
+  const handleLoop = useCallback(() => {
+    setLooped(!isLooped);
+  }, [isLooped, setLooped]);
 
-  const handleStopped = useCallback(
-    (event: { time: number }) => {
-      setIsPlaying(false);
-      setIsRecording(false);
-      setShowRewind(event.time > 0);
-    },
-    [setIsPlaying, setIsRecording, setShowRewind]
-  );
+  useEffect(() => {
+    setShowRewind((!isPlaying || !isRecording) && time > 0);
+  }, [isPlaying, isRecording, time]);
 
   const handleTimeUpdate = useCallback(
     (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
-      const { time, isPlaying, isRecording } = event;
-      if (!isPlaying && !isRecording) {
-        setShowRewind(time > 0);
-      }
+      const { time } = event;
       if (!hasSelectedEvents) {
         timeRef.current?.setValue(time);
       }
     },
-    [setShowRewind, hasSelectedEvents]
+    [hasSelectedEvents]
   );
+
+  useEffect(() => {
+    log.debug('useEffect setting time and duration', {
+      time,
+      endTime
+    });
+    timeRef.current?.setValue(time);
+    durationRef.current?.setValue(endTime);
+  }, [time, endTime]);
 
   const handleClear = useCallback(() => {
     clearEvents();
@@ -83,17 +86,17 @@ export const SequencerPane = () => {
 
   useEffect(() => {
     setShowMode('sequencer');
-    events.on('seq:play-started', handlePlayStarted);
-    events.on('seq:stopped', handleStopped);
+    // events.on('seq:play-started', handlePlayStarted);
+    // events.on('seq:stopped', handleStopped);
     events.on('seq:time-update', handleTimeUpdate);
 
     return () => {
       setShowMode('pads');
-      events.off('seq:play-started', handlePlayStarted);
-      events.off('seq:stopped', handleStopped);
+      // events.off('seq:play-started', handlePlayStarted);
+      // events.off('seq:stopped', handleStopped);
       events.off('seq:time-update', handleTimeUpdate);
     };
-  }, [events, handlePlayStarted, handleStopped, handleTimeUpdate, setShowMode]);
+  }, [events, handleTimeUpdate, setShowMode]);
 
   const handleTimeChange = useCallback(
     (value: number) => {
@@ -144,7 +147,7 @@ export const SequencerPane = () => {
   return (
     <>
       <div className='pane-interval w-full h-full pl-2  flex flex-row gap-2  '>
-        <OpButton label='Stop' onPress={handleStop}>
+        <OpButton label={showRewind ? 'Rewind' : 'Stop'} onPress={handleStop}>
           {showRewind ? <Rewind /> : <Square />}
         </OpButton>
         <OpButton label='Play' onPress={play}>
@@ -155,6 +158,9 @@ export const SequencerPane = () => {
             color='var(--c3)'
             className={isRecording ? 'animate-pulse' : ''}
           />
+        </OpButton>
+        <OpButton label='Loop' onPress={handleLoop}>
+          <Repeat2 />
         </OpButton>
         <OpButton label='Clear' onPress={handleClear}>
           <Trash />

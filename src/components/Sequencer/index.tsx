@@ -2,13 +2,10 @@
 
 import { usePads } from '@model/hooks/usePads';
 import { SequencerPad } from './SequencerPad';
-// import { StepSequencerBody } from './StepSequencer/StepSequencerBody';
 import { TimeSequencerBody } from './TimeSequencer/TimeSequencerBody';
-import { useSequencerStore } from './store/useSequencerStore';
 
 export const Sequencer = () => {
   const { pads } = usePads();
-  useSequencerStore();
 
   const padCount = pads?.length ?? 1;
 

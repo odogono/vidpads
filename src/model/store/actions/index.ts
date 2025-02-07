@@ -15,7 +15,11 @@ export {
   setSequencerTime,
   setSequencerEndTime,
   setSelectedEventsTime,
-  setSelectedEventsDuration
+  setSelectedEventsDuration,
+  startSequencer,
+  stopSequencer,
+  rewindSequencer,
+  setSequencerIsLooped
 } from './sequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';

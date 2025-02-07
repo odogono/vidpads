@@ -45,6 +45,7 @@ export interface StoreContextType {
     events: SequencerEvent[];
     time: number;
     endTime: number;
+    isLooped?: boolean;
   };
 
   stepSequencer?: {
@@ -259,6 +260,25 @@ export type SetPadLabelAction = {
   label: string;
 };
 
+export type StartSequencerAction = {
+  type: 'startSequencer';
+  isPlaying: boolean;
+  isRecording: boolean;
+};
+
+export type StopSequencerAction = {
+  type: 'stopSequencer';
+};
+
+export type RewindSequencerAction = {
+  type: 'rewindSequencer';
+};
+
+export type SetSequencerIsLoopedAction = {
+  type: 'setSequencerIsLooped';
+  isLooped: boolean;
+};
+
 export type Actions =
   | SetPadMediaAction
   | ClearPadAction
@@ -294,7 +314,11 @@ export type Actions =
   | SetPadLabelAction
   | SetPadChokeGroupAction
   | SetPadPlayPriorityAction
-  | SetPadPlaybackResumeAction;
+  | SetPadPlaybackResumeAction
+  | StartSequencerAction
+  | StopSequencerAction
+  | RewindSequencerAction
+  | SetSequencerIsLoopedAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -321,12 +345,25 @@ export type SequencerTimesUpdatedEvent = {
   endTime: number;
 };
 
+export type SequencerStartedEvent = {
+  type: 'sequencerStarted';
+  isPlaying: boolean;
+  isRecording: boolean;
+  time: number;
+};
+
+export type SequencerStoppedEvent = {
+  type: 'sequencerStopped';
+};
+
 export type EmittedEvents =
   | PadUpdatedEvent
   | TimeUpdatedEvent
   | StoreInitialisedEvent
   | IsEditActiveEvent
-  | SequencerTimesUpdatedEvent;
+  | SequencerTimesUpdatedEvent
+  | SequencerStartedEvent
+  | SequencerStoppedEvent;
 
 export type Emit = { emit: (event: EmittedEvents) => void };
 

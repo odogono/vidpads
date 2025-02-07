@@ -78,6 +78,7 @@ export type EventEmitterEvents = {
   'seq:rewind': undefined;
   'seq:time-update': {
     time: number; // in secs
+    endTime: number; // in secs
     isPlaying: boolean;
     isRecording: boolean;
   };

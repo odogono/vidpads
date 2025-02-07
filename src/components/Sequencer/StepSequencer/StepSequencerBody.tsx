@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
-import { useSequencer } from '@model/hooks/useSequencer';
+import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { PlayHead } from '../TimeSequencer/components/PlayHead';
 
 // const log = createLog('StepSequencerBody');
@@ -20,7 +20,7 @@ export interface SequencerBodyProps {
 
 export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
   const events = useEvents();
-  const { bpm, seqEvents, toggleEvent, timeToStep } = useSequencer();
+  const { bpm, seqEvents, toggleEvent, timeToStep } = useTimeSequencer();
   const barCount = 24;
   const stepWidth = 40;
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
