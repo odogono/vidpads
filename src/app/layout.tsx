@@ -37,6 +37,7 @@ export const viewport: Viewport = {
   userScalable: false
 };
 
+// TODO move providers out of root layout to player
 const RootLayout = ({
   children
 }: Readonly<{
@@ -51,7 +52,6 @@ const RootLayout = ({
         ${inter.variable}
         bg-background 
         antialiased
-        overflow-y-hidden
         font-sans
       `}
     >
