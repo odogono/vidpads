@@ -8,7 +8,7 @@ interface LoadingPlayerProps {
 export const LoadingPlayer = ({ count, loadingCount }: LoadingPlayerProps) => {
   const isReady = loadingCount >= count;
   return (
-    <div className='vo-player-loading-container w-full h-full flex items-center justify-center gap-4'>
+    <div className='vo-player-loading-container bg-video-off w-full h-full flex items-center justify-center gap-4'>
       {!isReady && (
         <>
           <LoadingSpinner />

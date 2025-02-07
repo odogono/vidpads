@@ -59,7 +59,7 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     padLabel
   });
   return (
-    <div className='w-full h-full bg-slate-500 rounded-lg flex gap-6 items-center justify-center'>
+    <div className='w-full h-full  rounded-lg flex gap-6 items-center justify-center'>
       <OpPadLabelButton
         isEnabled={isEnabled}
         onChange={handleLabelChange}

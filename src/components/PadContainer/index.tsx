@@ -30,7 +30,7 @@ export const PadContainer = () => {
   log.debug('render', padsWithMediaStr, pads);
 
   return (
-    <div className='vo-pad-container flex mt-4 w-full flex-grow bg-slate-500 rounded-lg'>
+    <div className='vo-pad-container flex mt-4 w-full flex-grow bg-c2 rounded-lg'>
       <div className='grid grid-cols-4 landscape:grid-cols-8 gap-2 p-2 w-full h-full'>
         {pads.map((pad) => (
           <div

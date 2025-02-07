@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DeleteModal, DeleteModalRef } from '@components/modals/DeleteModal';
-import { cn } from "@heroui/react";
+import { cn } from '@heroui/react';
 import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
@@ -36,7 +36,7 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <div className='controls-container mt-4 p-2   rounded-lg flex flex-row'>
+    <div className='controls-container mt-4 p-2 bg-c2 rounded-lg flex flex-row'>
       <div className='switcher rounded-lg  flex flex-row'>
         <OpBiButton
           onPressUp={goToPreviousControlPane}

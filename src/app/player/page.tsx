@@ -4,8 +4,8 @@ import { LoadingSuspense } from '@components/Loading';
 import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
+import { HeroUIProvider } from '@heroui/react';
 import { ProjectProvider } from '@hooks/useProject/provider';
-import { HeroUIProvider } from "@heroui/react";
 
 const Player = () => {
   return (

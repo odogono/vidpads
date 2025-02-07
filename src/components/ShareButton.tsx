@@ -6,9 +6,9 @@ import { Share } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { writeToClipboard } from '@helpers/clipboard';
+import { Button } from '@heroui/react';
 import { useShareUrl } from '@hooks/useShareUrl';
 import { useProjects } from '@model/hooks/useProjects';
-import { Button } from "@heroui/react";
 
 export const ShareButton = () => {
   const { exportToURLString } = useProjects();
@@ -24,12 +24,7 @@ export const ShareButton = () => {
 
   return (
     <>
-      <Button
-        onPress={handleOnPress}
-        isIconOnly
-        variant='flat'
-        className=' bg-slate-700 hover:bg-slate-600'
-      >
+      <Button color='primary' onPress={handleOnPress} isIconOnly>
         <Share />
       </Button>
     </>

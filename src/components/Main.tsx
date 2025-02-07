@@ -19,15 +19,15 @@ export const Main = () => {
   return (
     <PadDnDProvider>
       <div
-        className={`vo-main w-full h-full text-white dark text-foreground flex flex-col ${
+        className={`vo-main vo-theme text-foreground bg-background w-full h-full flex flex-col ${
           isFullscreen ? 'p-0' : 'sm:p-[2vw] md:p-[3vw] lg:p-[5vw]'
         }`}
       >
         <header
-          className={`flex justify-between w-full mx-auto items-center ${isFullscreen ? 'hidden' : ''}`}
+          className={`flex justify-between w-full mx-auto mb-2 items-center ${isFullscreen ? 'hidden' : ''}`}
         >
           <div className='text-white text-l font-bold'>ODGN VO PADS</div>
-          <span>
+          <span className='flex items-center gap-2'>
             <ShareButton />
             <MenuButton />
           </span>

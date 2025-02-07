@@ -1,3 +1,5 @@
+import { Button } from '@heroui/react';
+
 export interface FullScreenButtonProps {
   isFullscreen: boolean;
   setIsFullscreen: (isFullscreen: boolean) => void;
@@ -8,9 +10,11 @@ export const FullScreenButton = ({
   setIsFullscreen
 }: FullScreenButtonProps) => {
   return (
-    <button
-      onClick={() => setIsFullscreen(!isFullscreen)}
-      className='absolute top-16 left-3 bg-gray-800 hover:bg-gray-700 p-2 rounded-md z-20'
+    <Button
+      color='primary'
+      isIconOnly
+      onPress={() => setIsFullscreen(!isFullscreen)}
+      className='absolute top-16 left-3 p-2 z-20'
     >
       {isFullscreen ? (
         <svg
@@ -43,6 +47,6 @@ export const FullScreenButton = ({
           />
         </svg>
       )}
-    </button>
+    </Button>
   );
 };
