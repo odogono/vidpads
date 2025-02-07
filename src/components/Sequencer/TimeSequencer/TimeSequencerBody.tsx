@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-// import { createLog } from '@helpers/log';
-import { useEvents } from '@hooks/events';
-import { useSequencer } from '@model/hooks/useSequencer';
+import { createLog } from '@helpers/log';
+// import { useEvents } from '@hooks/events';
+import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
 import { quantizeSeconds } from '../../../model/sequencerEvent';
@@ -18,7 +18,7 @@ import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
 import { useSequencerEvents } from './hooks/useSequencerEvents';
 
-// const log = createLog('TimeSequencerBody');
+const log = createLog('TimeSequencerBody');
 
 export interface SequencerBodyProps {
   canvasBpm?: number;
@@ -33,7 +33,7 @@ export const TimeSequencerBody = ({
 }: SequencerBodyProps) => {
   const padCount = pads.length;
 
-  const events = useEvents();
+  // const events = useEvents();
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
 
   const { gridRef, getGridDimensions } = useGridDimensions({ padCount });
@@ -52,8 +52,9 @@ export const TimeSequencerBody = ({
     selectEventsAtTime,
     seqSelectedEvents,
     seqSelectedEventIds,
-    endTime
-  } = useSequencer();
+    endTime,
+    setTime
+  } = useTimeSequencer();
 
   const timelineDurationInPixels =
     secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
@@ -265,11 +266,12 @@ export const TimeSequencerBody = ({
   const handlePlayHeadMove = useCallback(
     (pos: Position) => {
       const time = pixelsToSeconds(pos.x, pixelsPerBeat, bpm);
-      // log.debug('handlePlayHeadMove', { x: pos.x, time });
+      log.debug('handlePlayHeadMove', { x: pos.x, time });
       // the playhead position will be updated by a seq:time-update event
-      events.emit('seq:set-time', { time });
+      // events.emit('seq:set-time', { time });
+      setTime(time);
     },
-    [bpm, events, pixelsPerBeat]
+    [bpm, pixelsPerBeat, setTime]
   );
 
   // log.debug('timelineDurationInPixels', timelineDurationInPixels);

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
-import { useSequencer } from '@model/hooks/useSequencer';
+import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { createSequencerEvent } from '@model/sequencerEvent';
 import { SequencerEvent } from '@model/types';
 import {
@@ -40,7 +40,7 @@ export const useSequencerEvents = ({
   const events = useEvents();
   const lastTimeUpdate = useRef(0);
   const [isRecording, setIsRecording] = useState(false);
-  const { addEvent } = useSequencer();
+  const { addEvent } = useTimeSequencer();
   const recordEvents = useRef<Map<string, SequencerEvent>>(new Map());
 
   const handlePadTouchdown = useCallback(

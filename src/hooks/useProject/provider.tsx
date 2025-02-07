@@ -25,7 +25,7 @@ import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { ProjectContext } from './context';
 
-const log = createLog('useProject/provider');
+const log = createLog('useProject/provider', ['debug']);
 
 export const ProjectProvider = ({
   children

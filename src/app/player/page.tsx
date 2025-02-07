@@ -6,6 +6,7 @@ import { QueryClientContextProvider } from '@contexts/queryclient';
 import { KeyboardProvider } from '@helpers/keyboard/provider';
 import { HeroUIProvider } from '@heroui/react';
 import { ProjectProvider } from '@hooks/useProject/provider';
+import { TimeSequencerProvider } from '@hooks/useTimeSequencer/provider';
 
 const Player = () => {
   return (
@@ -15,7 +16,9 @@ const Player = () => {
           <KeyboardProvider>
             <LoadingSuspense message='Loading project...'>
               <ProjectProvider>
-                <Main />
+                <TimeSequencerProvider>
+                  <Main />
+                </TimeSequencerProvider>
               </ProjectProvider>
             </LoadingSuspense>
           </KeyboardProvider>

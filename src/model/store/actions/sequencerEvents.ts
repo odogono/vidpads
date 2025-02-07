@@ -14,17 +14,80 @@ import {
   Emit,
   MoveSequencerEventsAction,
   RemoveSequencerEventAction,
+  RewindSequencerAction,
   SelectSequencerEventsAction,
   SetSelectedEventsDurationAction,
   SetSelectedEventsTimeAction,
   SetSequencerEndTimeAction,
+  SetSequencerIsLoopedAction,
   SetSequencerTimeAction,
+  StartSequencerAction,
+  StopSequencerAction,
   StoreContext,
   ToggleSequencerEventAction
 } from '../types';
 import { update } from './helpers';
 
 const log = createLog('sequencer/events');
+
+const updateSequencer = (
+  context: StoreContext,
+  newSequencer: Partial<StoreContext['sequencer']>
+) => {
+  return update(context, {
+    sequencer: {
+      ...context.sequencer,
+      ...newSequencer
+    }
+  });
+};
+
+export const startSequencer = (
+  context: StoreContext,
+  action: StartSequencerAction,
+  { emit }: Emit
+): StoreContext => {
+  const { isPlaying, isRecording } = action;
+  emit({
+    type: 'sequencerStarted',
+    isPlaying,
+    isRecording,
+    time: context.sequencer?.time ?? 0
+  });
+
+  return context;
+};
+
+export const stopSequencer = (
+  context: StoreContext,
+  action: StopSequencerAction,
+  { emit }: Emit
+): StoreContext => {
+  emit({ type: 'sequencerStopped' });
+  return context;
+};
+
+export const rewindSequencer = (
+  context: StoreContext,
+  action: RewindSequencerAction,
+  { emit }: Emit
+): StoreContext => {
+  emit({
+    type: 'sequencerTimesUpdated',
+    time: 0,
+    endTime: context.sequencer?.endTime ?? 0
+  });
+  return updateSequencer(context, { time: 0 });
+};
+
+export const setSequencerIsLooped = (
+  context: StoreContext,
+  action: SetSequencerIsLoopedAction
+): StoreContext => {
+  const { isLooped } = action;
+  log.debug('setSequencerIsLooped', { isLooped });
+  return updateSequencer(context, { isLooped });
+};
 
 export const toggleSequencerEvent = (
   context: StoreContext,
@@ -213,7 +276,7 @@ export const moveSequencerEvents = (
 
   // log.debug('moveSequencerEvents newEvents', newEvents.length);
 
-  return update(context, { sequencer: { ...sequencer, events: newEvents } });
+  return updateSequencer(context, { events: newEvents });
 };
 
 export const setSequencerTime = (
@@ -229,9 +292,8 @@ export const setSequencerTime = (
     endTime: context.sequencer?.endTime ?? 0
   });
   log.debug('setSequencerTime', { time, value });
-  return update(context, {
-    sequencer: { ...context.sequencer, time: value }
-  });
+
+  return updateSequencer(context, { time: value });
 };
 
 export const setSequencerEndTime = (
