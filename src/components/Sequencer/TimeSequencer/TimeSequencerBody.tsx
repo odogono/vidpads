@@ -266,9 +266,7 @@ export const TimeSequencerBody = ({
   const handlePlayHeadMove = useCallback(
     (pos: Position) => {
       const time = pixelsToSeconds(pos.x, pixelsPerBeat, bpm);
-      log.debug('handlePlayHeadMove', { x: pos.x, time });
-      // the playhead position will be updated by a seq:time-update event
-      // events.emit('seq:set-time', { time });
+      // log.debug('handlePlayHeadMove', { x: pos.x, time });
       setTime(time);
     },
     [bpm, pixelsPerBeat, setTime]

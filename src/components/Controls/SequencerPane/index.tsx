@@ -12,7 +12,7 @@ import { useEvents } from '@hooks/events';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
-const log = createLog('SequencerPane');
+const log = createLog('SequencerPane', ['debug']);
 
 export const SequencerPane = () => {
   const events = useEvents();
@@ -71,10 +71,6 @@ export const SequencerPane = () => {
   );
 
   useEffect(() => {
-    log.debug('useEffect setting time and duration', {
-      time,
-      endTime
-    });
     timeRef.current?.setValue(time);
     durationRef.current?.setValue(endTime);
   }, [time, endTime]);
@@ -86,14 +82,10 @@ export const SequencerPane = () => {
 
   useEffect(() => {
     setShowMode('sequencer');
-    // events.on('seq:play-started', handlePlayStarted);
-    // events.on('seq:stopped', handleStopped);
     events.on('seq:time-update', handleTimeUpdate);
 
     return () => {
       setShowMode('pads');
-      // events.off('seq:play-started', handlePlayStarted);
-      // events.off('seq:stopped', handleStopped);
       events.off('seq:time-update', handleTimeUpdate);
     };
   }, [events, handleTimeUpdate, setShowMode]);
@@ -105,7 +97,6 @@ export const SequencerPane = () => {
       } else {
         setTime(Math.max(0, value));
         log.debug('handleTimeChange setting seq time', { value });
-        // events.emit('seq:set-time', { time: value });
       }
     },
     [setSelectedEventsTime, hasSelectedEvents, setTime]
