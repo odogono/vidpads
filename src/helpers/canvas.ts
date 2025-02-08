@@ -2,7 +2,7 @@ import { createLog } from '@helpers/log';
 import { timeStringToSeconds } from '@helpers/time';
 import { MediaVideo } from '@model/types';
 
-const log = createLog('Canvas');
+const log = createLog('Canvas', ['debug']);
 
 export const extractVideoThumbnail = async (
   file: File,

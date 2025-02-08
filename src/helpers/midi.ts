@@ -40,7 +40,7 @@ export const useMidiControls = () => {
         activeNotes.current.add(note);
         const padId = MIDI_PAD_MAP[note as keyof typeof MIDI_PAD_MAP];
         if (padId) {
-          events.emit('pad:touchdown', { padId });
+          events.emit('pad:touchdown', { padId, source: 'midi' });
         }
       }
       // Note Off event (128 = 0x80 or Note On with velocity 0)
@@ -50,7 +50,7 @@ export const useMidiControls = () => {
         activeNotes.current.delete(note);
         const padId = MIDI_PAD_MAP[note as keyof typeof MIDI_PAD_MAP];
         if (padId) {
-          events.emit('pad:touchup', { padId });
+          events.emit('pad:touchup', { padId, source: 'midi' });
         }
       }
     },

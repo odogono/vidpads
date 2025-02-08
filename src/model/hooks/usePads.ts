@@ -16,7 +16,7 @@ export const usePads = () => {
   const pads = useSelector(project, (state) => state.context.pads);
   const isPadPlayEnabled = useSelector(
     project,
-    (state) => state.context.isPadPlayEnabled ?? true
+    (state) => state.context.settings?.isPadPlayEnabled ?? true
   );
   const isPadSelectSourceEnabled = useSelector(
     project,

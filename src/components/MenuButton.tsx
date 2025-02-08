@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { Key, useCallback, useRef } from 'react';
 
 import { Menu } from 'lucide-react';
 
@@ -19,6 +19,7 @@ import { ImportProjectModal } from './modals/ImportProjectModal';
 import { LoadProjectModal } from './modals/LoadProjectModal';
 import { NewProjectModal } from './modals/NewProjectModal';
 import { SaveProjectModal } from './modals/SaveProjectModal';
+import { SettingsModal } from './modals/SettingsModal';
 
 export const MenuButton = () => {
   const newProjectModalRef = useRef<CommonModalRef | null>(null);
@@ -27,30 +28,25 @@ export const MenuButton = () => {
   const exportProjectModalRef = useRef<CommonModalRef | null>(null);
   const importProjectModalRef = useRef<CommonModalRef | null>(null);
   const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
+  const settingsModalRef = useRef<CommonModalRef | null>(null);
 
-  const handleNewProject = useCallback(() => {
-    newProjectModalRef.current?.open();
-  }, [newProjectModalRef]);
-
-  const handleLoadProject = useCallback(() => {
-    loadProjectModalRef.current?.open();
-  }, [loadProjectModalRef]);
-
-  const handleSaveProject = useCallback(() => {
-    saveProjectModalRef.current?.open();
-  }, [saveProjectModalRef]);
-
-  const handleExportProject = useCallback(() => {
-    exportProjectModalRef.current?.open();
-  }, [exportProjectModalRef]);
-
-  const handleImportProject = useCallback(() => {
-    importProjectModalRef.current?.open();
-  }, [importProjectModalRef]);
-
-  const handleDeleteEverything = useCallback(() => {
-    deleteEverythingModalRef.current?.open();
-  }, [deleteEverythingModalRef]);
+  const handleAction = useCallback((key: string) => {
+    if (key === 'new-project') {
+      newProjectModalRef.current?.open();
+    } else if (key === 'load-project') {
+      loadProjectModalRef.current?.open();
+    } else if (key === 'save-project') {
+      saveProjectModalRef.current?.open();
+    } else if (key === 'export-project') {
+      exportProjectModalRef.current?.open();
+    } else if (key === 'import-project') {
+      importProjectModalRef.current?.open();
+    } else if (key === 'delete-everything') {
+      deleteEverythingModalRef.current?.open();
+    } else if (key === 'settings') {
+      settingsModalRef.current?.open();
+    }
+  }, []);
 
   return (
     <>
@@ -68,21 +64,7 @@ export const MenuButton = () => {
         <DropdownMenu
           aria-label='Main options'
           className='bg-c1 text-foreground'
-          onAction={(key) => {
-            if (key === 'new-project') {
-              handleNewProject();
-            } else if (key === 'load-project') {
-              handleLoadProject();
-            } else if (key === 'save-project') {
-              handleSaveProject();
-            } else if (key === 'export-project') {
-              handleExportProject();
-            } else if (key === 'import-project') {
-              handleImportProject();
-            } else if (key === 'delete-everything') {
-              handleDeleteEverything();
-            }
-          }}
+          onAction={(key: Key) => handleAction(String(key))}
         >
           <DropdownItem key='new-project'>New Project</DropdownItem>
 
@@ -98,6 +80,8 @@ export const MenuButton = () => {
             Export Project
           </DropdownItem>
 
+          <DropdownItem key='settings'>Settings</DropdownItem>
+
           <DropdownItem key='delete-everything' showDivider>
             Delete Everything
           </DropdownItem>
@@ -112,6 +96,7 @@ export const MenuButton = () => {
       <SaveProjectModal ref={saveProjectModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
       <ImportProjectModal ref={importProjectModalRef} />
+      <SettingsModal ref={settingsModalRef} />
       <DeleteEverythingModal ref={deleteEverythingModalRef} />
     </>
   );

@@ -40,7 +40,7 @@ export const usePad = (padId?: string) => {
 
   const isPadPlayEnabled = useSelector(
     project,
-    (state) => state.context.isPadPlayEnabled ?? true
+    (state) => state.context.settings?.isPadPlayEnabled ?? true
   );
 
   const isPadSelectSourceEnabled = useSelector(

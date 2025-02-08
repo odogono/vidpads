@@ -13,14 +13,21 @@ import type {
 export const initialContext: StoreContextType = {
   projectId: generateShortUUID(),
   projectName: '',
-  isPadPlayEnabled: true,
   isPadSelectSourceEnabled: true,
-  isKeyboardPlayEnabled: true,
+  settings: {
+    isPadPlayEnabled: true,
+    isKeyboardPlayEnabled: true,
+    isMidiPlayEnabled: false,
+    hidePlayerOnEnd: false,
+    selectPadFromKeyboard: false,
+    selectPadFromMidi: false,
+    selectPadFromPad: true
+  },
   showMode: 'pads',
   sequencer: {
     bpm: 60,
     events: [],
-    startTime: 0,
+    time: 0,
     endTime: 30 // secs
   },
   createdAt: dateToISOString(),
