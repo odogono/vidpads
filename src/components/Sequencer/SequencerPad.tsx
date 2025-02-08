@@ -15,7 +15,7 @@ export const SequencerPad = ({ pad }: { pad: Pad }) => {
     (e: React.TouchEvent | React.MouseEvent) => {
       e.preventDefault();
       if (!isPlayerReady) return;
-      events.emit('pad:touchdown', { padId });
+      events.emit('pad:touchdown', { padId, source: 'sequencer' });
     },
     [events, isPlayerReady, padId]
   );
@@ -24,7 +24,7 @@ export const SequencerPad = ({ pad }: { pad: Pad }) => {
     (e: React.TouchEvent | React.MouseEvent) => {
       e.preventDefault();
       if (!isPlayerReady) return;
-      events.emit('pad:touchup', { padId });
+      events.emit('pad:touchup', { padId, source: 'sequencer' });
     },
     [events, isPlayerReady, padId]
   );

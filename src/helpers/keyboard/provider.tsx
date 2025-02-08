@@ -59,7 +59,7 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
     activeKeys.current.forEach((code) => {
       const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
       if (padId) {
-        events.emit('pad:touchup', { padId });
+        events.emit('pad:touchup', { padId, source: 'keyboard' });
       }
     });
 
@@ -131,7 +131,7 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
 
       const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
       if (padId) {
-        events.emit('pad:touchdown', { padId });
+        events.emit('pad:touchdown', { padId, source: 'keyboard' });
         return;
       }
 
@@ -159,7 +159,7 @@ export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
 
       const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
       if (padId) {
-        events.emit('pad:touchup', { padId });
+        events.emit('pad:touchup', { padId, source: 'keyboard' });
       }
     },
     [events, isEnabled]

@@ -56,7 +56,7 @@ export const PadComponent = ({
   } = usePadOperations();
 
   const [isDragOver, setIsDragOver] = useState(false);
-  const { selectedPadId, setSelectedPadId } = useSelectedPadId();
+  const { selectedPadId } = useSelectedPadId();
 
   const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
 
@@ -65,13 +65,13 @@ export const PadComponent = ({
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (isPlayerReady && isPlayEnabled) {
-        events.emit('pad:touchdown', { padId: pad.id });
+        events.emit('pad:touchdown', { padId: pad.id, source: 'pad' });
       }
-      setSelectedPadId(pad.id);
+      // setSelectedPadId(pad.id);
 
       onDragStart(e, pad.id, MIME_TYPE_PAD);
     },
-    [events, pad, setSelectedPadId, isPlayerReady, isPlayEnabled, onDragStart]
+    [events, pad, isPlayerReady, isPlayEnabled, onDragStart]
   );
 
   const handlePointerMove = useCallback(
@@ -106,7 +106,7 @@ export const PadComponent = ({
         onEmptyPadTouch(pad.id);
       } else {
         if (isPlayerReady && isPlayEnabled) {
-          events.emit('pad:touchup', { padId: pad.id });
+          events.emit('pad:touchup', { padId: pad.id, source: 'pad' });
         }
       }
     },

@@ -17,9 +17,11 @@ import { Media, MediaYouTube } from '@model/types';
 export type EventEmitterEvents = {
   'pad:touchdown': {
     padId: string;
+    source: 'keyboard' | 'midi' | 'pad' | 'sequencer';
   };
   'pad:touchup': {
     padId: string;
+    source: 'keyboard' | 'midi' | 'pad' | 'sequencer';
   };
   // request the video to start
   'video:start': PlayerPlay;

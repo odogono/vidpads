@@ -144,7 +144,7 @@ export const useSequencerEvents = ({
       );
 
       for (const event of rangeEvents) {
-        events.emit(event.event, { padId: event.padId });
+        events.emit(event.event, { padId: event.padId, source: 'sequencer' });
       }
 
       lastTimeUpdate.current = time;

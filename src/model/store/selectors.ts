@@ -3,10 +3,8 @@
 import { useCallback } from 'react';
 
 import { useProject } from '@hooks/useProject';
-import { useDispatch, useSelector } from '@xstate/store/react';
-import { setProjectNameAction } from '../actions/projectActions';
+import { useSelector } from '@xstate/store/react';
 import { getPadSourceUrl } from '../pad';
-import { RootState } from '../store';
 import { Pad } from '../types';
 import { StoreType } from './types';
 

@@ -5,5 +5,8 @@ export const setPadPlayEnabled = (
   event: SetPadPlayEnabledAction
 ): StoreContext => {
   const { isEnabled } = event;
-  return { ...context, isPadPlayEnabled: isEnabled };
+  return {
+    ...context,
+    settings: { ...context.settings, isPadPlayEnabled: isEnabled }
+  };
 };

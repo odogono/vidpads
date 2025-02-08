@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { compress } from '@helpers/compress';
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
-import { invalidateQueryKeys, resetAllQueries } from '@helpers/query';
+import { resetAllQueries } from '@helpers/query';
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import {
@@ -148,8 +148,9 @@ export const useProjects = () => {
       return saveData;
     },
     onSuccess: () => {
-      // Optionally invalidate queries that depend on project data
-      invalidateQueryKeys(queryClient, [[...VOKeys.projects()]]);
+      // invalidate queries that depend on project data
+      // holy hell this reloads everything - don't do it
+      // invalidateQueryKeys(queryClient, [[...VOKeys.projects()]]);
     }
   });
 

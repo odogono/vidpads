@@ -22,23 +22,37 @@ export interface StoreContextType {
   selectedControlPane?: ControlPanes;
   selectedPadId?: string | null;
 
-  // whether keyboard can trigger a player
-  isKeyboardPlayEnabled?: boolean;
-
-  // whether midi can trigger a player
-  isMidiPlayEnabled?: boolean;
-
   // whether the map midi mode is enabled
   isMidiMappingEnabled?: boolean;
-
-  // whether pads can trigger a player
-  isPadPlayEnabled?: boolean;
 
   // whether pressing on an empty pad opens the selector
   isPadSelectSourceEnabled?: boolean;
 
   // whether the pads or sequencer are visible
   showMode: ShowMode;
+
+  settings?: {
+    // whether pads can trigger a player
+    isPadPlayEnabled?: boolean;
+
+    // whether keyboard can trigger a player
+    isKeyboardPlayEnabled?: boolean;
+
+    // whether midi can trigger a player
+    isMidiPlayEnabled?: boolean;
+
+    // whether the player should be hidden when it ends
+    hidePlayerOnEnd?: boolean;
+
+    // whether a keyboard event selects the pad
+    selectPadFromKeyboard?: boolean;
+
+    // whether a midi event selects the pad
+    selectPadFromMidi?: boolean;
+
+    // whether touching a pad selects it
+    selectPadFromPad?: boolean;
+  };
 
   sequencer: {
     bpm: number;
@@ -284,6 +298,12 @@ export type SetProjectNameAction = {
   name: string;
 };
 
+export type SetSettingAction = {
+  type: 'setSetting';
+  path: string;
+  value: boolean | number | string;
+};
+
 export type Actions =
   | SetPadMediaAction
   | ClearPadAction
@@ -324,7 +344,8 @@ export type Actions =
   | StopSequencerAction
   | RewindSequencerAction
   | SetSequencerIsLoopedAction
-  | SetProjectNameAction;
+  | SetProjectNameAction
+  | SetSettingAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

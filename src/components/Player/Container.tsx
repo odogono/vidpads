@@ -4,7 +4,14 @@ import { useCallback, useEffect } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
+import { useProject } from '@hooks/useProject';
 import { usePlayersState } from '@model/hooks/usePlayersState';
+import {
+  useSettingIsKeyboardPlayEnabled,
+  useSettingIsPadPlayEnabled,
+  useSettingSelectPadFromKeyboard,
+  useSettingSelectPadFromPad
+} from '@model/hooks/useSettings';
 import {
   getPadChokeGroup,
   getPadInterval,
@@ -18,6 +25,7 @@ import {
   isPadLooped
 } from '@model/pad';
 import { Interval } from '@model/types';
+import { useSelectedPadId } from '../../model/store/selectors';
 import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
 import { hidePlayer, showPlayer } from './helpers';
@@ -35,6 +43,14 @@ const log = createLog('player/container', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();
+  const { project } = useProject();
+  const isKeyboardPlayEnabled = useSettingIsKeyboardPlayEnabled(project);
+  const isPadPlayEnabled = useSettingIsPadPlayEnabled(project);
+  const selectPadFromKeyboard = useSettingSelectPadFromKeyboard(project);
+  const selectPadFromPad = useSettingSelectPadFromPad(project);
+  const { setSelectedPadId } = useSelectedPadId();
+
+  const { pads, players } = usePlayers();
 
   const { hideStackPlayer, showStackPlayer, getChokeGroupPlayers } =
     usePlayingStack();
@@ -42,12 +58,22 @@ export const PlayerContainer = () => {
   const { updatePlayer: updatePlayerState, playerReadyCount } =
     usePlayersState();
 
-  const { pads, players } = usePlayers();
-
   const handlePadTouchdown = useCallback(
-    ({ padId }: { padId: string }) => {
+    ({ padId, source }: { padId: string; source: string }) => {
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
+
+      if (source === 'keyboard') {
+        if (!isKeyboardPlayEnabled) return;
+        if (selectPadFromKeyboard) {
+          setSelectedPadId(padId);
+        }
+      } else if (source === 'pad') {
+        if (!isPadPlayEnabled) return;
+        if (selectPadFromPad) {
+          setSelectedPadId(padId);
+        }
+      }
 
       const mediaUrl = getPadSourceUrl(pad);
       if (!mediaUrl) {
@@ -84,13 +110,15 @@ export const PlayerContainer = () => {
         playPriority
       });
     },
-    [events, pads]
+    [events, pads, isKeyboardPlayEnabled]
   );
 
   const handlePadTouchup = useCallback(
-    ({ padId }: { padId: string }) => {
+    ({ padId, source }: { padId: string; source: string }) => {
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
+      if (source === 'keyboard' && !isKeyboardPlayEnabled) return;
+
       const url = getPadSourceUrl(pad);
       if (!url) return;
 
@@ -100,7 +128,7 @@ export const PlayerContainer = () => {
         events.emit('video:stop', { url, padId, time: 0 });
       }
     },
-    [events, pads]
+    [events, pads, isKeyboardPlayEnabled]
   );
 
   const handlePlayerPlaying = useCallback(
