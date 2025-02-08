@@ -8,10 +8,9 @@ import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { DragGhost } from '@hooks/usePadDnD/DragGhost';
-import { GeneralDragEvent } from '@types';
 import { PadDnDContext, RegisterDropTargetProps } from './context';
 
-const log = createLog('PadDnDProvider');
+const log = createLog('PadDnDProvider', ['debug']);
 
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
@@ -171,7 +170,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const onNativeDragOver = useCallback(
-    (e: GeneralDragEvent, id: string) => {
+    (e: React.DragEvent, id: string) => {
       e.preventDefault();
 
       const target = dropTargets.current.get(id);
@@ -200,7 +199,7 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const onNativeDrop = useCallback(
-    async (e: GeneralDragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault();
 
       log.debug('[onNativeDrop]', { dragOverId });
