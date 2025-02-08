@@ -24,22 +24,13 @@ export const useStoreEvents = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const playStartedAtRef = useRef<number>(0);
-  const timeRef = useRef(time);
 
   const updateTime = useCallback(() => {
     // if (!isPlaying && !isRecording) {
     //   return;
     // }
     const now = performance.now();
-    // const time = timeRef.current;
     const currentTime = time + (now - playStartedAtRef.current) / 1000;
-
-    log.debug({
-      time,
-      currentTime,
-      endTime,
-      isLooped
-    });
 
     events.emit('seq:time-update', {
       time: currentTime,
@@ -49,24 +40,33 @@ export const useStoreEvents = ({
     });
 
     if (currentTime >= endTime) {
+      log.debug({
+        time,
+        currentTime,
+        endTime,
+        isLooped
+      });
       if (isLooped) {
         project.send({ type: 'rewindSequencer' });
-        timeRef.current = 0;
+        // timeRef.current = 0;
+        playStartedAtRef.current = now;
       } else {
         project.send({ type: 'stopSequencer' });
       }
     }
 
-    // log.debug('updateTime', time);
-
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTime);
     }
-  }, [events, project, isPlaying, isRecording, time, endTime, isLooped]);
+  }, [events, project, isPlaying, isRecording, endTime, isLooped, time]);
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
       const { isPlaying, isRecording, time } = event;
+
+      log.debug('handlePlayStarted', {
+        time
+      });
 
       if (isPlaying) {
         events.emit('seq:play-started', {
@@ -78,15 +78,12 @@ export const useStoreEvents = ({
         });
       }
 
-      // timeRef.current = time;
-
       setIsPlaying(isPlaying);
       setIsRecording(isRecording);
 
       playStartedAtRef.current = performance.now();
 
       animationRef.current = requestAnimationFrame(updateTime);
-      // updateTime();
     },
     [events, updateTime]
   );
@@ -120,19 +117,21 @@ export const useStoreEvents = ({
   }, [events, time, endTime]);
 
   useEffect(() => {
+    // Reset animation frame when dependencies change
+    if (animationRef.current !== null) {
+      log.debug('reset animation frame');
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = requestAnimationFrame(updateTime);
+    }
+  }, [updateTime]);
+
+  useEffect(() => {
     const evtPlayStarted = project.on('sequencerStarted', handlePlayStarted);
     const evtPlayStopped = project.on('sequencerStopped', handleStopped);
-    // const evtRecordStarted = project.on(
-    //   'sequencerRecordStarted',
-    //   handleRecordStarted
-    // );
-    // const evtTimeUpdate = project.on('sequencerTimeUpdate', handleTimeUpdate);
 
     return () => {
       evtPlayStarted.unsubscribe();
       evtPlayStopped.unsubscribe();
-      // evtRecordStarted.unsubscribe();
-      // evtTimeUpdate.unsubscribe();
     };
   }, [handlePlayStarted, handleStopped, project]);
 

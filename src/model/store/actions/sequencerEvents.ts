@@ -302,16 +302,19 @@ export const setSequencerEndTime = (
   { emit }: Emit
 ): StoreContext => {
   const { endTime } = action;
-  const value = Math.max(0, Math.max(endTime, context.sequencer?.time ?? 0));
+  const { time } = context.sequencer ?? { time: 0 };
+  const value = Math.max(0, Math.max(endTime, 1));
+
+  const newTime = Math.max(0, Math.min(time, value));
 
   emit({
     type: 'sequencerTimesUpdated',
-    time: context.sequencer?.time ?? 0,
+    time: newTime,
     endTime: value
   });
 
   return update(context, {
-    sequencer: { ...context.sequencer, endTime: value }
+    sequencer: { ...context.sequencer, endTime: value, time: newTime }
   });
 };
 
