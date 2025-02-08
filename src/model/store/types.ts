@@ -279,6 +279,11 @@ export type SetSequencerIsLoopedAction = {
   isLooped: boolean;
 };
 
+export type SetProjectNameAction = {
+  type: 'setProjectName';
+  name: string;
+};
+
 export type Actions =
   | SetPadMediaAction
   | ClearPadAction
@@ -318,7 +323,8 @@ export type Actions =
   | StartSequencerAction
   | StopSequencerAction
   | RewindSequencerAction
-  | SetSequencerIsLoopedAction;
+  | SetSequencerIsLoopedAction
+  | SetProjectNameAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
