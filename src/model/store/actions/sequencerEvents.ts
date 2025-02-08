@@ -291,7 +291,7 @@ export const setSequencerTime = (
     time: value,
     endTime: context.sequencer?.endTime ?? 0
   });
-  log.debug('setSequencerTime', { time, value });
+  // log.debug('setSequencerTime', { time, value });
 
   return updateSequencer(context, { time: value });
 };
