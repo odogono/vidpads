@@ -2,9 +2,9 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
+import { Indicator } from '@components/Indicator';
 import { CommonModalRef } from '@components/modals/CommonModal';
 import { DeleteModal } from '@components/modals/DeleteModal';
-import { cn } from '@heroui/react';
 import { OpBiButton } from '../buttons/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
@@ -60,19 +60,6 @@ export const ControlsLoaded = () => {
       {selectedControlPane === 'sequencer' && <SequencerPane />}
 
       <DeleteModal ref={modalRef} />
-    </div>
-  );
-};
-
-const Indicator = ({ isActive }: { isActive: boolean }) => {
-  return (
-    <div className='switcher-indicator'>
-      <div
-        className={cn(
-          'aspect-square rounded-full w-[0.5vh] h-[0.5vh] bg-c0 ',
-          isActive && 'bg-c3'
-        )}
-      ></div>
     </div>
   );
 };

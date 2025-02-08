@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 
 import { OpButton } from '@components/buttons/OpButton';
 import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
+import { OpToggleButton } from '@components/buttons/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
@@ -150,9 +151,9 @@ export const SequencerPane = () => {
             className={isRecording ? 'animate-pulse' : ''}
           />
         </OpButton>
-        <OpButton label='Loop' onPress={handleLoop}>
+        <OpToggleButton label='Loop' isSelected={isLooped} onPress={handleLoop}>
           <Repeat2 />
-        </OpButton>
+        </OpToggleButton>
         <OpButton label='Clear' onPress={handleClear}>
           <Trash />
         </OpButton>

@@ -2,7 +2,9 @@
 
 import { useCallback } from 'react';
 
-import { OpSwitch } from '@components/buttons/OpSwitch';
+import { Play, Repeat2, StepForward } from 'lucide-react';
+
+import { OpToggleButton } from '@components/buttons/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
 import { isPadLooped } from '@model/pad';
@@ -62,14 +64,11 @@ export const StatePane = () => {
     [pad, setPadPlayPriority]
   );
 
-  const handleResume = useCallback(
-    (value: boolean) => {
-      if (!pad) return;
-      log.debug('handleResume', pad.id, { value, isResume });
-      setPadPlaybackResume(pad.id, value);
-    },
-    [pad, setPadPlaybackResume, isResume]
-  );
+  const handleResume = useCallback(() => {
+    if (!pad) return;
+    log.debug('handleResume', pad.id, { isResume });
+    setPadPlaybackResume(pad.id, !isResume);
+  }, [pad, setPadPlaybackResume, isResume]);
 
   log.debug('StatePane', {
     isLooped,
@@ -86,24 +85,30 @@ export const StatePane = () => {
         setPadPlaybackRate={setPadPlaybackRate}
         isEnabled={isEnabled}
       />
-      <OpSwitch
+      <OpToggleButton
         label='One Shot'
         isSelected={isPadOneShot}
-        onChange={handleOneShot}
+        onPress={handleOneShot}
         isEnabled={isEnabled}
-      />
-      <OpSwitch
+      >
+        <Play />
+      </OpToggleButton>
+      <OpToggleButton
         label='Loop'
         isSelected={isLooped}
-        onChange={handleLooped}
+        onPress={handleLooped}
         isEnabled={isEnabled}
-      />
-      <OpSwitch
+      >
+        <Repeat2 />
+      </OpToggleButton>
+      <OpToggleButton
         label='Resume'
         isSelected={isResume}
-        onChange={handleResume}
+        onPress={handleResume}
         isEnabled={isEnabled}
-      />
+      >
+        <StepForward />
+      </OpToggleButton>
       <OpNumberSelect
         label='Choke Group'
         value={chokeGroup}
