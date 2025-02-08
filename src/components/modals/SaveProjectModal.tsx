@@ -29,6 +29,15 @@ export const SaveProjectModal = ({ ref }: CommonModalBase) => {
     return false;
   }, [saveProject, name]);
 
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        ref.current?.ok();
+      }
+    },
+    [ref]
+  );
+
   return (
     <CommonModal ref={ref} title='Save Project' onOk={handleSaveProject}>
       <Input
@@ -44,6 +53,7 @@ export const SaveProjectModal = ({ ref }: CommonModalBase) => {
         onClear={() => setName('')}
         errorMessage={nameError}
         isInvalid={!!nameError}
+        onKeyUp={handleKeyPress}
       />
     </CommonModal>
   );

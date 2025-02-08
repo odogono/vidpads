@@ -6,8 +6,8 @@ import { createLog } from '@helpers/log';
 import { usePadsExtended } from '@model/hooks/usePads';
 import { getPadSourceUrl } from '@model/pad';
 import { useQueryClient } from '@tanstack/react-query';
-import { VOKeys } from '../../model/constants';
-import { PlayerProps } from './types';
+import { VOKeys } from '../../../model/constants';
+import { PlayerProps } from '../types';
 
 const log = createLog('player/usePlayers', ['debug']);
 

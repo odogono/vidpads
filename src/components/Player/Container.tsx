@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
@@ -20,12 +20,9 @@ import {
 import { Interval } from '@model/types';
 import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
-import {
-  getPlayerDataState,
-  hidePlayer,
-  setPlayerDataState,
-  showPlayer
-} from './helpers';
+import { hidePlayer, showPlayer } from './helpers';
+import { usePlayers } from './hooks/usePlayers';
+import { usePlayingStack } from './hooks/usePlayingStack';
 import {
   PlayerNotReady,
   PlayerPlaying,
@@ -33,7 +30,6 @@ import {
   PlayerSeek,
   PlayerStopped
 } from './types';
-import { usePlayers } from './usePlayers';
 
 const log = createLog('player/container', ['debug']);
 
@@ -203,60 +199,4 @@ export const PlayerContainer = () => {
       })}
     </>
   );
-};
-
-const usePlayingStack = () => {
-  const ref = useRef<PlayerPlaying[]>([]);
-
-  const hideStackPlayer = useCallback((hideId: string) => {
-    const stack = ref.current;
-    if (stack.length > 1) {
-      hidePlayer(hideId);
-      ref.current = stack.filter(({ padId }) => padId !== hideId);
-    }
-
-    // remove the player from the stack
-    setPlayerDataState(hideId, 'stopped');
-  }, []);
-
-  const showStackPlayer = useCallback((player: PlayerPlaying) => {
-    const showId = player.padId;
-    const stack = ref.current;
-
-    // remove players that are not playing
-    const playingStack = stack.filter(({ padId }) => {
-      const active = getPlayerDataState(padId) === 'playing';
-      if (!active) {
-        hidePlayer(padId);
-      }
-      return active;
-    });
-
-    // places the new player on top of the stack
-    const newStack = [
-      ...playingStack.filter(({ padId }) => padId !== showId),
-      player
-    ];
-
-    // sort the stack by priority
-    const sortedStack = newStack.sort(
-      (a, b) => (a.playPriority ?? 0) - (b.playPriority ?? 0)
-    );
-
-    // Update z-index of all players based on stack position
-    sortedStack.forEach(({ padId }, index) => showPlayer(padId, index + 1));
-
-    ref.current = sortedStack;
-  }, []);
-
-  const getChokeGroupPlayers = useCallback((chokeGroup: number) => {
-    return ref.current.filter(({ chokeGroup: group }) => group === chokeGroup);
-  }, []);
-
-  return {
-    playingStackRef: ref,
-    hideStackPlayer,
-    showStackPlayer,
-    getChokeGroupPlayers
-  };
 };

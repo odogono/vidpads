@@ -18,6 +18,8 @@ const log = createLog('CommonModal', ['debug']);
 export interface CommonModalRef {
   open: (props?: unknown) => void;
   close: () => void;
+  ok: () => void;
+  cancel: () => void;
 }
 
 export interface CommonModalBase {
@@ -62,6 +64,12 @@ export const CommonModal = ({
     },
     close: () => {
       handleClose();
+    },
+    ok: () => {
+      handleOk();
+    },
+    cancel: () => {
+      handleCancel();
     }
   }));
 

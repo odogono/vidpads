@@ -3,8 +3,10 @@
 import { useCallback } from 'react';
 
 import { useProject } from '@hooks/useProject';
-import { useSelector } from '@xstate/store/react';
+import { useDispatch, useSelector } from '@xstate/store/react';
+import { setProjectNameAction } from '../actions/projectActions';
 import { getPadSourceUrl } from '../pad';
+import { RootState } from '../store';
 import { Pad } from '../types';
 import { StoreType } from './types';
 
@@ -89,4 +91,21 @@ export const useLastImportUrl = () => {
     [project]
   );
   return { lastImportUrl, setLastImportUrl };
+};
+
+export const useProjectName = () => {
+  const { project } = useProject();
+  const projectName = useSelector(
+    project,
+    (state) => state.context.projectName
+  );
+
+  const setProjectName = useCallback(
+    (name: string) => {
+      project.send({ type: 'setProjectName', name });
+    },
+    [project]
+  );
+
+  return { projectName, setProjectName };
 };
