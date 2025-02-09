@@ -11,7 +11,6 @@ import { IntervalPane } from './IntervalPane';
 import { SequencerPane } from './SequencerPane';
 import { StatePane } from './StatePane';
 import { useControlPane } from './hooks/useControlPane';
-import { ControlsLoading } from './loading';
 
 export const ControlsLoaded = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -37,13 +36,13 @@ export const ControlsLoaded = () => {
   }
 
   return (
-    <div className='controls-container mt-4 p-2 bg-c2 rounded-lg flex flex-row'>
-      <div className='switcher rounded-lg  flex flex-row'>
+    <div className='vo-pane-container mt-4 bg-c2 rounded-lg flex flex-row'>
+      <div className='vo-pane-switcher rounded-lg  flex flex-row'>
         <OpBiButton
           onPressUp={goToPreviousControlPane}
           onPressDown={goToNextControlPane}
         ></OpBiButton>
-        <div className='switcher-indicator m-2 flex flex-col gap-2 justify-center items-center '>
+        <div className='vo-pane-switcher-indicator m-2 flex flex-col gap-2 justify-center items-center '>
           <Indicator isActive={selectedControlPane === 'state'} />
           <Indicator isActive={selectedControlPane === 'interval'} />
           <Indicator isActive={selectedControlPane === 'details'} />
@@ -66,7 +65,8 @@ export const ControlsLoaded = () => {
 
 export const Controls = () => {
   return (
-    <Suspense fallback={<ControlsLoading />}>
+    <Suspense fallback={<ControlsLoaded />}>
+      {/* <ControlsLoading /> */}
       <ControlsLoaded />
     </Suspense>
   );
