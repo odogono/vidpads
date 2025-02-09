@@ -32,6 +32,9 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
           
           overflow-hidden
         `}
+        style={{
+          backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
+        }}
       >
         <div
           className={`
