@@ -78,7 +78,7 @@ export const StatePane = () => {
   });
 
   return (
-    <div className='w-full h-full rounded-lg p-2 flex gap-6 items-center justify-center'>
+    <div className='vo-pane-state w-full h-full rounded-lg p-1 flex gap-6 items-center justify-center'>
       <VolumeDial pad={pad} setPadVolume={setPadVolume} isEnabled={isEnabled} />
       <PlaybackRateDial
         pad={pad}

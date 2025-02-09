@@ -195,7 +195,7 @@ export const OpTimeInput = ({
     <div className='time-input flex flex-col items-center justify-center'>
       <input
         className={cn(
-          `rounded-r-none cursor-ns-resize text-sm p-2 outline-none w-[6.8rem] font-mono text-center`,
+          `rounded-r-none cursor-ns-resize text-sm outline-none w-[6.8rem] font-mono text-center`,
           'hover:border-default-400 ',
           !isEnabled
             ? 'bg-secondary-800 text-secondary-500'
