@@ -13,7 +13,7 @@ import type {
 export const initialContext: StoreContextType = {
   projectId: generateShortUUID(),
   projectName: '',
-  isPadSelectSourceEnabled: true,
+  arePadInteractionsEnabled: true,
   settings: {
     isPadPlayEnabled: true,
     isKeyboardPlayEnabled: true,

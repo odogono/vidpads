@@ -4,14 +4,8 @@ import { useCallback, useEffect } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
-import { useProject } from '@hooks/useProject';
 import { usePlayersState } from '@model/hooks/usePlayersState';
-import {
-  useSettingIsKeyboardPlayEnabled,
-  useSettingIsPadPlayEnabled,
-  useSettingSelectPadFromKeyboard,
-  useSettingSelectPadFromPad
-} from '@model/hooks/useSettings';
+import { useIsPlayEnabled } from '@model/hooks/useSettings';
 import {
   getPadChokeGroup,
   getPadInterval,
@@ -43,11 +37,15 @@ const log = createLog('player/container', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();
-  const { project } = useProject();
-  const isKeyboardPlayEnabled = useSettingIsKeyboardPlayEnabled(project);
-  const isPadPlayEnabled = useSettingIsPadPlayEnabled(project);
-  const selectPadFromKeyboard = useSettingSelectPadFromKeyboard(project);
-  const selectPadFromPad = useSettingSelectPadFromPad(project);
+
+  const {
+    isKeyboardPlayEnabled,
+    isPadPlayEnabled,
+    isSelectPadFromKeyboardEnabled,
+    // isSelectPadFromMidiEnabled,
+    isSelectPadFromPadEnabled
+  } = useIsPlayEnabled();
+
   const { setSelectedPadId } = useSelectedPadId();
 
   const { pads, players } = usePlayers();
@@ -65,12 +63,12 @@ export const PlayerContainer = () => {
 
       if (source === 'keyboard') {
         if (!isKeyboardPlayEnabled) return;
-        if (selectPadFromKeyboard) {
+        if (isSelectPadFromKeyboardEnabled) {
           setSelectedPadId(padId);
         }
       } else if (source === 'pad') {
         if (!isPadPlayEnabled) return;
-        if (selectPadFromPad) {
+        if (isSelectPadFromPadEnabled) {
           setSelectedPadId(padId);
         }
       }
@@ -110,7 +108,15 @@ export const PlayerContainer = () => {
         playPriority
       });
     },
-    [events, pads, isKeyboardPlayEnabled]
+    [
+      pads,
+      events,
+      isKeyboardPlayEnabled,
+      isSelectPadFromKeyboardEnabled,
+      setSelectedPadId,
+      isPadPlayEnabled,
+      isSelectPadFromPadEnabled
+    ]
   );
 
   const handlePadTouchup = useCallback(

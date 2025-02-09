@@ -16,7 +16,7 @@ import { useEvents } from '@hooks/events';
 import { usePad } from '@model/hooks/usePad';
 import { PaneProps } from './types';
 
-const log = createLog('DetailsPane', ['debug']);
+const log = createLog('DetailsPane');
 
 export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const events = useEvents();
@@ -24,8 +24,9 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     pad,
     isPadAssigned,
     selectedPadId,
-    setPadPlayEnabled,
-    setPadSelectSourceEnabled,
+    isPadPlayEnabled,
+    isPadSelectSourceEnabled,
+    enablePadInteractions,
     padLabel,
     setPadLabel
   } = usePad();
@@ -43,20 +44,20 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   );
 
   useEffect(() => {
-    setPadPlayEnabled(false);
-    setPadSelectSourceEnabled(false);
+    enablePadInteractions(false);
     return () => {
-      setPadPlayEnabled(true);
-      setPadSelectSourceEnabled(true);
+      enablePadInteractions(true);
     };
-  }, [setPadPlayEnabled, setPadSelectSourceEnabled]);
+  }, [enablePadInteractions]);
 
   log.debug('render', {
     isEnabled,
     selectedPadId,
     isPadAssigned,
     pad: pad?.id,
-    padLabel
+    padLabel,
+    isPadPlayEnabled,
+    isPadSelectSourceEnabled
   });
   return (
     <div className='vo-pane-details w-full h-full rounded-lg flex gap-6 items-center justify-center'>

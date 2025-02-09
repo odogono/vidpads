@@ -47,6 +47,63 @@ export const LocalPlayer = ({
 
   useVideoLoader(media as MediaVideo, videoRef);
 
+  // const handleTimeUpdate = useCallback(() => {
+  //   const video = videoRef.current;
+  //   if (!video) return;
+  //   if (video.currentTime >= endTimeRef.current) {
+  //     if (isLoopedRef.current) {
+  //       video.currentTime = startTimeRef.current;
+  //     } else {
+  //       stopVideo({
+  //         url: mediaUrl,
+  //         padId: playerPadId,
+  //         time: video.currentTime
+  //       });
+  //     }
+  //   }
+
+  //   // log.debug('[handleTimeUpdate]', id, video.currentTime);
+  // }, [mediaUrl, playerPadId, stopVideo]);
+
+  const stopTimeTracking = useCallback(() => {
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+  }, []);
+
+  const seekVideo = useCallback(
+    ({ time, url, padId }: PlayerSeek) => {
+      if (!videoRef.current) return;
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
+      log.debug('[seekVideo]', id, time, { time, url, mediaUrl: mediaUrl });
+      videoRef.current.currentTime = time;
+
+      const duration = videoRef.current.duration;
+
+      events.emit('player:time-update', {
+        url: mediaUrl,
+        padId: playerPadId,
+        time,
+        duration
+      });
+    },
+    [mediaUrl, playerPadId, id, events]
+  );
+
+  const stopVideo = useCallback(
+    ({ url, padId }: PlayerStop) => {
+      if (url !== mediaUrl) return;
+      if (padId !== playerPadId) return;
+      if (!videoRef.current) return;
+      stopTimeTracking();
+      videoRef.current.pause();
+      isPlayingRef.current = false;
+    },
+    [videoRef, mediaUrl, playerPadId, stopTimeTracking]
+  );
+
   const updateTimeTracking = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -54,6 +111,30 @@ export const LocalPlayer = ({
     const duration = video.duration;
     // log.debug('updateTimeTracking', time, duration);
     if (time !== undefined && duration !== undefined) {
+      if (time >= endTimeRef.current) {
+        if (isLoopedRef.current) {
+          log.debug('updateTimeTracking', 'looping', {
+            time,
+            endTime: endTimeRef.current,
+            startTime: startTimeRef.current
+          });
+          seekVideo({
+            url: mediaUrl,
+            padId: playerPadId,
+            time: startTimeRef.current,
+            inProgress: false,
+            requesterId: 'local-player'
+          });
+          video.play();
+        } else {
+          stopVideo({
+            url: mediaUrl,
+            padId: playerPadId,
+            time
+          });
+        }
+      }
+
       events.emit('player:time-update', {
         url: mediaUrl,
         padId: playerPadId,
@@ -65,7 +146,7 @@ export const LocalPlayer = ({
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTimeTracking);
     }
-  }, [mediaUrl, playerPadId, events]);
+  }, [events, mediaUrl, playerPadId, seekVideo, stopVideo]);
 
   const startTimeTracking = useCallback(() => {
     if (animationRef.current !== null) {
@@ -73,13 +154,6 @@ export const LocalPlayer = ({
     }
     animationRef.current = requestAnimationFrame(updateTimeTracking);
   }, [updateTimeTracking]);
-
-  const stopTimeTracking = useCallback(() => {
-    if (animationRef.current !== null) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-  }, []);
 
   const playVideo = useCallback(
     async (props: PlayerPlay) => {
@@ -155,44 +229,12 @@ export const LocalPlayer = ({
     [mediaUrl, playerPadId, startTimeTracking, stopTimeTracking]
   );
 
-  const stopVideo = useCallback(
-    ({ url, padId }: PlayerStop) => {
-      if (url !== mediaUrl) return;
-      if (padId !== playerPadId) return;
-      if (!videoRef.current) return;
-      stopTimeTracking();
-      videoRef.current.pause();
-      isPlayingRef.current = false;
-    },
-    [videoRef, mediaUrl, playerPadId, stopTimeTracking]
-  );
-
   const stopAll = useCallback(() => {
     if (!videoRef.current) return;
     stopTimeTracking();
     videoRef.current.pause();
     isPlayingRef.current = false;
   }, [videoRef, stopTimeTracking]);
-
-  const seekVideo = useCallback(
-    ({ time, url, padId }: PlayerSeek) => {
-      if (!videoRef.current) return;
-      if (url !== mediaUrl) return;
-      if (padId !== playerPadId) return;
-      log.debug('[seekVideo]', id, time, { time, url, mediaUrl: mediaUrl });
-      videoRef.current.currentTime = time;
-
-      const duration = videoRef.current.duration;
-
-      events.emit('player:time-update', {
-        url: mediaUrl,
-        padId: playerPadId,
-        time,
-        duration
-      });
-    },
-    [mediaUrl, playerPadId, id, events]
-  );
 
   const setVolume = useCallback(
     ({ url, padId, volume }: PlayerSetVolume) => {
@@ -250,31 +292,13 @@ export const LocalPlayer = ({
   }, [events]);
 
   const handlePaused = useCallback(() => {
-    // log.debug('handlePaused', playerPadId);
+    log.debug('handlePaused', playerPadId);
     events.emit('player:stopped', {
       url: mediaUrl,
       padId: playerPadId,
       time: videoRef.current?.currentTime ?? 0
     });
   }, [events, mediaUrl, playerPadId]);
-
-  const handleTimeUpdate = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.currentTime >= endTimeRef.current) {
-      if (isLoopedRef.current) {
-        video.currentTime = startTimeRef.current;
-      } else {
-        stopVideo({
-          url: mediaUrl,
-          padId: playerPadId,
-          time: video.currentTime
-        });
-      }
-    }
-
-    // log.debug('[handleTimeUpdate]', id, video.currentTime);
-  }, [mediaUrl, playerPadId, stopVideo]);
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
@@ -360,15 +384,15 @@ export const LocalPlayer = ({
     video.addEventListener('playing', handlePlaying);
     video.addEventListener('pause', handlePaused);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('timeupdate', handleTimeUpdate);
+    // video.addEventListener('timeupdate', handleTimeUpdate);
     // video.addEventListener('canplay', handleIsReady);
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
+      // video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('playing', handlePlaying);
       video.removeEventListener('pause', handlePaused);
     };
-  }, [handleLoadedMetadata, handleTimeUpdate, handlePlaying, handlePaused]);
+  }, [handleLoadedMetadata, handlePlaying, handlePaused]);
 
   // if (isVisible) {
   //   log.debug('rendering', media.url, isVisible, initialTime);

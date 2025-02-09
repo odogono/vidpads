@@ -203,7 +203,12 @@ export const PadComponent = ({
     handleLeave
   ]);
 
-  // log.debug('render', { isDragOver, isPlayerReady });
+  if (pad.id === 'a16')
+    log.debug('render', {
+      isPlayEnabled,
+      isSelectSourceEnabled,
+      isPlayerReady
+    });
 
   const isReady = !!thumbnail ? isPlayerReady : true;
 

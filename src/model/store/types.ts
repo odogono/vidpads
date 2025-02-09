@@ -25,8 +25,8 @@ export interface StoreContextType {
   // whether the map midi mode is enabled
   isMidiMappingEnabled?: boolean;
 
-  // whether pressing on an empty pad opens the selector
-  isPadSelectSourceEnabled?: boolean;
+  // whether pads are enabled or disabled
+  arePadInteractionsEnabled?: boolean;
 
   // whether the pads or sequencer are visible
   showMode: ShowMode;
@@ -164,13 +164,8 @@ export type SetSelectedControlPaneAction = {
   pane: ControlPanes;
 };
 
-export type SetPadPlayEnabledAction = {
-  type: 'setPadPlayEnabled';
-  isEnabled: boolean;
-};
-
-export type SetPadSelectSourceEnabledAction = {
-  type: 'setPadSelectSourceEnabled';
+export type SetPadInteractionsEnabledAction = {
+  type: 'setPadInteractionsEnabled';
   isEnabled: boolean;
 };
 
@@ -321,8 +316,7 @@ export type Actions =
   | ApplyVolumeEnvelopeToPadAction
   | ApplyPlaybackRateToPadAction
   | SetSelectedControlPaneAction
-  | SetPadPlayEnabledAction
-  | SetPadSelectSourceEnabledAction
+  | SetPadInteractionsEnabledAction
   | ApplyPadAction
   | SetShowModeAction
   | SetSequencerBpmAction
