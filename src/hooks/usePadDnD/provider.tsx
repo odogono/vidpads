@@ -10,7 +10,7 @@ import { useEvents } from '@hooks/events';
 import { DragGhost } from '@hooks/usePadDnD/DragGhost';
 import { PadDnDContext, RegisterDropTargetProps } from './context';
 
-const log = createLog('PadDnDProvider', ['debug']);
+const log = createLog('PadDnDProvider');
 
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
@@ -195,8 +195,12 @@ export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const onNativeDragLeave = useCallback(() => {
+    log.debug('[onNativeDragLeave]', { dragOverId });
+    if (dragOverId) {
+      triggerDragLeave(dragOverId);
+    }
     setDragOverId(null);
-  }, []);
+  }, [dragOverId, triggerDragLeave]);
 
   const onNativeDrop = useCallback(
     async (e: React.DragEvent) => {

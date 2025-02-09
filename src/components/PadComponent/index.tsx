@@ -36,6 +36,8 @@ export const PadComponent = ({
   const events = useEvents();
   const elementRef = useRef<HTMLDivElement>(null);
   const { thumbnail } = usePadThumbnail(pad);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const { selectedPadId } = useSelectedPadId();
   const {
     onDragStart,
     onDragMove,
@@ -54,9 +56,6 @@ export const PadComponent = ({
     copyPadToPad,
     movePadToPad
   } = usePadOperations();
-
-  const [isDragOver, setIsDragOver] = useState(false);
-  const { selectedPadId } = useSelectedPadId();
 
   const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
 
@@ -204,15 +203,17 @@ export const PadComponent = ({
     handleLeave
   ]);
 
+  // log.debug('render', { isDragOver, isPlayerReady });
+
   const isReady = !!thumbnail ? isPlayerReady : true;
 
   return (
     <div
       ref={elementRef}
       className={`
-          w-full min-h-[44px] h-full rounded-lg cursor-pointer transition-all relative select-none touch-none
+          w-full min-h-[44px] h-full rounded-lg cursor-pointer bg-pad transition-all relative select-none touch-none
           ${isReady ? 'opacity-100' : 'opacity-20'}
-          ${isDragOver ? 'bg-c2 scale-105' : 'bg-c1 hover:bg-c1'}
+          ${isDragOver ? 'bg-pad-over scale-105' : 'hover:bg-pad-over'}
           ${selectedPadId === pad.id ? 'border-2 border-selected' : ''}
         `}
       style={{

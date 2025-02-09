@@ -27,7 +27,9 @@ export default {
         c9: 'var(--c9)',
         page: 'var(--page)',
         'video-off': 'var(--video-off)',
-        selected: 'var(--selected)'
+        selected: 'var(--selected)',
+        pad: 'var(--pad)',
+        'pad-over': 'var(--pad-over)'
       },
       fontFamily: {
         sans: ['var(--font-inter)'],
@@ -112,6 +114,10 @@ export default {
               900: '#001014',
               DEFAULT: '#35484a',
               foreground: 'var(--foreground)'
+            },
+            pad: {
+              over: 'var(--pad-over)',
+              DEFAULT: 'var(--pad)'
             }
           }
         }
