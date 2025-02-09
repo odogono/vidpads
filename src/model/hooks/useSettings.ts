@@ -38,29 +38,76 @@ export const useSettings = () => {
   };
 };
 
-export const useSettingIsKeyboardPlayEnabled = (project: StoreType) =>
-  useSelector(
+// export const useSettingIsKeyboardPlayEnabled = (project: StoreType) =>
+//   useSelector(
+//     project,
+//     (state) => state.context.settings?.isKeyboardPlayEnabled
+//   );
+
+// export const useSettingIsMidiPlayEnabled = (project: StoreType) =>
+//   useSelector(project, (state) => state.context.settings?.isMidiPlayEnabled);
+
+// export const useSettingHidePlayerOnEnd = (project: StoreType) =>
+//   useSelector(project, (state) => state.context.settings?.hidePlayerOnEnd);
+
+// export const useSettingSelectPadFromKeyboard = (project: StoreType) =>
+//   useSelector(
+//     project,
+//     (state) => state.context.settings?.selectPadFromKeyboard
+//   );
+
+// export const useSettingSelectPadFromMidi = (project: StoreType) =>
+//   useSelector(project, (state) => state.context.settings?.selectPadFromMidi);
+
+// export const useSettingSelectPadFromPad = (project: StoreType) =>
+//   useSelector(project, (state) => state.context.settings?.selectPadFromPad);
+
+// export const useSettingIsPadPlayEnabled = (project: StoreType) =>
+//   useSelector(project, (state) => state.context.settings?.isPadPlayEnabled);
+
+export const useIsPlayEnabled = () => {
+  const { project } = useProject();
+  const isKeyboardPlayEnabled = useSelector(
     project,
     (state) => state.context.settings?.isKeyboardPlayEnabled
   );
 
-export const useSettingIsMidiPlayEnabled = (project: StoreType) =>
-  useSelector(project, (state) => state.context.settings?.isMidiPlayEnabled);
+  const isMidiPlayEnabled = useSelector(
+    project,
+    (state) => state.context.settings?.isMidiPlayEnabled
+  );
 
-export const useSettingHidePlayerOnEnd = (project: StoreType) =>
-  useSelector(project, (state) => state.context.settings?.hidePlayerOnEnd);
+  const isPadPlayEnabled = useSelector(
+    project,
+    (state) =>
+      (state.context.arePadInteractionsEnabled &&
+        state.context.settings?.isPadPlayEnabled) ??
+      true
+  );
 
-export const useSettingSelectPadFromKeyboard = (project: StoreType) =>
-  useSelector(
+  const isSelectPadFromKeyboardEnabled = useSelector(
     project,
     (state) => state.context.settings?.selectPadFromKeyboard
   );
 
-export const useSettingSelectPadFromMidi = (project: StoreType) =>
-  useSelector(project, (state) => state.context.settings?.selectPadFromMidi);
+  const isSelectPadFromMidiEnabled = useSelector(
+    project,
+    (state) => state.context.settings?.selectPadFromMidi
+  );
 
-export const useSettingSelectPadFromPad = (project: StoreType) =>
-  useSelector(project, (state) => state.context.settings?.selectPadFromPad);
+  const isSelectPadFromPadEnabled = useSelector(
+    project,
+    (state) =>
+      state.context.arePadInteractionsEnabled &&
+      state.context.settings?.selectPadFromPad
+  );
 
-export const useSettingIsPadPlayEnabled = (project: StoreType) =>
-  useSelector(project, (state) => state.context.settings?.isPadPlayEnabled);
+  return {
+    isKeyboardPlayEnabled,
+    isMidiPlayEnabled,
+    isPadPlayEnabled,
+    isSelectPadFromKeyboardEnabled,
+    isSelectPadFromMidiEnabled,
+    isSelectPadFromPadEnabled
+  };
+};
