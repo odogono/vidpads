@@ -1,4 +1,4 @@
-import { importProjectExport } from '@model/serialise/store';
+import { importProjectExport } from '@/model/serialise/project';
 import { ImportProjectAction, StoreContext } from '@model/store/types';
 
 // const log = createLog('store/actions/importProject');
