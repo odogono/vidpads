@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@heroui/react';
 // import { createLog } from '@helpers/log';
 import type { SequencerRowEvent } from './Row';
 
@@ -79,7 +80,9 @@ export const Event = (props: SequencerEventProps) => {
 
   return (
     <div
-      className={`vo-seq-evt absolute top-0 h-full bg-red-500 box-border ${isSelected ? 'border-2 border-white' : ''}`}
+      className={cn('vo-seq-evt absolute top-0 h-full bg-seqevt box-border', {
+        'border-2 border-white': isSelected
+      })}
       style={{
         left: `${x}px`,
         width: `${width}px`

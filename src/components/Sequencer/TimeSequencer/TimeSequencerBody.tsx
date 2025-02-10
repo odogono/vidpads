@@ -18,7 +18,7 @@ import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
 import { useSequencerEvents } from './hooks/useSequencerEvents';
 
-const log = createLog('TimeSequencerBody', ['debug']);
+const log = createLog('TimeSequencerBody', ['']);
 
 export interface SequencerBodyProps {
   canvasBpm?: number;
@@ -59,6 +59,12 @@ export const TimeSequencerBody = ({
   const timelineDurationInPixels =
     secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
 
+  // log.debug('timelineDurationInPixels', {
+  //   timelineDurationInPixels,
+  //   endTime,
+  //   pixelsPerBeat,
+  //   bpm
+  // });
   useSequencerEvents({
     seqEvents,
     seqEventIds,
@@ -297,7 +303,11 @@ export const TimeSequencerBody = ({
         }}
         {...marqueeEvents}
       >
-        <Header pixelsPerBeat={pixelsPerBeat} onTap={handlePlayHeadMove} />
+        <Header
+          pixelsPerBeat={pixelsPerBeat}
+          endTime={endTime}
+          onTap={handlePlayHeadMove}
+        />
         {rows}
         <div
           className='vo-seq-selected-evts-rect absolute pointer-events-none bg-black opacity-20'

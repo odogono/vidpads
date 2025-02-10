@@ -15,10 +15,10 @@ export const Sequencer = () => {
         className='grid grid-cols-2 w-full'
         style={{
           gridTemplateColumns: `0.05fr 1fr`,
-          gridTemplateRows: `1fr repeat(${padCount}, minmax(0, 1fr)) 0.5fr`
+          gridTemplateRows: `1fr repeat(${padCount}, minmax(0, 1fr)) 0.6fr`
         }}
       >
-        <div className='relative vo-seq-corner col-span-1 flex justify-center items-center'></div>
+        <div className='vo-seq-corner relative col-span-1 flex justify-center items-center'></div>
         {pads.map((pad, index) => (
           <div
             key={`pad-${pad.id}`}

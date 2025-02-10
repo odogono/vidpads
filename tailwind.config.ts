@@ -125,6 +125,9 @@ export default {
               over: 'var(--bin-over)',
               DEFAULT: 'var(--bin)'
             },
+            seqevt: {
+              DEFAULT: '#e10805'
+            },
             warning: {
               50: '#ffe2e2',
               100: '#ffb3b2',
