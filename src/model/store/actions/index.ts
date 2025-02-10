@@ -17,13 +17,14 @@ export {
   startSequencer,
   stopSequencer,
   rewindSequencer,
-  setSequencerIsLooped,
-  cutSequencerEvents,
-  snapSequencerEvents
+  setSequencerIsLooped
 } from './sequencerEvents';
 export { moveSequencerEvents } from './sequencerEvents/moveSequencerEvents';
 export { repeatSequencerEvents } from './sequencerEvents/repeatSequencerEvents';
 export { selectSequencerEvents } from './sequencerEvents/selectSequencerEvents';
+export { snapSequencerEvents } from './sequencerEvents/snapSequencerEvents';
+export { pasteSequencerEvents } from './sequencerEvents/pasteSequencerEvents';
+export { cutSequencerEvents } from './sequencerEvents/cutSequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';
 export { newProject } from './newProject';
