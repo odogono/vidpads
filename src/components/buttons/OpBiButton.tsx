@@ -11,8 +11,8 @@ export const OpBiButton = ({
 }: {
   label?: string;
   size?: 'sm' | 'md' | 'lg';
-  onPressUp: () => void;
-  onPressDown: () => void;
+  onPressUp?: () => void;
+  onPressDown?: () => void;
 }) => {
   return (
     <div className='flex flex-col items-center justify-center'>
