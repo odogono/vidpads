@@ -174,7 +174,7 @@ export type OperationExport = Operation;
 
 export interface SequencerExport {
   bpm: number;
-  startTime: number;
+  time: number;
   endTime: number;
   events: Record<string, [number, number][]> | undefined;
 }

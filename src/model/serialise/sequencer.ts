@@ -1,4 +1,7 @@
-import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
+import {
+  roundNumberToDecimalPlaces as roundDP,
+  safeParseFloat
+} from '@helpers/number';
 import { StoreContextType } from '@model/store/types';
 import { createSequencerEvent } from '../sequencerEvent';
 import { initialContext } from '../store/store';
@@ -13,12 +16,12 @@ export const exportSequencerToJSON = (
     return undefined;
   }
 
-  const { bpm, events, startTime, endTime } = sequencer;
+  const { bpm, events, time, endTime } = sequencer;
 
   const eventsJSON = exportSequencerEventsToJSON(events);
   return {
     bpm,
-    startTime: roundDP(startTime),
+    time: roundDP(time),
     endTime: roundDP(endTime),
     events: eventsJSON
   };
@@ -29,11 +32,11 @@ export const importSequencerFromJSON = (json: SequencerExport | undefined) => {
     return initialContext.sequencer;
   }
 
-  const { bpm, startTime, endTime, events } = json;
+  const { bpm, time, endTime, events } = json;
 
   return {
     bpm,
-    startTime,
+    time,
     endTime,
     events: importSequencerEventsFromJSON(events)
   };
@@ -79,7 +82,7 @@ export const exportSequencerToURLString = (
     return undefined;
   }
 
-  const { bpm, startTime, endTime, events } = json;
+  const { bpm, time, endTime, events } = json;
 
   const eventsStr = events
     ? Object.entries(events)
@@ -93,13 +96,13 @@ export const exportSequencerToURLString = (
         .join('+')
     : '';
 
-  return `${bpm}[${startTime}[${endTime}[${eventsStr}`;
+  return `${bpm}[${time}[${endTime}[${eventsStr}`;
 };
 
 export const importSequencerFromURLString = (
   urlString: string
 ): SequencerExport => {
-  const [bpm, startTime, endTime, eventsStr] = urlString.split('[');
+  const [bpm, time, endTime, eventsStr] = urlString.split('[');
 
   const events =
     eventsStr.length > 0
@@ -111,7 +114,7 @@ export const importSequencerFromURLString = (
               .split(':')
               .reduce<[number[], [number, number][]]>(
                 ([timeAcc, timeList], time, index) => {
-                  timeAcc.push(parseFloat(time));
+                  timeAcc.push(safeParseFloat(time));
                   if (index % 2 !== 0) {
                     timeList.push(timeAcc as [number, number]);
                     return [[], timeList];
@@ -130,9 +133,9 @@ export const importSequencerFromURLString = (
       : {};
 
   return {
-    bpm: parseFloat(bpm),
-    startTime: parseFloat(startTime),
-    endTime: parseFloat(endTime),
+    bpm: safeParseFloat(bpm),
+    time: safeParseFloat(time),
+    endTime: safeParseFloat(endTime),
     events
   };
 };

@@ -13,6 +13,14 @@ export const safeParseInt = (value: string, defaultTo: number = -1): number => {
   return isNaN(parsed) ? defaultTo : parsed;
 };
 
+export const safeParseFloat = (
+  value: string,
+  defaultTo: number = 0
+): number => {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? defaultTo : parsed;
+};
+
 export const isPointInRect = (point: Position, rect: Rect) => {
   return (
     point.x >= rect.x &&
