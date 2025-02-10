@@ -30,14 +30,15 @@ export const useControlPane = () => {
 
   const goToPreviousControlPane = useCallback(() => {
     const index = ControlPaneIndexes.indexOf(selectedControlPane);
-    const previousIndex = index - 1;
+    const previousIndex =
+      (index - 1 + ControlPaneIndexes.length) % ControlPaneIndexes.length;
     const previousPane = ControlPaneIndexes[previousIndex];
     setSelectedControlPane(previousPane);
   }, [setSelectedControlPane, selectedControlPane]);
 
   const goToNextControlPane = useCallback(() => {
     const index = ControlPaneIndexes.indexOf(selectedControlPane);
-    const nextIndex = index + 1;
+    const nextIndex = (index + 1) % ControlPaneIndexes.length;
     const nextPane = ControlPaneIndexes[nextIndex];
     setSelectedControlPane(nextPane);
   }, [setSelectedControlPane, selectedControlPane]);

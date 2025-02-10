@@ -138,7 +138,7 @@ export const SequencerPane = () => {
 
   return (
     <>
-      <div className='vo-pane-sequencer w-full h-full pl-2  flex flex-row gap-2  '>
+      <div className='vo-pane-sequencer w-full h-full pl-2  flex flex-row gap-2 items-center justify-center '>
         <OpButton label={showRewind ? 'Rewind' : 'Stop'} onPress={handleStop}>
           {showRewind ? <Rewind /> : <Square />}
         </OpButton>
@@ -158,28 +158,30 @@ export const SequencerPane = () => {
           <Trash />
         </OpButton>
 
-        <OpTimeInput
-          ref={timeRef}
-          label='Time'
-          isEnabled={true}
-          initialValue={0}
-          defaultValue={0}
-          range={[0, 100]}
-          description='Time'
-          showIncrementButtons={true}
-          onChange={handleTimeChange}
-        />
-        <OpTimeInput
-          ref={durationRef}
-          label='Duration'
-          isEnabled={true}
-          initialValue={0}
-          defaultValue={0}
-          range={[0, 100]}
-          description='Duration'
-          showIncrementButtons={true}
-          onChange={handleDurationChange}
-        />
+        <div className='ml-6 flex flex-row gap-2'>
+          <OpTimeInput
+            ref={timeRef}
+            label='Time'
+            isEnabled={true}
+            initialValue={0}
+            defaultValue={0}
+            range={[0, 100]}
+            description='Time'
+            showIncrementButtons={true}
+            onChange={handleTimeChange}
+          />
+          <OpTimeInput
+            ref={durationRef}
+            label='Duration'
+            isEnabled={true}
+            initialValue={0}
+            defaultValue={0}
+            range={[0, 100]}
+            description='Duration'
+            showIncrementButtons={true}
+            onChange={handleDurationChange}
+          />
+        </div>
       </div>
     </>
   );

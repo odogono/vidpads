@@ -63,10 +63,10 @@ export const useMarquee = ({
       if (!isTouched) return;
       e.preventDefault();
 
-      // log.debug('handleTouchMove', e.pointerId);
       const { x, y } = getOffsetPosition(e);
 
       if (isMoving) {
+        // log.debug('handleTouchMove', e.pointerId, { isTouched, isMoving });
         if (onMoveUpdate) {
           const pos = {
             x: x - endPosition.x,
@@ -128,15 +128,15 @@ export const useMarquee = ({
         // check whether this pos is within the existing bounds
         const isIntersecting = isPointInRect(pos, selectedEventsRect);
 
-        log.debug(
-          'handleTouchDown',
-          { isIntersecting },
-          pos,
-          selectedEventsRect
-        );
         if (isIntersecting) {
           beginMoving = true;
         }
+        log.debug(
+          'handleTouchDown',
+          { isIntersecting, hasSelectedEvents },
+          pos,
+          selectedEventsRect
+        );
       }
 
       // log.debug('handleTouchDown', pos, hasSelectedEvents);
@@ -153,8 +153,8 @@ export const useMarquee = ({
 
       longTouchTimeoutRef.current = setTimeout(() => {
         setIsLongTouch(true);
+        setIsMoving(false);
         onLongPressDown?.(positionsToRect(pos, pos), false);
-        setIsMoving(true);
       }, 250); // 250ms for long touch
     },
     [hasSelectedEvents, selectedEventsRect, onLongPressDown]
@@ -170,7 +170,7 @@ export const useMarquee = ({
       // Reset long touch state
       setIsLongTouch(false);
 
-      // log.debug('handleTouchUp', startPosition, endPosition);
+      // log.debug('handleTouchUp', { isMoving, isLongTouch });
       e.currentTarget.releasePointerCapture(e.pointerId);
 
       if (isMoving) {
@@ -179,13 +179,22 @@ export const useMarquee = ({
             x: endPosition.x - startPosition.x,
             y: endPosition.y - startPosition.y
           };
+
           onMoveUpdate(pos, startPosition, true);
         }
       } else {
         if (!isLongTouch) {
           onSelectUpdate?.(positionsToRect(marqueeStart, marqueeEnd), true);
         } else {
-          onLongPressDown?.(positionsToRect(marqueeStart, marqueeEnd), true);
+          // const rect = positionsToRect(marqueeStart, marqueeEnd);
+          const x = e.clientX;
+          const y = e.clientY;
+          log.debug(
+            'handleTouchUp',
+            { x, y },
+            positionsToRect({ x, y }, marqueeEnd)
+          );
+          onLongPressDown?.(positionsToRect({ x, y }, marqueeEnd), true);
         }
       }
 

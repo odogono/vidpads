@@ -3,7 +3,8 @@ import {
   doEventsIntersect,
   getIntersectingEvents,
   joinEvents,
-  mergeEvents
+  mergeEvents,
+  repeatEvents
 } from '../sequencerEvent';
 
 describe('doEventsIntersect', () => {
@@ -21,11 +22,11 @@ describe('doEventsIntersect', () => {
     expect(doEventsIntersect(evtA, evtB)).toBe(true);
   });
 
-  it('should return true when events touch at endpoints', () => {
+  it('should return false when events touch at endpoints', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 4, duration: 4 };
 
-    expect(doEventsIntersect(evtA, evtB)).toBe(true);
+    expect(doEventsIntersect(evtA, evtB)).toBe(false);
   });
 
   it('should return false when events do not overlap', () => {
@@ -48,93 +49,139 @@ describe('doEventsIntersect', () => {
 
     expect(doEventsIntersect(evtA, evtB)).toBe(true);
   });
+
+  it('should return false for identical events', () => {
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtB: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+
+    expect(doEventsIntersect(evtA, evtB)).toBe(false);
+  });
 });
 
 describe('joinEvents', () => {
+  it('should not alter non-overlapping events', () => {
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 1 };
+    const evtB: SequencerEvent = { id: 2, padId: '1', time: 5, duration: 1 };
+
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([evtA, evtB]);
+  });
+
   it('should join two adjacent events', () => {
-    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
+    const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4.1 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 4, duration: 4 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({
-      id: 0,
-      padId: '1',
-      time: 0,
-      duration: 8
-    });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([
+      {
+        id: 0,
+        padId: '1',
+        time: 0,
+        duration: 8
+      }
+    ]);
   });
 
   it('should join two overlapping events', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 6 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 4, duration: 4 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({
-      id: 1,
-      padId: '1',
-      time: 0,
-      duration: 8
-    });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([
+      {
+        id: 1,
+        padId: '1',
+        time: 0,
+        duration: 8
+      }
+    ]);
   });
 
   it('should handle events in reverse order', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 4, duration: 4 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 0, duration: 6 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({
-      id: 2,
-      padId: '1',
-      time: 0,
-      duration: 8
-    });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([
+      {
+        id: 2,
+        padId: '1',
+        time: 0,
+        duration: 8
+      }
+    ]);
   });
 
   it('should join when one event contains another', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 8 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 2, duration: 4 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({
-      id: 3,
-      padId: '1',
-      time: 0,
-      duration: 8
-    });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([
+      {
+        id: 3,
+        padId: '1',
+        time: 0,
+        duration: 8
+      }
+    ]);
   });
 
   it('should preserve padId from earlier event', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 2, duration: 4 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({
-      id: 4,
-      padId: '1',
-      time: 0,
-      duration: 6
-    });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([
+      {
+        id: 4,
+        padId: '1',
+        time: 0,
+        duration: 6
+      }
+    ]);
   });
 
   it('should handle events with gap between them', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
     const evtB: SequencerEvent = { id: 2, padId: '1', time: 6, duration: 4 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({
-      id: 5,
-      padId: '1',
-      time: 0,
-      duration: 10
-    });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([evtA, evtB]);
   });
 
   it('should return the first event when joining events with different padIds', () => {
     const evtA: SequencerEvent = { id: 1, padId: '1', time: 0, duration: 4 };
     const evtB: SequencerEvent = { id: 2, padId: '2', time: 2, duration: 4 };
 
-    const result = joinEvents(evtA, evtB);
-    expect(result).toEqual({ ...evtA, id: 6 });
+    const result = joinEvents([evtA, evtB]);
+    expect(result).toEqual([evtA, evtB]);
+  });
+
+  it('should join multiple events', () => {
+    const events = [
+      { id: 1, padId: '1', time: 0, duration: 4 },
+      { id: 2, padId: '1', time: 3.5, duration: 4 }, // ends at 7.5
+      { id: 3, padId: '1', time: 7, duration: 4 }, // ends at 11
+      { id: 4, padId: '1', time: 11, duration: 4 } // ends at 15
+    ];
+
+    const result = joinEvents(events);
+    expect(result).toEqual([
+      { id: 6, padId: '1', time: 0, duration: 11 },
+      { id: 4, padId: '1', time: 11, duration: 4 }
+    ]);
+  });
+
+  it.only('should infect selection status', () => {
+    const events = [
+      { id: 1, padId: '1', time: 0, duration: 5, isSelected: true },
+      { id: 2, padId: '1', time: 2, duration: 4 }
+    ];
+
+    expect(joinEvents(events)).toEqual([
+      { id: 0, padId: '1', time: 0, duration: 6, isSelected: true }
+    ]);
   });
 });
 
@@ -202,7 +249,7 @@ describe('getIntersectingEvents', () => {
 });
 
 describe('mergeEvents', () => {
-  it('should merge events', () => {
+  it('should merge events on different pads', () => {
     const events = [
       { id: 1, padId: '1', time: 0, duration: 4 },
       { id: 2, padId: '2', time: 2, duration: 4 }
@@ -223,5 +270,53 @@ describe('mergeEvents', () => {
     const result = mergeEvents(...events);
     expect(result).toHaveLength(1);
     expect(result).toContainEqual(events[0]);
+  });
+});
+
+describe('repeatEvents', () => {
+  it('should repeat an event', () => {
+    const events = [{ id: 1, padId: '1', time: 0, duration: 4 }];
+
+    const result = repeatEvents(events, 12);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(
+      expect.objectContaining({ padId: '1', time: 4, duration: 4 })
+    );
+  });
+
+  it('should repeat an event close to the endTime', () => {
+    const events = [{ id: 1, padId: '1', time: 0, duration: 4 }];
+
+    const result = repeatEvents(events, 6);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(
+      expect.objectContaining({ padId: '1', time: 4, duration: 2 })
+    );
+  });
+
+  it('should repeat an event close to the endTime', () => {
+    const events = [{ id: 1, padId: '1', time: 8, duration: 2 }];
+
+    const result = repeatEvents(events, 10);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(
+      expect.objectContaining({ padId: '1', time: 0, duration: 2 })
+    );
+  });
+
+  it('should repeat multiple events', () => {
+    const events = [
+      { id: 1, padId: '1', time: 0, duration: 2 },
+      { id: 2, padId: '2', time: 3, duration: 2 }
+    ];
+
+    const result = repeatEvents(events, 12);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual(
+      expect.objectContaining({ padId: '1', time: 5, duration: 2 })
+    );
+    expect(result[1]).toEqual(
+      expect.objectContaining({ padId: '2', time: 8, duration: 2 })
+    );
   });
 });

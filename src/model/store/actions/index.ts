@@ -10,8 +10,6 @@ export {
   addSequencerEvent,
   clearSequencerEvents,
   removeSequencerEvent,
-  moveSequencerEvents,
-  selectSequencerEvents,
   setSequencerTime,
   setSequencerEndTime,
   setSelectedEventsTime,
@@ -19,8 +17,13 @@ export {
   startSequencer,
   stopSequencer,
   rewindSequencer,
-  setSequencerIsLooped
+  setSequencerIsLooped,
+  cutSequencerEvents,
+  snapSequencerEvents
 } from './sequencerEvents';
+export { moveSequencerEvents } from './sequencerEvents/moveSequencerEvents';
+export { repeatSequencerEvents } from './sequencerEvents/repeatSequencerEvents';
+export { selectSequencerEvents } from './sequencerEvents/selectSequencerEvents';
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';
 export { newProject } from './newProject';

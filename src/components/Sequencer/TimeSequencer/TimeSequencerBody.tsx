@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 // import { useEvents } from '@hooks/events';
@@ -8,6 +8,7 @@ import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
 import { quantizeSeconds } from '../../../model/sequencerEvent';
+import { EventTooltip } from './components/EventTooltip';
 import { Header } from './components/Header';
 import { Marquee } from './components/Marquee';
 import { PlayHead } from './components/PlayHead';
@@ -32,7 +33,7 @@ export const TimeSequencerBody = ({
   pads
 }: SequencerBodyProps) => {
   const padCount = pads.length;
-
+  const bodyRef = useRef<HTMLDivElement>(null);
   // const events = useEvents();
   const [playHeadPosition, setPlayHeadPosition] = useState(0);
 
@@ -40,6 +41,12 @@ export const TimeSequencerBody = ({
 
   // records the duration of the last event toggled
   const [lastEventDuration, setLastEventDuration] = useState(0.5);
+
+  const [tooltipPosition, setTooltipPosition] = useState<Position>({
+    x: 0,
+    y: 0
+  });
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
   const {
     bpm,
@@ -53,7 +60,10 @@ export const TimeSequencerBody = ({
     seqSelectedEvents,
     seqSelectedEventIds,
     endTime,
-    setTime
+    setTime,
+    repeatEvents,
+    cutEvents,
+    snapEvents
   } = useTimeSequencer();
 
   const timelineDurationInPixels =
@@ -83,13 +93,22 @@ export const TimeSequencerBody = ({
     seqSelectedEventIds
   });
 
-  // useEffect(() => {
-  //   log.debug('TimeSequencerBody', {
-  //     selectedEvents: selectedEvents.map((e) => e.id),
-  //     selectedEventIds
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [selectedEventIds]);
+  useEffect(() => {
+    if (seqSelectedEventIds.length > 0) {
+      const bodyRect = bodyRef.current?.getBoundingClientRect();
+      if (!bodyRect) return;
+      // log.debug('seqSelectedEventIds', seqSelectedEventIds);
+      // Position tooltip above the selected events rect
+      const { x, y } = selectedEventsRect;
+      setTooltipPosition({
+        x: bodyRect.x + x + selectedEventsRect.width / 2, // Center horizontally
+        y: bodyRect.y + y - 12 // Position slightly above the rect
+      });
+      setIsTooltipVisible(true);
+    } else {
+      setIsTooltipVisible(false);
+    }
+  }, [seqSelectedEventIds, selectedEventsRect]);
 
   const convertGridRectToTime = useCallback(
     (rect: Rect) => {
@@ -126,13 +145,19 @@ export const TimeSequencerBody = ({
 
       const hasSelectedEvents = seqSelectedEventIds.length > 0;
 
+      log.debug('handleMarqueeSelectEnd', {
+        isFinished,
+        hasSelectedEvents,
+        isLongPress
+      });
+
       if (isFinished) {
         if (isLongPress) {
           // On long press, create a 1-beat event
           // const quantizedStep = (60 / canvasBpm) * 2; // One beat duration
           // const quantizedTime = quantizeSeconds(time, 0.5);
           // toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
-          // log.debug('handleMarqueeSelectEnd long press', rect);
+          log.debug('handleMarqueeSelectEnd long press', time, rect);
         } else if (rect.width <= 5 && rect.height <= 5) {
           if (hasSelectedEvents) {
             // deselect all events
@@ -144,23 +169,25 @@ export const TimeSequencerBody = ({
               const lastEvent = eventsAtTime[eventsAtTime.length - 1];
               const evtDuration = lastEvent?.duration ?? 0.5;
               setLastEventDuration(evtDuration);
+              // log.debug('handleMarqueeSelectEnd select', time, eventsAtTime);
               // selectEvents(eventsAtTime, lastEvent.time, evtDuration);
               selectEvents(eventsAtTime.slice(0, 1));
             } else {
               addEvent(padIds[0], quantizeSeconds(time, 4), lastEventDuration);
 
-              log.debug('handleMarqueeSelectEnd', {
-                padIds,
-                time,
-                duration,
-                lastEventDuration
-              });
+              // log.debug('handleMarqueeSelectEnd', {
+              //   padIds,
+              //   time,
+              //   duration,
+              //   lastEventDuration
+              // });
             }
 
             // const quantizedTime = quantizeSeconds(time, 0.5);
             // toggleEvent(padIds[0], time, time + lastEventDuration);
           }
         } else {
+          log.debug('handleMarqueeSelectEnd', { time, duration, padIds });
           // Normal marquee selection
           selectEventsAtTime(padIds, time, duration);
         }
@@ -185,8 +212,25 @@ export const TimeSequencerBody = ({
       //   { time, duration, padIds, y: rect.y },
       //   isFinished
       // );
-      if (!isFinished) {
-        selectEventsAtTime(padIds, time, duration);
+      // if (!isFinished) {
+      // selectEventsAtTime(padIds, time, duration);
+      // }
+      if (isFinished) {
+        const bodyRect = bodyRef.current?.getBoundingClientRect();
+        if (!bodyRect) return;
+        log.debug('handleLongPressDown', rect);
+        // Position tooltip above the selected events rect
+        const { x, y } = rect;
+        setTooltipPosition({
+          x: bodyRect.x + x, // Center horizontally
+          y: bodyRect.y + y - 12 // Position slightly above the rect
+        });
+        // setTooltipPosition({
+        //   x: rect.x + rect.width / 2,
+        //   y: rect.y - 12
+        // });
+        setIsTooltipVisible(true);
+        // selectEventsAtTime(padIds, time, duration);
       }
     },
     [convertGridRectToTime, selectEventsAtTime]
@@ -195,6 +239,11 @@ export const TimeSequencerBody = ({
   const moveRowIndex = useRef(-1);
   const handleMarqueeMoveUpdate = useCallback(
     (pos: Position, start: Position, isFinished?: boolean) => {
+      // log.debug('[handleMarqueeMoveUpdate]', {
+      //   pos: pos.x,
+      //   start: start.x,
+      //   isFinished
+      // });
       // convert pos to ms
       const time = pixelsToSeconds(pos.x, pixelsPerBeat, canvasBpm);
 
@@ -213,11 +262,16 @@ export const TimeSequencerBody = ({
       // if (rowDelta !== 0)
       //   log.debug(
       //     'handleMarqueeMoveUpdate',
-      //     { y: pos.y, sy: start.y, startRowIndex, currentRowIndex, rowDelta },
+      //     { y: pos.y, sy: start.y, currentRowIndex, rowDelta },
       //     time,
       //     isFinished
       //   );
 
+      // log.debug('[handleMarqueeMoveUpdate]', {
+      //   isFinished,
+      //   time,
+      //   rowDelta
+      // });
       moveEvents(isFinished ? 0 : time, rowDelta, isFinished);
 
       if (isFinished) {
@@ -285,11 +339,10 @@ export const TimeSequencerBody = ({
     [bpm, pixelsPerBeat, setTime]
   );
 
-  // log.debug('timelineDurationInPixels', timelineDurationInPixels);
-
   return (
     <div
-      className={`relative vo-seq-body h-full pointer-events-none`}
+      ref={bodyRef}
+      className={`vo-seq-body relative h-full pointer-events-none`}
       style={{ width: timelineDurationInPixels }}
     >
       <PlayHead position={playHeadPosition} onMove={handlePlayHeadMove} />
@@ -319,6 +372,13 @@ export const TimeSequencerBody = ({
           }}
         />
       </div>
+      <EventTooltip
+        isVisible={isTooltipVisible}
+        {...tooltipPosition}
+        onCut={cutEvents}
+        onDupe={repeatEvents}
+        onSnap={snapEvents}
+      />
     </div>
   );
 };

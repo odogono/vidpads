@@ -33,7 +33,7 @@ import {
   PlayerStopped
 } from './types';
 
-const log = createLog('player/container ❤️');
+const log = createLog('player/container ❤️', ['debug']);
 
 export const PlayerContainer = () => {
   const events = useEvents();
