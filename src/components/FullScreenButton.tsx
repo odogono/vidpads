@@ -1,51 +1,90 @@
-import { Button } from '@heroui/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { Maximize, Minimize } from 'lucide-react';
+
+import { createLog } from '@helpers/log';
+import { Button, cn } from '@heroui/react';
+
+const log = createLog('FullScreenButton');
 
 export interface FullScreenButtonProps {
   isFullscreen: boolean;
   setIsFullscreen: (isFullscreen: boolean) => void;
+  isStatic?: boolean;
 }
 
 export const FullScreenButton = ({
   isFullscreen,
-  setIsFullscreen
+  setIsFullscreen,
+  isStatic = false
 }: FullScreenButtonProps) => {
+  const [isVisible, setIsVisible] = useState(true);
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+
+  const handleChange = useCallback(() => {
+    // Clear any existing timeout
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+    }
+
+    setIsVisible(isFullscreen);
+
+    // Set new timeout
+    const newTimeoutId = setTimeout(() => {
+      setIsVisible(false);
+    }, 3000);
+
+    timeoutId.current = newTimeoutId;
+  }, [timeoutId, setIsVisible, isFullscreen]);
+
+  // Handle mouse movement
+  useEffect(() => {
+    if (isStatic) {
+      return;
+    }
+
+    handleChange();
+
+    // if (isFullscreen) {
+    window.addEventListener('pointermove', handleChange);
+    // } else {
+    //   window.removeEventListener('pointermove', handleChange);
+    // }
+
+    return () => {
+      window.removeEventListener('pointermove', handleChange);
+    };
+  }, [isFullscreen, handleChange, isStatic]);
+
+  useEffect(() => {
+    log.debug(
+      'isVisible',
+      isVisible,
+      document.querySelector('.vo-fullscreen-button')
+    );
+  }, [isFullscreen, isVisible]);
+
   return (
     <Button
       color='primary'
       isIconOnly
-      onPress={() => setIsFullscreen(!isFullscreen)}
-      className='absolute top-16 left-3 p-2 z-20'
+      onPress={() => {
+        log.debug('onPress', isFullscreen);
+        setIsFullscreen(!isFullscreen);
+      }}
+      className={cn(
+        `vo-fullscreen-button p-2 z-20 transition-opacity duration-300`,
+        {
+          'opacity-100': isVisible,
+          'opacity-0': !isVisible || (!isStatic && !isFullscreen),
+          'absolute top-16 left-3': !isStatic
+        }
+      )}
     >
       {isFullscreen ? (
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          className='h-6 w-6'
-          fill='none'
-          viewBox='0 0 24 24'
-          stroke='currentColor'
-        >
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth={2}
-            d='M6 18L18 6M6 6l12 12'
-          />
-        </svg>
+        <Minimize className='h-6 w-6' />
       ) : (
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          className='h-6 w-6'
-          fill='none'
-          viewBox='0 0 24 24'
-          stroke='currentColor'
-        >
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth={2}
-            d='M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4'
-          />
-        </svg>
+        <Maximize className='h-6 w-6' />
       )}
     </Button>
   );
