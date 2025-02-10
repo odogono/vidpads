@@ -7,7 +7,7 @@ import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 import { usePadContainerEvents } from './usePadContainerEvents';
 
-const log = createLog('PadContainer', ['debug']);
+const log = createLog('PadContainer', ['']);
 
 export const PadContainer = () => {
   const modalRef = useRef<CommonModalRef | null>(null);
@@ -17,7 +17,7 @@ export const PadContainer = () => {
     pads,
     padsWithMediaStr,
     isPadSelectSourceEnabled,
-    isPadPlayEnabled
+    arePlayersEnabled
   } = usePadContainerEvents();
 
   const handlePadTouch = useCallback(
@@ -27,7 +27,7 @@ export const PadContainer = () => {
     [modalRef]
   );
 
-  log.debug('render', padsWithMediaStr, pads);
+  log.debug('render', { arePlayersEnabled });
 
   return (
     <div className='vo-pad-container flex mt-4 w-full flex-grow rounded-lg'>
@@ -44,7 +44,7 @@ export const PadContainer = () => {
               <PadComponent
                 pad={pad}
                 onEmptyPadTouch={handlePadTouch}
-                isPlayEnabled={isPadPlayEnabled}
+                isPlayEnabled={arePlayersEnabled}
                 isSelectSourceEnabled={isPadSelectSourceEnabled}
               />
             </Suspense>

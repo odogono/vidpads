@@ -58,6 +58,13 @@ export const usePad = (padId?: string) => {
     [project]
   );
 
+  const enablePlayers = useCallback(
+    (isEnabled: boolean = true) => {
+      project.send({ type: 'setPlayersEnabled', isEnabled });
+    },
+    [project]
+  );
+
   // const setPadPlayEnabled = useCallback(
   //   (isEnabled: boolean) => {
   //     project.send({ type: 'setPadPlayEnabled', isEnabled });
@@ -174,6 +181,7 @@ export const usePad = (padId?: string) => {
     isPadPlayEnabled,
     isPadSelectSourceEnabled,
     isPadAssigned,
+    enablePlayers,
     pad,
     selectedPadId,
     setPadIsOneShot,

@@ -28,6 +28,9 @@ export interface StoreContextType {
   // whether pads are enabled or disabled
   arePadInteractionsEnabled?: boolean;
 
+  // whether players are enabled or disabled
+  arePlayersEnabled?: boolean;
+
   // whether the pads or sequencer are visible
   showMode: ShowMode;
 
@@ -299,6 +302,11 @@ export type SetSettingAction = {
   value: boolean | number | string;
 };
 
+export type SetPlayersEnabledAction = {
+  type: 'setPlayersEnabled';
+  isEnabled: boolean;
+};
+
 export type Actions =
   | SetPadMediaAction
   | ClearPadAction
@@ -339,7 +347,8 @@ export type Actions =
   | RewindSequencerAction
   | SetSequencerIsLoopedAction
   | SetProjectNameAction
-  | SetSettingAction;
+  | SetSettingAction
+  | SetPlayersEnabledAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

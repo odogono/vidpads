@@ -37,38 +37,16 @@ export const useSettings = () => {
   };
 };
 
-// export const useSettingIsKeyboardPlayEnabled = (project: StoreType) =>
-//   useSelector(
-//     project,
-//     (state) => state.context.settings?.isKeyboardPlayEnabled
-//   );
-
-// export const useSettingIsMidiPlayEnabled = (project: StoreType) =>
-//   useSelector(project, (state) => state.context.settings?.isMidiPlayEnabled);
-
-// export const useSettingHidePlayerOnEnd = (project: StoreType) =>
-//   useSelector(project, (state) => state.context.settings?.hidePlayerOnEnd);
-
-// export const useSettingSelectPadFromKeyboard = (project: StoreType) =>
-//   useSelector(
-//     project,
-//     (state) => state.context.settings?.selectPadFromKeyboard
-//   );
-
-// export const useSettingSelectPadFromMidi = (project: StoreType) =>
-//   useSelector(project, (state) => state.context.settings?.selectPadFromMidi);
-
-// export const useSettingSelectPadFromPad = (project: StoreType) =>
-//   useSelector(project, (state) => state.context.settings?.selectPadFromPad);
-
-// export const useSettingIsPadPlayEnabled = (project: StoreType) =>
-//   useSelector(project, (state) => state.context.settings?.isPadPlayEnabled);
-
 export const useIsPlayEnabled = () => {
   const { project } = useProject();
   const isKeyboardPlayEnabled = useSelector(
     project,
     (state) => state.context.settings?.isKeyboardPlayEnabled
+  );
+
+  const hidePlayerOnEnd = useSelector(
+    project,
+    (state) => state.context.settings?.hidePlayerOnEnd
   );
 
   const isMidiPlayEnabled = useSelector(
@@ -101,7 +79,14 @@ export const useIsPlayEnabled = () => {
       state.context.settings?.selectPadFromPad
   );
 
+  const arePlayersEnabled = useSelector(
+    project,
+    (state) => state.context.arePlayersEnabled
+  );
+
   return {
+    arePlayersEnabled,
+    hidePlayerOnEnd,
     isKeyboardPlayEnabled,
     isMidiPlayEnabled,
     isPadPlayEnabled,
@@ -109,12 +94,4 @@ export const useIsPlayEnabled = () => {
     isSelectPadFromMidiEnabled,
     isSelectPadFromPadEnabled
   };
-};
-
-export const useSettingHidePlayerOnEnd = () => {
-  const { project } = useProject();
-  return useSelector(
-    project,
-    (state) => state.context.settings?.hidePlayerOnEnd
-  );
 };

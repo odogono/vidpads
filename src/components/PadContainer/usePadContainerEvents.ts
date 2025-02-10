@@ -18,7 +18,8 @@ export const usePadContainerEvents = () => {
     isPadSelectSourceEnabled,
     isPadPlayEnabled,
     selectedPadId,
-    setSelectedPadId
+    setSelectedPadId,
+    arePlayersEnabled
   } = usePads();
 
   const { cutPadToClipboard, copyPadToClipboard, pastePadFromClipboard } =
@@ -88,6 +89,7 @@ export const usePadContainerEvents = () => {
   return {
     pads,
     padsWithMediaStr,
+    arePlayersEnabled,
     isPadSelectSourceEnabled,
     isPadPlayEnabled,
     selectedPadId,

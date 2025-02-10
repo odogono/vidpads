@@ -113,7 +113,7 @@ export const BinComponent = () => {
   ]);
 
   return (
-    <div className='vo-bin-container absolute left-1/2 -translate-x-1/2 top-[30vh] z-50'>
+    <div className='vo-bin-container absolute left-1/2 -translate-x-1/2 top-[30vh] z-50 pointer-events-none'>
       <div
         className={`
         w-[50vw] h-[15vh] rounded-lg cursor-pointer relative
@@ -122,10 +122,10 @@ export const BinComponent = () => {
         transition-all duration-300 ease-in-out
         ${
           isDragging
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 translate-y-10 pointer-events-none hidden'
+            ? 'opacity-100 translate-y-0 visible'
+            : 'opacity-0 translate-y-10 invisible pointer-events-none'
         }
-        ${dragOverId ? 'bg-gray-600 scale-105' : 'bg-gray-800 hover:bg-gray-700'}
+        ${dragOverId ? 'bg-bin-over scale-105' : 'bg-bin'}
       `}
       >
         <div
@@ -135,7 +135,7 @@ export const BinComponent = () => {
           <ClipboardX
             className={`
           w-[7vw] h-[7vh] transition-all duration-300
-          ${dragOverId === 'cut' ? 'text-gray-100 scale-150' : 'text-gray-400'}
+          ${dragOverId === 'cut' ? 'text-primary-100 scale-150' : 'text-primary-300'}
         `}
           />
         </div>
@@ -146,7 +146,7 @@ export const BinComponent = () => {
           <ClipboardCopy
             className={`
           w-[7vw] h-[7vh] transition-all duration-300
-          ${dragOverId === 'copy' ? 'text-gray-100 scale-150' : 'text-gray-400'}
+          ${dragOverId === 'copy' ? 'text-primary-100 scale-150' : 'text-primary-300'}
         `}
           />
         </div>
@@ -158,7 +158,7 @@ export const BinComponent = () => {
           <TrashIcon
             className={`
           w-[7vw] h-[7vh] transition-all duration-300
-          ${dragOverId === 'delete' ? 'text-red-500 scale-150' : 'text-gray-400'}
+          ${dragOverId === 'delete' ? 'text-warning-100 scale-150' : 'text-warning-300'}
         `}
           />
         </div>

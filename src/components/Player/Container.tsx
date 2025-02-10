@@ -5,10 +5,7 @@ import { useCallback, useEffect } from 'react';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { usePlayersState } from '@model/hooks/usePlayersState';
-import {
-  useIsPlayEnabled,
-  useSettingHidePlayerOnEnd
-} from '@model/hooks/useSettings';
+import { useIsPlayEnabled } from '@model/hooks/useSettings';
 import {
   getPadChokeGroup,
   getPadInterval,
@@ -42,13 +39,13 @@ export const PlayerContainer = () => {
   const events = useEvents();
 
   const {
+    arePlayersEnabled,
     isKeyboardPlayEnabled,
     isPadPlayEnabled,
     isSelectPadFromKeyboardEnabled,
-    // isSelectPadFromMidiEnabled,
-    isSelectPadFromPadEnabled
+    isSelectPadFromPadEnabled,
+    hidePlayerOnEnd
   } = useIsPlayEnabled();
-  const hidePlayerOnEnd = useSettingHidePlayerOnEnd();
 
   const { setSelectedPadId } = useSelectedPadId();
 
@@ -76,6 +73,8 @@ export const PlayerContainer = () => {
           setSelectedPadId(padId);
         }
       }
+
+      if (!arePlayersEnabled) return;
 
       const mediaUrl = getPadSourceUrl(pad);
       if (!mediaUrl) {
@@ -115,6 +114,7 @@ export const PlayerContainer = () => {
     [
       pads,
       events,
+      arePlayersEnabled,
       isKeyboardPlayEnabled,
       isSelectPadFromKeyboardEnabled,
       setSelectedPadId,
@@ -125,6 +125,7 @@ export const PlayerContainer = () => {
 
   const handlePadTouchup = useCallback(
     ({ padId, source }: { padId: string; source: string }) => {
+      if (!arePlayersEnabled) return;
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
       if (source === 'keyboard' && !isKeyboardPlayEnabled) return;
@@ -138,7 +139,7 @@ export const PlayerContainer = () => {
         events.emit('video:stop', { url, padId, time: 0 });
       }
     },
-    [events, pads, isKeyboardPlayEnabled]
+    [events, pads, arePlayersEnabled, isKeyboardPlayEnabled]
   );
 
   const handlePlayerPlaying = useCallback(
