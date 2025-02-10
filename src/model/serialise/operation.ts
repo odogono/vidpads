@@ -1,4 +1,8 @@
-import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
+import {
+  roundNumberToDecimalPlaces as roundDP,
+  safeParseFloat,
+  safeParseInt
+} from '@helpers/number';
 import {
   LabelOperation,
   LoopOperation,
@@ -250,7 +254,7 @@ export const importOperationFromURL = (
     const [rate] = rest;
     return {
       type: OperationType.PlaybackRate,
-      rate: parseFloat(rate),
+      rate: safeParseFloat(rate),
       preservePitch: true
     } as PlaybackRateOperation;
   }
@@ -259,8 +263,8 @@ export const importOperationFromURL = (
     const [start, end] = rest;
     return {
       type: OperationType.Trim,
-      start: parseFloat(start),
-      end: parseFloat(end)
+      start: safeParseFloat(start),
+      end: safeParseFloat(end)
     } as TrimOperation;
   }
 
@@ -268,7 +272,7 @@ export const importOperationFromURL = (
     const [start] = rest;
     return {
       type: OperationType.Loop,
-      start: parseFloat(start)
+      start: safeParseFloat(start)
     } as LoopOperation;
   }
 
@@ -278,13 +282,13 @@ export const importOperationFromURL = (
       type: OperationType.Playback,
       isOneShot: isOneShot === '1',
       resume: resume === '1',
-      priority: priority !== '' ? parseInt(priority) : undefined,
-      chokeGroup: chokeGroup !== '' ? parseInt(chokeGroup) : undefined
+      priority: priority !== '' ? safeParseInt(priority) : undefined,
+      chokeGroup: chokeGroup !== '' ? safeParseInt(chokeGroup) : undefined
     } as PlaybackOperation;
   }
 
   if (type === OperationTypeCodes[OperationType.Volume]) {
-    const values = rest.map((v) => parseFloat(v));
+    const values = rest.map((v) => safeParseFloat(v));
 
     const [envelope] = values.reduce(
       ([acc, time], v, index) => {

@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { createLog } from '@helpers/log';
 import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
-import { StoreType } from '../store/types';
 
 const log = createLog('useSettings');
 

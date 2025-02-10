@@ -2,8 +2,6 @@
 
 import { createContext } from 'react';
 
-import { GeneralDragEvent } from '@types';
-
 export interface OnDropProps {
   file?: File;
   sourceId: string;
@@ -27,12 +25,12 @@ export interface PadDnDContextType {
   setDraggingId: (id: string | null) => void;
   setDragOverId: (id: string | null) => void;
   onNativeDragLeave: (id: string) => void;
-  onNativeDragOver: (e: GeneralDragEvent, id: string) => void;
+  onNativeDragOver: (e: React.DragEvent, id: string) => void;
   onDragStart: (e: React.PointerEvent, id: string, mimeType: string) => void;
   onDragMove: (e: React.PointerEvent, id: string, mimeType: string) => boolean;
 
   onDragEnd: (e: React.PointerEvent, id: string) => void;
-  onNativeDrop: (e: GeneralDragEvent, targetId: string) => void;
+  onNativeDrop: (e: React.DragEvent, targetId: string) => void;
   dragPosition: { x: number; y: number };
 
   registerDropTarget: (props: RegisterDropTargetProps) => void;

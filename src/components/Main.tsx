@@ -26,7 +26,9 @@ export const Main = () => {
         <header
           className={`flex justify-between w-full mx-auto mb-2 items-center ${isFullscreen ? 'hidden' : ''}`}
         >
-          <div className='text-white text-l font-bold'>ODGN VO PADS</div>
+          <div className='text-white font-mono text-xl font-bold'>
+            <span className='text-c5'>ODGN</span> VO PADS
+          </div>
           <span className='flex items-center gap-2'>
             <ShareButton />
             <MenuButton />

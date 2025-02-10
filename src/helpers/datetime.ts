@@ -7,7 +7,7 @@ import {
   parseISO
 } from 'date-fns';
 
-import { safeParseInt } from './number';
+import { safeParseFloat, safeParseInt } from './number';
 
 // import { createLog } from '@helpers/log';
 
@@ -30,7 +30,7 @@ export const parseISO8601Duration = (duration: string) => {
 
   // Extract components (convert to numbers, default to 0 if not present)
   const [, years, months, days, hours, minutes, seconds] = matches.map((m) =>
-    m ? parseFloat(m) : 0
+    m ? safeParseFloat(m) : 0
   );
 
   return {

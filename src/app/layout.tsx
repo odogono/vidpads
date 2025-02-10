@@ -1,11 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
-import type { Metadata, Viewport } from 'next';
+import type { Viewport } from 'next';
 import { Geist, Geist_Mono, Inter, Kode_Mono } from 'next/font/google';
+
+import { I18nProvider } from '@i18n/I18nProvider';
 
 import './globals.css';
 
 import { EventsProvider } from '@hooks/events/provider';
 import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
+import { initTranslation } from '../i18n/initTranslation';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -24,9 +27,12 @@ const kodeMono = Kode_Mono({
 
 const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'ODGN VO PADS',
-  description: 'for all your video triggering needs'
+export const generateMetadata = async () => {
+  const { i18n } = initTranslation('en-gb');
+  return {
+    title: i18n._(`VO Pads`),
+    description: i18n._(`for all your VO triggering needs`)
+  };
 };
 
 export const viewport: Viewport = {
@@ -37,15 +43,18 @@ export const viewport: Viewport = {
   userScalable: false
 };
 
-// TODO move providers out of root layout to player
-const RootLayout = ({
-  children
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) => (
-  <html lang='en' className='overscroll-none'>
-    <body
-      className={`
+}
+
+// TODO move providers out of root layout to player
+const RootLayout = ({ children }: RootLayoutProps) => {
+  const { i18n } = initTranslation('en-gb');
+
+  return (
+    <html lang='en' className='overscroll-none'>
+      <body
+        className={`
         ${geistSans.variable} 
         ${geistMono.variable} 
         ${kodeMono.variable}
@@ -54,12 +63,15 @@ const RootLayout = ({
         antialiased
         font-sans
       `}
-    >
-      <EventsProvider>
-        <FullscreenContextProvider>{children}</FullscreenContextProvider>
-      </EventsProvider>
-    </body>
-  </html>
-);
+      >
+        <I18nProvider initialLocale='en-gb' initialMessages={i18n.messages}>
+          <EventsProvider>
+            <FullscreenContextProvider>{children}</FullscreenContextProvider>
+          </EventsProvider>
+        </I18nProvider>
+      </body>
+    </html>
+  );
+};
 
 export default RootLayout;

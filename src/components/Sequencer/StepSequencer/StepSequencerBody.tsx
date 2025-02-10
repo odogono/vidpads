@@ -84,7 +84,7 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
         const nextTriggerTime = nextTrigger.time;
         if (time >= nextTriggerTime) {
           const { event, padId } = nextTrigger;
-          events.emit(event, { padId });
+          events.emit(event, { padId, source: 'sequencer' });
           triggerIndex.current++;
           // log.debug('handleTimeUpdate', {
           //   time,

@@ -20,7 +20,7 @@ export const usePads = () => {
   );
   const isPadSelectSourceEnabled = useSelector(
     project,
-    (state) => state.context.isPadSelectSourceEnabled ?? true
+    (state) => state.context.arePadInteractionsEnabled ?? true
   );
   const selectedPadId = useSelector(
     project,

@@ -1,0 +1,3 @@
+files:
+  - source: /src/i18n/locales/en-gb/messages.po
+    translation: /src/i18n/locales/%locale%/messages.po
