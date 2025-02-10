@@ -5,11 +5,11 @@ import { useCallback, useRef, useState } from 'react';
 import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
 import { isValidSourceUrl } from '@helpers/metadata';
+import { Button, Input } from '@heroui/react';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
-import { Button, Input } from "@heroui/react";
 import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 
 const log = createLog('SelectSourceModal', ['debug']);
@@ -40,12 +40,15 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
       setIsEnteringUrl(false);
       setLastMediaUrl(url);
 
+      log.debug('handleUrlSubmit', { url, padId: activeIndex, projectId });
+
       await addUrlToPad({ url, padId: activeIndex, projectId });
     }
     return true;
   };
 
   const handleOpened = useCallback(({ padId }: { padId: string }) => {
+    log.debug('handleOpened', { padId });
     setActiveIndex(padId);
   }, []);
 
@@ -82,9 +85,10 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
   }, []);
 
   const handlePaste = useCallback(async () => {
-    events.emit('cmd:paste');
+    if (!activeIndex) return;
+    events.emit('cmd:paste', { targetPadId: activeIndex });
     close();
-  }, [events, close]);
+  }, [events, close, activeIndex]);
 
   return (
     <CommonModal

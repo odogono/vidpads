@@ -53,7 +53,7 @@ export type EventEmitterEvents = {
   'cmd:cancel': undefined;
   'cmd:copy': undefined;
   'cmd:cut': undefined;
-  'cmd:paste': undefined;
+  'cmd:paste': { targetPadId: string } | undefined;
   'cmd:arrow': 'left' | 'right' | 'up' | 'down';
 
   'media:property-update': {

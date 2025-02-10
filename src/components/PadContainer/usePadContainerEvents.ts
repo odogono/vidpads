@@ -35,10 +35,15 @@ export const usePadContainerEvents = () => {
     cutPadToClipboard({ sourcePadId: selectedPadId });
   }, [selectedPadId, cutPadToClipboard]);
 
-  const handlePastePad = useCallback(() => {
-    if (!selectedPadId) return;
-    pastePadFromClipboard({ targetPadId: selectedPadId });
-  }, [selectedPadId, pastePadFromClipboard]);
+  const handlePastePad = useCallback(
+    (props: { targetPadId: string } | undefined) => {
+      const targetPadId = props?.targetPadId ?? selectedPadId;
+
+      if (!targetPadId) return;
+      pastePadFromClipboard({ targetPadId });
+    },
+    [selectedPadId, pastePadFromClipboard]
+  );
 
   const handleArrowCmds = useCallback(
     (cmd: string) => {

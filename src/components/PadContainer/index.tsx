@@ -7,18 +7,13 @@ import { PadComponent } from '../PadComponent';
 import { PadLoadingComponent } from '../PadComponent/Loading';
 import { usePadContainerEvents } from './usePadContainerEvents';
 
-const log = createLog('PadContainer', ['']);
+const log = createLog('PadContainer', ['debug']);
 
 export const PadContainer = () => {
   const modalRef = useRef<CommonModalRef | null>(null);
 
-  const {
-    projectId,
-    pads,
-    padsWithMediaStr,
-    isPadSelectSourceEnabled,
-    arePlayersEnabled
-  } = usePadContainerEvents();
+  const { projectId, pads, isPadSelectSourceEnabled, arePlayersEnabled } =
+    usePadContainerEvents();
 
   const handlePadTouch = useCallback(
     (padId: string) => {
