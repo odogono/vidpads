@@ -63,6 +63,8 @@ export interface StoreContextType {
     time: number;
     endTime: number;
     isLooped?: boolean;
+    // used for copy/paste of events
+    clipboard?: string;
   };
 
   stepSequencer?: {
@@ -255,8 +257,15 @@ export type CutSequencerEventsAction = {
   type: 'cutSequencerEvents';
 };
 
+export type PasteSequencerEventsAction = {
+  type: 'pasteSequencerEvents';
+  time: number;
+  padId: string;
+};
+
 export type SnapSequencerEventsAction = {
   type: 'snapSequencerEvents';
+  step: number;
 };
 
 export type SetSequencerTimeAction = {
@@ -364,6 +373,7 @@ export type Actions =
   | SetPlayersEnabledAction
   | RepeatSequencerEventsAction
   | CutSequencerEventsAction
+  | PasteSequencerEventsAction
   | SnapSequencerEventsAction;
 
 export type PadUpdatedEvent = {

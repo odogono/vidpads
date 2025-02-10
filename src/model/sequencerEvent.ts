@@ -13,7 +13,8 @@ export const createSequencerEvent = ({
   duration?: number;
   isSelected?: boolean;
 }): SequencerEvent => {
-  const id = eventIdCount++;
+  // doesnt matter too much about ids, since they do not get serialised
+  const id = Date.now() + ++eventIdCount;
   return {
     padId,
     time,
@@ -44,12 +45,12 @@ export const joinEvents = (events: SequencerEvent[]): SequencerEvent[] => {
       resultEvents.push(evt);
     } else {
       const combinedEvents = [...intersectingEvents, evt];
-      const [time, timeEnd] = getEventBounds(combinedEvents);
+      const { timeStart, duration } = getEventBounds(combinedEvents);
       const isSelected = combinedEvents.some((e) => e.isSelected);
       const joinedEvent = createSequencerEvent({
         padId: evt.padId,
-        time,
-        duration: timeEnd - time,
+        time: timeStart,
+        duration,
         isSelected
       });
       // console.debug(
@@ -64,6 +65,22 @@ export const joinEvents = (events: SequencerEvent[]): SequencerEvent[] => {
   }
 
   return mergeEvents(...resultEvents);
+};
+
+export const translateEvents = (
+  events: SequencerEvent[],
+  fromTime: number,
+  fromPadId: string
+) => {
+  const { timeStart, padStart } = getEventBounds(events);
+  const timeDiff = fromTime - timeStart;
+  const padDiff = padIdToInteger(fromPadId) - padStart;
+
+  return events.map((evt) => ({
+    ...evt,
+    time: evt.time + timeDiff,
+    padId: integerToPadId(padIdToInteger(evt.padId) + padDiff)
+  }));
 };
 
 /**
@@ -117,7 +134,7 @@ export const repeatEvents = (evts: SequencerEvent[], endTime: number) => {
   if (evts.length === 0) return [];
 
   // get the end time of the last event
-  const [timeStart, timeEnd] = getEventBounds(evts);
+  const { timeStart, timeEnd } = getEventBounds(evts);
 
   const newEvents: SequencerEvent[] = [];
   // let start = timeEnd;
@@ -149,12 +166,33 @@ export const repeatEvents = (evts: SequencerEvent[], endTime: number) => {
  * @returns
  */
 export const getEventBounds = (evts: SequencerEvent[]) => {
-  if (evts.length === 0) return [0, 0];
+  if (evts.length === 0)
+    return { timeStart: 0, timeEnd: 0, padStart: 0, padEnd: 0 };
 
-  const time = Math.min(...evts.map((evt) => evt.time));
+  const timeStart = Math.min(...evts.map((evt) => evt.time));
   const timeEnd = Math.max(...evts.map((evt) => evt.time + evt.duration));
+  const padStart = Math.min(...evts.map((evt) => padIdToInteger(evt.padId)));
+  const padEnd = Math.max(...evts.map((evt) => padIdToInteger(evt.padId)));
 
-  return [time, timeEnd];
+  return {
+    timeStart,
+    timeEnd,
+    duration: timeEnd - timeStart,
+    padStart,
+    padEnd
+  };
+};
+
+export const padIdToInteger = (padId: string) => {
+  return (
+    (Math.max(0, padId.charCodeAt(0) - 97) << 4) | parseInt(padId.slice(1))
+  );
+};
+
+export const integerToPadId = (integer: number) => {
+  const letter = String.fromCharCode((integer >> 4) + 97);
+  const number = integer & 0x0f;
+  return `${letter}${number}`;
 };
 
 /**

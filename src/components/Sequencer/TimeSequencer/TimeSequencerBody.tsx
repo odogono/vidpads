@@ -63,7 +63,8 @@ export const TimeSequencerBody = ({
     setTime,
     repeatEvents,
     cutEvents,
-    snapEvents
+    snapEvents,
+    pasteEvents
   } = useTimeSequencer();
 
   const timelineDurationInPixels =
@@ -145,11 +146,11 @@ export const TimeSequencerBody = ({
 
       const hasSelectedEvents = seqSelectedEventIds.length > 0;
 
-      log.debug('handleMarqueeSelectEnd', {
-        isFinished,
-        hasSelectedEvents,
-        isLongPress
-      });
+      // log.debug('handleMarqueeSelectEnd', {
+      //   isFinished,
+      //   hasSelectedEvents,
+      //   isLongPress
+      // });
 
       if (isFinished) {
         if (isLongPress) {
@@ -157,7 +158,7 @@ export const TimeSequencerBody = ({
           // const quantizedStep = (60 / canvasBpm) * 2; // One beat duration
           // const quantizedTime = quantizeSeconds(time, 0.5);
           // toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
-          log.debug('handleMarqueeSelectEnd long press', time, rect);
+          // log.debug('handleMarqueeSelectEnd long press', time, rect);
         } else if (rect.width <= 5 && rect.height <= 5) {
           if (hasSelectedEvents) {
             // deselect all events
@@ -173,8 +174,13 @@ export const TimeSequencerBody = ({
               // selectEvents(eventsAtTime, lastEvent.time, evtDuration);
               selectEvents(eventsAtTime.slice(0, 1));
             } else {
-              addEvent(padIds[0], quantizeSeconds(time, 4), lastEventDuration);
-
+              if (!isTooltipVisible) {
+                addEvent(
+                  padIds[0],
+                  quantizeSeconds(time, 4),
+                  lastEventDuration
+                );
+              }
               // log.debug('handleMarqueeSelectEnd', {
               //   padIds,
               //   time,
@@ -187,11 +193,12 @@ export const TimeSequencerBody = ({
             // toggleEvent(padIds[0], time, time + lastEventDuration);
           }
         } else {
-          log.debug('handleMarqueeSelectEnd', { time, duration, padIds });
+          // log.debug('handleMarqueeSelectEnd', { time, duration, padIds });
           // Normal marquee selection
           selectEventsAtTime(padIds, time, duration);
         }
       }
+      setIsTooltipVisible(false);
     },
     [
       convertGridRectToTime,
@@ -199,42 +206,45 @@ export const TimeSequencerBody = ({
       selectEventsAtTime,
       getEventsAtTime,
       selectEvents,
-      lastEventDuration,
-      addEvent
+      isTooltipVisible,
+      addEvent,
+      lastEventDuration
     ]
   );
 
+  const lastPressPosition = useRef({ time: 0, padId: '' });
+
   const handleLongPressDown = useCallback(
     (rect: Rect, isFinished?: boolean) => {
-      const { time, duration, padIds } = convertGridRectToTime(rect);
-      // log.debug(
-      //   'handleLongPressDown',
-      //   { time, duration, padIds, y: rect.y },
-      //   isFinished
-      // );
-      // if (!isFinished) {
-      // selectEventsAtTime(padIds, time, duration);
-      // }
       if (isFinished) {
+        const { time, duration, padIds } = convertGridRectToTime({
+          ...rect,
+          width: 1,
+          height: 1
+        });
         const bodyRect = bodyRef.current?.getBoundingClientRect();
         if (!bodyRect) return;
-        log.debug('handleLongPressDown', rect);
+        log.debug('handleLongPressDown', rect, { time, duration, padIds });
         // Position tooltip above the selected events rect
         const { x, y } = rect;
         setTooltipPosition({
           x: bodyRect.x + x, // Center horizontally
           y: bodyRect.y + y - 12 // Position slightly above the rect
         });
-        // setTooltipPosition({
-        //   x: rect.x + rect.width / 2,
-        //   y: rect.y - 12
-        // });
+        lastPressPosition.current = { time, padId: padIds[0] };
         setIsTooltipVisible(true);
         // selectEventsAtTime(padIds, time, duration);
       }
     },
-    [convertGridRectToTime, selectEventsAtTime]
+    [convertGridRectToTime]
   );
+
+  const handlePaste = useCallback(() => {
+    pasteEvents(
+      lastPressPosition.current.time,
+      lastPressPosition.current.padId
+    );
+  }, [pasteEvents]);
 
   const moveRowIndex = useRef(-1);
   const handleMarqueeMoveUpdate = useCallback(
@@ -374,10 +384,12 @@ export const TimeSequencerBody = ({
       </div>
       <EventTooltip
         isVisible={isTooltipVisible}
+        isEventsSelected={seqSelectedEventIds.length > 0}
         {...tooltipPosition}
         onCut={cutEvents}
         onDupe={repeatEvents}
         onSnap={snapEvents}
+        onPaste={handlePaste}
       />
     </div>
   );

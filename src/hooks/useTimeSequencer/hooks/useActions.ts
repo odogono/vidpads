@@ -175,8 +175,19 @@ export const useActions = ({
     project.send({ type: 'cutSequencerEvents' });
   }, [project]);
 
+  const pasteEvents = useCallback(
+    (fromTime: number, fromPadId: string) => {
+      project.send({
+        type: 'pasteSequencerEvents',
+        time: fromTime,
+        padId: fromPadId
+      });
+    },
+    [project]
+  );
+
   const snapEvents = useCallback(() => {
-    project.send({ type: 'snapSequencerEvents' });
+    project.send({ type: 'snapSequencerEvents', step: 1 });
   }, [project]);
 
   return {
@@ -203,6 +214,7 @@ export const useActions = ({
     setSelectedEventsDuration,
     repeatEvents,
     cutEvents,
+    pasteEvents,
     snapEvents
   };
 };

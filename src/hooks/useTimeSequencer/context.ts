@@ -34,6 +34,7 @@ export type TimeSequencerContextType = {
   selectEvents: (events: SequencerEvent[]) => void;
   repeatEvents: () => void;
   cutEvents: () => void;
+  pasteEvents: (fromTime: number, fromPadId: string) => void;
   snapEvents: () => void;
   selectEventsAtTime: (
     padIds: string[],
@@ -82,5 +83,6 @@ export const TimeSequencerContext = createContext<TimeSequencerContextType>({
   setSelectedEventsDuration: () => {},
   repeatEvents: () => {},
   cutEvents: () => {},
+  pasteEvents: () => {},
   snapEvents: () => {}
 });

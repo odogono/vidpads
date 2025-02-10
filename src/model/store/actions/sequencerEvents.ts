@@ -164,19 +164,6 @@ export const clearSequencerEvents = (context: StoreContext): StoreContext => {
   });
 };
 
-export const cutSequencerEvents = (context: StoreContext): StoreContext => {
-  const events = context.sequencer?.events ?? [];
-  const [, nonSelectedEvents] = splitEvents(events, (evt) => !!evt.isSelected);
-
-  const newEvents = joinEvents([...nonSelectedEvents]);
-
-  return updateSequencer(context, { events: newEvents });
-};
-
-export const snapSequencerEvents = (context: StoreContext): StoreContext => {
-  return context;
-};
-
 export const setSequencerTime = (
   context: StoreContext,
   action: SetSequencerTimeAction,

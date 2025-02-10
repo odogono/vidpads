@@ -2,9 +2,12 @@ import { SequencerEvent } from '@model/types';
 import {
   doEventsIntersect,
   getIntersectingEvents,
+  integerToPadId,
   joinEvents,
   mergeEvents,
-  repeatEvents
+  padIdToInteger,
+  repeatEvents,
+  translateEvents
 } from '../sequencerEvent';
 
 describe('doEventsIntersect', () => {
@@ -73,12 +76,11 @@ describe('joinEvents', () => {
 
     const result = joinEvents([evtA, evtB]);
     expect(result).toEqual([
-      {
-        id: 0,
+      expect.objectContaining({
         padId: '1',
         time: 0,
         duration: 8
-      }
+      })
     ]);
   });
 
@@ -88,12 +90,11 @@ describe('joinEvents', () => {
 
     const result = joinEvents([evtA, evtB]);
     expect(result).toEqual([
-      {
-        id: 1,
+      expect.objectContaining({
         padId: '1',
         time: 0,
         duration: 8
-      }
+      })
     ]);
   });
 
@@ -103,12 +104,11 @@ describe('joinEvents', () => {
 
     const result = joinEvents([evtA, evtB]);
     expect(result).toEqual([
-      {
-        id: 2,
+      expect.objectContaining({
         padId: '1',
         time: 0,
         duration: 8
-      }
+      })
     ]);
   });
 
@@ -118,12 +118,11 @@ describe('joinEvents', () => {
 
     const result = joinEvents([evtA, evtB]);
     expect(result).toEqual([
-      {
-        id: 3,
+      expect.objectContaining({
         padId: '1',
         time: 0,
         duration: 8
-      }
+      })
     ]);
   });
 
@@ -133,12 +132,11 @@ describe('joinEvents', () => {
 
     const result = joinEvents([evtA, evtB]);
     expect(result).toEqual([
-      {
-        id: 4,
+      expect.objectContaining({
         padId: '1',
         time: 0,
         duration: 6
-      }
+      })
     ]);
   });
 
@@ -168,19 +166,24 @@ describe('joinEvents', () => {
 
     const result = joinEvents(events);
     expect(result).toEqual([
-      { id: 6, padId: '1', time: 0, duration: 11 },
-      { id: 4, padId: '1', time: 11, duration: 4 }
+      expect.objectContaining({ padId: '1', time: 0, duration: 11 }),
+      expect.objectContaining({ padId: '1', time: 11, duration: 4 })
     ]);
   });
 
-  it.only('should infect selection status', () => {
+  it('should infect selection status', () => {
     const events = [
       { id: 1, padId: '1', time: 0, duration: 5, isSelected: true },
       { id: 2, padId: '1', time: 2, duration: 4 }
     ];
 
     expect(joinEvents(events)).toEqual([
-      { id: 0, padId: '1', time: 0, duration: 6, isSelected: true }
+      expect.objectContaining({
+        padId: '1',
+        time: 0,
+        duration: 6,
+        isSelected: true
+      })
     ]);
   });
 });
@@ -318,5 +321,31 @@ describe('repeatEvents', () => {
     expect(result[1]).toEqual(
       expect.objectContaining({ padId: '2', time: 8, duration: 2 })
     );
+  });
+});
+
+describe('padIdToInteger', () => {
+  it('should convert padId to integer', () => {
+    expect(padIdToInteger('a1')).toBe(1);
+    expect(padIdToInteger('b2')).toBe(18);
+  });
+});
+
+describe('integerToPadId', () => {
+  it('should convert integer to padId', () => {
+    expect(integerToPadId(1)).toBe('a1');
+    expect(integerToPadId(18)).toBe('b2');
+  });
+});
+
+describe('translateEvents', () => {
+  it('should translate events', () => {
+    const events = [{ id: 1, padId: 'a3', time: 10, duration: 4 }];
+
+    const result = translateEvents(events, 3, 'a1');
+
+    expect(result).toEqual([
+      expect.objectContaining({ padId: 'a1', time: 3, duration: 4 })
+    ]);
   });
 });
