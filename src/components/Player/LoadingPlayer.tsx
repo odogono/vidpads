@@ -40,7 +40,17 @@ export const LoadingPlayer = ({ count, loadingCount }: LoadingPlayerProps) => {
 
   const isReady = loadingCount >= count;
   return (
-    <div className='vo-player-loading-container w-full h-full flex flex-col bg-video-off items-center justify-center gap-4'>
+    <div
+      data-player-id='title'
+      className={`vo-player vo-player-loading-container 
+        absolute top-0 left-0 
+        w-full h-full 
+        flex flex-col 
+        bg-video-off 
+        items-center 
+        justify-center 
+        gap-4`}
+    >
       {isEditing ? (
         <input
           className='text-lg font-bold text-foreground bg-transparent border-b border-foreground/20 focus:border-foreground outline-none px-2 text-center'

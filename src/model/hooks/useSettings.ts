@@ -110,3 +110,11 @@ export const useIsPlayEnabled = () => {
     isSelectPadFromPadEnabled
   };
 };
+
+export const useSettingHidePlayerOnEnd = () => {
+  const { project } = useProject();
+  return useSelector(
+    project,
+    (state) => state.context.settings?.hidePlayerOnEnd
+  );
+};

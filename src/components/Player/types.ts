@@ -21,6 +21,7 @@ export interface PlayerProps {
   media: Media;
   showControls?: boolean;
   isLoader?: boolean;
+  type: 'image' | 'video' | 'youtube' | 'title';
 }
 
 export interface PlayerEvent {

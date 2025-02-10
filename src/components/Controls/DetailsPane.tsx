@@ -16,7 +16,7 @@ import { useEvents } from '@hooks/events';
 import { usePad } from '@model/hooks/usePad';
 import { PaneProps } from './types';
 
-const log = createLog('DetailsPane');
+const log = createLog('DetailsPane', ['debug']);
 
 export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const events = useEvents();

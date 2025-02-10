@@ -41,7 +41,7 @@ export const Main = () => {
           }`}
         >
           <div
-            className={`vo-player-wrapper relative w-full h-full min-h-[20vh] overflow-hidden ${isFullscreen ? 'bg-black' : 'bg-slate-500'} rounded-lg`}
+            className={`vo-player-wrapper relative w-full h-full min-h-[20vh] overflow-hidden ${isFullscreen ? 'bg-black' : 'bg-video-off'} rounded-lg`}
           >
             <PlayerContainer />
           </div>

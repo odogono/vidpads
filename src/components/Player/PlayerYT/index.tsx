@@ -252,6 +252,9 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   ]);
 
   return (
-    <div ref={containerRef} className='absolute top-0 left-0 w-full h-full' />
+    <div
+      ref={containerRef}
+      className='vo-player-yt absolute top-0 left-0 w-full h-full'
+    />
   );
 };

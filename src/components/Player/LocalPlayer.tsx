@@ -398,7 +398,7 @@ export const LocalPlayer = ({
   //   log.debug('rendering', media.url, isVisible, initialTime);
   // }
 
-  return <video ref={videoRef} className='w-full h-full' />;
+  return <video ref={videoRef} className='vo-player-local w-full h-full' />;
 };
 
 LocalPlayer.displayName = 'LocalPlayer';

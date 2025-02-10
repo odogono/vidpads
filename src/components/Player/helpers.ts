@@ -6,22 +6,37 @@ export const hidePlayer = (padId: string) => {
     playerElement.style.transition = 'none'; // Disable transition
     playerElement.style.opacity = '0';
     playerElement.style.zIndex = '0'; // Send to back when stopped
+    playerElement.style.pointerEvents = 'none'; // Prevent pointer events
     playerElement.dataset.state = 'stopped';
   }
   return playerElement;
 };
 
-export const showPlayer = (padId: string, zIndex: number = 100) => {
+export const showPlayer = (padId: string, zIndex: number = 1) => {
   const playerElement = document.querySelector(
     `[data-player-id="${padId}"]`
   ) as HTMLElement | null;
   if (playerElement) {
-    playerElement.style.transition = 'none'; // Disable transition
+    playerElement.style.transition = 'none';
     playerElement.style.opacity = '1';
-    playerElement.style.zIndex = `${zIndex}`; // Bring to front
+    playerElement.style.zIndex = `${zIndex}`;
+    playerElement.style.pointerEvents = 'auto'; // Re-enable pointer events
     playerElement.dataset.state = 'playing';
   }
   return playerElement;
+};
+
+export const getPlayerElements = () => {
+  const elements = document.querySelectorAll(
+    '[data-player-id]'
+  ) as NodeListOf<HTMLElement>;
+  return Array.from(elements).map((element) => ({
+    id: element.dataset.playerId,
+    zIndex: parseInt(element.style.zIndex),
+    opacity: parseFloat(element.style.opacity),
+    state: element.dataset.state,
+    pointerEvents: element.style.pointerEvents
+  }));
 };
 
 export const getPlayerElement = (padId: string) => {
@@ -39,7 +54,7 @@ export const hideElement = (element: HTMLElement) => {
 export const showElement = (element: HTMLElement) => {
   element.style.transition = 'none'; // Disable transition
   element.style.opacity = '1';
-  element.style.zIndex = '100'; // Bring to front
+  element.style.zIndex = '100';
 };
 
 export const setZIndex = (element: HTMLElement, index: number) => {

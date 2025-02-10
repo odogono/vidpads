@@ -5,7 +5,10 @@ import { useCallback, useEffect } from 'react';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { usePlayersState } from '@model/hooks/usePlayersState';
-import { useIsPlayEnabled } from '@model/hooks/useSettings';
+import {
+  useIsPlayEnabled,
+  useSettingHidePlayerOnEnd
+} from '@model/hooks/useSettings';
 import {
   getPadChokeGroup,
   getPadInterval,
@@ -22,7 +25,7 @@ import { Interval } from '@model/types';
 import { useSelectedPadId } from '../../model/store/selectors';
 import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
-import { hidePlayer, showPlayer } from './helpers';
+import { getPlayerElement, showPlayer } from './helpers';
 import { usePlayers } from './hooks/usePlayers';
 import { usePlayingStack } from './hooks/usePlayingStack';
 import {
@@ -33,7 +36,7 @@ import {
   PlayerStopped
 } from './types';
 
-const log = createLog('player/container', ['debug']);
+const log = createLog('player/container ❤️');
 
 export const PlayerContainer = () => {
   const events = useEvents();
@@ -45,13 +48,14 @@ export const PlayerContainer = () => {
     // isSelectPadFromMidiEnabled,
     isSelectPadFromPadEnabled
   } = useIsPlayEnabled();
+  const hidePlayerOnEnd = useSettingHidePlayerOnEnd();
 
   const { setSelectedPadId } = useSelectedPadId();
 
   const { pads, players } = usePlayers();
 
   const { hideStackPlayer, showStackPlayer, getChokeGroupPlayers } =
-    usePlayingStack();
+    usePlayingStack({ hidePlayerOnEnd: hidePlayerOnEnd ?? false });
 
   const { updatePlayer: updatePlayerState, playerReadyCount } =
     usePlayersState();
@@ -158,8 +162,6 @@ export const PlayerContainer = () => {
 
   const handlePlayerStopped = useCallback(
     (e: PlayerStopped) => {
-      // log.debug('❤️ player:stopped', e);
-
       hideStackPlayer(e.padId);
     },
     [hideStackPlayer]
@@ -171,7 +173,7 @@ export const PlayerContainer = () => {
 
   const handlePlayerReady = useCallback(
     (e: PlayerReady) => {
-      log.debug('❤️ player:ready', e);
+      log.debug('player:ready', e);
       updatePlayerState({ padId: e.padId, mediaUrl: e.url, isReady: true });
     },
     [updatePlayerState]
@@ -179,14 +181,18 @@ export const PlayerContainer = () => {
 
   const handlePlayerNotReady = useCallback(
     (e: PlayerNotReady) => {
-      log.debug('❤️ player:not-ready', e);
-      hidePlayer(e.padId);
+      log.debug('player:not-ready', e);
+      hideStackPlayer(e.padId);
       updatePlayerState({ padId: e.padId, mediaUrl: e.url, isReady: false });
     },
-    [updatePlayerState]
+    [updatePlayerState, hideStackPlayer]
   );
 
   useEffect(() => {
+    showPlayer('title');
+
+    // window.getPlayerElements = () => getPlayerElements();
+
     events.on('pad:touchdown', handlePadTouchdown);
     events.on('pad:touchup', handlePadTouchup);
     events.on('player:playing', handlePlayerPlaying);
@@ -214,23 +220,25 @@ export const PlayerContainer = () => {
     handlePlayerNotReady
   ]);
 
-  // useRenderingTrace('PlayerContainer', {
-  //   pads,
-  //   players,
-  //   events,
-  //   store,
-  //   padUrlStr
-  // });
+  useEffect(() => {
+    if (playerReadyCount === players.length) {
+      // showPlayer('title', 1);
+      log.debug('player:ready', playerReadyCount, players.length);
+      log.debug('title player', getPlayerElement('title'));
+      log.debug('a1 player', getPlayerElement('a1'));
+    }
+  }, [playerReadyCount, players.length]);
 
   return (
     <>
-      <LoadingPlayer count={players.length} loadingCount={playerReadyCount} />
-
-      {players.map((player) => {
-        return (
-          <Player key={player.id} {...player} data-player-id={player.padId} />
-        );
-      })}
+      <LoadingPlayer
+        key='player-title'
+        count={players.length}
+        loadingCount={playerReadyCount}
+      />
+      {players.map((player) => (
+        <Player key={player.id} {...player} data-player-id={player.padId} />
+      ))}
     </>
   );
 };
