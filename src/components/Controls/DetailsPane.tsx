@@ -31,6 +31,7 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     setPadLabel
   } = usePad();
   const isEnabled = !!selectedPadId && isPadAssigned;
+  const isPasteEnabled = !!selectedPadId;
 
   const handleCut = useCallback(() => events.emit('cmd:cut'), [events]);
   const handleCopy = useCallback(() => events.emit('cmd:copy'), [events]);
@@ -73,7 +74,7 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
       <OpButton label='Copy' onPress={handleCopy} isEnabled={isEnabled}>
         <ClipboardCopy />
       </OpButton>
-      <OpButton label='Paste' onPress={handlePaste} isEnabled={isEnabled}>
+      <OpButton label='Paste' onPress={handlePaste} isEnabled={isPasteEnabled}>
         <ClipboardPaste />
       </OpButton>
       <OpButton label='Delete' onPress={showDeleteModal} isEnabled={isEnabled}>
