@@ -30,6 +30,11 @@ export const Main = () => {
             <span className='text-c5'>ODGN</span> VO PADS
           </div>
           <span className='flex items-center gap-2'>
+            <FullScreenButton
+              isFullscreen={isFullscreen}
+              setIsFullscreen={setIsFullscreen}
+              isStatic
+            />
             <ShareButton />
             <MenuButton />
           </span>
