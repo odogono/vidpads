@@ -25,7 +25,7 @@ export interface PadComponentProps {
   onEmptyPadTouch: (padId: string) => void;
 }
 
-const log = createLog('PadComponent');
+const log = createLog('PadComponent', ['debug']);
 
 export const PadComponent = ({
   isPlayEnabled,
