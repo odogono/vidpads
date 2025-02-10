@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 
+// import { createLog } from '@helpers/log';
 import {
   getPlayerDataState,
   hidePlayer,
@@ -8,19 +9,37 @@ import {
 } from '../helpers';
 import { PlayerPlaying } from '../types';
 
-export const usePlayingStack = () => {
+// const log = createLog('usePlayingStack');
+
+export const usePlayingStack = ({
+  hidePlayerOnEnd
+}: {
+  hidePlayerOnEnd: boolean;
+}) => {
   const ref = useRef<PlayerPlaying[]>([]);
 
-  const hideStackPlayer = useCallback((hideId: string) => {
-    const stack = ref.current;
-    if (stack.length > 1) {
-      hidePlayer(hideId);
-      ref.current = stack.filter(({ padId }) => padId !== hideId);
-    }
+  const hideStackPlayer = useCallback(
+    (hideId: string) => {
+      const stack = ref.current;
 
-    // remove the player from the stack
-    setPlayerDataState(hideId, 'stopped');
-  }, []);
+      if (hidePlayerOnEnd || stack.length > 1) {
+        hidePlayer(hideId);
+        ref.current = stack.filter(({ padId }) => padId !== hideId);
+      }
+
+      const stackLength = ref.current.length;
+
+      setPlayerDataState(hideId, 'stopped');
+
+      if (stackLength === 0) {
+        showPlayer('title');
+      }
+
+      // return the number of players in the stack
+      return stackLength;
+    },
+    [hidePlayerOnEnd]
+  );
 
   const showStackPlayer = useCallback((player: PlayerPlaying) => {
     const showId = player.padId;
@@ -47,9 +66,24 @@ export const usePlayingStack = () => {
     );
 
     // Update z-index of all players based on stack position
-    sortedStack.forEach(({ padId }, index) => showPlayer(padId, index + 1));
+    sortedStack.forEach(({ padId }, index) => {
+      if (index === sortedStack.length - 1) {
+        showPlayer(padId, 1);
+      } else {
+        hidePlayer(padId);
+      }
+    });
 
     ref.current = sortedStack;
+    const stackLength = sortedStack.length;
+
+    if (stackLength === 0) {
+      showPlayer('title', stackLength + 1);
+    } else {
+      hidePlayer('title');
+    }
+
+    return stackLength;
   }, []);
 
   const getChokeGroupPlayers = useCallback((chokeGroup: number) => {

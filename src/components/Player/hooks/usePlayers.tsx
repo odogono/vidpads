@@ -3,10 +3,16 @@
 import { useMemo, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
+import {
+  isImageMetadata,
+  isVideoMetadata,
+  isYouTubeMetadata
+} from '@helpers/metadata';
+import { VOKeys } from '@model/constants';
 import { usePadsExtended } from '@model/hooks/usePads';
 import { getPadSourceUrl } from '@model/pad';
+import { Media } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { VOKeys } from '../../../model/constants';
 import { PlayerProps } from '../types';
 
 const log = createLog('player/usePlayers', ['debug']);
@@ -28,7 +34,19 @@ export const usePlayers = () => {
 
   useMemo<PlayersResult>(() => {
     log.debug('padsWithMedia:', padsWithMediaStr);
-    // log.debug('urlToMetadata:', urlToMetadataStr);
+
+    // there is always a player for displaying the
+    // title/loading status
+    const initial: PlayerProps[] = [
+      // {
+      //   id: 'player-title',
+      //   padId: 'title',
+      //   isVisible: false,
+      //   media: {} as Media,
+      //   type: 'title'
+      // }
+    ];
+
     const result = padsWithMedia.reduce((acc, pad) => {
       const url = getPadSourceUrl(pad);
       if (!url) {
@@ -54,14 +72,15 @@ export const usePlayers = () => {
         id,
         padId: pad.id,
         isVisible: false,
-        media
+        media,
+        type: getPlayerType(media)
       };
 
       // the key has to be for each active pad!
       acc.push(props);
 
       return acc;
-    }, [] as PlayerProps[]);
+    }, initial);
 
     const padUrlStr = result
       .map((player) => `${player.padId}: ${player.media.url}`)
@@ -82,4 +101,11 @@ export const usePlayers = () => {
     padUrlStr: padUrlStrRef.current,
     players: playersRef.current
   };
+};
+
+const getPlayerType = (media: Media): PlayerProps['type'] => {
+  if (isYouTubeMetadata(media)) return 'youtube';
+  if (isVideoMetadata(media)) return 'video';
+  if (isImageMetadata(media)) return 'image';
+  return 'title';
 };

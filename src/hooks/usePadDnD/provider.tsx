@@ -10,7 +10,7 @@ import { useEvents } from '@hooks/events';
 import { DragGhost } from '@hooks/usePadDnD/DragGhost';
 import { PadDnDContext, RegisterDropTargetProps } from './context';
 
-const log = createLog('PadDnDProvider');
+const log = createLog('PadDnDProvider', ['debug']);
 
 export const PadDnDProvider = ({ children }: { children: ReactNode }) => {
   const events = useEvents();
