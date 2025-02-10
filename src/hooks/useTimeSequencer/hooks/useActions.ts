@@ -124,9 +124,10 @@ export const useActions = ({
     (evts: SequencerEvent[]) => {
       project.send({
         type: 'selectSequencerEvents',
-        padIds: evts.map((e) => e.padId),
-        time: evts[0].time,
-        duration: evts[0].duration
+        evtIds: evts.map((e) => e.id),
+        padIds: [],
+        time: 0,
+        duration: 0
       });
     },
     [project]
@@ -141,6 +142,7 @@ export const useActions = ({
 
   const moveEvents = useCallback(
     (timeDelta: number, rowDelta: number, isFinished?: boolean) => {
+      // log.debug('[moveEvents]', { timeDelta, rowDelta, isFinished });
       project.send({
         type: 'moveSequencerEvents',
         timeDelta,
@@ -165,6 +167,18 @@ export const useActions = ({
     [project]
   );
 
+  const repeatEvents = useCallback(() => {
+    project.send({ type: 'repeatSequencerEvents' });
+  }, [project]);
+
+  const cutEvents = useCallback(() => {
+    project.send({ type: 'cutSequencerEvents' });
+  }, [project]);
+
+  const snapEvents = useCallback(() => {
+    project.send({ type: 'snapSequencerEvents' });
+  }, [project]);
+
   return {
     isPlaying,
     isRecording,
@@ -186,6 +200,9 @@ export const useActions = ({
     selectEventsAtTime,
     moveEvents,
     setSelectedEventsTime,
-    setSelectedEventsDuration
+    setSelectedEventsDuration,
+    repeatEvents,
+    cutEvents,
+    snapEvents
   };
 };

@@ -234,6 +234,7 @@ export type RemoveSequencerEventAction = {
 
 export type SelectSequencerEventsAction = {
   type: 'selectSequencerEvents';
+  evtIds?: number[];
   padIds: string[];
   time: number;
   duration: number;
@@ -244,6 +245,18 @@ export type MoveSequencerEventsAction = {
   timeDelta: number;
   rowDelta: number;
   isFinished?: boolean;
+};
+
+export type RepeatSequencerEventsAction = {
+  type: 'repeatSequencerEvents';
+};
+
+export type CutSequencerEventsAction = {
+  type: 'cutSequencerEvents';
+};
+
+export type SnapSequencerEventsAction = {
+  type: 'snapSequencerEvents';
 };
 
 export type SetSequencerTimeAction = {
@@ -348,7 +361,10 @@ export type Actions =
   | SetSequencerIsLoopedAction
   | SetProjectNameAction
   | SetSettingAction
-  | SetPlayersEnabledAction;
+  | SetPlayersEnabledAction
+  | RepeatSequencerEventsAction
+  | CutSequencerEventsAction
+  | SnapSequencerEventsAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

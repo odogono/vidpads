@@ -4,18 +4,14 @@ import {
   getIntersectingEvents,
   joinEvents,
   mergeEvents,
-  padIdToRowIndex,
-  quantizeEvents,
   removeEvents,
-  rowIndexToPadId
+  splitEvents
 } from '@model/sequencerEvent';
 import {
   AddSequencerEventAction,
   Emit,
-  MoveSequencerEventsAction,
   RemoveSequencerEventAction,
   RewindSequencerAction,
-  SelectSequencerEventsAction,
   SetSelectedEventsDurationAction,
   SetSelectedEventsTimeAction,
   SetSequencerEndTimeAction,
@@ -26,21 +22,9 @@ import {
   StoreContext,
   ToggleSequencerEventAction
 } from '../types';
-import { update } from './helpers';
+import { update, updateSequencer } from './helpers';
 
 const log = createLog('sequencer/events');
-
-const updateSequencer = (
-  context: StoreContext,
-  newSequencer: Partial<StoreContext['sequencer']>
-) => {
-  return update(context, {
-    sequencer: {
-      ...context.sequencer,
-      ...newSequencer
-    }
-  });
-};
 
 export const startSequencer = (
   context: StoreContext,
@@ -135,46 +119,12 @@ export const addSequencerEvent = (
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
 
-  // const { time, duration } = quantizeEvents(
-  //   [createEvent(action)],
-  //   quantizeStep
-  // )[0];
+  const newEvent = createSequencerEvent({ padId, time, duration });
 
-  const intersectingEvents = getIntersectingEvents(events, time, duration, [
-    padId
-  ]);
+  const newEvents = joinEvents([newEvent, ...events]);
 
-  // if no intersecting events, just add the new event
-  if (!intersectingEvents.length) {
-    const newEvents = [
-      ...events,
-      createSequencerEvent({ padId, time, duration })
-    ].toSorted((a, b) => a.time - b.time);
-    return update(context, {
-      sequencer: {
-        ...sequencer,
-        events: newEvents
-      }
-    });
-  }
-
-  // remove the intersecting events
-  const newEvents = removeEvents(events, ...intersectingEvents);
-
-  // join the new event with the intersecting events
-  const joinedEvent = joinEvents(
-    ...[createSequencerEvent(action), ...intersectingEvents]
-  );
-
-  if (joinedEvent) {
-    newEvents.push(joinedEvent);
-  }
-
-  return update(context, {
-    sequencer: {
-      ...sequencer,
-      events: newEvents.toSorted((a, b) => a.time - b.time)
-    }
+  return updateSequencer(context, {
+    events: newEvents
   });
 };
 
@@ -183,100 +133,48 @@ export const removeSequencerEvent = (
   action: RemoveSequencerEventAction
 ): StoreContext => {
   const { padId, time } = action;
-  const sequencer = context.sequencer ?? {};
-  const events = sequencer?.events ?? [];
+  const events = context.sequencer?.events ?? [];
 
-  return update(context, {
-    sequencer: {
-      ...sequencer,
-      events: events.filter((e) => e.padId !== padId || e.time !== time)
-    }
+  return updateSequencer(context, {
+    events: events.filter((e) => e.padId !== padId || e.time !== time)
   });
 };
 
 export const clearSequencerEvents = (context: StoreContext): StoreContext => {
-  const sequencer = context.sequencer ?? {};
-  const events = sequencer?.events ?? [];
+  const events = context.sequencer?.events ?? [];
 
-  const selectedEvents = events.filter((evt) => evt.isSelected);
-
-  const newEvents =
-    selectedEvents.length > 0 ? removeEvents(events, ...selectedEvents) : [];
+  const [selected, nonSelected] = splitEvents(
+    events,
+    (evt) => !!evt.isSelected
+  );
 
   log.debug(
     'clearSequencerEvents',
-    selectedEvents.length > 0 ? selectedEvents.length : events.length
+    `selected:${selected.length} non-selected:${nonSelected.length}`
   );
 
-  return update(context, { sequencer: { ...sequencer, events: newEvents } });
+  if (selected.length > 0) {
+    return updateSequencer(context, {
+      events: nonSelected
+    });
+  }
+
+  return updateSequencer(context, {
+    events: []
+  });
 };
 
-export const selectSequencerEvents = (
-  context: StoreContext,
-  action: SelectSequencerEventsAction
-): StoreContext => {
-  const { padIds, time, duration } = action;
-  const sequencer = context.sequencer ?? {};
-  const events = sequencer?.events ?? [];
+export const cutSequencerEvents = (context: StoreContext): StoreContext => {
+  const events = context.sequencer?.events ?? [];
+  const [, nonSelectedEvents] = splitEvents(events, (evt) => !!evt.isSelected);
 
-  const deSelectedEvents = events.map((evt) => ({
-    ...evt,
-    isSelected: false
-  }));
-
-  const intersectingEvents = getIntersectingEvents(
-    deSelectedEvents,
-    time,
-    duration,
-    padIds
-  );
-
-  log.debug(
-    'selectSequencerEvents',
-    intersectingEvents.length,
-    `(${intersectingEvents.map((e) => e.id).join(',')})`,
-    'selected /',
-    deSelectedEvents.length
-  );
-
-  const selectedEvents = intersectingEvents.map((evt) => ({
-    ...evt,
-    isSelected: true
-  }));
-
-  const mergedEvents = mergeEvents(...selectedEvents, ...deSelectedEvents);
-
-  // log.debug('selectSequencerEvents', mergedEvents.map((e) => e.id).join(','));
-
-  return update(context, { sequencer: { ...sequencer, events: mergedEvents } });
-};
-
-export const moveSequencerEvents = (
-  context: StoreContext,
-  action: MoveSequencerEventsAction
-): StoreContext => {
-  const { timeDelta, rowDelta, isFinished } = action;
-  const sequencer = context.sequencer ?? {};
-  const events = sequencer?.events ?? [];
-
-  const selectedEvents = events.filter((evt) => evt.isSelected);
-
-  const movedEvents = selectedEvents.map((evt) => ({
-    ...evt,
-    time: Math.max(0, evt.time + timeDelta),
-    padId: rowIndexToPadId(Math.max(0, padIdToRowIndex(evt.padId) + rowDelta))
-  }));
-
-  const quantizedEvents = isFinished
-    ? quantizeEvents(movedEvents, 4, false)
-    : movedEvents;
-
-  // log.debug('moveSequencerEvents moved', movedEvents.length);
-  const newEvents = mergeEvents(...quantizedEvents, ...events);
-
-  // log.debug('moveSequencerEvents newEvents', newEvents.length);
+  const newEvents = joinEvents([...nonSelectedEvents]);
 
   return updateSequencer(context, { events: newEvents });
+};
+
+export const snapSequencerEvents = (context: StoreContext): StoreContext => {
+  return context;
 };
 
 export const setSequencerTime = (

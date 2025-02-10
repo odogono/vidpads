@@ -35,3 +35,15 @@ export const update = (
   ...additional,
   updatedAt: dateToISOString()
 });
+
+export const updateSequencer = (
+  context: StoreContext,
+  newSequencer: Partial<StoreContext['sequencer']>
+) => {
+  return update(context, {
+    sequencer: {
+      ...context.sequencer,
+      ...newSequencer
+    }
+  });
+};

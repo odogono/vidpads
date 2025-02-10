@@ -5,7 +5,7 @@ import { Maximize, Minimize } from 'lucide-react';
 import { createLog } from '@helpers/log';
 import { Button, cn } from '@heroui/react';
 
-const log = createLog('FullScreenButton');
+const log = createLog('FullScreenButton', ['debug']);
 
 export interface FullScreenButtonProps {
   isFullscreen: boolean;
