@@ -61,8 +61,10 @@ export const Main = () => {
           <>
             <BinComponent />
             <Controls />
-            {isPadsVisible && <PadContainer />}
-            {isSequencerVisible && <Sequencer />}
+            <div className='flex h-[50%]'>
+              {isPadsVisible && <PadContainer />}
+              {isSequencerVisible && <Sequencer />}
+            </div>
           </>
         )}
       </div>
