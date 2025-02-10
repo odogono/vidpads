@@ -1,5 +1,11 @@
 import { useCallback } from 'react';
 
+import {
+  exportToJSON,
+  exportToJSONString,
+  exportToURLString,
+  urlStringToProject
+} from '@/model/serialise/project';
 import { compress } from '@helpers/compress';
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
@@ -13,12 +19,6 @@ import {
   saveProjectState as dbSaveProjectState
 } from '@model/db/api';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
-import {
-  exportToJSON,
-  exportToJSONString,
-  exportToURLString,
-  urlStringToProject
-} from '@model/serialise/store';
 import { createStore } from '@model/store/store';
 import { StoreContextType } from '@model/store/types';
 import { ProjectExport } from '@model/types';
@@ -83,16 +83,10 @@ export const useProjects = () => {
     return exportToJSONString(project);
   }, [project]);
 
-  const exportProjectToURLString = useCallback(
-    async (doCompress: boolean = false) => {
-      const urlString = exportToURLString(project);
-      if (doCompress) {
-        return await compress(urlString);
-      }
-      return urlString;
-    },
-    [project]
-  );
+  const exportProjectToURLString = useCallback(async () => {
+    const urlString = await exportToURLString(project);
+    return urlString;
+  }, [project]);
 
   const importFromJSONString = useCallback(
     async (json: string) => {

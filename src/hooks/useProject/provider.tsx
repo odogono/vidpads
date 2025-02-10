@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useRouter } from '@/hooks/useProject/useRouter';
+import { urlStringToProject } from '@/model/serialise/project';
 import { decompress } from '@helpers/compress';
 import { getUnixTimeFromDate } from '@helpers/datetime';
 import { isObjectEqual } from '@helpers/diff';
@@ -19,7 +20,6 @@ import {
 import { isProjectNoteworthy } from '@model/helpers';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { getPadSourceUrl } from '@model/pad';
-import { urlStringToProject } from '@model/serialise/store';
 import { createStore } from '@model/store/store';
 import { StoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
@@ -183,7 +183,7 @@ const importProject = async (importData: string | null) => {
     return { store: null, isNew: false };
   }
 
-  const data = urlStringToProject(await decompress(importData));
+  const data = await urlStringToProject(importData);
   const store = createStore();
   store.send({ type: 'importProject', data });
 

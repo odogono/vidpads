@@ -19,7 +19,7 @@ describe('sequencer serialization', () => {
     it('should correctly export sequencer state', () => {
       const sequencer = {
         bpm: 120,
-        startTime: 0,
+        time: 0,
         endTime: 4,
         events: [
           createSequencerEvent({ padId: 'pad1', time: 0, duration: 1 }),
@@ -32,7 +32,7 @@ describe('sequencer serialization', () => {
 
       expect(result).toEqual({
         bpm: 120,
-        startTime: 0,
+        time: 0,
         endTime: 4,
         events: {
           pad1: [
@@ -55,7 +55,7 @@ describe('sequencer serialization', () => {
     it('should correctly import sequencer state', () => {
       const json: SequencerExport = {
         bpm: 140,
-        startTime: 0,
+        time: 0,
         endTime: 8,
         events: {
           pad1: [
@@ -69,7 +69,7 @@ describe('sequencer serialization', () => {
       const result = importSequencerFromJSON(json);
 
       expect(result.bpm).toBe(140);
-      expect(result.startTime).toBe(0);
+      expect(result.time).toBe(0);
       expect(result.endTime).toBe(8);
       expect(result.events).toHaveLength(3);
 
@@ -174,7 +174,7 @@ describe('sequencer serialization', () => {
     it('should correctly format sequencer state as URL string', () => {
       const sequencer = {
         bpm: 120,
-        startTime: 0,
+        time: 0,
         endTime: 4,
         events: [
           createSequencerEvent({ padId: 'pad1', time: 0, duration: 1 }),
@@ -191,7 +191,7 @@ describe('sequencer serialization', () => {
     it('should handle sequencer with no events', () => {
       const sequencer = {
         bpm: 120,
-        startTime: 0,
+        time: 0,
         endTime: 4,
         events: []
       };
@@ -210,7 +210,7 @@ describe('sequencer serialization', () => {
 
       expect(result).toEqual({
         bpm: 120,
-        startTime: 0,
+        time: 0,
         endTime: 4,
         events: {
           pad1: [
@@ -229,7 +229,7 @@ describe('sequencer serialization', () => {
 
       expect(result).toEqual({
         bpm: 120,
-        startTime: 0,
+        time: 0,
         endTime: 4,
         events: {}
       });
@@ -242,7 +242,7 @@ describe('sequencer serialization', () => {
 
       expect(result).toEqual({
         bpm: 132.5,
-        startTime: 0.25,
+        time: 0.25,
         endTime: 4.75,
         events: {
           pad1: [[0.5, 1.25]]

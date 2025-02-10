@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom';
 
-import { isoStringToDate } from '@helpers/datetime';
 // import { createLog } from '@helpers/log';
 import {
   exportToURLString,
   importProjectExport,
   urlStringToProject
-} from '@model/serialise/store';
+} from '@/model/serialise/project';
+import { isoStringToDate } from '@helpers/datetime';
 import { initialContext } from '@model/store/store';
 import { StoreContextType, StoreType } from '@model/store/types';
 import {
@@ -48,21 +48,20 @@ describe('exportToURLString', () => {
     })
   } as StoreType;
 
-  it('should export basic project info to URL string', () => {
-    const result = exportToURLString(mockStore);
+  it('should export basic project info to URL string', async () => {
+    const result = await exportToURLString(mockStore);
     // Split URL components
-    const [version, projectId, projectName, createTime, updateTime, ...rest] =
-      result.split('|');
+    const [version] = result.split('|');
 
-    expect(version).toBe('1'); // EXPORT_URL_VERSION
-    expect(projectId).toBe('test-project');
-    expect(decodeURIComponent(projectName)).toBe('Test Project');
-    expect(createTime).toBe('1704067200'); // 2024-01-01T00:00:00.000Z in ms
-    expect(updateTime).toBe('1704153600'); // 2024-01-02T00:00:00.000Z in ms
-    expect(rest.join('|')).toBe(''); // No pads
+    expect(version).toBe('2');
+    // expect(projectId).toBe('test-project');
+    // expect(decodeURIComponent(projectName)).toBe('Test Project');
+    // expect(createTime).toBe('1704067200'); // 2024-01-01T00:00:00.000Z in ms
+    // expect(updateTime).toBe('1704153600'); // 2024-01-02T00:00:00.000Z in ms
+    // expect(rest.join('|')).toBe(''); // No pads
   });
 
-  it('should handle empty project name', () => {
+  it('should handle empty project name', async () => {
     const emptyNameStore = {
       getSnapshot: () => ({
         context: {
@@ -77,12 +76,14 @@ describe('exportToURLString', () => {
       })
     } as StoreType;
 
-    const result = exportToURLString(emptyNameStore);
-    const [, , projectName] = result.split('|');
-    expect(projectName).toBe('');
+    const result = await exportToURLString(emptyNameStore);
+
+    const imported = await urlStringToProject(result);
+
+    expect(imported.name).toBe('');
   });
 
-  it('should handle pads with operations', () => {
+  it('should handle pads with operations', async () => {
     const storeWithPads = {
       getSnapshot: () => ({
         context: {
@@ -109,29 +110,22 @@ describe('exportToURLString', () => {
       })
     } as StoreType;
 
-    const result = exportToURLString(storeWithPads);
+    const result = await exportToURLString(storeWithPads);
 
-    const [version, projectId, projectName, , , padData] = result.split('|');
+    const imported = await urlStringToProject(result);
 
-    expect(version).toBe('1');
-    expect(projectId).toBe('test-project');
-    expect(decodeURIComponent(projectName)).toBe('Test Project');
+    expect(imported.id).toBe('test-project');
+    expect(imported.name).toBe('Test Project');
+    expect(imported.createdAt).toBe('2024-01-01T00:00:00Z');
+    expect(imported.updatedAt).toBe('2024-01-02T00:00:00Z');
+    expect(imported.pads.length).toBe(1);
+    expect(imported.pads[0].id).toBe('pad1');
+    expect(imported.pads[0].source).toBe('odgn-vo://media/vid1');
 
-    const json = importPadFromURLString(padData);
-    const pad = importPadFromJSON({ pad: json, importSource: true });
-
-    expect(pad).toBeDefined();
-    expect(pad?.id).toBe('pad1');
-    expect(getPadSourceUrl(pad)).toBe('odgn-vo://media/vid1');
-
-    const interval = getPadInterval(pad);
-
-    expect(interval?.start).toBe(1.23);
-    expect(interval?.end).toBe(4.56);
-
-    // expect(pad?.operations?.[0]?.type).toBe(OperationType.Trim);
-    // expect((pad?.operations?.[0] as TrimOperation).start).toBe(1.23);
-    // expect((pad?.operations?.[0] as TrimOperation).end).toBe(4.56);
+    expect((imported.pads[0].operations?.[0] as TrimOperation).start).toBe(
+      1.23
+    );
+    expect((imported.pads[0].operations?.[0] as TrimOperation).end).toBe(4.56);
   });
 });
 
@@ -242,9 +236,9 @@ describe('importPadFromURLString', () => {
   };
 
   const data =
-    '1|08978bb8|DJ%20Premier%20on%20the%20Wheels%20of%20Steel|1736858554|1737221082|a1[s:Sff7Kc77QAY+t:178.7:207.7(a2[s:WeoCOdbAy3s+t:166.6:208(a3[s:TgelVkHEKdw+t:214:264.4(a4[s:xnI8JEW7Ty4+t:176:191.2(a5[s:FNj-m_s0ngA+t:13.3:24.3(a9[s:RDhkRQ2jY9Q(a10[s:Sff7Kc77QAY+t:33.3:35.9|60[0[30[';
+    '1|08978bb8|REolMjBQcmVtaWVyJTIwb24lMjB0aGUlMjBXaGVlbHMlMjBvZiUyMFN0ZWVs|1736858554|1737221082|a1[s:Sff7Kc77QAY+t:178.7:207.7(a2[s:WeoCOdbAy3s+t:166.6:208(a3[s:TgelVkHEKdw+t:214:264.4(a4[s:xnI8JEW7Ty4+t:176:191.2(a5[s:FNj-m_s0ngA+t:13.3:24.3(a9[s:RDhkRQ2jY9Q(a10[s:Sff7Kc77QAY+t:33.3:35.9|60[0[30[';
 
-  it('should export project to URL string', () => {
+  it('should export project to URL string', async () => {
     jest.setSystemTime(isoStringToDate('2025-01-18T17:24:42Z'));
     const context = importProjectExport(project);
     const mockStore = {
@@ -252,11 +246,11 @@ describe('importPadFromURLString', () => {
         context
       })
     } as StoreType;
-    expect(exportToURLString(mockStore)).toBe(data);
+    expect(await exportToURLString(mockStore, 1)).toBe(data);
   });
 
   it('should import project from URL string', async () => {
-    const imported = urlStringToProject(data);
+    const imported = await urlStringToProject(data);
 
     // log.debug(JSON.stringify(project, null, 2));
 

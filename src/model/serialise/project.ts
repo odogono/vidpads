@@ -1,10 +1,10 @@
-// import { createLog } from '@helpers/log';
+import { compress, decompress } from '@helpers/compress';
 import {
   dateToISOString,
   getDateFromUnixTime,
   getUnixTimeFromDate
 } from '@helpers/datetime';
-import { safeParseInt } from '@helpers/number';
+import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
 import {
   exportPadToJSON,
@@ -24,12 +24,12 @@ import { StoreContext, StoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
 import { version as appVersion } from '../../../package.json';
 
-// const log = createLog('model/export');
+const log = createLog('model/export', ['debug']);
 
 const EXPORT_JSON_VERSION = 1;
 const EXPORT_APP_VERSION = appVersion;
 
-const EXPORT_URL_VERSION = 1;
+const EXPORT_URL_VERSION = 2;
 
 export type ExportOptions = Record<string, unknown>;
 
@@ -61,8 +61,19 @@ export const exportToJSONString = (store: StoreType) => {
   return JSON.stringify(json);
 };
 
-export const exportToURLString = (store: StoreType) => {
-  const { context } = store.getSnapshot();
+export const exportToURLString = async (
+  project: StoreType,
+  version: number = EXPORT_URL_VERSION
+) => {
+  if (version === 1) {
+    return exportToURLStringV1(project);
+  }
+
+  return exportToURLStringV2(project);
+};
+
+export const exportToURLStringV1 = (project: StoreType) => {
+  const { context } = project.getSnapshot();
 
   const { projectId, projectName, createdAt, updatedAt, pads, sequencer } =
     context;
@@ -79,7 +90,7 @@ export const exportToURLString = (store: StoreType) => {
     ? btoa(encodeURIComponent(projectName))
     : '';
 
-  let result = `${EXPORT_URL_VERSION}|${projectId}|${projectNameBase64}|${createTimeSecs}|${updateTimeSecs}`;
+  let result = `1|${projectId}|${projectNameBase64}|${createTimeSecs}|${updateTimeSecs}`;
 
   if (padsURL.length > 0) {
     result += `|${padsURL.join('(')}`;
@@ -92,6 +103,36 @@ export const exportToURLString = (store: StoreType) => {
   }
 
   return result;
+};
+
+export const exportToURLStringV2 = async (project: StoreType) => {
+  const { context } = project.getSnapshot();
+
+  const { projectId, projectName, createdAt, updatedAt, pads, sequencer } =
+    context;
+
+  const sequencerURL = sequencer ? exportSequencerToURLString(sequencer) : '';
+
+  const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
+
+  const createTimeSecs = getUnixTimeFromDate(createdAt);
+  const updateTimeSecs = getUnixTimeFromDate(updatedAt);
+
+  let result = `${projectId}|${projectName}|${createTimeSecs}|${updateTimeSecs}`;
+
+  if (padsURL.length > 0) {
+    result += `|${padsURL.join('(')}`;
+  } else {
+    result += '|';
+  }
+
+  if (sequencerURL) {
+    result += `|${sequencerURL}`;
+  }
+
+  const compressed = await compress(result);
+
+  return `2|${compressed}`;
 };
 
 export const importProjectExport = (data: ProjectExport): StoreContext => {
@@ -127,9 +168,27 @@ export const importProjectExport = (data: ProjectExport): StoreContext => {
   }, contextWithSequencer);
 };
 
-export const urlStringToProject = (urlString: string) => {
+export const urlStringToProject = async (urlString: string) => {
+  const firstPipe = urlString.indexOf('|');
+  if (firstPipe === -1) {
+    throw new Error('Invalid URL string');
+  }
+  const version = urlString.slice(0, firstPipe);
+  const data = urlString.slice(firstPipe + 1);
+
+  if (version === '1') {
+    return importFromURLStringV1(data);
+  }
+  if (version === '2') {
+    return importFromURLStringV2(data);
+  }
+
+  throw new Error(`Unsupported export version: ${version}`);
+};
+
+const importFromURLStringV1 = (urlString: string) => {
+  log.debug('importFromURLStringV1', urlString);
   const [
-    version,
     projectId,
     projectNameBase64,
     createTimeSecs,
@@ -137,10 +196,6 @@ export const urlStringToProject = (urlString: string) => {
     padsURL,
     sequencerURL
   ] = urlString.split('|');
-
-  if (safeParseInt(version) !== EXPORT_URL_VERSION) {
-    throw new Error(`Unsupported export version: ${version}`);
-  }
 
   const createdAt = getDateFromUnixTime(createTimeSecs);
   const updatedAt = getDateFromUnixTime(updateTimeSecs);
@@ -159,7 +214,41 @@ export const urlStringToProject = (urlString: string) => {
   return {
     id: projectId,
     name: projectName,
-    exportVersion: `${version}`,
+    createdAt: dateToISOString(createdAt),
+    updatedAt: dateToISOString(updatedAt),
+    pads,
+    sequencer
+  } as ProjectExport;
+};
+
+const importFromURLStringV2 = async (data: string) => {
+  const uncompressed = await decompress(data);
+
+  log.debug('importFromURLStringV2', uncompressed);
+  const [
+    projectId,
+    projectName,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  ] = uncompressed.split('|');
+
+  const createdAt = getDateFromUnixTime(createTimeSecs);
+  const updatedAt = getDateFromUnixTime(updateTimeSecs);
+
+  const pads = padsURL
+    .split('(')
+    .map(importPadFromURLString)
+    .filter(Boolean) as PadExport[];
+
+  const sequencer = sequencerURL
+    ? importSequencerFromURLString(sequencerURL)
+    : undefined;
+
+  return {
+    id: projectId,
+    name: projectName,
     createdAt: dateToISOString(createdAt),
     updatedAt: dateToISOString(updatedAt),
     pads,
