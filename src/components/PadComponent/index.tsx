@@ -63,14 +63,14 @@ export const PadComponent = ({
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (isPlayerReady && isPlayEnabled) {
+      if (isPlayerReady) {
         events.emit('pad:touchdown', { padId: pad.id, source: 'pad' });
       }
       // setSelectedPadId(pad.id);
 
       onDragStart(e, pad.id, MIME_TYPE_PAD);
     },
-    [events, pad, isPlayerReady, isPlayEnabled, onDragStart]
+    [events, pad, isPlayerReady, onDragStart]
   );
 
   const handlePointerMove = useCallback(
@@ -104,7 +104,7 @@ export const PadComponent = ({
       if (!thumbnail && isSelectSourceEnabled) {
         onEmptyPadTouch(pad.id);
       } else {
-        if (isPlayerReady && isPlayEnabled) {
+        if (isPlayerReady) {
           events.emit('pad:touchup', { padId: pad.id, source: 'pad' });
         }
       }
@@ -116,7 +116,6 @@ export const PadComponent = ({
       isSelectSourceEnabled,
       onEmptyPadTouch,
       isPlayerReady,
-      isPlayEnabled,
       events
     ]
   );

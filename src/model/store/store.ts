@@ -14,6 +14,7 @@ export const initialContext: StoreContextType = {
   projectId: generateShortUUID(),
   projectName: '',
   arePadInteractionsEnabled: true,
+  arePlayersEnabled: true,
   settings: {
     isPadPlayEnabled: true,
     isKeyboardPlayEnabled: true,

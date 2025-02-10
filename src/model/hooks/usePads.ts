@@ -26,6 +26,10 @@ export const usePads = () => {
     project,
     (state) => state.context.selectedPadId
   );
+  const arePlayersEnabled = useSelector(
+    project,
+    (state) => state.context.arePlayersEnabled ?? true
+  );
 
   const setSelectedPadId = useCallback(
     (padId: string | null) => {
@@ -44,6 +48,7 @@ export const usePads = () => {
   }, [pads]);
 
   return {
+    arePlayersEnabled,
     pads,
     padsWithMediaStr,
     selectedPadId,

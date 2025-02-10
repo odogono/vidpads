@@ -29,7 +29,9 @@ export default {
         'video-off': 'var(--video-off)',
         selected: 'var(--selected)',
         pad: 'var(--pad)',
-        'pad-over': 'var(--pad-over)'
+        'pad-over': 'var(--pad-over)',
+        bin: 'var(--bin)',
+        'bin-over': 'var(--bin-over)'
       },
       fontFamily: {
         sans: ['var(--font-inter)'],
@@ -118,6 +120,22 @@ export default {
             pad: {
               over: 'var(--pad-over)',
               DEFAULT: 'var(--pad)'
+            },
+            bin: {
+              over: 'var(--bin-over)',
+              DEFAULT: 'var(--bin)'
+            },
+            warning: {
+              50: '#ffe2e2',
+              100: '#ffb3b2',
+              200: '#fe8381',
+              300: '#fc524f',
+              400: '#fa211e',
+              500: '#e10805',
+              600: '#b00303',
+              700: '#7e0001',
+              800: '#4e0000',
+              900: '#200000'
             }
           }
         }

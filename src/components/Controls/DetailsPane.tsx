@@ -26,7 +26,7 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     selectedPadId,
     isPadPlayEnabled,
     isPadSelectSourceEnabled,
-    enablePadInteractions,
+    enablePlayers,
     padLabel,
     setPadLabel
   } = usePad();
@@ -44,11 +44,11 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   );
 
   useEffect(() => {
-    enablePadInteractions(false);
+    enablePlayers(false);
     return () => {
-      enablePadInteractions(true);
+      enablePlayers(true);
     };
-  }, [enablePadInteractions]);
+  }, [enablePlayers]);
 
   log.debug('render', {
     isEnabled,
