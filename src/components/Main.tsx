@@ -11,10 +11,13 @@ import { ShareButton } from '@components/ShareButton';
 import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useShowMode } from '@model/hooks/useShowMode';
+import { isMidiSupported } from '../helpers/midi';
+import { MidiSetup } from './MidiSetup';
 
 export const Main = () => {
   const { isFullscreen, setIsFullscreen } = useFullscreen();
   const { isPadsVisible, isSequencerVisible } = useShowMode();
+  const hasMidi = isMidiSupported();
 
   return (
     <PadDnDProvider>
@@ -59,6 +62,7 @@ export const Main = () => {
 
         {!isFullscreen && (
           <>
+            {hasMidi && <MidiSetup />}
             <BinComponent />
             <Controls />
             <div className='flex h-[50%]'>

@@ -12,6 +12,7 @@ import {
   DropdownSection,
   DropdownTrigger
 } from '@heroui/react';
+import { isMidiSupported } from '../helpers/midi';
 import { CommonModalRef } from './modals/CommonModal';
 import { ConfigureMidiModal } from './modals/ConfigureMidi';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
@@ -67,6 +68,7 @@ export const MenuButton = () => {
         <DropdownMenu
           aria-label='Main options'
           className='bg-c1 text-foreground'
+          disabledKeys={isMidiSupported() ? [] : ['configure-midi']}
           onAction={(key: Key) => handleAction(String(key))}
         >
           <DropdownItem key='new-project'>New Project</DropdownItem>
