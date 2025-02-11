@@ -4,9 +4,9 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { createPortal } from 'react-dom';
 
-import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
+import { useKeyboard } from '@hooks/useKeyboard';
 import { DragGhost } from '@hooks/usePadDnD/DragGhost';
 import { PadDnDContext, RegisterDropTargetProps } from './context';
 

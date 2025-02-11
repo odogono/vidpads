@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useState } from 'react';
 
 import { LoadingSpinner } from '@components/LoadingSpinner';
-import { useKeyboard } from '@helpers/keyboard/useKeyboard';
+import { useKeyboard } from '@hooks/useKeyboard';
 import { useProjectName } from '@model/store/selectors';
 
 interface LoadingPlayerProps {

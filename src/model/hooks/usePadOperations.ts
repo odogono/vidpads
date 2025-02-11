@@ -3,11 +3,11 @@ import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 
 import { readFromClipboard, writeToClipboard } from '@helpers/clipboard';
-import { useKeyboard } from '@helpers/keyboard';
 import { createLog } from '@helpers/log';
 import { getUrlMetadata, isYouTubeMetadata } from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
 import { getYouTubeThumbnail } from '@helpers/youtube';
+import { useKeyboard } from '@hooks/useKeyboard';
 import { useProject } from '@hooks/useProject';
 import {
   AddFileToPadProps,

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
-import { useKeyboard } from '@helpers/keyboard';
-import { useDisclosure } from "@heroui/react";
+import { useDisclosure } from '@heroui/react';
+import { useKeyboard } from '@hooks/useKeyboard';
 
 export const useModalState = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();

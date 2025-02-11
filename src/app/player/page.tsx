@@ -3,8 +3,8 @@
 import { LoadingSuspense } from '@components/Loading';
 import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
-import { KeyboardProvider } from '@helpers/keyboard/provider';
 import { HeroUIProvider } from '@heroui/react';
+import { KeyboardProvider } from '@hooks/useKeyboard/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
 import { TimeSequencerProvider } from '@hooks/useTimeSequencer/provider';
 
