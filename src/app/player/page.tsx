@@ -5,6 +5,7 @@ import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
 import { HeroUIProvider } from '@heroui/react';
 import { KeyboardProvider } from '@hooks/useKeyboard/provider';
+import { MidiProvider } from '@hooks/useMidi/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
 import { TimeSequencerProvider } from '@hooks/useTimeSequencer/provider';
 
@@ -15,11 +16,13 @@ const Player = () => {
         <QueryClientContextProvider>
           <KeyboardProvider>
             <LoadingSuspense message='Loading project...'>
-              <ProjectProvider>
-                <TimeSequencerProvider>
-                  <Main />
-                </TimeSequencerProvider>
-              </ProjectProvider>
+              <MidiProvider>
+                <ProjectProvider>
+                  <TimeSequencerProvider>
+                    <Main />
+                  </TimeSequencerProvider>
+                </ProjectProvider>
+              </MidiProvider>
             </LoadingSuspense>
           </KeyboardProvider>
         </QueryClientContextProvider>
