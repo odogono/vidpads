@@ -14,14 +14,16 @@ import {
 } from '@components/Player/types';
 import { Media, MediaYouTube } from '@model/types';
 
+export type EventInputSource = 'keyboard' | 'midi' | 'pad' | 'sequencer';
+
 export type EventEmitterEvents = {
   'pad:touchdown': {
     padId: string;
-    source: 'keyboard' | 'midi' | 'pad' | 'sequencer';
+    source: EventInputSource;
   };
   'pad:touchup': {
     padId: string;
-    source: 'keyboard' | 'midi' | 'pad' | 'sequencer';
+    source: EventInputSource;
   };
   // request the video to start
   'video:start': PlayerPlay;

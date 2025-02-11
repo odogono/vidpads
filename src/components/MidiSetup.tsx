@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { useMidiInputs } from '@hooks/useMidi/selectors';
+import { useMidiInputs, useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { OpModalContainer } from './buttons/OpModalContainer';
 
 export const MidiSetup = () => {
   const inputs = useMidiInputs();
+  const { enableMappingMode } = useMidiMappingMode();
+
+  useEffect(() => {
+    enableMappingMode(true);
+
+    return () => {
+      enableMappingMode(false);
+    };
+  }, [enableMappingMode]);
 
   return (
     <OpModalContainer isVisible={true}>

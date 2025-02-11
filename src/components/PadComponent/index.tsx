@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { VolumeOff } from 'lucide-react';
+import { Music2, VolumeOff } from 'lucide-react';
 
 import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
@@ -21,8 +21,11 @@ import { usePlayerEvents } from './usePlayerEvents';
 export interface PadComponentProps {
   isPlayEnabled: boolean;
   isSelectSourceEnabled: boolean;
+  isMidiMappingModeEnabled: boolean;
+  midiNote?: string;
   pad: Pad;
   onEmptyPadTouch: (padId: string) => void;
+  onRemoveMidiMapping?: (padId: string) => void;
 }
 
 const log = createLog('PadComponent', ['debug']);
@@ -31,7 +34,10 @@ export const PadComponent = ({
   isPlayEnabled,
   isSelectSourceEnabled,
   pad,
-  onEmptyPadTouch
+  onEmptyPadTouch,
+  isMidiMappingModeEnabled,
+  midiNote,
+  onRemoveMidiMapping
 }: PadComponentProps) => {
   const events = useEvents();
   const elementRef = useRef<HTMLDivElement>(null);
@@ -57,20 +63,22 @@ export const PadComponent = ({
     movePadToPad
   } = usePadOperations();
 
+  isPlayEnabled = isPlayEnabled && !isMidiMappingModeEnabled;
+
   const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
 
   const padLabel = getPadLabel(pad);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (isPlayerReady) {
+      if (isPlayerReady || isMidiMappingModeEnabled) {
         events.emit('pad:touchdown', { padId: pad.id, source: 'pad' });
       }
       // setSelectedPadId(pad.id);
 
       onDragStart(e, pad.id, MIME_TYPE_PAD);
     },
-    [events, pad, isPlayerReady, onDragStart]
+    [events, pad, isPlayerReady, onDragStart, isMidiMappingModeEnabled]
   );
 
   const handlePointerMove = useCallback(
@@ -101,10 +109,10 @@ export const PadComponent = ({
       onDragEnd(e, pad.id);
 
       // if (!isDragging) {
-      if (!thumbnail && isSelectSourceEnabled) {
+      if (!thumbnail && isSelectSourceEnabled && !isMidiMappingModeEnabled) {
         onEmptyPadTouch(pad.id);
       } else {
-        if (isPlayerReady) {
+        if (isPlayerReady || isMidiMappingModeEnabled) {
           events.emit('pad:touchup', { padId: pad.id, source: 'pad' });
         }
       }
@@ -116,7 +124,8 @@ export const PadComponent = ({
       isSelectSourceEnabled,
       onEmptyPadTouch,
       isPlayerReady,
-      events
+      events,
+      isMidiMappingModeEnabled
     ]
   );
 
@@ -261,10 +270,21 @@ export const PadComponent = ({
           {padLabel}
         </span>
       )}
-      <span className='absolute bottom-2 left-2 text-xs text-gray-400 select-none'>
+      <span className='absolute bottom-2 left-2 text-xs text-gray-300 select-none'>
         {!isPlayEnabled && <VolumeOff size={12} />}
       </span>
-      <span className='absolute bottom-2 right-2 text-xs text-gray-400 select-none'>
+      {isMidiMappingModeEnabled && (
+        <button
+          onClick={() => {
+            onRemoveMidiMapping?.(pad.id);
+          }}
+          className='absolute top-2 right-2 text-xs text-gray-300 select-none flex flex-row hover:text-gray-50'
+        >
+          <Music2 size={12} />
+          {midiNote}
+        </button>
+      )}
+      <span className='absolute bottom-2 right-2 text-xs text-gray-300 select-none'>
         {pad.id}
       </span>
     </div>

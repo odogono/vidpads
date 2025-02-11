@@ -4,6 +4,8 @@ import { useCallback, useEffect } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
+import { EventInputSource } from '@hooks/events/types';
+import { useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import { useIsPlayEnabled } from '@model/hooks/useSettings';
 import {
@@ -18,8 +20,8 @@ import {
   getPadVolume,
   isPadLooped
 } from '@model/pad';
+import { useSelectedPadId } from '@model/store/selectors';
 import { Interval } from '@model/types';
-import { useSelectedPadId } from '../../model/store/selectors';
 import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
 import { getPlayerElement, showPlayer } from './helpers';
@@ -46,6 +48,7 @@ export const PlayerContainer = () => {
     isSelectPadFromPadEnabled,
     hidePlayerOnEnd
   } = useIsPlayEnabled();
+  const { isMidiMappingModeEnabled } = useMidiMappingMode();
 
   const { setSelectedPadId } = useSelectedPadId();
 
@@ -58,9 +61,14 @@ export const PlayerContainer = () => {
     usePlayersState();
 
   const handlePadTouchdown = useCallback(
-    ({ padId, source }: { padId: string; source: string }) => {
+    ({ padId, source }: { padId: string; source: EventInputSource }) => {
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
+
+      if (isMidiMappingModeEnabled && source !== 'midi') {
+        setSelectedPadId(padId);
+        return;
+      }
 
       if (source === 'keyboard') {
         if (!isKeyboardPlayEnabled) return;
@@ -119,7 +127,8 @@ export const PlayerContainer = () => {
       isSelectPadFromKeyboardEnabled,
       setSelectedPadId,
       isPadPlayEnabled,
-      isSelectPadFromPadEnabled
+      isSelectPadFromPadEnabled,
+      isMidiMappingModeEnabled
     ]
   );
 

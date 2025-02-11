@@ -1,60 +1,28 @@
 import { createLog } from '@helpers/log';
 import { createStore as createXStateStore } from '@xstate/store';
+import { midiNoteToName } from './helpers';
+import {
+  Emit,
+  EmittedEvents,
+  EnableMappingModeAction,
+  InputConnectedAction,
+  InputDisconnectedAction,
+  InputMessageAction,
+  MidiInput,
+  MidiStoreContext,
+  RemoveMidiMappingForPadAction,
+  type Actions
+} from './types';
 
 const log = createLog('useMidi/store');
-
-interface MidiInput {
-  id: string;
-  name: string;
-  state: 'connected' | 'disconnected';
-}
-
-interface MidiStoreContext {
-  isEnabled: boolean;
-  isMappingModeEnabled: boolean;
-  inputs: MidiInput[];
-}
 
 const initialContext: MidiStoreContext = {
   isEnabled: false,
   isMappingModeEnabled: false,
-  inputs: []
+  inputs: [],
+  midiToPadMap: {},
+  padToMidiMap: {}
 };
-
-type SetIsEnabledAction = { type: 'setIsEnabled'; isEnabled: boolean };
-
-type InputConnectedAction = {
-  type: 'inputConnected';
-  id: string;
-  name?: string | null;
-};
-
-type InputDisconnectedAction = { type: 'inputDisconnected'; id: string };
-
-type InputMessageAction = {
-  type: 'inputMessage';
-  id: string;
-  status: number;
-  note: number;
-  velocity: number;
-};
-
-type EnableMappingModeAction = {
-  type: 'enableMappingMode';
-  isEnabled: boolean;
-};
-
-type Actions =
-  | SetIsEnabledAction
-  | InputConnectedAction
-  | InputDisconnectedAction
-  | InputMessageAction
-  | EnableMappingModeAction;
-
-type ReadyEvent = { type: 'ready' };
-
-type EmittedEvents = ReadyEvent;
-type Emit = { emit: (event: EmittedEvents) => void };
 
 const Actions = {
   enableMappingMode: (
@@ -66,10 +34,16 @@ const Actions = {
       isMappingModeEnabled: event.isEnabled
     };
   },
-  inputMessage: (context: MidiStoreContext, event: InputMessageAction) => {
-    const { id, status, note, velocity } = event;
+  inputMessage: (
+    context: MidiStoreContext,
+    event: InputMessageAction,
+    { emit }: Emit
+  ) => {
+    const { isMappingModeEnabled, inputs, midiToPadMap, padToMidiMap } =
+      context;
+    const { id, status, note, velocity, selectedPadId } = event;
 
-    const input = context.inputs.find((input) => input.id === id);
+    const input = inputs.find((input) => input.id === id);
 
     if (!input) {
       log.debug('inputMessage: input not found', { id });
@@ -77,9 +51,124 @@ const Actions = {
       return context;
     }
 
-    log.debug('inputMessage', { id: input.name, status, note, velocity });
+    const isNoteOn = (status & 0xf0) === 0x90;
+    const isNoteOff = velocity === 0 || (status & 0xf0) === 0x80;
+    const isAftertouch = (status & 0xf0) === 0xa0;
+    const channel = status & 0x0f;
+
+    if (isMappingModeEnabled && selectedPadId) {
+      // log.debug('inputMessage: selectedPadId', {
+      //   selectedPadId,
+      //   isNoteOn,
+      //   isNoteOff,
+      //   isAftertouch,
+      //   channel,
+      //   note: midiNoteToName(note)
+      // });
+
+      // apply the id, note and channel to the selected pad
+      const midiKey = `${input.id}-${channel}-${midiNoteToName(note)}`;
+      const existingMidiKey = padToMidiMap[selectedPadId];
+
+      if (existingMidiKey && existingMidiKey === midiKey) {
+        return context;
+      }
+
+      log.debug('inputMessage: updating midiToPadMap', {
+        midiKey,
+        selectedPadId
+      });
+
+      const newMidiToPadMap = {
+        ...midiToPadMap,
+        [midiKey]: selectedPadId
+      };
+
+      const newPadToMidiMap = {
+        ...padToMidiMap,
+        [selectedPadId]: midiKey
+      };
+
+      emit({
+        type: 'midiMappingUpdated',
+        padId: selectedPadId,
+        midiKey
+      });
+
+      return {
+        ...context,
+        midiToPadMap: newMidiToPadMap,
+        padToMidiMap: newPadToMidiMap
+      };
+    }
+
+    // if (isAftertouch) {
+    //   log.debug('inputMessage: aftertouch', {
+    //     id: input.name,
+    //     status,
+    //     note,
+    //     velocity,
+    //     channel
+    //   });
+    // } else if (isNoteOff) {
+    //   log.debug('inputMessage: noteOff', {
+    //     id: input.name,
+    //     status,
+    //     note,
+    //     velocity,
+    //     channel
+    //   });
+    // } else if (isNoteOn) {
+    //   log.debug('inputMessage: noteOn', {
+    //     id: input.name,
+    //     status,
+    //     note,
+    //     velocity,
+    //     channel
+    //   });
+    // } else {
+    //   log.debug('inputMessage: ??', {
+    //     id: input.name,
+    //     status,
+    //     note,
+    //     velocity,
+    //     channel
+    //   });
+    // }
+    // log.debug('inputMessage', {
+    //   id: input.name,
+    //   status,
+    //   note,
+    //   velocity,
+    //   isNoteOn,
+    //   isNoteOff,
+    //   isAftertouch,
+    //   isMappingModeEnabled,
+    //   selectedPadId
+    // });
 
     return context;
+  },
+
+  removeMidiMappingForPad: (
+    context: MidiStoreContext,
+    event: RemoveMidiMappingForPadAction
+  ) => {
+    const { padId } = event;
+    const { padToMidiMap } = context;
+
+    const midiKey = padToMidiMap[padId];
+
+    if (!midiKey) {
+      return context;
+    }
+
+    const newPadToMidiMap = {
+      ...padToMidiMap,
+      [padId]: undefined
+    };
+
+    return { ...context, padToMidiMap: newPadToMidiMap };
   },
 
   setIsEnabled: (context: MidiStoreContext, event: { isEnabled: boolean }) => {

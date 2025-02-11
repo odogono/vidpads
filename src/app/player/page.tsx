@@ -16,13 +16,13 @@ const Player = () => {
         <QueryClientContextProvider>
           <KeyboardProvider>
             <LoadingSuspense message='Loading project...'>
-              <MidiProvider>
-                <ProjectProvider>
+              <ProjectProvider>
+                <MidiProvider>
                   <TimeSequencerProvider>
                     <Main />
                   </TimeSequencerProvider>
-                </ProjectProvider>
-              </MidiProvider>
+                </MidiProvider>
+              </ProjectProvider>
             </LoadingSuspense>
           </KeyboardProvider>
         </QueryClientContextProvider>

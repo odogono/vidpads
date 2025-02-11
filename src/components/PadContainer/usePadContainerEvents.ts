@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react';
 // import { createLog } from '@helpers/log';
 import { safeParseInt } from '@helpers/number';
 import { useEvents } from '@hooks/events';
+import { useMidiPadToMidiMap } from '@hooks/useMidi/selectors';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { usePads } from '@model/hooks/usePads';
@@ -12,6 +13,8 @@ import { usePads } from '@model/hooks/usePads';
 export const usePadContainerEvents = () => {
   const events = useEvents();
   const { projectId } = useProject();
+  const { isMidiMappingModeEnabled, padToMidiMap, removeMidiMappingForPad } =
+    useMidiPadToMidiMap();
   const {
     pads,
     padsWithMediaStr,
@@ -92,6 +95,9 @@ export const usePadContainerEvents = () => {
   }, [events, handleCopyPad, handleCutPad, handlePastePad, handleArrowCmds]);
 
   return {
+    isMidiMappingModeEnabled,
+    padToMidiMap,
+    removeMidiMappingForPad,
     pads,
     padsWithMediaStr,
     arePlayersEnabled,

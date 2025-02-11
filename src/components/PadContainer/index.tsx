@@ -12,8 +12,15 @@ const log = createLog('PadContainer', ['debug']);
 export const PadContainer = () => {
   const modalRef = useRef<CommonModalRef | null>(null);
 
-  const { projectId, pads, isPadSelectSourceEnabled, arePlayersEnabled } =
-    usePadContainerEvents();
+  const {
+    projectId,
+    pads,
+    padToMidiMap,
+    isPadSelectSourceEnabled,
+    arePlayersEnabled,
+    isMidiMappingModeEnabled,
+    removeMidiMappingForPad
+  } = usePadContainerEvents();
 
   const handlePadTouch = useCallback(
     (padId: string) => {
@@ -38,9 +45,12 @@ export const PadContainer = () => {
             >
               <PadComponent
                 pad={pad}
+                midiNote={padToMidiMap[pad.id]?.note ?? '-'}
                 onEmptyPadTouch={handlePadTouch}
+                onRemoveMidiMapping={removeMidiMappingForPad}
                 isPlayEnabled={arePlayersEnabled}
                 isSelectSourceEnabled={isPadSelectSourceEnabled}
+                isMidiMappingModeEnabled={isMidiMappingModeEnabled}
               />
             </Suspense>
           </div>
