@@ -13,6 +13,7 @@ import {
   DropdownTrigger
 } from '@heroui/react';
 import { CommonModalRef } from './modals/CommonModal';
+import { ConfigureMidiModal } from './modals/ConfigureMidi';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import { ExportProjectModal } from './modals/ExportProjectModal';
 import { ImportProjectModal } from './modals/ImportProjectModal';
@@ -29,7 +30,7 @@ export const MenuButton = () => {
   const importProjectModalRef = useRef<CommonModalRef | null>(null);
   const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
   const settingsModalRef = useRef<CommonModalRef | null>(null);
-
+  const configureMidiModalRef = useRef<CommonModalRef | null>(null);
   const handleAction = useCallback((key: string) => {
     if (key === 'new-project') {
       newProjectModalRef.current?.open();
@@ -45,6 +46,8 @@ export const MenuButton = () => {
       deleteEverythingModalRef.current?.open();
     } else if (key === 'settings') {
       settingsModalRef.current?.open();
+    } else if (key === 'configure-midi') {
+      configureMidiModalRef.current?.open();
     }
   }, []);
 
@@ -80,6 +83,10 @@ export const MenuButton = () => {
             Export Project
           </DropdownItem>
 
+          <DropdownItem key='configure-midi' showDivider>
+            Configure Midi
+          </DropdownItem>
+
           <DropdownItem key='settings'>Settings</DropdownItem>
 
           <DropdownItem key='delete-everything' showDivider>
@@ -96,6 +103,7 @@ export const MenuButton = () => {
       <SaveProjectModal ref={saveProjectModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
       <ImportProjectModal ref={importProjectModalRef} />
+      <ConfigureMidiModal ref={configureMidiModalRef} />
       <SettingsModal ref={settingsModalRef} />
       <DeleteEverythingModal ref={deleteEverythingModalRef} />
     </>

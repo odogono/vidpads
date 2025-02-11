@@ -1,3 +1,4 @@
+import { integerToPadId, padIdToInteger } from './pad';
 import { SequencerEvent } from './types';
 
 let eventIdCount = 0;
@@ -181,18 +182,6 @@ export const getEventBounds = (evts: SequencerEvent[]) => {
     padStart,
     padEnd
   };
-};
-
-export const padIdToInteger = (padId: string) => {
-  return (
-    (Math.max(0, padId.charCodeAt(0) - 97) << 4) | parseInt(padId.slice(1))
-  );
-};
-
-export const integerToPadId = (integer: number) => {
-  const letter = String.fromCharCode((integer >> 4) + 97);
-  const number = integer & 0x0f;
-  return `${letter}${number}`;
 };
 
 /**
