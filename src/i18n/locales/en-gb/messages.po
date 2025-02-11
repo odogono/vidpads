@@ -18,52 +18,52 @@ msgid "Let's Play"
 msgstr "Let's Play"
 
 #. js-lingui-explicit-id
-msgid "Video Sequencing"
-msgstr "Video Sequencing"
+msgid "Pad Based Control"
+msgstr "Pad Based Control"
 
 #. js-lingui-explicit-id
-msgid "Create complex video sequences with precise timing and control"
-msgstr "Create complex video sequences with precise timing and control"
+msgid "Play videos triggered by pad, keyboard, or MIDI"
+msgstr "Play videos triggered by pad, keyboard, or MIDI"
 
 #. js-lingui-explicit-id
-msgid "MIDI Integration"
-msgstr "MIDI Integration"
+msgid "Edit Playback"
+msgstr "Edit Playback"
 
 #. js-lingui-explicit-id
-msgid "Full MIDI support for hardware control surfaces and automation"
-msgstr "Full MIDI support for hardware control surfaces and automation"
+msgid "Set the start and duration, speed, and volume of the video"
+msgstr "Set the start and duration, speed, and volume of the video"
 
 #. js-lingui-explicit-id
-msgid "Real-time Processing"
-msgstr "Real-time Processing"
+msgid "Share"
+msgstr "Share"
 
 #. js-lingui-explicit-id
-msgid "Hardware-accelerated video processing with minimal latency"
-msgstr "Hardware-accelerated video processing with minimal latency"
+msgid "Share your project with others via a single URL"
+msgstr "Share your project with others via a single URL"
 
 #. js-lingui-explicit-id
-msgid "Multi-format Support"
-msgstr "Multi-format Support"
+msgid "Serverless"
+msgstr "Serverless"
 
 #. js-lingui-explicit-id
-msgid "Support for various video formats and codecs using FFmpeg"
-msgstr "Support for various video formats and codecs using FFmpeg"
+msgid "No need to install anything, just open the URL"
+msgstr "No need to install anything, just open the URL"
 
 #. js-lingui-explicit-id
-msgid "Timeline Control"
-msgstr "Timeline Control"
+msgid "Have a great time"
+msgstr "Have a great time"
 
 #. js-lingui-explicit-id
-msgid "Advanced timeline controls with frame-accurate playback"
-msgstr "Advanced timeline controls with frame-accurate playback"
+msgid "Have a great time with your friends and family"
+msgstr "Have a great time with your friends and family"
 
 #. js-lingui-explicit-id
-msgid "Custom Triggers"
-msgstr "Custom Triggers"
+msgid "Be a better person"
+msgstr "Be a better person"
 
 #. js-lingui-explicit-id
-msgid "Create custom triggers and automation sequences"
-msgstr "Create custom triggers and automation sequences"
+msgid "Learn to play the drums, guitar, or piano. IDK, I'm not a psychologist."
+msgstr "Learn to play the drums, guitar, or piano. IDK, I'm not a psychologist."
 
 #. js-lingui-explicit-id
 msgid "The page you're looking for doesn't exist or has been moved."
@@ -80,14 +80,14 @@ msgstr "for all your VO triggering needs"
 msgid "English"
 msgstr "English"
 
+msgid "Pad based Video playback and control"
+msgstr "Pad based Video playback and control"
+
 msgid "Pseudo"
 msgstr "Pseudo"
 
 msgid "Return Home"
 msgstr "Return Home"
-
-msgid "Video playback and control for live performances and installations"
-msgstr "Video playback and control for live performances and installations"
 
 msgid "VO Pads"
 msgstr "VO Pads"

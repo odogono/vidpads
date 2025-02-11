@@ -14,6 +14,6 @@ if [ -z "$USER" ] || [ -z "$HOST" ] || [ -z "$DIR" ]; then
     exit 1
 fi
 
-bun run build && rsync -avz --delete public/ ${USER}@${HOST}:~/${DIR}
+bun run build && rsync -avz --delete out/ ${USER}@${HOST}:~/${DIR}
 
 exit 0

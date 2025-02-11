@@ -1,0 +1,14 @@
+{
+  "name": "VO Pads",
+  "short_name": "VO Pads",
+  "icons": [
+    {
+      "src": "/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#212d31",
+  "background_color": "#212d31",
+  "display": "standalone"
+}

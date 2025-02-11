@@ -36,7 +36,8 @@ export default {
       },
       fontFamily: {
         sans: ['var(--font-inter)'],
-        mono: ['var(--font-kode-mono)']
+        mono: ['var(--font-kode-mono)'],
+        suse: ['var(--font-suse)']
       },
       keyframes: {
         'pad-pulse': {
