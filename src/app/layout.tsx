@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Viewport } from 'next';
 import { Inter, Kode_Mono, SUSE } from 'next/font/google';
+import Script from 'next/script';
 
 import { I18nProvider } from '@i18n/I18nProvider';
 
@@ -96,6 +97,11 @@ const RootLayout = ({ children }: RootLayoutProps) => {
           </EventsProvider>
         </I18nProvider>
       </body>
+      <Script
+        data-goatcounter='https://vo-odgn.goatcounter.com/count'
+        async
+        src='//gc.zgo.at/count.js'
+      ></Script>
     </html>
   );
 };
