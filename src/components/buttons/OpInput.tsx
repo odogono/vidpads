@@ -1,7 +1,7 @@
 'use client';
 
-import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { Input } from '@heroui/react';
+import { useKeyboard } from '@hooks/useKeyboard';
 import { OpLabel } from './OpLabel';
 
 export const OpInput = ({

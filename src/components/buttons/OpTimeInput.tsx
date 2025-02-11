@@ -6,10 +6,10 @@ import {
   useState
 } from 'react';
 
-import { useKeyboard } from '@helpers/keyboard/useKeyboard';
 import { createLog } from '@helpers/log';
 import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
 import { cn } from '@heroui/react';
+import { useKeyboard } from '@hooks/useKeyboard';
 
 const log = createLog('OpTimeInput', ['debug']);
 

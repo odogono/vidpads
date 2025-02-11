@@ -8,6 +8,7 @@ import { MIME_TYPE_BIN, MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
 import { OnDropProps } from '@hooks/usePadDnD/context';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadOperations } from '@model/hooks/usePadOperations';
+import { OpModalContainer } from './buttons/OpModalContainer';
 
 const log = createLog('Bin');
 
@@ -113,56 +114,44 @@ export const BinComponent = () => {
   ]);
 
   return (
-    <div className='vo-bin-container absolute left-1/2 -translate-x-1/2 top-[30vh] z-50 pointer-events-none'>
+    <OpModalContainer
+      isVisible={isDragging}
+      isHighlighted={dragOverId !== null}
+    >
       <div
-        className={`
-        w-[50vw] h-[15vh] rounded-lg cursor-pointer relative
-        flex items-center justify-center
-        shadow-[0_0_15px_rgba(0,0,0,0.5)]
-        transition-all duration-300 ease-in-out
-        ${
-          isDragging
-            ? 'opacity-100 translate-y-0 visible'
-            : 'opacity-0 translate-y-10 invisible pointer-events-none'
-        }
-        ${dragOverId ? 'bg-bin-over scale-105' : 'bg-bin'}
-      `}
+        ref={cutRef}
+        className='w-full h-full flex items-center justify-center'
       >
-        <div
-          ref={cutRef}
-          className='w-full h-full flex items-center justify-center'
-        >
-          <ClipboardX
-            className={`
+        <ClipboardX
+          className={`
           w-[7vw] h-[7vh] transition-all duration-300
           ${dragOverId === 'cut' ? 'text-primary-100 scale-150' : 'text-primary-300'}
         `}
-          />
-        </div>
-        <div
-          ref={copyRef}
-          className=' w-full h-full flex items-center justify-center'
-        >
-          <ClipboardCopy
-            className={`
+        />
+      </div>
+      <div
+        ref={copyRef}
+        className=' w-full h-full flex items-center justify-center'
+      >
+        <ClipboardCopy
+          className={`
           w-[7vw] h-[7vh] transition-all duration-300
           ${dragOverId === 'copy' ? 'text-primary-100 scale-150' : 'text-primary-300'}
         `}
-          />
-        </div>
+        />
+      </div>
 
-        <div
-          ref={deleteRef}
-          className=' w-full h-full flex items-center justify-center'
-        >
-          <TrashIcon
-            className={`
+      <div
+        ref={deleteRef}
+        className=' w-full h-full flex items-center justify-center'
+      >
+        <TrashIcon
+          className={`
           w-[7vw] h-[7vh] transition-all duration-300
           ${dragOverId === 'delete' ? 'text-warning-100 scale-150' : 'text-warning-300'}
         `}
-          />
-        </div>
+        />
       </div>
-    </div>
+    </OpModalContainer>
   );
 };

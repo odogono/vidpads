@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 
-import { useKeyboard } from '@helpers/keyboard';
+import { useKeyboard } from '@hooks/useKeyboard';
 
 // import { createLog } from '@helpers/log';
 
