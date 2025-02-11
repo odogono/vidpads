@@ -18,51 +18,51 @@ msgid "Let's Play"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Video Sequencing"
+msgid "Pad Based Control"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Create complex video sequences with precise timing and control"
+msgid "Play videos triggered by pad, keyboard, or MIDI"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "MIDI Integration"
+msgid "Edit Playback"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Full MIDI support for hardware control surfaces and automation"
+msgid "Set the start and duration, speed, and volume of the video"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Real-time Processing"
+msgid "Share"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Hardware-accelerated video processing with minimal latency"
+msgid "Share your project with others via a single URL"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Multi-format Support"
+msgid "Serverless"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Support for various video formats and codecs using FFmpeg"
+msgid "No need to install anything, just open the URL"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Timeline Control"
+msgid "Have a great time"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Advanced timeline controls with frame-accurate playback"
+msgid "Have a great time with your friends and family"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Custom Triggers"
+msgid "Be a better person"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Create custom triggers and automation sequences"
+msgid "Learn to play the drums, guitar, or piano. IDK, I'm not a psychologist."
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -80,13 +80,13 @@ msgstr ""
 msgid "English"
 msgstr ""
 
+msgid "Pad based Video playback and control"
+msgstr ""
+
 msgid "Pseudo"
 msgstr ""
 
 msgid "Return Home"
-msgstr ""
-
-msgid "Video playback and control for live performances and installations"
 msgstr ""
 
 msgid "VO Pads"

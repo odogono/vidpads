@@ -1,7 +1,7 @@
 {
   "id": "a262c6db05",
-  "name": "",
-  "version": "0.1.0",
+  "name": "De La Soul - Get Away",
+  "version": "1.0.0",
   "exportVersion": "1",
   "pads": [
     {
@@ -9,8 +9,19 @@
       "label": "Get Away",
       "source": "https://youtu.be/ZorwKAwqPnE",
       "operations": [
-        { "type": "source", "url": "https://youtu.be/ZorwKAwqPnE" },
-        { "type": "trim", "start": 30.4, "end": 178 }
+        {
+          "type": "trim",
+          "start": 30.4,
+          "end": 178
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/ZorwKAwqPnE"
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 1
+        }
       ]
     },
     {
@@ -18,12 +29,37 @@
       "label": "Drums",
       "source": "https://youtu.be/9b2MVV13xAk",
       "operations": [
-        { "type": "source", "url": "https://youtu.be/9b2MVV13xAk" },
-        { "type": "trim", "start": 5.311, "end": 9.98 },
-        { "type": "loop", "start": 0 },
-        { "type": "volume", "envelope": [{ "time": 0, "value": 0.39 }] },
-        { "type": "playback", "isOneShot": true },
-        { "type": "playbackRate", "rate": 0.9 }
+        {
+          "type": "trim",
+          "start": 5.311,
+          "end": 9.98
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.39
+            }
+          ]
+        },
+        {
+          "type": "playbackRate",
+          "rate": 0.9
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/9b2MVV13xAk"
+        }
       ]
     },
     {
@@ -31,8 +67,15 @@
       "label": "For the Last Year",
       "source": "https://youtu.be/LAQgl7o79L4",
       "operations": [
-        { "type": "source", "url": "https://youtu.be/LAQgl7o79L4" },
-        { "type": "trim", "start": 15.921, "end": 25.251 }
+        {
+          "type": "trim",
+          "start": 15.921,
+          "end": 25.251
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/LAQgl7o79L4"
+        }
       ]
     },
     {
@@ -40,8 +83,15 @@
       "label": "You aint no MC",
       "source": "https://youtu.be/LAQgl7o79L4",
       "operations": [
-        { "type": "trim", "start": 80, "end": 84.684 },
-        { "type": "source", "url": "https://youtu.be/LAQgl7o79L4" }
+        {
+          "type": "trim",
+          "start": 80,
+          "end": 84.684
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/LAQgl7o79L4"
+        }
       ]
     },
     {
@@ -49,46 +99,88 @@
       "label": "UFO",
       "source": "https://youtu.be/V4QuH_eFU4Y",
       "operations": [
-        { "type": "source", "url": "https://youtu.be/V4QuH_eFU4Y" },
-        { "type": "trim", "start": 1.144, "end": 4.036 },
-        { "type": "playback", "resume": false },
-        { "type": "loop", "start": 0 }
+        {
+          "type": "trim",
+          "start": 1.144,
+          "end": 4.036
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/V4QuH_eFU4Y"
+        }
       ]
     },
     {
       "id": "a9",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
-        { "type": "trim", "start": 1502.765, "end": 1514.17 },
-        { "type": "source", "url": "https://youtu.be/5EvNlBAaBVk" }
+        {
+          "type": "trim",
+          "start": 1502.765,
+          "end": 1514.17
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/5EvNlBAaBVk"
+        }
       ]
     },
     {
       "id": "a10",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
-        { "type": "trim", "start": 1494.643, "end": 1514.17 },
-        { "type": "source", "url": "https://youtu.be/5EvNlBAaBVk" }
+        {
+          "type": "trim",
+          "start": 1494.643,
+          "end": 1514.17
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/5EvNlBAaBVk"
+        }
       ]
     },
     {
       "id": "a11",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
-        { "type": "trim", "start": 1508.236, "end": 1514.17 },
-        { "type": "source", "url": "https://youtu.be/5EvNlBAaBVk" }
+        {
+          "type": "trim",
+          "start": 1508.236,
+          "end": 1514.17
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/5EvNlBAaBVk"
+        }
       ]
     },
     {
       "id": "a12",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
-        { "type": "trim", "start": 1510.991, "end": 1514.17 },
-        { "type": "source", "url": "https://youtu.be/5EvNlBAaBVk" }
+        {
+          "type": "trim",
+          "start": 1510.991,
+          "end": 1514.17
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/5EvNlBAaBVk"
+        }
       ]
     }
   ],
-  "sequencer": { "bpm": 60, "startTime": 0, "endTime": 30, "events": {} },
+  "sequencer": {
+    "bpm": 60,
+    "time": null,
+    "endTime": 30,
+    "events": {}
+  },
   "createdAt": "2025-02-08T17:36:29Z",
-  "updatedAt": "2025-02-08T18:07:45Z"
+  "updatedAt": "2025-02-11T21:53:16Z"
 }
