@@ -4,52 +4,169 @@
   "version": "0.1.0",
   "exportVersion": "1",
   "pads": [
-    { "id": "a1", "source": "https://youtu.be/lku28XWMHNY" },
+    {
+      "id": "a1",
+      "source": "https://youtu.be/lku28XWMHNY",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/lku28XWMHNY"
+        }
+      ]
+    },
     {
       "id": "a2",
       "source": "https://youtu.be/lku28XWMHNY",
-      "operations": [{ "type": "trim", "start": 80.415, "end": 89.026 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 80.415,
+          "end": 89.026
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/lku28XWMHNY"
+        }
+      ]
     },
     {
       "id": "a3",
       "source": "https://youtu.be/lku28XWMHNY",
-      "operations": [{ "type": "trim", "start": 10.99, "end": 21.959 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 10.99,
+          "end": 21.959
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/lku28XWMHNY"
+        }
+      ]
     },
     {
       "id": "a4",
       "source": "https://youtu.be/lku28XWMHNY",
-      "operations": [{ "type": "trim", "start": 157.956, "end": 168.449 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 157.956,
+          "end": 168.449
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/lku28XWMHNY"
+        }
+      ]
     },
     {
       "id": "a5",
       "source": "https://youtu.be/SIEQEph0trE",
       "operations": [
-        { "type": "trim", "start": 9, "end": 18.481 },
-        { "type": "volume", "envelope": [{ "time": 0, "value": 0.68 }] }
+        {
+          "type": "trim",
+          "start": 9,
+          "end": 18.481
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.68
+            }
+          ]
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/SIEQEph0trE"
+        }
       ]
     },
     {
       "id": "a6",
       "source": "https://youtu.be/UceGF3M56bE",
-      "operations": [{ "type": "trim", "start": 1.202, "end": 9.187 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1.202,
+          "end": 9.187
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/UceGF3M56bE"
+        },
+        {
+          "type": "playback",
+          "priority": 1
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.73
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "a7",
       "source": "https://youtu.be/IiqO3fB4I78",
-      "operations": [{ "type": "trim", "start": 0, "end": 2.424 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 0,
+          "end": 2.424
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/IiqO3fB4I78"
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
     },
     {
       "id": "a9",
       "source": "https://youtu.be/skxqbkpLE90",
-      "operations": [{ "type": "trim", "start": 104, "end": 117.539 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 104,
+          "end": 117.539
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/skxqbkpLE90"
+        }
+      ]
     },
     {
       "id": "a10",
       "source": "https://youtu.be/UceGF3M56bE",
-      "operations": [{ "type": "trim", "start": 20.694, "end": 27.901 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 20.694,
+          "end": 27.901
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/UceGF3M56bE"
+        }
+      ]
     }
   ],
-  "sequencer": { "bpm": 60, "startTime": 0, "endTime": 30, "events": {} },
+  "sequencer": {
+    "bpm": 60,
+    "time": null,
+    "endTime": 30,
+    "events": {}
+  },
   "createdAt": "2025-01-31T11:13:49.450Z",
-  "updatedAt": "2025-01-31T12:04:07.009Z"
+  "updatedAt": "2025-02-11T15:42:22Z"
 }

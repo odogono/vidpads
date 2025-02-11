@@ -5,9 +5,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Circle, Play, Repeat2, Rewind, Square, Trash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-import { OpButton } from '@components/buttons/OpButton';
-import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
-import { OpToggleButton } from '@components/buttons/OpToggleButton';
+import { OpButton } from '@/components/common/OpButton';
+import { OpTimeInput, OpTimeInputRef } from '@/components/common/OpTimeInput';
+import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';

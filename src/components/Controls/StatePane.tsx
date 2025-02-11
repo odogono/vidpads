@@ -4,11 +4,11 @@ import { useCallback } from 'react';
 
 import { Play, Repeat2, StepForward } from 'lucide-react';
 
-import { OpToggleButton } from '@components/buttons/OpToggleButton';
+import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
 import { isPadLooped } from '@model/pad';
-import { OpNumberSelect } from '../buttons/OpNumberSelect';
+import { OpNumberSelect } from '../common/OpNumberSelect';
 import { PlaybackRateDial } from './Dial/PlaybackRateDial';
 import { VolumeDial } from './Dial/VolumeDial';
 import { PaneProps } from './types';

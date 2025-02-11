@@ -100,7 +100,7 @@ export default {
               700: '#344749',
               800: '#1b2b2d',
               900: '#001111',
-              DEFAULT: '#647d82',
+              DEFAULT: '#98aeb2',
               foreground: 'var(--foreground)'
             },
             secondary: {
@@ -114,7 +114,7 @@ export default {
               700: '#35484a',
               800: '#1d2c2e',
               900: '#001014',
-              DEFAULT: '#35484a',
+              DEFAULT: '#7d9b9f',
               foreground: 'var(--foreground)'
             },
             pad: {
@@ -127,6 +127,9 @@ export default {
             },
             seqevt: {
               DEFAULT: '#e10805'
+            },
+            switch: {
+              DEFAULT: 'var(--c7)'
             },
             warning: {
               50: '#ffe2e2',

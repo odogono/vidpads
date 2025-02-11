@@ -8,7 +8,7 @@ import { MIME_TYPE_BIN, MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
 import { OnDropProps } from '@hooks/usePadDnD/context';
 import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadOperations } from '@model/hooks/usePadOperations';
-import { OpModalContainer } from './buttons/OpModalContainer';
+import { OpModalContainer } from './common/OpModalContainer';
 
 const log = createLog('Bin');
 

@@ -13,6 +13,7 @@ import {
   TableRow
 } from '@heroui/react';
 import { useSettings } from '@model/hooks/useSettings';
+import { OpSwitch } from '../common/OpSwitch';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
 const log = createLog('SettingsModal', ['debug']);
@@ -126,10 +127,10 @@ const BooleanSetting = ({ setting, value, onChange }: SettingRowProps) => {
   log.debug('setting', setting.label, value);
 
   return (
-    <Switch
-      size='md'
+    <OpSwitch
       isSelected={value as boolean}
-      onValueChange={(value: boolean) => {
+      isEnabled={true}
+      onChange={(value: boolean) => {
         // setValue(value);
         onChange(value);
       }}
