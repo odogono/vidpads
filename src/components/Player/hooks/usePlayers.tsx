@@ -10,7 +10,12 @@ import {
 } from '@helpers/metadata';
 import { VOKeys } from '@model/constants';
 import { usePadsExtended } from '@model/hooks/usePads';
-import { getPadSourceUrl } from '@model/pad';
+import {
+  getPadChokeGroup,
+  getPadPlayPriority,
+  getPadPlaybackResume,
+  getPadSourceUrl
+} from '@model/pad';
 import { Media } from '@model/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { PlayerProps } from '../types';
@@ -73,7 +78,10 @@ export const usePlayers = () => {
         padId: pad.id,
         isVisible: false,
         media,
-        type: getPlayerType(media)
+        type: getPlayerType(media),
+        chokeGroup: getPadChokeGroup(pad),
+        playPriority: getPadPlayPriority(pad),
+        isResuming: getPadPlaybackResume(pad)
       };
 
       // the key has to be for each active pad!

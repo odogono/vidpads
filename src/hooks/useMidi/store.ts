@@ -76,6 +76,19 @@ const Actions = {
     event: ImportStoreFromJsonAction
   ) => {
     const { data } = event;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { midiToPadMap, padToMidiMap, ...rest } = data;
+
+    // a sanity check to make sure the maps are valid
+    if (Object.keys(padToMidiMap ?? {}).length === 0) {
+      return update(context, {
+        ...rest,
+        midiToPadMap: {},
+        padToMidiMap: {},
+        midiNoteOnMap: {}
+      });
+    }
     return update(context, data);
   },
 

@@ -22,6 +22,9 @@ export interface PlayerProps {
   showControls?: boolean;
   isLoader?: boolean;
   type: 'image' | 'video' | 'youtube' | 'title';
+  chokeGroup?: number | undefined;
+  playPriority?: number | undefined;
+  isResuming?: boolean;
 }
 
 export interface PlayerEvent {
