@@ -7,20 +7,19 @@ import { toast } from 'react-hot-toast';
 
 import { writeToClipboard } from '@helpers/clipboard';
 import { Button } from '@heroui/react';
-import { useShareUrl } from '@hooks/useShareUrl';
-import { useProjects } from '@model/hooks/useProjects';
+import { useProjectUrl } from '@model/hooks/useProjectUrl';
 
 export const ShareButton = () => {
-  const { exportToURLString } = useProjects();
-  const { createNewUrl } = useShareUrl();
+  const url = useProjectUrl();
 
   const handleOnPress = useCallback(async () => {
-    const d = await exportToURLString(true);
-    const url = createNewUrl({ d });
-    await writeToClipboard(url);
-
-    toast.success('Copied to clipboard');
-  }, [exportToURLString, createNewUrl]);
+    const success = await writeToClipboard(url);
+    if (success) {
+      toast.success('Copied to clipboard');
+    } else {
+      toast.error('Failed to copy to clipboard');
+    }
+  }, [url]);
 
   return (
     <>

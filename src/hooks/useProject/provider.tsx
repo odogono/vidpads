@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 
 import { useRouter } from '@/hooks/useProject/useRouter';
 import { urlStringToProject } from '@/model/serialise/project';
-import { decompress } from '@helpers/compress';
 import { getUnixTimeFromDate } from '@helpers/datetime';
 import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';

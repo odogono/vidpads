@@ -11,7 +11,6 @@ export const OpModalContainer = ({
   isVisible,
   isHighlighted,
   children,
-  height = '20vh',
   hasPointerEvents = false
 }: OpModalContainerProps) => {
   return (

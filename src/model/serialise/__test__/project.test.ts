@@ -16,12 +16,7 @@ import {
   SourceOperation,
   TrimOperation
 } from '@model/types';
-import { getPadInterval, getPadSourceUrl } from '../../pad';
-import {
-  exportPadToURLString,
-  importPadFromJSON,
-  importPadFromURLString
-} from '../pad';
+import { exportPadToURLString, importPadFromURLString } from '../pad';
 
 const defaultContext = {
   ...initialContext,

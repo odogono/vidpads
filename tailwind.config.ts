@@ -25,6 +25,7 @@ export default {
         c7: 'var(--c7)',
         c8: 'var(--c8)',
         c9: 'var(--c9)',
+        c10: 'var(--c10)',
         page: 'var(--page)',
         'video-off': 'var(--video-off)',
         selected: 'var(--selected)',

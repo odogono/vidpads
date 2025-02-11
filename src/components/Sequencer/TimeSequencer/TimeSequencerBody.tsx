@@ -19,7 +19,7 @@ import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
 import { useSequencerEvents } from './hooks/useSequencerEvents';
 
-const log = createLog('TimeSequencerBody', ['']);
+const log = createLog('TimeSequencerBody', ['debug']);
 
 export interface SequencerBodyProps {
   canvasBpm?: number;

@@ -1,18 +1,22 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { Input } from '@heroui/react';
 import { useProjects } from '@model/hooks/useProjects';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const log = createLog('SaveProjectModal');
+const log = createLog('SaveProjectModal', ['debug']);
 
 export const SaveProjectModal = ({ ref }: CommonModalBase) => {
   const { saveProject, projectName } = useProjects();
   const [name, setName] = useState(projectName);
   const [nameError, setNameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setName(projectName);
+  }, [projectName]);
 
   const handleSaveProject = useCallback(async () => {
     try {
@@ -38,12 +42,15 @@ export const SaveProjectModal = ({ ref }: CommonModalBase) => {
     [ref]
   );
 
+  log.debug('projectName', projectName);
+
   return (
     <CommonModal ref={ref} title='Save Project' onOk={handleSaveProject}>
       <Input
         isClearable
         className='w-full'
         label='Name'
+        color='primary'
         variant='bordered'
         value={name}
         onChange={(e) => {

@@ -203,11 +203,15 @@ export const usePadOperations = () => {
       }
 
       if (copyToClipboard) {
-        await writeToClipboard(urlString);
-      }
+        const success = await writeToClipboard(urlString);
 
-      if (showToast) {
-        toast.success(`Copied ${sourcePadId} to clipboard`);
+        if (showToast) {
+          if (success) {
+            toast.success(`Copied ${sourcePadId} to clipboard`);
+          } else {
+            toast.error(`Failed to copy ${sourcePadId} to clipboard`);
+          }
+        }
       }
 
       return urlString;
