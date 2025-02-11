@@ -12,7 +12,29 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <Tooltip />
-      <Toaster />
+      <Toaster
+        toastOptions={{
+          className: '',
+          style: {
+            border: '1px solid var(--c0)',
+            padding: '16px',
+            color: 'var(--c6)',
+            backgroundColor: 'var(--c2)'
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--c7)',
+              secondary: 'black'
+            }
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--c3)',
+              secondary: 'var(--c6)'
+            }
+          }
+        }}
+      />
       <div
         className={`
           vo-root-a

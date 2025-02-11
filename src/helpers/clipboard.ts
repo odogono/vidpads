@@ -1,3 +1,7 @@
+import { createLog } from './log';
+
+const log = createLog('helpers/clipboard');
+
 export const readFromClipboard = async () =>
   await navigator.clipboard.readText();
 
@@ -52,12 +56,16 @@ const copyExecCommand = async (text: string) => {
 export const writeToClipboard = async (text: string) => {
   try {
     await copyClipboardApi(text);
+    return true;
   } catch (err) {
+    log.warn('Failed to api copy to clipboard', { text, err });
     // ...Otherwise, use document.execCommand() fallback
     try {
       await copyExecCommand(text);
+      return true;
     } catch (err2) {
-      throw err2 || err || makeError();
+      log.error('Failed to exec copy to clipboard', { text, err2 });
+      return false;
     }
   }
 };

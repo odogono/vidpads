@@ -90,20 +90,3 @@ export const useLastImportUrl = () => {
   );
   return { lastImportUrl, setLastImportUrl };
 };
-
-export const useProjectName = () => {
-  const { project } = useProject();
-  const projectName = useSelector(
-    project,
-    (state) => state.context.projectName
-  );
-
-  const setProjectName = useCallback(
-    (name: string) => {
-      project.send({ type: 'setProjectName', name });
-    },
-    [project]
-  );
-
-  return { projectName, setProjectName };
-};

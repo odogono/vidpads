@@ -22,8 +22,8 @@ import {
 } from '@model/pad';
 import { useSelectedPadId } from '@model/store/selectors';
 import { Interval } from '@model/types';
-import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
+import { TitlePlayer } from './TitlePlayer';
 import { showPlayer } from './helpers';
 import { usePlayers } from './hooks/usePlayers';
 import { usePlayingStack } from './hooks/usePlayingStack';
@@ -241,7 +241,7 @@ export const PlayerContainer = () => {
 
   return (
     <>
-      <LoadingPlayer
+      <TitlePlayer
         key='player-title'
         count={players.length}
         loadingCount={playerReadyCount}

@@ -1,6 +1,7 @@
 import { compress, decompress } from '@helpers/compress';
 import {
   dateToISOString,
+  formatShortDate,
   getDateFromUnixTime,
   getUnixTimeFromDate
 } from '@helpers/datetime';
@@ -45,14 +46,14 @@ export const exportToJSON = (store: StoreType): ProjectExport => {
   const padsJSON = pads.map((pad) => exportPadToJSON(pad)).filter(Boolean);
 
   return {
-    id: projectId ?? generateShortUUID(),
-    name: projectName ?? 'Untitled',
+    id: projectId || generateShortUUID(),
+    name: projectName || `Untitled Project - ${formatShortDate()}`,
     version: EXPORT_APP_VERSION,
     exportVersion: `${EXPORT_JSON_VERSION}`,
     pads: padsJSON,
     sequencer: sequencerJSON,
-    createdAt: createdAt ?? dateToISOString(),
-    updatedAt: updatedAt ?? dateToISOString()
+    createdAt: createdAt || dateToISOString(),
+    updatedAt: updatedAt || dateToISOString()
   } as ProjectExport;
 };
 
@@ -142,11 +143,11 @@ export const importProjectExport = (data: ProjectExport): StoreContext => {
 
   const newContext: StoreContext = {
     ...initialContext,
-    projectId: data.id ?? generateShortUUID(),
-    projectName: data.name ?? 'Untitled',
+    projectId: data.id || generateShortUUID(),
+    projectName: data.name || `Untitled Project - ${formatShortDate()}`,
     selectedPadId: undefined,
-    createdAt: data.createdAt ?? dateToISOString(),
-    updatedAt: data.updatedAt ?? dateToISOString()
+    createdAt: data.createdAt || dateToISOString(),
+    updatedAt: data.updatedAt || dateToISOString()
   };
 
   const sequencer = data.sequencer

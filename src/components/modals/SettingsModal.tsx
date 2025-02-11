@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 
 import { createLog } from '@helpers/log';
 import {
-  Switch,
   Table,
   TableBody,
   TableCell,
@@ -137,38 +136,3 @@ const BooleanSetting = ({ setting, value, onChange }: SettingRowProps) => {
     />
   );
 };
-// const SettingRow = ({ setting, value, onChange }: SettingRowProps) => {
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const newValue =
-//       setting.type === 'boolean'
-//         ? e.target.checked
-//         : setting.type === 'number'
-//           ? Number(e.target.value)
-//           : e.target.value;
-
-//     onChange(newValue);
-//   };
-
-//   return (
-//     <TableRow>
-//       <TableCell>{setting.label}</TableCell>
-//       <TableCell>
-//         {setting.type === 'boolean' ? (
-//           <input
-//             type='checkbox'
-//             checked={value as boolean}
-//             onChange={handleChange}
-//           />
-//         ) : setting.type === 'number' ? (
-//           <input
-//             type='number'
-//             value={value as number}
-//             onChange={handleChange}
-//           />
-//         ) : (
-//           <input type='text' value={value as string} onChange={handleChange} />
-//         )}
-//       </TableCell>
-//     </TableRow>
-//   );
-// };

@@ -10,7 +10,7 @@ export const AboutModal = ({ ref }: CommonModalBase) => {
           <p className=' mb-2 text-xl font-bold'>Voice Operator Pads player</p>
           <p className=' mb-4'>
             Made with 🤪 by{' '}
-            <a href='https://github.com/odogno'>Alexander Veenendaal</a>
+            <a href='https://dev.odgn.net'>Alexander Veenendaal</a>
           </p>
           <p className=' mb-4 text-sm'>
             © {getCurrentYear()} Alexander Veenendaal

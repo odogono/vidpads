@@ -1,39 +1,22 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-
 import { Input } from '@heroui/react';
-import { useShareUrl } from '@hooks/useShareUrl';
+import { useProjectJsonString } from '@model/hooks/useProjectJsonString';
 // import { createLog } from '@helpers/log';
-import { useProjects } from '@model/hooks/useProjects';
+
+import { useProjectUrl } from '@model/hooks/useProjectUrl';
 import { CommonModal, CommonModalBase } from './CommonModal';
 import { CopyButton } from './CopyButton';
 
 export const ExportProjectModal = ({ ref }: CommonModalBase) => {
-  const { exportToJSONString, exportToURLString } = useProjects();
-  const { createNewUrl } = useShareUrl();
-
-  const [url, setUrl] = useState('');
-
-  const json = exportToJSONString();
-
-  const handleOpen = useCallback(async () => {
-    const fetchUrl = async () => {
-      const d = await exportToURLString(true);
-      setUrl(createNewUrl({ d }));
-    };
-    fetchUrl();
-  }, [exportToURLString, createNewUrl]);
+  const json = useProjectJsonString();
+  const url = useProjectUrl();
 
   return (
-    <CommonModal
-      ref={ref}
-      title='Export Project'
-      onOpen={handleOpen}
-      showCancel={false}
-    >
+    <CommonModal ref={ref} title='Export Project' showCancel={false}>
       <div className='flex flex-row gap-2 items-center'>
         <Input
+          color='primary'
           isReadOnly
           className='w-full'
           label='URL'
@@ -45,6 +28,7 @@ export const ExportProjectModal = ({ ref }: CommonModalBase) => {
 
       <div className='flex flex-row gap-2 items-center'>
         <Input
+          color='primary'
           isReadOnly
           className='w-full'
           label='JSON'

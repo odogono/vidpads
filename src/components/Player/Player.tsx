@@ -1,5 +1,4 @@
 import { ImagePlayer, ImagePlayerProps } from './ImagePlayer';
-import { LoadingPlayer } from './LoadingPlayer';
 import { LocalPlayer } from './LocalPlayer';
 import { PlayerYT } from './PlayerYT';
 import { PlayerProps } from './types';
@@ -20,7 +19,6 @@ export const Player = (props: PlayerProps) => {
       style={{ opacity: props.isVisible ? 1 : 0, zIndex: 0 }}
       data-player-id={playerId}
     >
-      {isTitle && <LoadingPlayer count={0} loadingCount={0} />}
       {isVideo && <LocalPlayer {...props} />}
       {isYouTube && <PlayerYT {...props} />}
       {isImage && <ImagePlayer {...(props as ImagePlayerProps)} />}

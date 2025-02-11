@@ -16,16 +16,17 @@
   --bin     : #5A7175;
   --bin-over: #7d979b;
 
-  --c0: #302C23;
-  --c1: #3d4040;
-  --c2: #5A7175;
-  --c3: #e10805;
-  --c4: #3BBAF9;
-  --c5: #C4EFF7;
-  --c6: #FEFEFE;
-  --c7: #FFC822;
-  --c8: #EAFF00;
-  --c9: #F4D58D;
+  --c0 : #302C23;
+  --c1 : #3d4040;
+  --c2 : #5A7175;
+  --c3 : #e10805;
+  --c4 : #3BBAF9;
+  --c5 : #C4EFF7;
+  --c6 : #FEFEFE;
+  --c7 : #FFC822;
+  --c8 : #EAFF00;
+  --c9 : #F4D58D;
+  --c10: #88979a;
 }
 
 /* @media (prefers-color-scheme: dark) {
