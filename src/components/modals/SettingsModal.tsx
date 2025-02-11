@@ -88,7 +88,6 @@ export const SettingsModal = ({ ref }: CommonModalBase) => {
       <Table
         hideHeader
         aria-label='Settings'
-        className=''
         classNames={{
           wrapper: 'text-foreground bg-background',
           base: 'text-foreground'

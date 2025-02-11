@@ -2,10 +2,8 @@ import { SequencerEvent } from '@model/types';
 import {
   doEventsIntersect,
   getIntersectingEvents,
-  integerToPadId,
   joinEvents,
   mergeEvents,
-  padIdToInteger,
   repeatEvents,
   translateEvents
 } from '../sequencerEvent';
@@ -323,21 +321,6 @@ describe('repeatEvents', () => {
     );
   });
 });
-
-describe('padIdToInteger', () => {
-  it('should convert padId to integer', () => {
-    expect(padIdToInteger('a1')).toBe(1);
-    expect(padIdToInteger('b2')).toBe(18);
-  });
-});
-
-describe('integerToPadId', () => {
-  it('should convert integer to padId', () => {
-    expect(integerToPadId(1)).toBe('a1');
-    expect(integerToPadId(18)).toBe('b2');
-  });
-});
-
 describe('translateEvents', () => {
   it('should translate events', () => {
     const events = [{ id: 1, padId: 'a3', time: 10, duration: 4 }];
