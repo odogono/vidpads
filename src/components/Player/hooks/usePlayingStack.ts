@@ -1,97 +1,150 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 
-// import { createLog } from '@helpers/log';
+import { createLog } from '@helpers/log';
 import {
-  getPlayerDataState,
+  getAllPlayerDataState,
   hidePlayer,
-  setPlayerDataState,
+  setPlayerData,
+  setPlayerDataStatePlaying,
   showPlayer
 } from '../helpers';
 import { PlayerPlaying } from '../types';
 
-// const log = createLog('usePlayingStack');
+const log = createLog('usePlayingStack', ['debug']);
 
 export const usePlayingStack = ({
   hidePlayerOnEnd
 }: {
   hidePlayerOnEnd: boolean;
 }) => {
-  const ref = useRef<PlayerPlaying[]>([]);
+  const updateStack = useCallback(() => {
+    const states = getAllPlayerDataState();
 
-  const hideStackPlayer = useCallback(
-    (hideId: string) => {
-      const stack = ref.current;
+    const playing = states.filter(
+      ({ id, isPlaying }) => isPlaying && id !== 'title'
+    );
 
-      if (hidePlayerOnEnd || stack.length > 1) {
-        hidePlayer(hideId);
-        ref.current = stack.filter(({ padId }) => padId !== hideId);
+    const stopped = states.filter(
+      ({ id, isPlaying }) => !isPlaying && id !== 'title'
+    );
+
+    // sort the stopped players by stoppedAt - newest first
+    const sortedStopped = stopped.sort(
+      (a, b) => (b.stoppedAt ?? 0) - (a.stoppedAt ?? 0)
+    );
+
+    log.debug('[updateStack] playing', playing.map(({ id }) => id).join(','));
+    log.debug(
+      '[updateStack] stopped',
+      sortedStopped.map(({ id }) => id).join(',')
+    );
+
+    if (playing.length === 0) {
+      if (sortedStopped.length > 0) {
+        const lastStopped = sortedStopped[0];
+        if (lastStopped.isVisible) {
+          log.debug('[updateStack] lastStopped', lastStopped.id, {
+            hidePlayerOnEnd
+          });
+          if (hidePlayerOnEnd) {
+            hidePlayer(lastStopped.id);
+          } else {
+            // keep the last player visible
+            log.debug(
+              '[updateStack] keeping last player visible',
+              lastStopped.id
+            );
+            return;
+          }
+        }
       }
+    }
 
-      const stackLength = ref.current.length;
-
-      setPlayerDataState(hideId, 'stopped');
-
-      if (stackLength === 0) {
-        showPlayer('title');
-      }
-
-      // return the number of players in the stack
-      return stackLength;
-    },
-    [hidePlayerOnEnd]
-  );
-
-  const showStackPlayer = useCallback((player: PlayerPlaying) => {
-    const showId = player.padId;
-    const stack = ref.current;
-
-    // remove players that are not playing
-    const playingStack = stack.filter(({ padId }) => {
-      const active = getPlayerDataState(padId) === 'playing';
-      if (!active) {
-        hidePlayer(padId);
-      }
-      return active;
+    // hide all the stopped players
+    stopped.forEach(({ id }) => {
+      hidePlayer(id);
     });
 
-    // places the new player on top of the stack
-    const newStack = [
-      ...playingStack.filter(({ padId }) => padId !== showId),
-      player
-    ];
+    // remove the title from the playing stack
+    // const playingWithoutTitle = playing.filter(({ id }) => id !== 'title');
 
-    // sort the stack by priority
-    const sortedStack = newStack.sort(
+    // if there are no playing players, show the title
+    if (playing.length === 0) {
+      showPlayer('title');
+      setPlayerDataStatePlaying('title', true);
+      return;
+    }
+
+    // sort the playing players by startedAt - oldest first
+    const sortedPlaying = playing.sort(
+      (a, b) => (a.startedAt ?? 0) - (b.startedAt ?? 0)
+    );
+
+    // sort the playing players by priority
+    const sortedPlayingByPriority = sortedPlaying.sort(
       (a, b) => (a.playPriority ?? 0) - (b.playPriority ?? 0)
     );
 
-    // Update z-index of all players based on stack position
-    sortedStack.forEach(({ padId }, index) => {
-      if (index === sortedStack.length - 1) {
-        showPlayer(padId, 1);
-      } else {
-        hidePlayer(padId);
-      }
+    // hide all the playing players apart from the last one
+    sortedPlayingByPriority.slice(0, -1).forEach(({ id }) => {
+      hidePlayer(id);
     });
 
-    ref.current = sortedStack;
-    const stackLength = sortedStack.length;
+    // show the last playing player
+    showPlayer(sortedPlayingByPriority[sortedPlayingByPriority.length - 1].id);
 
-    if (stackLength === 0) {
-      showPlayer('title', stackLength + 1);
-    } else {
-      hidePlayer('title');
-    }
+    log.debug('updateStack: states', sortedPlayingByPriority);
+  }, [hidePlayerOnEnd]);
 
-    return stackLength;
+  const getPlayersPlayingCount = useCallback(() => {
+    const states = getAllPlayerDataState();
+
+    const playing = states.filter(
+      ({ id, isPlaying }) => isPlaying && id !== 'title'
+    );
+
+    return playing.length;
   }, []);
 
+  const hideStackPlayer = useCallback(
+    (hideId: string) => {
+      const playersPlayingCount = getPlayersPlayingCount();
+
+      log.debug('hideStackPlayer', { hideId, playersPlayingCount });
+
+      setPlayerDataStatePlaying(hideId, false);
+
+      updateStack();
+    },
+    [updateStack, getPlayersPlayingCount]
+  );
+
+  const showStackPlayer = useCallback(
+    (player: PlayerPlaying) => {
+      setPlayerData(player.padId, {
+        url: player.url,
+        isPlaying: true,
+        chokeGroup: player.chokeGroup,
+        playPriority: player.playPriority,
+        startedAt: performance.now(),
+        stoppedAt: undefined
+      });
+
+      updateStack();
+    },
+    [updateStack]
+  );
+
   const getChokeGroupPlayers = useCallback((chokeGroup: number) => {
-    return ref.current.filter(({ chokeGroup: group }) => group === chokeGroup);
+    const states = getAllPlayerDataState();
+    const playing = states.filter(
+      ({ id, isPlaying }) => isPlaying && id !== 'title'
+    );
+
+    return playing.filter(({ chokeGroup: group }) => group === chokeGroup);
   }, []);
 
   return {
-    playingStackRef: ref,
     hideStackPlayer,
     showStackPlayer,
     getChokeGroupPlayers

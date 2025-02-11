@@ -1,3 +1,14 @@
+import { safeParseInt } from '../../helpers/number';
+
+interface DataSetPlayerData {
+  isPlaying: boolean;
+  url: string;
+  chokeGroup?: number;
+  playPriority?: number;
+  startedAt?: number;
+  stoppedAt?: number | undefined;
+}
+
 export const hidePlayer = (padId: string) => {
   const playerElement = document.querySelector(
     `[data-player-id="${padId}"]`
@@ -7,7 +18,6 @@ export const hidePlayer = (padId: string) => {
     playerElement.style.opacity = '0';
     playerElement.style.zIndex = '0'; // Send to back when stopped
     playerElement.style.pointerEvents = 'none'; // Prevent pointer events
-    playerElement.dataset.state = 'stopped';
   }
   return playerElement;
 };
@@ -21,72 +31,68 @@ export const showPlayer = (padId: string, zIndex: number = 1) => {
     playerElement.style.opacity = '1';
     playerElement.style.zIndex = `${zIndex}`;
     playerElement.style.pointerEvents = 'auto'; // Re-enable pointer events
-    playerElement.dataset.state = 'playing';
   }
   return playerElement;
 };
 
-export const getPlayerElements = () => {
-  const elements = document.querySelectorAll(
-    '[data-player-id]'
-  ) as NodeListOf<HTMLElement>;
-  return Array.from(elements).map((element) => ({
-    id: element.dataset.playerId,
-    zIndex: parseInt(element.style.zIndex),
-    opacity: parseFloat(element.style.opacity),
-    state: element.dataset.state,
-    pointerEvents: element.style.pointerEvents
-  }));
-};
-
-export const getPlayerElement = (padId: string) => {
-  return document.querySelector(
-    `[data-player-id="${padId}"]`
-  ) as HTMLElement | null;
-};
-
-export const hideElement = (element: HTMLElement) => {
-  element.style.transition = 'none'; // Disable transition
-  element.style.opacity = '0';
-  element.style.zIndex = '0'; // Send to back when stopped
-};
-
-export const showElement = (element: HTMLElement) => {
-  element.style.transition = 'none'; // Disable transition
-  element.style.opacity = '1';
-  element.style.zIndex = '100';
-};
-
-export const setZIndex = (element: HTMLElement, index: number) => {
-  element.style.zIndex = `${index}`;
-};
-
-export const setPlayerZIndex = (padId: string, index: number) => {
-  const playerElement = document.querySelector(
-    `[data-player-id="${padId}"]`
-  ) as HTMLElement | null;
-  if (playerElement) {
-    playerElement.style.zIndex = `${index}`;
-    playerElement.dataset.state = 'playing';
-  }
-  return playerElement;
-};
-
-export const setPlayerDataState = (
+export const setPlayerData = (
   padId: string,
-  value: 'playing' | 'stopped'
+  data: Partial<DataSetPlayerData>
 ) => {
   const playerElement = document.querySelector(
     `[data-player-id="${padId}"]`
   ) as HTMLElement | null;
   if (playerElement) {
-    playerElement.dataset.state = value;
+    playerElement.dataset.state = data.isPlaying ? 'playing' : 'stopped';
+    playerElement.dataset.url = data.url;
+    playerElement.dataset.chokeGroup = data.chokeGroup
+      ? data.chokeGroup.toString()
+      : undefined;
+    playerElement.dataset.playPriority = data.playPriority?.toString();
+    playerElement.dataset.startedAt = data.startedAt?.toString();
+    playerElement.dataset.stoppedAt = data.stoppedAt
+      ? data.stoppedAt.toString()
+      : undefined;
   }
 };
 
-export const getPlayerDataState = (padId: string) => {
+export const setPlayerDataStatePlaying = (
+  padId: string,
+  isPlaying: boolean
+) => {
   const playerElement = document.querySelector(
     `[data-player-id="${padId}"]`
   ) as HTMLElement | null;
-  return playerElement?.dataset.state as 'playing' | 'stopped' | undefined;
+  if (playerElement) {
+    const state = playerElement.dataset.state;
+    if (state === 'playing' && !isPlaying) {
+      playerElement.dataset.stoppedAt = performance.now().toString();
+    }
+    playerElement.dataset.state = isPlaying ? 'playing' : 'stopped';
+  }
+};
+
+export const getAllPlayerDataState = () => {
+  const elements = document.querySelectorAll(
+    '[data-player-id]'
+  ) as NodeListOf<HTMLElement>;
+  return Array.from(elements).map((element) => ({
+    id: element.dataset.playerId!,
+    url: element.dataset.url!,
+    isPlaying: element.dataset.state === 'playing',
+    chokeGroup: element.dataset.chokeGroup
+      ? safeParseInt(element.dataset.chokeGroup, 0)
+      : undefined,
+    playPriority: element.dataset.playPriority
+      ? safeParseInt(element.dataset.playPriority, 0)
+      : undefined,
+    startedAt: element.dataset.startedAt
+      ? safeParseInt(element.dataset.startedAt, 0)
+      : undefined,
+    stoppedAt: safeParseInt(element.dataset.stoppedAt, 0),
+    isVisible: parseFloat(element.style.opacity) > 0,
+    zIndex: parseInt(element.style.zIndex),
+    opacity: parseFloat(element.style.opacity),
+    pointerEvents: element.style.pointerEvents
+  }));
 };

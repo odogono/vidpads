@@ -37,6 +37,14 @@ export const useSettings = () => {
   };
 };
 
+export const useIsHidePlayerOnEndEnabled = () => {
+  const { project } = useProject();
+  return useSelector(
+    project,
+    (state) => state.context.settings?.hidePlayerOnEnd
+  );
+};
+
 export const useIsPlayEnabled = () => {
   const { project } = useProject();
   const isKeyboardPlayEnabled = useSelector(

@@ -24,7 +24,7 @@ import { useSelectedPadId } from '@model/store/selectors';
 import { Interval } from '@model/types';
 import { LoadingPlayer } from './LoadingPlayer';
 import { Player } from './Player';
-import { getPlayerElement, showPlayer } from './helpers';
+import { showPlayer } from './helpers';
 import { usePlayers } from './hooks/usePlayers';
 import { usePlayingStack } from './hooks/usePlayingStack';
 import {
@@ -156,18 +156,27 @@ export const PlayerContainer = () => {
       const { chokeGroup } = e;
 
       if (chokeGroup !== undefined) {
+        // for (const player of players) {
+        //   if (player.padId === e.padId) continue;
+        //   if (player.chokeGroup === chokeGroup) {
+        //     log.debug('ChokeGroupPlayers: stopping player', player);
+        //     // events.emit('video:stop', { url: player.url, padId: player.padId, time: 0 });
+        //   }
+        // }
+
         // stop all players in the same choke group
-        const players = getChokeGroupPlayers(chokeGroup);
-        players.forEach((player) => {
-          const { url, padId } = player;
-          if (padId === e.padId) return;
-          events.emit('video:stop', { url, padId, time: 0 });
+        const cgPlayers = getChokeGroupPlayers(chokeGroup);
+        cgPlayers.forEach((player) => {
+          const { url, id } = player;
+          if (id === e.padId) return;
+          log.debug('ChokeGroupPlayers: stopping player', player);
+          events.emit('video:stop', { url, padId: id, time: 0 });
         });
       }
 
       showStackPlayer(e);
     },
-    [events, showStackPlayer, getChokeGroupPlayers]
+    [showStackPlayer, getChokeGroupPlayers, events]
   );
 
   const handlePlayerStopped = useCallback(
@@ -229,15 +238,6 @@ export const PlayerContainer = () => {
     handlePlayerReady,
     handlePlayerNotReady
   ]);
-
-  useEffect(() => {
-    if (playerReadyCount === players.length) {
-      // showPlayer('title', 1);
-      log.debug('player:ready', playerReadyCount, players.length);
-      log.debug('title player', getPlayerElement('title'));
-      log.debug('a1 player', getPlayerElement('a1'));
-    }
-  }, [playerReadyCount, players.length]);
 
   return (
     <>

@@ -8,7 +8,11 @@ export const roundNumberToDecimalPlaces = (
   return Math.round(number * h) / h;
 };
 
-export const safeParseInt = (value: string, defaultTo: number = -1): number => {
+export const safeParseInt = (
+  value: string | undefined,
+  defaultTo: number = -1
+): number => {
+  if (!value) return defaultTo;
   const parsed = parseInt(value, 10);
   return isNaN(parsed) ? defaultTo : parsed;
 };
