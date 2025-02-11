@@ -1,15 +1,18 @@
 import { createLog } from '@helpers/log';
 import { createStore as createXStateStore } from '@xstate/store';
+import { dateToISOString } from '../../helpers/datetime';
 import { midiNoteToName } from './helpers';
 import {
   Emit,
   EmittedEvents,
   EnableMappingModeAction,
+  ImportStoreFromJsonAction,
   InputConnectedAction,
   InputDisconnectedAction,
   InputMessageAction,
   MidiInput,
   MidiStoreContext,
+  MidiStoreExport,
   RemoveMidiMappingForPadAction,
   type Actions
 } from './types';
@@ -21,26 +24,87 @@ const initialContext: MidiStoreContext = {
   isMappingModeEnabled: false,
   inputs: [],
   midiToPadMap: {},
-  padToMidiMap: {}
+  padToMidiMap: {},
+  midiNoteOnMap: {},
+  updatedAt: dateToISOString()
+};
+
+const addMidiToPadMap = (
+  map: Record<string, string[]>,
+  midiKey: string,
+  padId: string
+) => {
+  const existingPadIds = map[midiKey] ?? [];
+
+  if (!existingPadIds.includes(padId)) {
+    map[midiKey] = [...existingPadIds, padId];
+  }
+  return map;
+};
+
+export const exportStoreToJson = (store: MidiStoreType): MidiStoreExport => {
+  const { midiToPadMap, padToMidiMap, updatedAt } = store.getSnapshot().context;
+
+  const data = {
+    id: 'midiStore',
+    midiToPadMap,
+    padToMidiMap,
+    updatedAt
+  };
+
+  return data;
+};
+
+export const importStoreFromJson = (
+  store: MidiStoreType,
+  data: MidiStoreExport
+) => {
+  store.send({ type: 'importStoreFromJson', data });
+};
+
+const update = (context: MidiStoreContext, data: Partial<MidiStoreContext>) => {
+  return {
+    ...context,
+    ...data,
+    updatedAt: dateToISOString()
+  };
 };
 
 const Actions = {
+  importStoreFromJson: (
+    context: MidiStoreContext,
+    event: ImportStoreFromJsonAction
+  ) => {
+    const { data } = event;
+    return update(context, data);
+  },
+
   enableMappingMode: (
     context: MidiStoreContext,
     event: EnableMappingModeAction
   ) => {
-    return {
-      ...context,
-      isMappingModeEnabled: event.isEnabled
-    };
+    return update(context, {
+      isMappingModeEnabled: event.isEnabled,
+      midiNoteOnMap: {}
+    });
   },
+
+  setAllOff: (context: MidiStoreContext) => {
+    return update(context, { midiNoteOnMap: {} });
+  },
+
   inputMessage: (
     context: MidiStoreContext,
     event: InputMessageAction,
     { emit }: Emit
   ) => {
-    const { isMappingModeEnabled, inputs, midiToPadMap, padToMidiMap } =
-      context;
+    const {
+      isMappingModeEnabled,
+      inputs,
+      midiToPadMap,
+      padToMidiMap,
+      midiNoteOnMap
+    } = context;
     const { id, status, note, velocity, selectedPadId } = event;
 
     const input = inputs.find((input) => input.id === id);
@@ -51,23 +115,15 @@ const Actions = {
       return context;
     }
 
-    const isNoteOn = (status & 0xf0) === 0x90;
+    const isNoteOn = velocity > 0 && (status & 0xf0) === 0x90;
     const isNoteOff = velocity === 0 || (status & 0xf0) === 0x80;
-    const isAftertouch = (status & 0xf0) === 0xa0;
+    // const isAftertouch = (status & 0xf0) === 0xa0;
     const channel = status & 0x0f;
+    const noteName = midiNoteToName(note);
+    const midiKey = `${input.id}-${channel}-${noteName}`;
 
     if (isMappingModeEnabled && selectedPadId) {
-      // log.debug('inputMessage: selectedPadId', {
-      //   selectedPadId,
-      //   isNoteOn,
-      //   isNoteOff,
-      //   isAftertouch,
-      //   channel,
-      //   note: midiNoteToName(note)
-      // });
-
       // apply the id, note and channel to the selected pad
-      const midiKey = `${input.id}-${channel}-${midiNoteToName(note)}`;
       const existingMidiKey = padToMidiMap[selectedPadId];
 
       if (existingMidiKey && existingMidiKey === midiKey) {
@@ -79,10 +135,11 @@ const Actions = {
         selectedPadId
       });
 
-      const newMidiToPadMap = {
-        ...midiToPadMap,
-        [midiKey]: selectedPadId
-      };
+      const newMidiToPadMap = addMidiToPadMap(
+        midiToPadMap,
+        midiKey,
+        selectedPadId
+      );
 
       const newPadToMidiMap = {
         ...padToMidiMap,
@@ -95,67 +152,54 @@ const Actions = {
         midiKey
       });
 
-      return {
-        ...context,
+      return update(context, {
+        midiNoteOnMap: {},
         midiToPadMap: newMidiToPadMap,
         padToMidiMap: newPadToMidiMap
-      };
+      });
     }
 
-    // if (isAftertouch) {
-    //   log.debug('inputMessage: aftertouch', {
-    //     id: input.name,
-    //     status,
-    //     note,
-    //     velocity,
-    //     channel
-    //   });
-    // } else if (isNoteOff) {
-    //   log.debug('inputMessage: noteOff', {
-    //     id: input.name,
-    //     status,
-    //     note,
-    //     velocity,
-    //     channel
-    //   });
-    // } else if (isNoteOn) {
-    //   log.debug('inputMessage: noteOn', {
-    //     id: input.name,
-    //     status,
-    //     note,
-    //     velocity,
-    //     channel
-    //   });
-    // } else {
-    //   log.debug('inputMessage: ??', {
-    //     id: input.name,
-    //     status,
-    //     note,
-    //     velocity,
-    //     channel
-    //   });
-    // }
-    // log.debug('inputMessage', {
-    //   id: input.name,
-    //   status,
-    //   note,
-    //   velocity,
-    //   isNoteOn,
-    //   isNoteOff,
-    //   isAftertouch,
-    //   isMappingModeEnabled,
-    //   selectedPadId
-    // });
+    const padIds = midiToPadMap[midiKey] ?? [];
+    const isNoteAlreadyOn = midiNoteOnMap[midiKey] ?? false;
+
+    if (!padIds.length) {
+      return context;
+    }
+
+    for (const padId of padIds) {
+      if (isNoteOff && isNoteAlreadyOn) {
+        emit({
+          type: 'noteOff',
+          padId,
+          note: noteName,
+          velocity,
+          channel
+        });
+
+        midiNoteOnMap[midiKey] = false;
+      } else if (isNoteOn && !isNoteAlreadyOn) {
+        emit({
+          type: 'noteOn',
+          padId,
+          note: noteName,
+          velocity,
+          channel
+        });
+
+        midiNoteOnMap[midiKey] = true;
+      }
+    }
 
     return context;
   },
 
   removeMidiMappingForPad: (
     context: MidiStoreContext,
-    event: RemoveMidiMappingForPadAction
+    event: RemoveMidiMappingForPadAction,
+    { emit }: Emit
   ) => {
     const { padId } = event;
-    const { padToMidiMap } = context;
+    const { padToMidiMap, midiToPadMap } = context;
 
     const midiKey = padToMidiMap[padId];
 
@@ -163,12 +207,39 @@ const Actions = {
       return context;
     }
 
-    const newPadToMidiMap = {
-      ...padToMidiMap,
-      [padId]: undefined
-    };
+    const newMidiToPadMap = Object.entries(midiToPadMap).reduce(
+      (acc, [key, value]) => {
+        if (typeof value === 'string') {
+          value = [value];
+        }
 
-    return { ...context, padToMidiMap: newPadToMidiMap };
+        if (value.includes(padId)) {
+          acc[key] = value.filter((id) => id !== padId);
+        } else {
+          acc[key] = value;
+        }
+
+        return acc;
+      },
+      {} as Record<string, string[]>
+    );
+
+    const newPadToMidiMap = {
+      ...padToMidiMap
+    };
+    delete newPadToMidiMap[padId];
+
+    emit({
+      type: 'midiMappingUpdated',
+      padId: padId,
+      midiKey: undefined
+    });
+
+    return update(context, {
+      padToMidiMap: newPadToMidiMap,
+      midiToPadMap: newMidiToPadMap,
+      midiNoteOnMap: {}
+    });
   },
 
   setIsEnabled: (context: MidiStoreContext, event: { isEnabled: boolean }) => {
@@ -209,10 +280,7 @@ const Actions = {
       }
     }
 
-    return {
-      ...context,
-      inputs
-    };
+    return update(context, { inputs, midiNoteOnMap: {} });
   },
   inputDisconnected: (
     context: MidiStoreContext,
@@ -228,10 +296,10 @@ const Actions = {
 
     log.debug('inputDisconnected', input);
 
-    return {
-      ...context,
-      inputs: context.inputs.filter((input) => input.id !== id)
-    };
+    return update(context, {
+      inputs: context.inputs.filter((input) => input.id !== id),
+      midiNoteOnMap: {}
+    });
   }
 };
 

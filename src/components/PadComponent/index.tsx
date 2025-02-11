@@ -76,7 +76,9 @@ export const PadComponent = ({
       }
       // setSelectedPadId(pad.id);
 
-      onDragStart(e, pad.id, MIME_TYPE_PAD);
+      if (!isMidiMappingModeEnabled) {
+        onDragStart(e, pad.id, MIME_TYPE_PAD);
+      }
     },
     [events, pad, isPlayerReady, onDragStart, isMidiMappingModeEnabled]
   );
