@@ -1,8 +1,9 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { debounce } from '@helpers/debounce';
 import { createLog } from '@helpers/log';
 import { requestMIDIAccess } from '@helpers/midi';
+import { useSelectedPadId } from '@model/store/selectors';
 import { MidiStoreType } from '../store';
 
 const log = createLog('useMidiListener');
@@ -12,31 +13,38 @@ interface UseMidiListenerProps {
   store: MidiStoreType;
 }
 
-const debouncedMidiMessage = debounce(
-  (store: MidiStoreType, message: MIDIMessageEvent) => {
-    const [status, note, velocity] = message.data as Uint8Array;
-
-    // const inputId = (message.target as MIDIInput).id;
-    const { id, name, state } = message.target as MIDIInput;
-
-    // if (state === 'connected') {
-    //   store.send({ type: 'inputConnected', id, name });
-    // }
-    store.send({ type: 'inputMessage', id, status, note, velocity });
-  },
-  10
-);
-
 export const useMidiListener = ({ isEnabled, store }: UseMidiListenerProps) => {
+  const { selectedPadId } = useSelectedPadId();
+  const selectedPadIdRef = useRef(selectedPadId);
+
+  useEffect(() => {
+    // no idea whats going on, but the selectedPadId doesnt update as expected
+    selectedPadIdRef.current = selectedPadId;
+  }, [selectedPadId]);
+
   const handleMidiMessage = useCallback(
     (message: MIDIMessageEvent) => {
-      // const [status, note, velocity] = message.data as Uint8Array;
+      const [status, note, velocity] = message.data as Uint8Array;
 
       // const inputId = (message.target as MIDIInput).id;
+      const { id, name, state } = message.target as MIDIInput;
 
-      // log.debug('inputMessage', message);
-
-      debouncedMidiMessage(store, message);
+      // if (state === 'connected') {
+      //   store.send({ type: 'inputConnected', id, name });
+      // }
+      // log.debug('handleMidiMessage', {
+      //   note,
+      //   selectedPadId,
+      //   ref: selectedPadIdRef.current
+      // });
+      store.send({
+        type: 'inputMessage',
+        id,
+        status,
+        note,
+        velocity,
+        selectedPadId: selectedPadIdRef.current
+      });
     },
     [store]
   );
