@@ -35,7 +35,14 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
     setActiveIndex(null);
   }, []);
 
-  const handleUrlSubmit = async () => {
+  const handleValidate = useCallback((value: string) => {
+    if (isValidSourceUrl(value)) {
+      return null;
+    }
+    return 'Please enter a valid URL';
+  }, []);
+
+  const handleUrlSubmit = useCallback(async () => {
     if (handleValidate(url) === null && activeIndex) {
       setIsEnteringUrl(false);
       setLastMediaUrl(url);
@@ -45,7 +52,14 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
       await addUrlToPad({ url, padId: activeIndex, projectId });
     }
     return true;
-  };
+  }, [
+    handleValidate,
+    url,
+    activeIndex,
+    setLastMediaUrl,
+    projectId,
+    addUrlToPad
+  ]);
 
   const handleOpened = useCallback(({ padId }: { padId: string }) => {
     log.debug('handleOpened', { padId });
@@ -73,16 +87,19 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
     [activeIndex, addFileToPad, close, projectId]
   );
 
-  const handleValidate = useCallback((value: string) => {
-    if (isValidSourceUrl(value)) {
-      return null;
-    }
-    return 'Please enter a valid URL';
-  }, []);
-
   const handleEnterUrl = useCallback(() => {
     setIsEnteringUrl(true);
   }, []);
+
+  const handleEnterKeyUp = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        handleUrlSubmit();
+        close();
+      }
+    },
+    [handleUrlSubmit, close]
+  );
 
   const handlePaste = useCallback(async () => {
     if (!activeIndex) return;
@@ -128,7 +145,7 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
             isClearable
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            onKeyUp={(e) => e.key === 'Enter' && handleUrlSubmit()}
+            onKeyUp={handleEnterKeyUp}
             onClear={() => setUrl('')}
           />
         </div>

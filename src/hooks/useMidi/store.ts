@@ -17,7 +17,7 @@ import {
   type Actions
 } from './types';
 
-const log = createLog('useMidi/store');
+const log = createLog('useMidi/store', ['debug']);
 
 const initialContext: MidiStoreContext = {
   isEnabled: false,
@@ -104,6 +104,10 @@ const Actions = {
 
   setAllOff: (context: MidiStoreContext) => {
     return update(context, { midiNoteOnMap: {} });
+  },
+
+  clearInputs: (context: MidiStoreContext) => {
+    return update(context, { midiNoteOnMap: {}, inputs: [] });
   },
 
   inputMessage: (
@@ -262,8 +266,9 @@ const Actions = {
     };
   },
   inputConnected: (context: MidiStoreContext, event: InputConnectedAction) => {
-    const { id, name } = event;
+    const { id, name, state } = event;
 
+    log.debug('inputConnected!', { id, name, state });
     const newInput = {
       id,
       name,

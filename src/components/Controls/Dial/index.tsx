@@ -88,18 +88,17 @@ export const Dial = ({
     <div className='flex flex-col  items-center'>
       <div
         ref={ref}
-        className={cn(
-          'aspect-square rounded-full bg-primary border border-white/30',
-          size,
-          className
-        )}
+        className={cn('aspect-square rounded-full border ', size, className, {
+          'bg-primary border-primary-100': isEnabled,
+          'bg-primary-500 border-primary-400': !isEnabled
+        })}
         {...touchHandlers}
       >
         <div
           className='notch-container flex flex-col items-center justify-top w-full h-full'
           style={{ transform: `rotate(${startAngle + angle}deg)` }}
         >
-          <div className='notch bg-slate-700 w-[8%] h-[30%]' />
+          <div className='notch bg-primary-900 w-[8%] h-[30%]' />
         </div>
       </div>
       <OpLabel label={label} isEnabled={isEnabled} />

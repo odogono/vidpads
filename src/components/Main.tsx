@@ -12,7 +12,7 @@ import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useShowMode } from '@model/hooks/useShowMode';
 import { isMidiSupported } from '../helpers/midi';
-import { MidiSetup } from './MidiSetup';
+import { MidiSetupModal } from './modals/MidiSetupModal';
 
 export const Main = () => {
   const { isFullscreen, setIsFullscreen } = useFullscreen();
@@ -63,7 +63,7 @@ export const Main = () => {
         {!isFullscreen && (
           <>
             <BinComponent />
-            {hasMidi && <MidiSetup />}
+            {hasMidi && <MidiSetupModal />}
             <Controls />
             <div className='flex h-[50%]'>
               {isPadsVisible && <PadContainer />}

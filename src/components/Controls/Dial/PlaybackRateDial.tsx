@@ -19,7 +19,8 @@ interface PlaybackRateDialProps {
 
 export const PlaybackRateDial = ({
   pad,
-  setPadPlaybackRate
+  setPadPlaybackRate,
+  isEnabled
 }: PlaybackRateDialProps) => {
   const events = useEvents();
   const { setToolTip, hideToolTip } = useTooltip();
@@ -68,6 +69,7 @@ export const PlaybackRateDial = ({
   return (
     <Dial
       label='Rate'
+      isEnabled={isEnabled}
       ref={ref as React.RefObject<HTMLDivElement>}
       size='w-12'
       minValue={0.1}

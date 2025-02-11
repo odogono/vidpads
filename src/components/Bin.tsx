@@ -117,6 +117,7 @@ export const BinComponent = () => {
     <OpModalContainer
       isVisible={isDragging}
       isHighlighted={dragOverId !== null}
+      height='20vh'
     >
       <div
         ref={cutRef}
