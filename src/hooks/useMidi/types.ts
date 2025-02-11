@@ -8,8 +8,10 @@ export interface MidiStoreContext {
   isEnabled: boolean;
   isMappingModeEnabled: boolean;
   inputs: MidiInput[];
-  midiToPadMap: Record<string, string>;
+  midiToPadMap: Record<string, string[]>;
   padToMidiMap: Record<string, string>;
+  midiNoteOnMap: Record<string, boolean>;
+  updatedAt: string;
 }
 
 export type SetIsEnabledAction = { type: 'setIsEnabled'; isEnabled: boolean };
@@ -41,21 +43,59 @@ export type RemoveMidiMappingForPadAction = {
   padId: string;
 };
 
+export type ImportStoreFromJsonAction = {
+  type: 'importStoreFromJson';
+  data: Partial<MidiStoreContext>;
+};
+
+export type SetAllOffAction = {
+  type: 'setAllOff';
+};
+
 export type Actions =
   | SetIsEnabledAction
   | InputConnectedAction
   | InputDisconnectedAction
   | InputMessageAction
   | EnableMappingModeAction
-  | RemoveMidiMappingForPadAction;
+  | RemoveMidiMappingForPadAction
+  | ImportStoreFromJsonAction
+  | SetAllOffAction;
 
 export type ReadyEvent = { type: 'ready' };
 
 export type MidiMappingUpdatedEvent = {
   type: 'midiMappingUpdated';
   padId: string;
-  midiKey: string;
+  midiKey: string | undefined;
 };
 
-export type EmittedEvents = ReadyEvent | MidiMappingUpdatedEvent;
+export type NoteOnEvent = {
+  type: 'noteOn';
+  padId: string;
+  note: string;
+  velocity: number;
+  channel: number;
+};
+
+export type NoteOffEvent = {
+  type: 'noteOff';
+  padId: string;
+  note: string;
+  velocity: number;
+  channel: number;
+};
+
+export type EmittedEvents =
+  | ReadyEvent
+  | MidiMappingUpdatedEvent
+  | NoteOnEvent
+  | NoteOffEvent;
 export type Emit = { emit: (event: EmittedEvents) => void };
+
+export interface MidiStoreExport {
+  id: string;
+  midiToPadMap: Record<string, string[]>;
+  padToMidiMap: Record<string, string>;
+  updatedAt: string;
+}

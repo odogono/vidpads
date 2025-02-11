@@ -1,6 +1,8 @@
 export const VOKeys = {
   all: ['odgnVO'] as const,
 
+  midiStore: () => [...VOKeys.all, 'midiStore'] as const,
+
   projects: () => [...VOKeys.all, 'projects'] as const,
   projectDetails: () => [...VOKeys.projects(), 'details'] as const,
   project: (projectId: string) => [...VOKeys.projects(), projectId] as const,

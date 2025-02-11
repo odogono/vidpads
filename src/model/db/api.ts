@@ -22,12 +22,13 @@ import {
   MediaYouTube,
   ProjectExport
 } from '@model/types';
+import { MidiStoreExport } from '../../hooks/useMidi/types';
 import { getMediaType } from '../helpers';
 
 const log = createLog('db/api', ['debug']);
 
 const DB_NAME = 'odgn-vo';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export const isIndexedDBSupported = () => {
   return (
@@ -61,6 +62,10 @@ const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
   // Handle upgrade to version 2
   if (oldVersion < 2) {
     idbCreateObjectStore(db, 'projects', { keyPath: 'projectId' });
+  }
+
+  if (oldVersion < 3) {
+    idbCreateObjectStore(db, 'midiStore', { keyPath: 'id' });
   }
 };
 
@@ -156,6 +161,57 @@ export const saveProject = async (project: StoreContextType): Promise<void> => {
       log.error('Error saving project to IndexedDB:', putRequest.error);
       reject(putRequest.error);
     };
+    putRequest.onsuccess = () => resolve();
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+    };
+  });
+};
+
+export const loadMidiStore = async (): Promise<MidiStoreExport | null> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { midiStore, transaction } = idbOpenTransaction(
+      db,
+      ['midiStore'],
+      'readonly'
+    );
+
+    const getRequest = midiStore.get('midiStore');
+
+    getRequest.onerror = () => {
+      log.error('Error loading midi store from IndexedDB:', getRequest.error);
+      reject(getRequest.error);
+    };
+
+    getRequest.onsuccess = () => {
+      const result = (getRequest.result as MidiStoreExport) ?? null;
+      resolve(result);
+    };
+
+    transaction.oncomplete = () => {
+      closeDB(db);
+    };
+  });
+};
+
+export const saveMidiStore = async (data: MidiStoreExport): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { midiStore, transaction } = idbOpenTransaction(
+      db,
+      ['midiStore'],
+      'readwrite'
+    );
+
+    const putRequest = midiStore.put(data);
+
+    putRequest.onerror = () => {
+      log.error('Error saving midi store to IndexedDB:', putRequest.error);
+      reject(putRequest.error);
+    };
+
     putRequest.onsuccess = () => resolve();
 
     transaction.oncomplete = () => {

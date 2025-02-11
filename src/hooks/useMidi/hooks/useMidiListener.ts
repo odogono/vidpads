@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { debounce } from '@helpers/debounce';
 import { createLog } from '@helpers/log';
 import { requestMIDIAccess } from '@helpers/midi';
 import { useSelectedPadId } from '@model/store/selectors';
 import { MidiStoreType } from '../store';
 
-const log = createLog('useMidiListener');
+const log = createLog('useMidiListener', ['debug']);
 
 interface UseMidiListenerProps {
   isEnabled: boolean;

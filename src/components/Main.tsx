@@ -62,8 +62,8 @@ export const Main = () => {
 
         {!isFullscreen && (
           <>
-            {hasMidi && <MidiSetup />}
             <BinComponent />
+            {hasMidi && <MidiSetup />}
             <Controls />
             <div className='flex h-[50%]'>
               {isPadsVisible && <PadContainer />}

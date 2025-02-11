@@ -12,9 +12,9 @@ import {
   DropdownSection,
   DropdownTrigger
 } from '@heroui/react';
+import { useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { isMidiSupported } from '../helpers/midi';
 import { CommonModalRef } from './modals/CommonModal';
-import { ConfigureMidiModal } from './modals/ConfigureMidi';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import { ExportProjectModal } from './modals/ExportProjectModal';
 import { ImportProjectModal } from './modals/ImportProjectModal';
@@ -24,6 +24,7 @@ import { SaveProjectModal } from './modals/SaveProjectModal';
 import { SettingsModal } from './modals/SettingsModal';
 
 export const MenuButton = () => {
+  const { isMidiMappingModeEnabled, enableMappingMode } = useMidiMappingMode();
   const newProjectModalRef = useRef<CommonModalRef | null>(null);
   const loadProjectModalRef = useRef<CommonModalRef | null>(null);
   const saveProjectModalRef = useRef<CommonModalRef | null>(null);
@@ -31,26 +32,31 @@ export const MenuButton = () => {
   const importProjectModalRef = useRef<CommonModalRef | null>(null);
   const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
   const settingsModalRef = useRef<CommonModalRef | null>(null);
-  const configureMidiModalRef = useRef<CommonModalRef | null>(null);
-  const handleAction = useCallback((key: string) => {
-    if (key === 'new-project') {
-      newProjectModalRef.current?.open();
-    } else if (key === 'load-project') {
-      loadProjectModalRef.current?.open();
-    } else if (key === 'save-project') {
-      saveProjectModalRef.current?.open();
-    } else if (key === 'export-project') {
-      exportProjectModalRef.current?.open();
-    } else if (key === 'import-project') {
-      importProjectModalRef.current?.open();
-    } else if (key === 'delete-everything') {
-      deleteEverythingModalRef.current?.open();
-    } else if (key === 'settings') {
-      settingsModalRef.current?.open();
-    } else if (key === 'configure-midi') {
-      configureMidiModalRef.current?.open();
-    }
-  }, []);
+
+  const handleAction = useCallback(
+    (key: string) => {
+      if (key === 'new-project') {
+        newProjectModalRef.current?.open();
+      } else if (key === 'load-project') {
+        loadProjectModalRef.current?.open();
+      } else if (key === 'save-project') {
+        saveProjectModalRef.current?.open();
+      } else if (key === 'export-project') {
+        exportProjectModalRef.current?.open();
+      } else if (key === 'import-project') {
+        importProjectModalRef.current?.open();
+      } else if (key === 'delete-everything') {
+        deleteEverythingModalRef.current?.open();
+      } else if (key === 'settings') {
+        settingsModalRef.current?.open();
+      } else if (key === 'configure-midi') {
+        if (!isMidiMappingModeEnabled) {
+          enableMappingMode(true);
+        }
+      }
+    },
+    [isMidiMappingModeEnabled, enableMappingMode]
+  );
 
   return (
     <>
@@ -105,7 +111,6 @@ export const MenuButton = () => {
       <SaveProjectModal ref={saveProjectModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
       <ImportProjectModal ref={importProjectModalRef} />
-      <ConfigureMidiModal ref={configureMidiModalRef} />
       <SettingsModal ref={settingsModalRef} />
       <DeleteEverythingModal ref={deleteEverythingModalRef} />
     </>
