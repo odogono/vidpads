@@ -197,10 +197,11 @@ export const OpTimeInput = ({
         className={cn(
           `rounded-r-none cursor-ns-resize text-sm outline-none w-[6.8rem] font-mono text-center`,
           'hover:border-default-400 ',
-          !isEnabled
-            ? 'bg-secondary-800 text-secondary-500'
-            : 'hover:bg-primary-300 bg-primary',
-          isDragging && 'cursor-ew-resize'
+          {
+            'bg-secondary-800 text-secondary-500': !isEnabled,
+            'hover:bg-primary-300 bg-primary-400': isEnabled,
+            'cursor-ew-resize': isDragging
+          }
         )}
         type='text'
         disabled={!isEnabled}

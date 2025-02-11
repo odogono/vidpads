@@ -9,8 +9,8 @@ import {
   Trash2
 } from 'lucide-react';
 
-import { OpButton } from '@components/buttons/OpButton';
-import { OpPadLabelButton } from '@components/buttons/OpPadLabelButton';
+import { OpButton } from '@/components/common/OpButton';
+import { OpPadLabelButton } from '@/components/common/OpPadLabelButton';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { usePad } from '@model/hooks/usePad';

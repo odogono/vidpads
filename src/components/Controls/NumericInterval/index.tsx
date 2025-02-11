@@ -4,13 +4,13 @@ import { useCallback, useRef } from 'react';
 
 import { ArrowLeftFromLine, ArrowRightFromLine } from 'lucide-react';
 
-import { OpTimeInput, OpTimeInputRef } from '@components/buttons/OpTimeInput';
+import { OpTimeInput, OpTimeInputRef } from '@/components/common/OpTimeInput';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
-import { OpButton } from '../../buttons/OpButton';
+import { OpButton } from '../../common/OpButton';
 import { useControlsEvents } from '../hooks/useControlsEvents';
 
 const log = createLog('NumericInterval', ['debug']);

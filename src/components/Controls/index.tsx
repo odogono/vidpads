@@ -6,7 +6,7 @@ import { Indicator } from '@components/Indicator';
 import { CommonModalRef } from '@components/modals/CommonModal';
 import { DeleteModal } from '@components/modals/DeleteModal';
 import { ControlPanes } from '@types';
-import { OpBiButton } from '../buttons/OpBiButton';
+import { OpBiButton } from '../common/OpBiButton';
 import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
 import { SequencerPane } from './SequencerPane';

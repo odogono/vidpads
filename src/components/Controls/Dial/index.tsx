@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react';
 // import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { cn } from '@helpers/tailwind';
-import { OpLabel } from '../../buttons/OpLabel';
+import { OpLabel } from '../../common/OpLabel';
 import { useTouch } from './useTouch';
 
 interface DialProps {
@@ -89,7 +89,7 @@ export const Dial = ({
       <div
         ref={ref}
         className={cn(
-          'aspect-square rounded-full bg-white/20 border border-white/30',
+          'aspect-square rounded-full bg-primary border border-white/30',
           size,
           className
         )}

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect } from 'react';
 import { Button } from '@heroui/react';
 import { useMidiInputs, useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { useEvents } from '../hooks/events';
-import { OpModalContainer } from './buttons/OpModalContainer';
+import { OpModalContainer } from './common/OpModalContainer';
 
 export const MidiSetup = () => {
   const events = useEvents();
