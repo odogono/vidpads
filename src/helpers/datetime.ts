@@ -88,6 +88,10 @@ export const getUnixTimeFromNow = () => {
   return getUnixTime(new Date());
 };
 
+export const getCurrentYear = () => {
+  return new Date().getFullYear();
+};
+
 /**
  * Returns the Unix timestamp for the start of today
  */

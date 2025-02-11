@@ -14,6 +14,7 @@ import {
 } from '@heroui/react';
 import { useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { isMidiSupported } from '../helpers/midi';
+import { AboutModal } from './modals/AboutModal';
 import { CommonModalRef } from './modals/CommonModal';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import { ExportProjectModal } from './modals/ExportProjectModal';
@@ -32,7 +33,7 @@ export const MenuButton = () => {
   const importProjectModalRef = useRef<CommonModalRef | null>(null);
   const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
   const settingsModalRef = useRef<CommonModalRef | null>(null);
-
+  const aboutModalRef = useRef<CommonModalRef | null>(null);
   const handleAction = useCallback(
     (key: string) => {
       if (key === 'new-project') {
@@ -53,6 +54,8 @@ export const MenuButton = () => {
         if (!isMidiMappingModeEnabled) {
           enableMappingMode(true);
         }
+      } else if (key === 'about') {
+        aboutModalRef.current?.open();
       }
     },
     [isMidiMappingModeEnabled, enableMappingMode]
@@ -113,6 +116,7 @@ export const MenuButton = () => {
       <ImportProjectModal ref={importProjectModalRef} />
       <SettingsModal ref={settingsModalRef} />
       <DeleteEverythingModal ref={deleteEverythingModalRef} />
+      <AboutModal ref={aboutModalRef} />
     </>
   );
 };

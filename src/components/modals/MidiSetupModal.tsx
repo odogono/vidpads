@@ -2,10 +2,10 @@ import React, { useCallback, useEffect } from 'react';
 
 import { Button } from '@heroui/react';
 import { useMidiInputs, useMidiMappingMode } from '@hooks/useMidi/selectors';
-import { useEvents } from '../hooks/events';
-import { OpModalContainer } from './common/OpModalContainer';
+import { useEvents } from '../../hooks/events';
+import { OpModalContainer } from '../common/OpModalContainer';
 
-export const MidiSetup = () => {
+export const MidiSetupModal = () => {
   const events = useEvents();
   const inputs = useMidiInputs();
   const { isMidiMappingModeEnabled, enableMappingMode } = useMidiMappingMode();
@@ -30,6 +30,8 @@ export const MidiSetup = () => {
     };
   }, [handleOk, events]);
 
+  const hasInputs = inputs.length > 0;
+
   return (
     <OpModalContainer
       isVisible={isMidiMappingModeEnabled}
@@ -51,10 +53,14 @@ export const MidiSetup = () => {
               <div>{input.state}</div>
             </React.Fragment>
           ))}
+          {!hasInputs && <div className='col-span-2'>No MIDI inputs found</div>}
         </div>
-        <Button color='primary' onPress={handleOk}>
-          Ok
-        </Button>
+
+        <div className='flex-grow w-full flex justify-end items-end'>
+          <Button color='primary' onPress={handleOk}>
+            Ok
+          </Button>
+        </div>
       </div>
     </OpModalContainer>
   );

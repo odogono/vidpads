@@ -1,4 +1,4 @@
-import { cn } from '@heroui/react';
+import { cn } from '@helpers/tailwind';
 
 interface OpModalContainerProps extends React.PropsWithChildren {
   isVisible: boolean;
@@ -11,7 +11,7 @@ export const OpModalContainer = ({
   isVisible,
   isHighlighted,
   children,
-  height = '15vh',
+  height = '20vh',
   hasPointerEvents = false
 }: OpModalContainerProps) => {
   return (
@@ -25,18 +25,21 @@ export const OpModalContainer = ({
       )}
     >
       <div
-        className={`
-        w-[50vw] h-[${height}] rounded-lg cursor-pointer relative
+        className={cn(
+          `
+        w-[50vw] h-[20vh] rounded-lg cursor-pointer relative
         flex items-center justify-center
         shadow-[0_0_15px_rgba(0,0,0,0.5)]
-        transition-all duration-300 ease-in-out
-        ${
-          isVisible
-            ? 'opacity-100 translate-y-0 visible'
-            : 'opacity-0 translate-y-10 invisible pointer-events-none'
-        }
-        ${isHighlighted ? 'bg-bin-over scale-105' : 'bg-bin'}
-      `}
+        transition-all duration-300 ease-in-out`,
+          {
+            'opacity-100 translate-y-0 visible': isVisible,
+            'opacity-0 translate-y-10 invisible pointer-events-none': !isVisible
+          },
+          {
+            'bg-bin-over scale-105': isHighlighted,
+            'bg-bin': !isHighlighted
+          }
+        )}
       >
         {children}
       </div>

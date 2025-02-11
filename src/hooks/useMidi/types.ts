@@ -20,9 +20,14 @@ export type InputConnectedAction = {
   type: 'inputConnected';
   id: string;
   name?: string | null;
+  state?: MIDIPortConnectionState;
 };
 
-export type InputDisconnectedAction = { type: 'inputDisconnected'; id: string };
+export type InputDisconnectedAction = {
+  type: 'inputDisconnected';
+  id: string;
+  state?: MIDIPortConnectionState;
+};
 
 export type InputMessageAction = {
   type: 'inputMessage';
@@ -52,6 +57,10 @@ export type SetAllOffAction = {
   type: 'setAllOff';
 };
 
+export type ClearInputsAction = {
+  type: 'clearInputs';
+};
+
 export type Actions =
   | SetIsEnabledAction
   | InputConnectedAction
@@ -60,7 +69,8 @@ export type Actions =
   | EnableMappingModeAction
   | RemoveMidiMappingForPadAction
   | ImportStoreFromJsonAction
-  | SetAllOffAction;
+  | SetAllOffAction
+  | ClearInputsAction;
 
 export type ReadyEvent = { type: 'ready' };
 

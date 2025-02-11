@@ -1,3 +1,5 @@
+import { cn } from '@helpers/tailwind';
+
 export const OpLabel = ({
   label,
   isEnabled
@@ -8,15 +10,17 @@ export const OpLabel = ({
   if (!label) return null;
   return (
     <div
-      className={`text-xs text-foreground/90 mt-2 ${
-        isEnabled ? 'text-foreground/90' : 'text-foreground/60'
-      }`}
+      className={cn('text-xs mt-2', {
+        'text-foreground/90': isEnabled,
+        'text-foreground/60': !isEnabled
+      })}
       style={{
         fontSize: '0.6rem',
         lineHeight: '0.75rem'
       }}
     >
       {label}
+      {isEnabled}
     </div>
   );
 };

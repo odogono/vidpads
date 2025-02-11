@@ -26,7 +26,7 @@ export const useMidiListener = ({ isEnabled, store }: UseMidiListenerProps) => {
       const [status, note, velocity] = message.data as Uint8Array;
 
       // const inputId = (message.target as MIDIInput).id;
-      const { id, name, state } = message.target as MIDIInput;
+      const { id } = message.target as MIDIInput;
 
       // if (state === 'connected') {
       //   store.send({ type: 'inputConnected', id, name });
@@ -51,28 +51,35 @@ export const useMidiListener = ({ isEnabled, store }: UseMidiListenerProps) => {
   useEffect(() => {
     let cleanup: (() => void) | undefined;
 
+    store.send({ type: 'clearInputs' });
+
     const setupMidi = async () => {
       const midiAccess = await requestMIDIAccess();
 
       if (!midiAccess) return;
 
       midiAccess.inputs.forEach((input) => {
-        // log.debug(
-        //   `[type:'${input.type}']` +
-        //     ` id:'${input.id}'` +
-        //     ` name:'${input.name}'`
-        // );
-        store.send({ type: 'inputConnected', id: input.id, name: input.name });
+        log.debug(
+          `[type:'${input.type}']` +
+            ` name:'${input.name}' connection:${input.connection} state:${input.state}`,
+          input
+        );
+        store.send({
+          type: 'inputConnected',
+          id: input.id,
+          name: input.name,
+          state: input.connection
+        });
         input.addEventListener('midimessage', handleMidiMessage);
       });
 
       midiAccess.onstatechange = (e) => {
-        const { id, state, name } = e.port;
-        // log.debug('MIDI state changed', { name, id, state });
+        const { id, state, name, connection } = e.port;
+        log.debug('MIDI state changed', { name, id, state, connection });
         if (state === 'disconnected') {
-          store.send({ type: 'inputDisconnected', id });
+          store.send({ type: 'inputDisconnected', id, state: connection });
         } else if (state === 'connected') {
-          store.send({ type: 'inputConnected', id, name });
+          store.send({ type: 'inputConnected', id, name, state: connection });
         } else {
           log.debug('MIDI state changed', { name, id, state });
         }
