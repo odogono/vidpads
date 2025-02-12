@@ -5,7 +5,7 @@ import { updateMetadataProperty as dbUpdateMetadataProperty } from '@model/db/ap
 import { PlayerHandler, PlayerMap } from '@model/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-const log = createLog('usePlayersState');
+const log = createLog('usePlayersState', ['debug']);
 
 export const usePlayersState = () => {
   const queryClient = useQueryClient();

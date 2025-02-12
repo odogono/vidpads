@@ -19,7 +19,7 @@ export const initialContext: StoreContextType = {
     isPadPlayEnabled: true,
     isKeyboardPlayEnabled: true,
     isMidiPlayEnabled: false,
-    hidePlayerOnEnd: false,
+    hidePlayerOnEnd: true,
     selectPadFromKeyboard: false,
     selectPadFromMidi: false,
     selectPadFromPad: true

@@ -35,7 +35,6 @@ export const TimeSequencerBody = ({
   const padCount = pads.length;
   const bodyRef = useRef<HTMLDivElement>(null);
   // const events = useEvents();
-  const [playHeadPosition, setPlayHeadPosition] = useState(0);
 
   const { gridRef, getGridDimensions } = useGridDimensions({ padCount });
 
@@ -59,6 +58,7 @@ export const TimeSequencerBody = ({
     selectEventsAtTime,
     seqSelectedEvents,
     seqSelectedEventIds,
+    time,
     endTime,
     setTime,
     repeatEvents,
@@ -66,6 +66,9 @@ export const TimeSequencerBody = ({
     snapEvents,
     pasteEvents
   } = useTimeSequencer();
+  const [playHeadPosition, setPlayHeadPosition] = useState(
+    secondsToPixels(time, pixelsPerBeat, bpm)
+  );
 
   const timelineDurationInPixels =
     secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
