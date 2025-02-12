@@ -30,22 +30,29 @@ const log = createLog('model/export', ['debug']);
 const EXPORT_JSON_VERSION = 1;
 const EXPORT_APP_VERSION = appVersion;
 
-const EXPORT_URL_VERSION = 2;
+const EXPORT_URL_VERSION = 3;
 
 export type ExportOptions = Record<string, unknown>;
 
 export const exportToJSON = (store: StoreType): ProjectExport => {
   const { context } = store.getSnapshot();
 
-  const { projectId, projectName, sequencer, createdAt, updatedAt, pads } =
-    context;
+  const {
+    projectId,
+    projectName,
+    projectBgImage,
+    sequencer,
+    createdAt,
+    updatedAt,
+    pads
+  } = context;
 
   const sequencerJSON = sequencer
     ? exportSequencerToJSON(sequencer)
     : undefined;
   const padsJSON = pads.map((pad) => exportPadToJSON(pad)).filter(Boolean);
 
-  return {
+  const result = {
     id: projectId || generateShortUUID(),
     name: projectName || `Untitled Project - ${formatShortDate()}`,
     version: EXPORT_APP_VERSION,
@@ -55,6 +62,12 @@ export const exportToJSON = (store: StoreType): ProjectExport => {
     createdAt: createdAt || dateToISOString(),
     updatedAt: updatedAt || dateToISOString()
   } as ProjectExport;
+
+  if (projectBgImage) {
+    result.bgImage = projectBgImage;
+  }
+
+  return result;
 };
 
 export const exportToJSONString = (store: StoreType) => {
@@ -66,18 +79,28 @@ export const exportToURLString = async (
   project: StoreType,
   version: number = EXPORT_URL_VERSION
 ) => {
-  if (version === 1) {
-    return exportToURLStringV1(project);
+  switch (version) {
+    case 1:
+      return exportToURLStringV1(project);
+    case 2:
+      return exportToURLStringV2(project);
+    default:
+      return exportToURLStringV3(project);
   }
-
-  return exportToURLStringV2(project);
 };
 
-export const exportToURLStringV1 = (project: StoreType) => {
+const exportToURLCommon = (project: StoreType) => {
   const { context } = project.getSnapshot();
 
-  const { projectId, projectName, createdAt, updatedAt, pads, sequencer } =
-    context;
+  const {
+    projectId,
+    projectName,
+    projectBgImage,
+    createdAt,
+    updatedAt,
+    pads,
+    sequencer
+  } = context;
 
   const sequencerURL = sequencer ? exportSequencerToURLString(sequencer) : '';
 
@@ -86,6 +109,27 @@ export const exportToURLStringV1 = (project: StoreType) => {
   const createTimeSecs = getUnixTimeFromDate(createdAt);
   const updateTimeSecs = getUnixTimeFromDate(updatedAt);
 
+  return {
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  };
+};
+
+export const exportToURLStringV1 = (project: StoreType) => {
+  const {
+    projectId,
+    projectName,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  } = exportToURLCommon(project);
+
   // base64 encode the project name
   const projectNameBase64 = projectName
     ? btoa(encodeURIComponent(projectName))
@@ -93,6 +137,16 @@ export const exportToURLStringV1 = (project: StoreType) => {
 
   let result = `1|${projectId}|${projectNameBase64}|${createTimeSecs}|${updateTimeSecs}`;
 
+  result = addPadsAndSequencerToResult(result, padsURL, sequencerURL);
+
+  return result;
+};
+
+const addPadsAndSequencerToResult = (
+  result: string,
+  padsURL: (string | undefined)[],
+  sequencerURL?: string
+) => {
   if (padsURL.length > 0) {
     result += `|${padsURL.join('(')}`;
   } else {
@@ -107,33 +161,42 @@ export const exportToURLStringV1 = (project: StoreType) => {
 };
 
 export const exportToURLStringV2 = async (project: StoreType) => {
-  const { context } = project.getSnapshot();
-
-  const { projectId, projectName, createdAt, updatedAt, pads, sequencer } =
-    context;
-
-  const sequencerURL = sequencer ? exportSequencerToURLString(sequencer) : '';
-
-  const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
-
-  const createTimeSecs = getUnixTimeFromDate(createdAt);
-  const updateTimeSecs = getUnixTimeFromDate(updatedAt);
+  const {
+    projectId,
+    projectName,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  } = exportToURLCommon(project);
 
   let result = `${projectId}|${projectName}|${createTimeSecs}|${updateTimeSecs}`;
 
-  if (padsURL.length > 0) {
-    result += `|${padsURL.join('(')}`;
-  } else {
-    result += '|';
-  }
-
-  if (sequencerURL) {
-    result += `|${sequencerURL}`;
-  }
+  result = addPadsAndSequencerToResult(result, padsURL, sequencerURL);
 
   const compressed = await compress(result);
 
   return `2|${compressed}`;
+};
+
+export const exportToURLStringV3 = async (project: StoreType) => {
+  const {
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  } = exportToURLCommon(project);
+
+  let result = `${projectId}|${projectName}|${projectBgImage}|${createTimeSecs}|${updateTimeSecs}`;
+
+  result = addPadsAndSequencerToResult(result, padsURL, sequencerURL);
+
+  const compressed = await compress(result);
+
+  return `3|${compressed}`;
 };
 
 export const importProjectExport = (data: ProjectExport): StoreContext => {
@@ -149,6 +212,10 @@ export const importProjectExport = (data: ProjectExport): StoreContext => {
     createdAt: data.createdAt || dateToISOString(),
     updatedAt: data.updatedAt || dateToISOString()
   };
+
+  if (data.bgImage) {
+    newContext.projectBgImage = data.bgImage;
+  }
 
   const sequencer = data.sequencer
     ? importSequencerFromJSON(data.sequencer)
@@ -182,6 +249,9 @@ export const urlStringToProject = async (urlString: string) => {
   }
   if (version === '2') {
     return importFromURLStringV2(data);
+  }
+  if (version === '3') {
+    return importFromURLStringV3(data);
   }
 
   throw new Error(`Unsupported export version: ${version}`);
@@ -250,6 +320,43 @@ const importFromURLStringV2 = async (data: string) => {
   return {
     id: projectId,
     name: projectName,
+    createdAt: dateToISOString(createdAt),
+    updatedAt: dateToISOString(updatedAt),
+    pads,
+    sequencer
+  } as ProjectExport;
+};
+
+const importFromURLStringV3 = async (data: string) => {
+  const uncompressed = await decompress(data);
+
+  log.debug('importFromURLStringV3', uncompressed);
+  const [
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  ] = uncompressed.split('|');
+
+  const createdAt = getDateFromUnixTime(createTimeSecs);
+  const updatedAt = getDateFromUnixTime(updateTimeSecs);
+
+  const pads = padsURL
+    .split('(')
+    .map(importPadFromURLString)
+    .filter(Boolean) as PadExport[];
+
+  const sequencer = sequencerURL
+    ? importSequencerFromURLString(sequencerURL)
+    : undefined;
+
+  return {
+    id: projectId,
+    name: projectName,
+    bgImage: projectBgImage,
     createdAt: dateToISOString(createdAt),
     updatedAt: dateToISOString(updatedAt),
     pads,

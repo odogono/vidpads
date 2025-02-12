@@ -4,7 +4,8 @@ import { Inter, Kode_Mono, SUSE } from 'next/font/google';
 
 import { I18nProvider } from '@i18n/I18nProvider';
 
-import './globals.css';
+import './styles/globals.css';
+import './styles/crt.css';
 
 import { EventsProvider } from '@hooks/events/provider';
 import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';

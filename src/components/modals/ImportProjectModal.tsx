@@ -32,6 +32,7 @@ export const ImportProjectModal = ({ ref }: CommonModalBase) => {
       <Textarea
         ref={textareaRef}
         isClearable
+        color='primary'
         className='w-full'
         label='JSON'
         placeholder='Paste your JSON here'

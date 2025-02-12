@@ -16,8 +16,7 @@ export interface StoreContextType {
   projectDescription?: string;
   projectAuthor?: string;
 
-  // isInitial: boolean;
-  // startTime: string;
+  projectBgImage?: string;
 
   selectedControlPane?: ControlPanes;
   selectedPadId?: string | null;
@@ -329,6 +328,11 @@ export type SetPlayersEnabledAction = {
   isEnabled: boolean;
 };
 
+export type SetProjectBgImageAction = {
+  type: 'setProjectBgImage';
+  url?: string | undefined;
+};
+
 export type Actions =
   | SetPadMediaAction
   | ClearPadAction
@@ -374,7 +378,8 @@ export type Actions =
   | RepeatSequencerEventsAction
   | CutSequencerEventsAction
   | PasteSequencerEventsAction
-  | SnapSequencerEventsAction;
+  | SnapSequencerEventsAction
+  | SetProjectBgImageAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

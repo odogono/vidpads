@@ -108,7 +108,7 @@ export const requestMIDIAccess = async () => {
     const midiAccess = await navigator.requestMIDIAccess();
     return midiAccess;
   } catch (err) {
-    log.error('MIDI access denied or not supported:', err);
+    log.warn('MIDI access denied or not supported:', err);
     return undefined;
   }
 };

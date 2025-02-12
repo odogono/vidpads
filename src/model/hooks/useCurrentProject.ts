@@ -15,12 +15,27 @@ export const useCurrentProject = () => {
     useSelector(project, (state) => state.context.projectName) ||
     `Untitled Project - ${formatShortDate()}`;
 
+  const projectBgImage = useSelector(
+    project,
+    (state) => state.context.projectBgImage
+  );
+
   const setProjectName = useCallback(
-    (name: string) => {
-      project.send({ type: 'setProjectName', name });
-    },
+    (name: string) => project.send({ type: 'setProjectName', name }),
     [project]
   );
 
-  return { project, projectId, projectName, setProjectName };
+  const setProjectBgImage = useCallback(
+    (url?: string) => project.send({ type: 'setProjectBgImage', url }),
+    [project]
+  );
+
+  return {
+    project,
+    projectId,
+    projectName,
+    setProjectName,
+    projectBgImage,
+    setProjectBgImage
+  };
 };

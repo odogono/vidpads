@@ -45,3 +45,4 @@ export { setPadPlaybackResume } from './setPadPlayResume';
 export { setProjectName } from './setProjectName';
 export { setSetting } from './setSetting';
 export { setPlayersEnabled } from './setPlayersEnabled';
+export { setProjectBgImage } from './setProjectBgImage';

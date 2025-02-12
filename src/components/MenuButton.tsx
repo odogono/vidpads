@@ -21,6 +21,7 @@ import { ExportProjectModal } from './modals/ExportProjectModal';
 import { ImportProjectModal } from './modals/ImportProjectModal';
 import { LoadProjectModal } from './modals/LoadProjectModal';
 import { NewProjectModal } from './modals/NewProjectModal';
+import { ProjectImageModal } from './modals/ProjectImageModal';
 import { SaveProjectModal } from './modals/SaveProjectModal';
 import { SettingsModal } from './modals/SettingsModal';
 
@@ -34,6 +35,7 @@ export const MenuButton = () => {
   const deleteEverythingModalRef = useRef<CommonModalRef | null>(null);
   const settingsModalRef = useRef<CommonModalRef | null>(null);
   const aboutModalRef = useRef<CommonModalRef | null>(null);
+  const projectImageModalRef = useRef<CommonModalRef | null>(null);
   const handleAction = useCallback(
     (key: string) => {
       if (key === 'new-project') {
@@ -42,6 +44,8 @@ export const MenuButton = () => {
         loadProjectModalRef.current?.open();
       } else if (key === 'save-project') {
         saveProjectModalRef.current?.open();
+      } else if (key === 'project-image') {
+        projectImageModalRef.current?.open();
       } else if (key === 'export-project') {
         exportProjectModalRef.current?.open();
       } else if (key === 'import-project') {
@@ -88,6 +92,10 @@ export const MenuButton = () => {
             Save Project
           </DropdownItem>
 
+          <DropdownItem key='project-image' showDivider>
+            Set Project Image
+          </DropdownItem>
+
           <DropdownItem key='import-project'>Import Project</DropdownItem>
 
           <DropdownItem key='export-project' showDivider>
@@ -112,6 +120,7 @@ export const MenuButton = () => {
       <NewProjectModal ref={newProjectModalRef} />
       <LoadProjectModal ref={loadProjectModalRef} />
       <SaveProjectModal ref={saveProjectModalRef} />
+      <ProjectImageModal ref={projectImageModalRef} />
       <ExportProjectModal ref={exportProjectModalRef} />
       <ImportProjectModal ref={importProjectModalRef} />
       <SettingsModal ref={settingsModalRef} />

@@ -154,6 +154,7 @@ export interface MediaYouTube extends Media {
 export interface ProjectExport {
   id: string;
   name: string;
+  bgImage?: string | undefined;
   exportVersion: string;
   createdAt: string;
   updatedAt: string;

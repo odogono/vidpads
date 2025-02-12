@@ -29,7 +29,7 @@ export const initialContext: StoreContextType = {
     bpm: 60,
     events: [],
     time: 0,
-    endTime: 30 // secs
+    endTime: 60 // secs
   },
   createdAt: dateToISOString(),
   updatedAt: dateToISOString(),

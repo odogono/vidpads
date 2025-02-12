@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { BinComponent } from '@components/Bin';
 import { Controls } from '@components/Controls';
 import { FullScreenButton } from '@components/FullScreenButton';
@@ -37,7 +39,9 @@ export const Main = () => {
             className={`flex justify-between w-full mx-auto mb-2 items-center ${isFullscreen ? 'hidden' : ''}`}
           >
             <div className='text-white font-mono text-xl font-bold'>
-              <span className='text-c5'>ODGN</span> VO PADS
+              <Link href='/'>
+                <span className='text-c5'>ODGN</span> VO PADS
+              </Link>
             </div>
             <span className='flex items-center gap-2'>
               <FullScreenButton
