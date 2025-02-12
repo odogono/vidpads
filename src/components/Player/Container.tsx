@@ -145,7 +145,15 @@ export const PlayerContainer = () => {
   );
 
   const handlePadTouchup = useCallback(
-    ({ padId, source }: { padId: string; source: string }) => {
+    ({
+      padId,
+      source,
+      forceStop
+    }: {
+      padId: string;
+      source: string;
+      forceStop?: boolean;
+    }) => {
       if (!arePlayersEnabled) return;
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
@@ -156,7 +164,7 @@ export const PlayerContainer = () => {
 
       const isOneShot = getPadIsOneShot(pad);
 
-      if (!isOneShot) {
+      if (!isOneShot || forceStop) {
         events.emit('video:stop', { url, padId, time: 0 });
       }
     },

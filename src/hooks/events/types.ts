@@ -24,6 +24,7 @@ export type EventEmitterEvents = {
   'pad:touchup': {
     padId: string;
     source: EventInputSource;
+    forceStop?: boolean;
   };
   // request the video to start
   'video:start': PlayerPlay;

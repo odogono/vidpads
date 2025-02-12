@@ -6,6 +6,22 @@ export interface TriggerNode {
   right: TriggerNode | undefined;
 }
 
+export const triggerTreeCount = (node: TriggerNode | undefined): number => {
+  if (!node) return 0;
+  return 1 + triggerTreeCount(node.left) + triggerTreeCount(node.right);
+};
+
+export const triggerTreeToEvents = (
+  node: TriggerNode | undefined
+): TriggerEvent[] => {
+  if (!node) return [];
+  return [
+    node.event,
+    ...triggerTreeToEvents(node.left),
+    ...triggerTreeToEvents(node.right)
+  ];
+};
+
 export const insertTriggerEvent = (
   node: TriggerNode | undefined,
   event: TriggerEvent

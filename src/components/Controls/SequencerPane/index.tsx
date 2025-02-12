@@ -58,7 +58,7 @@ export const SequencerPane = () => {
   }, [isLooped, setLooped]);
 
   useEffect(() => {
-    setShowRewind((!isPlaying || !isRecording) && time > 0);
+    setShowRewind(!isPlaying && !isRecording && time > 0);
   }, [isPlaying, isRecording, time]);
 
   const handleTimeUpdate = useCallback(

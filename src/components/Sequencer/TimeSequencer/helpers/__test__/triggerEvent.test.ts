@@ -4,7 +4,8 @@ import {
   findNextTriggerEvent,
   findPreviousTriggerEvent,
   findTriggerEventsWithinTimeRange,
-  insertTriggerEvent
+  insertTriggerEvent,
+  triggerTreeCount
 } from '../triggerEvent';
 
 describe('triggerEvent', () => {
@@ -51,6 +52,32 @@ describe('triggerEvent', () => {
       expect(root?.left?.right?.event).toEqual(
         expect.objectContaining({ time: 2, padId: '2' })
       );
+    });
+  });
+
+  describe('triggerTreeCount', () => {
+    it('should return 0 for an empty tree', () => {
+      const result = triggerTreeCount(undefined);
+      expect(result).toBe(0);
+    });
+
+    it('should return the correct count for a tree with events', () => {
+      const events: TriggerEvent[] = [
+        { time: 3, padId: '3', event: 'pad:touchdown' },
+        { time: 1, padId: '1', event: 'pad:touchdown' },
+        { time: 4, padId: '3', event: 'pad:touchup' },
+        { time: 2, padId: '1', event: 'pad:touchup' },
+        { time: 5, padId: '5', event: 'pad:touchdown' },
+        { time: 6, padId: '5', event: 'pad:touchup' }
+      ];
+
+      let root: TriggerNode | undefined;
+      events.forEach((event) => {
+        root = insertTriggerEvent(root, event);
+      });
+
+      const result = triggerTreeCount(root);
+      expect(result).toBe(6);
     });
   });
 

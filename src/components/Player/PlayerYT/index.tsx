@@ -95,11 +95,11 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   }, [playerRef]);
 
   const stopVideo = useCallback(
-    ({ url, padId }: PlayerStop) => {
+    ({ url, padId, all }: PlayerStop) => {
       const player = playerRef.current;
       if (!player) return;
-      if (url !== mediaUrl) return;
-      if (padId !== playerPadId) return;
+      if (!all && url !== mediaUrl) return;
+      if (!all && padId !== playerPadId) return;
 
       // log.debug('[stopVideo]', player.odgnId, {
       //   player,

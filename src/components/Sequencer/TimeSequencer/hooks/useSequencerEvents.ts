@@ -89,7 +89,14 @@ export const useSequencerEvents = ({
 
   const handleStopped = useCallback(() => {
     setIsRecording(false);
-  }, [setIsRecording]);
+    // stop all players
+    events.emit('video:stop', {
+      url: '',
+      padId: '',
+      all: true,
+      time: 0
+    });
+  }, [setIsRecording, events]);
 
   // creates a binary tree of trigger events
   const triggerTree: TriggerNode | undefined = useMemo(() => {
@@ -160,8 +167,18 @@ export const useSequencerEvents = ({
         endTime
       );
 
+      // console.debug(
+      //   '[handleTimeUpdate] rangeEvents',
+      //   { time, startTime, endTime, tree: triggerTreeToEvents(triggerTree) },
+      //   rangeEvents.length
+      // );
+
       for (const event of rangeEvents) {
-        events.emit(event.event, { padId: event.padId, source: 'sequencer' });
+        events.emit(event.event, {
+          padId: event.padId,
+          source: 'sequencer',
+          forceStop: true
+        });
       }
 
       lastTimeUpdate.current = time;
@@ -175,12 +192,14 @@ export const useSequencerEvents = ({
     events.on('seq:time-update', handleTimeUpdate);
     events.on('seq:record-started', handleRecordStarted);
     events.on('seq:stopped', handleStopped);
+    events.on('cmd:cancel', handleStopped);
     return () => {
       events.off('pad:touchdown', handlePadTouchdown);
       events.off('pad:touchup', handlePadTouchup);
       events.off('seq:time-update', handleTimeUpdate);
       events.off('seq:record-started', handleRecordStarted);
       events.off('seq:stopped', handleStopped);
+      events.off('cmd:cancel', handleStopped);
     };
   }, [
     events,
