@@ -52,12 +52,17 @@ export const useSequencerEvents = ({
       const seqEvent = createSequencerEvent({
         padId,
         time: lastTimeUpdate.current,
-        duration: 0.5
+        duration: 0.01,
+        // this flag means that the event component
+        // will update its width as the playhead moves
+        inProgress: true
       });
+
+      addEvent(seqEvent);
 
       recordEvents.current.set(padId, seqEvent);
     },
-    [recordEvents, lastTimeUpdate, isRecording]
+    [recordEvents, lastTimeUpdate, isRecording, addEvent]
   );
 
   const handlePadTouchup = useCallback(
@@ -70,8 +75,9 @@ export const useSequencerEvents = ({
       recordEvents.current.delete(padId);
 
       seqEvent.duration = lastTimeUpdate.current - seqEvent.time;
+      seqEvent.inProgress = false;
 
-      addEvent(seqEvent.padId, seqEvent.time, seqEvent.duration);
+      addEvent(seqEvent);
     },
     [addEvent, recordEvents, lastTimeUpdate, isRecording]
   );
@@ -90,7 +96,9 @@ export const useSequencerEvents = ({
     const result = seqEvents.reduce(
       (tree, e) => {
         if (!e) return tree;
-        const { time, duration, padId } = e;
+        const { time, duration, padId, inProgress } = e;
+
+        if (inProgress) return tree;
 
         const adjTime = pixelsToMs(
           msToPixels(time, pixelsPerBeat, canvasBpm),
@@ -132,6 +140,15 @@ export const useSequencerEvents = ({
         lastTimeUpdate.current = time;
         return;
       }
+
+      // emit an update event so that any events which
+      // are being recorded can update their dimensions
+      events.emit('seq:playhead-update', {
+        time,
+        playHeadX: playHeadPosition,
+        isPlaying,
+        isRecording
+      });
 
       // get all of the events between the last time this was called
       // and the current time

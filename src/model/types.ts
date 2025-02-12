@@ -200,4 +200,6 @@ export interface SequencerEvent {
   time: number;
   duration: number;
   isSelected?: boolean;
+  // whether the event is currently being recorded
+  inProgress?: boolean;
 }

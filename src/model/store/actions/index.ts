@@ -7,7 +7,6 @@ export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';
 export {
   toggleSequencerEvent,
-  addSequencerEvent,
   clearSequencerEvents,
   removeSequencerEvent,
   setSequencerTime,
@@ -19,6 +18,7 @@ export {
   rewindSequencer,
   setSequencerIsLooped
 } from './sequencerEvents';
+export { addSequencerEvent } from './sequencerEvents/addSequencerEvent';
 export { moveSequencerEvents } from './sequencerEvents/moveSequencerEvents';
 export { repeatSequencerEvents } from './sequencerEvents/repeatSequencerEvents';
 export { selectSequencerEvents } from './sequencerEvents/selectSequencerEvents';

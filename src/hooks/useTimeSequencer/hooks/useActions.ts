@@ -107,8 +107,8 @@ export const useActions = ({
   }, [project]);
 
   const addEvent = useCallback(
-    (padId: string, time: number, duration: number) => {
-      project.send({ type: 'addSequencerEvent', padId, time, duration });
+    (evt: SequencerEvent) => {
+      project.send({ type: 'addSequencerEvent', evt });
     },
     [project]
   );

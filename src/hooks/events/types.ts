@@ -86,6 +86,12 @@ export type EventEmitterEvents = {
     isPlaying: boolean;
     isRecording: boolean;
   };
+  'seq:playhead-update': {
+    time: number;
+    playHeadX: number;
+    isPlaying: boolean;
+    isRecording: boolean;
+  };
   'seq:clear-events': undefined;
   'seq:set-time': {
     time: number;

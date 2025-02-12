@@ -3,11 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
-// import { useEvents } from '@hooks/events';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
+import { createSequencerEvent, quantizeSeconds } from '@model/sequencerEvent';
 import { Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
-import { quantizeSeconds } from '../../../model/sequencerEvent';
 import { EventTooltip } from './components/EventTooltip';
 import { Header } from './components/Header';
 import { Marquee } from './components/Marquee';
@@ -34,7 +33,6 @@ export const TimeSequencerBody = ({
 }: SequencerBodyProps) => {
   const padCount = pads.length;
   const bodyRef = useRef<HTMLDivElement>(null);
-  // const events = useEvents();
 
   const { gridRef, getGridDimensions } = useGridDimensions({ padCount });
 
@@ -179,9 +177,11 @@ export const TimeSequencerBody = ({
             } else {
               if (!isTooltipVisible) {
                 addEvent(
-                  padIds[0],
-                  quantizeSeconds(time, 4),
-                  lastEventDuration
+                  createSequencerEvent({
+                    padId: padIds[0],
+                    time: quantizeSeconds(time, 4),
+                    duration: lastEventDuration
+                  })
                 );
               }
               // log.debug('handleMarqueeSelectEnd', {
@@ -310,7 +310,6 @@ export const TimeSequencerBody = ({
   });
 
   const rows = useMemo(() => {
-    // log.debug('events', sequencerEvents.length, sequencerEvents);
     return Array.from({ length: padCount }, (_, index) => {
       const events = seqEvents.filter((e) => e.padId === `a${index + 1}`);
       const rowEvents = events.map((e: SequencerEvent) => {
@@ -319,7 +318,9 @@ export const TimeSequencerBody = ({
         const x = secondsToPixels(time, pixelsPerBeat, canvasBpm);
         // and back to pixels so we get the scaling right
         const width = secondsToPixels(duration, pixelsPerBeat, canvasBpm);
-        // const id = `seq-evt-${e.padId}-${e.id}`;
+        // if (inProgress) {
+        //   log.debug('rowEvents', { ...e, x, width });
+        // }
         return { ...e, x, width };
       });
       // log.debug(

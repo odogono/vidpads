@@ -2,13 +2,11 @@ import { createLog } from '@helpers/log';
 import {
   createSequencerEvent,
   getIntersectingEvents,
-  joinEvents,
   mergeEvents,
   removeEvents,
   splitEvents
 } from '@model/sequencerEvent';
 import {
-  AddSequencerEventAction,
   Emit,
   RemoveSequencerEventAction,
   RewindSequencerAction,
@@ -108,23 +106,6 @@ export const toggleSequencerEvent = (
       ...sequencer,
       events: newEvents
     }
-  });
-};
-
-export const addSequencerEvent = (
-  context: StoreContext,
-  action: AddSequencerEventAction
-): StoreContext => {
-  const { padId, time, duration } = action;
-  const sequencer = context.sequencer ?? {};
-  const events = sequencer?.events ?? [];
-
-  const newEvent = createSequencerEvent({ padId, time, duration });
-
-  const newEvents = joinEvents([newEvent, ...events]);
-
-  return updateSequencer(context, {
-    events: newEvents
   });
 };
 

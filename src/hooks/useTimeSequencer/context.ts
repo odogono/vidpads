@@ -29,7 +29,7 @@ export type TimeSequencerContextType = {
 
   toggleEvent: (padId: string, startTime: number, endTime: number) => void;
   clearEvents: () => void;
-  addEvent: (padId: string, time: number, duration: number) => void;
+  addEvent: (evt: SequencerEvent) => void;
   removeEvent: (padId: string, time: number) => void;
   selectEvents: (events: SequencerEvent[]) => void;
   repeatEvents: () => void;

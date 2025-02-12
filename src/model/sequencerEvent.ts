@@ -7,12 +7,14 @@ export const createSequencerEvent = ({
   padId,
   time = 0,
   duration = 0.1,
-  isSelected
+  isSelected,
+  inProgress = false
 }: {
   padId: string;
   time?: number;
   duration?: number;
   isSelected?: boolean;
+  inProgress?: boolean;
 }): SequencerEvent => {
   // doesnt matter too much about ids, since they do not get serialised
   const id = Date.now() + ++eventIdCount;
@@ -21,7 +23,8 @@ export const createSequencerEvent = ({
     time,
     duration,
     id,
-    isSelected
+    isSelected,
+    inProgress
   };
 };
 
