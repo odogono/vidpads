@@ -45,6 +45,10 @@ export const TimeSequencerBody = ({
   });
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
+  useEffect(() => {
+    setIsTooltipVisible(false);
+  }, [setIsTooltipVisible]);
+
   const {
     bpm,
     seqEvents,
@@ -61,6 +65,7 @@ export const TimeSequencerBody = ({
     setTime,
     repeatEvents,
     cutEvents,
+    copyEvents,
     snapEvents,
     pasteEvents
   } = useTimeSequencer();
@@ -391,6 +396,7 @@ export const TimeSequencerBody = ({
         isEventsSelected={seqSelectedEventIds.length > 0}
         {...tooltipPosition}
         onCut={cutEvents}
+        onCopy={copyEvents}
         onDupe={repeatEvents}
         onSnap={snapEvents}
         onPaste={handlePaste}

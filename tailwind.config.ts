@@ -33,7 +33,9 @@ export default {
         pad: 'var(--pad)',
         'pad-over': 'var(--pad-over)',
         bin: 'var(--bin)',
-        'bin-over': 'var(--bin-over)'
+        'bin-over': 'var(--bin-over)',
+        tooltip: 'var(--tooltip)',
+        'tooltip-over': 'var(--tooltip-over)'
       },
       fontFamily: {
         sans: ['var(--font-inter)'],

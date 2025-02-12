@@ -68,7 +68,8 @@ export const joinEvents = (events: SequencerEvent[]): SequencerEvent[] => {
 export const translateEvents = (
   events: SequencerEvent[],
   fromTime: number,
-  fromPadId: string
+  fromPadId: string,
+  additional?: Partial<SequencerEvent>
 ) => {
   const { timeStart, padStart } = getEventBounds(events);
   const timeDiff = fromTime - timeStart;
@@ -76,6 +77,7 @@ export const translateEvents = (
 
   return events.map((evt) => ({
     ...evt,
+    ...additional,
     time: evt.time + timeDiff,
     padId: integerToPadId(padIdToInteger(evt.padId) + padDiff)
   }));

@@ -167,18 +167,25 @@ export const useActions = ({
     [project]
   );
 
-  const repeatEvents = useCallback(() => {
-    project.send({ type: 'repeatSequencerEvents' });
-  }, [project]);
+  const cutEvents = useCallback(
+    () => project.send({ type: 'clipboardSequencerEvents', op: 'cut' }),
+    [project]
+  );
+  const copyEvents = useCallback(
+    () => project.send({ type: 'clipboardSequencerEvents', op: 'copy' }),
+    [project]
+  );
 
-  const cutEvents = useCallback(() => {
-    project.send({ type: 'cutSequencerEvents' });
-  }, [project]);
+  const repeatEvents = useCallback(
+    () => project.send({ type: 'repeatSequencerEvents' }),
+    [project]
+  );
 
   const pasteEvents = useCallback(
     (fromTime: number, fromPadId: string) => {
       project.send({
-        type: 'pasteSequencerEvents',
+        type: 'clipboardSequencerEvents',
+        op: 'paste',
         time: fromTime,
         padId: fromPadId
       });
@@ -214,6 +221,7 @@ export const useActions = ({
     setSelectedEventsDuration,
     repeatEvents,
     cutEvents,
+    copyEvents,
     pasteEvents,
     snapEvents
   };

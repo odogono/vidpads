@@ -252,14 +252,11 @@ export type RepeatSequencerEventsAction = {
   type: 'repeatSequencerEvents';
 };
 
-export type CutSequencerEventsAction = {
-  type: 'cutSequencerEvents';
-};
-
-export type PasteSequencerEventsAction = {
-  type: 'pasteSequencerEvents';
-  time: number;
-  padId: string;
+export type ClipboardSequencerEventsAction = {
+  type: 'clipboardSequencerEvents';
+  op: 'cut' | 'copy' | 'paste';
+  time?: number;
+  padId?: string;
 };
 
 export type SnapSequencerEventsAction = {
@@ -381,8 +378,7 @@ export type Actions =
   | SetSettingAction
   | SetPlayersEnabledAction
   | RepeatSequencerEventsAction
-  | CutSequencerEventsAction
-  | PasteSequencerEventsAction
+  | ClipboardSequencerEventsAction
   | SnapSequencerEventsAction
   | SetProjectBgImageAction
   | SetPadSelectSourceDisabledAction;

@@ -14,9 +14,6 @@ export const Tooltip = () => {
 
   const timeString = useMemo(() => formatTimeToString(time), [time]);
 
-  const bgColor = 'bg-yellow-500';
-  const borderColor = 'border-t-yellow-500';
-
   if (x === -1) return null;
 
   return (
@@ -25,7 +22,7 @@ export const Tooltip = () => {
         absolute 
         z-[900] 
         w-[6.8rem] 
-        ${bgColor} text-black 
+        bg-tooltip text-black 
         font-mono text-sm text-center 
         flex items-center justify-center`}
       style={{
@@ -41,7 +38,7 @@ export const Tooltip = () => {
       <div
         className={`tooltip-arrow absolute left-1/2 top-full -translate-x-1/2 -mt-0 
                           border-solid border-t-8 border-x-8 border-b-0
-                          ${borderColor} border-x-transparent`}
+                          border-t-tooltip border-x-transparent`}
         aria-hidden='true'
       />
     </div>
