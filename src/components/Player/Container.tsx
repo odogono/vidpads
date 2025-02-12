@@ -35,7 +35,7 @@ import {
   PlayerStopped
 } from './types';
 
-const log = createLog('player/container ❤️', ['debug']);
+const log = createLog('player/container ❤️');
 
 export const PlayerContainer = () => {
   const events = useEvents();
@@ -65,6 +65,17 @@ export const PlayerContainer = () => {
       const pad = pads.find((pad) => pad.id === padId);
       if (!pad) return;
 
+      // log.debug('[handlePadTouchdown]', {
+      //   padId,
+      //   source,
+      //   // isMidiMappingModeEnabled,
+      //   // isSelectPadFromPadEnabled,
+      //   // isSelectPadFromKeyboardEnabled,
+      //   // isKeyboardPlayEnabled,
+      //   isPadPlayEnabled,
+      //   arePlayersEnabled
+      // });
+
       if (isMidiMappingModeEnabled && source !== 'midi') {
         setSelectedPadId(padId);
         return;
@@ -80,6 +91,7 @@ export const PlayerContainer = () => {
         if (isSelectPadFromPadEnabled) {
           setSelectedPadId(padId);
         }
+        // if (isPadSelectSourceDisabled) return;
       }
 
       if (!arePlayersEnabled) return;

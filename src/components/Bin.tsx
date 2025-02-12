@@ -10,7 +10,7 @@ import { usePadDnD } from '@hooks/usePadDnD/usePadDnD';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { OpModalContainer } from './common/OpModalContainer';
 
-const log = createLog('Bin');
+const log = createLog('Bin', ['debug']);
 
 export const BinComponent = () => {
   const cutRef = useRef<HTMLDivElement>(null);

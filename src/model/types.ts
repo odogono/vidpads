@@ -90,13 +90,17 @@ export interface Pipeline {
   operations: Operation[];
 }
 
-// export interface Project {
-//   id: string;
-//   name: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   store: StoreContextType;
-// }
+export interface PlayerHandler {
+  padId: string;
+  mediaUrl: string;
+  isReady: boolean;
+  isError?: boolean;
+  error?: string;
+  duration: number;
+  playbackRates: number[];
+}
+
+export type PlayerMap = Map<string, PlayerHandler>;
 
 export interface Pad {
   id: string;

@@ -7,6 +7,7 @@ import { Music2, VolumeOff } from 'lucide-react';
 
 import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
+import { cn } from '@helpers/tailwind';
 import { useEvents } from '@hooks/events';
 import { MIME_TYPE_PAD } from '@hooks/usePadDnD/constants';
 import { OnDropProps } from '@hooks/usePadDnD/context';
@@ -65,7 +66,8 @@ export const PadComponent = ({
 
   isPlayEnabled = isPlayEnabled && !isMidiMappingModeEnabled;
 
-  const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
+  const { isPlayerReady, isPlayerPlaying, isPlayerError, playerError } =
+    usePlayerEvents(pad);
 
   const padLabel = getPadLabel(pad);
 
@@ -73,7 +75,17 @@ export const PadComponent = ({
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (isPlayerReady || isMidiMappingModeEnabled) {
+      log.debug('[handlePointerDown]', {
+        isPlayerReady,
+        isPlayerError,
+        isMidiMappingModeEnabled
+      });
+      if (
+        isPlayerReady ||
+        isPlayerError ||
+        isMidiMappingModeEnabled ||
+        !isSelectSourceEnabled
+      ) {
         events.emit('pad:touchdown', { padId: pad.id, source: 'pad' });
       }
       // setSelectedPadId(pad.id);
@@ -83,12 +95,14 @@ export const PadComponent = ({
       }
     },
     [
-      events,
-      pad,
-      hasSource,
       isPlayerReady,
-      onDragStart,
-      isMidiMappingModeEnabled
+      isPlayerError,
+      isMidiMappingModeEnabled,
+      isSelectSourceEnabled,
+      hasSource,
+      events,
+      pad.id,
+      onDragStart
     ]
   );
 
@@ -119,8 +133,16 @@ export const PadComponent = ({
     (e: React.PointerEvent) => {
       onDragEnd(e, pad.id);
 
-      // if (!isDragging) {
-      if (!thumbnail && isSelectSourceEnabled && !isMidiMappingModeEnabled) {
+      log.debug('[handlePointerUp]', {
+        isSelectSourceEnabled,
+        hasSource,
+        isPlayerError
+      });
+      if (
+        (!hasSource || isPlayerError) &&
+        isSelectSourceEnabled &&
+        !isMidiMappingModeEnabled
+      ) {
         onEmptyPadTouch(pad.id);
       } else {
         if (isPlayerReady || isMidiMappingModeEnabled) {
@@ -131,12 +153,13 @@ export const PadComponent = ({
     [
       onDragEnd,
       pad.id,
-      thumbnail,
+      hasSource,
+      isPlayerError,
       isSelectSourceEnabled,
+      isMidiMappingModeEnabled,
       onEmptyPadTouch,
       isPlayerReady,
-      events,
-      isMidiMappingModeEnabled
+      events
     ]
   );
 
@@ -222,24 +245,31 @@ export const PadComponent = ({
     handleLeave
   ]);
 
-  if (pad.id === 'a16')
-    log.debug('render', {
-      isPlayEnabled,
-      isSelectSourceEnabled,
-      isPlayerReady
-    });
+  // if (pad.id === 'a16')
+  //   log.debug('render', {
+  //     isPlayEnabled,
+  //     isSelectSourceEnabled,
+  //     isPlayerReady
+  //   });
 
-  const isReady = hasSource ? isPlayerReady : true;
+  const isReady = hasSource && !isPlayerError ? isPlayerReady : true;
+  const isSelected = selectedPadId === pad.id;
 
   return (
     <div
       ref={elementRef}
-      className={`
-          w-full min-h-[44px] h-full rounded-lg cursor-pointer bg-pad transition-all relative select-none touch-none
-          ${isReady ? 'opacity-100' : 'opacity-20'}
-          ${isDragOver ? 'bg-pad-over scale-105' : 'hover:bg-pad-over'}
-          ${selectedPadId === pad.id ? 'border-2 border-selected' : ''}
-        `}
+      className={cn(
+        `
+          w-full min-h-[44px] h-full rounded-lg cursor-pointer bg-pad transition-all relative select-none touch-none`,
+        {
+          'opacity-100': isReady,
+          'opacity-20': !isReady,
+          'bg-pad-over scale-105': isDragOver,
+          'hover:bg-pad-over': !isDragOver,
+          'border-2 border-selected': isSelected && !isPlayerError,
+          'border-2 border-selected-error': isSelected && isPlayerError
+        }
+      )}
       style={{
         touchAction: 'none',
         WebkitTouchCallout: 'none',
@@ -279,6 +309,11 @@ export const PadComponent = ({
       {padLabel && (
         <span className='absolute bottom-2 left-1/2 -translate-x-1/2 rounded-lg text-xs font-semibold bg-black/50 p-2 text-gray-50 select-none whitespace-nowrap text-ellipsis overflow-hidden max-w-[90%] text-center'>
           {padLabel}
+        </span>
+      )}
+      {playerError && (
+        <span className='absolute top-1/2 -translate-y-1/2 m-2 text-xs text-c6 select-none bg-red-500/80 p-2 rounded-lg'>
+          {playerError}
         </span>
       )}
       <span className='absolute bottom-2 left-2 text-xs text-gray-300 select-none'>

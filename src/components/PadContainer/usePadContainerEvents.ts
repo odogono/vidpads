@@ -18,7 +18,7 @@ export const usePadContainerEvents = () => {
   const {
     pads,
     padsWithMediaStr,
-    isPadSelectSourceEnabled,
+    isPadSelectSourceDisabled,
     isPadPlayEnabled,
     selectedPadId,
     setSelectedPadId,
@@ -101,7 +101,7 @@ export const usePadContainerEvents = () => {
     pads,
     padsWithMediaStr,
     arePlayersEnabled,
-    isPadSelectSourceEnabled,
+    isPadSelectSourceDisabled,
     isPadPlayEnabled,
     selectedPadId,
     projectId

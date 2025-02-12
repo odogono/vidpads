@@ -18,9 +18,9 @@ export const usePads = () => {
     project,
     (state) => state.context.settings?.isPadPlayEnabled ?? true
   );
-  const isPadSelectSourceEnabled = useSelector(
+  const isPadSelectSourceDisabled = useSelector(
     project,
-    (state) => state.context.arePadInteractionsEnabled ?? true
+    (state) => state.context.isPadSelectSourceDisabled ?? false
   );
   const selectedPadId = useSelector(
     project,
@@ -53,7 +53,7 @@ export const usePads = () => {
     padsWithMediaStr,
     selectedPadId,
     isPadPlayEnabled,
-    isPadSelectSourceEnabled,
+    isPadSelectSourceDisabled,
     setSelectedPadId
   };
 };

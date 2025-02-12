@@ -2,19 +2,10 @@ import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
 import { VOKeys } from '@model/constants';
 import { updateMetadataProperty as dbUpdateMetadataProperty } from '@model/db/api';
+import { PlayerHandler, PlayerMap } from '@model/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export interface PlayerHandler {
-  padId: string;
-  mediaUrl: string;
-  isReady: boolean;
-  duration: number;
-  playbackRates: number[];
-}
-
-type PlayerMap = Map<string, PlayerHandler>;
-
-const log = createLog('usePlayersState', ['debug']);
+const log = createLog('usePlayersState');
 
 export const usePlayersState = () => {
   const queryClient = useQueryClient();
@@ -62,7 +53,7 @@ export const usePlayersState = () => {
   // get a count of how many players are not yet ready
   const playerReadyCount = Array.from(players.values()).reduce(
     (acc: number, player: PlayerHandler) => {
-      return player.isReady ? acc + 1 : acc;
+      return player.isReady || player.isError ? acc + 1 : acc;
     },
     0
   );

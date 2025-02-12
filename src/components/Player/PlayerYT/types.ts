@@ -40,3 +40,16 @@ export const Rel = {
 
 export type Rel = (typeof Rel)[keyof typeof Rel];
 export type RelString = keyof typeof Rel;
+
+export interface OnYTErrorEvent {
+  data: number;
+  target: YTPlayer;
+}
+
+export const YTError = {
+  INVALID_PARAMETER: 2,
+  HTML5_ERROR: 5,
+  NOT_FOUND: 100,
+  EMBEDDING_API_ERROR: 101,
+  EMBEDDING_API_ERROR_ALT: 150
+} as const;

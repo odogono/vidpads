@@ -25,8 +25,8 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     isPadAssigned,
     selectedPadId,
     isPadPlayEnabled,
-    isPadSelectSourceEnabled,
-    enablePlayers,
+    isPadSelectSourceDisabled,
+    enablePadSelectSource,
     padLabel,
     setPadLabel
   } = usePad();
@@ -45,11 +45,11 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   );
 
   useEffect(() => {
-    enablePlayers(false);
+    enablePadSelectSource(false);
     return () => {
-      enablePlayers(true);
+      enablePadSelectSource(true);
     };
-  }, [enablePlayers]);
+  }, [enablePadSelectSource]);
 
   log.debug('render', {
     isEnabled,
@@ -58,7 +58,7 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     pad: pad?.id,
     padLabel,
     isPadPlayEnabled,
-    isPadSelectSourceEnabled
+    isPadSelectSourceDisabled
   });
   return (
     <div className='vo-pane-details w-full h-full rounded-lg flex gap-6 items-center justify-center'>

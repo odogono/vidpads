@@ -92,6 +92,11 @@ export const useIsPlayEnabled = () => {
     (state) => state.context.arePlayersEnabled
   );
 
+  const isPadSelectSourceDisabled = useSelector(
+    project,
+    (state) => state.context.isPadSelectSourceDisabled
+  );
+
   return {
     arePlayersEnabled,
     hidePlayerOnEnd,
@@ -100,6 +105,7 @@ export const useIsPlayEnabled = () => {
     isPadPlayEnabled,
     isSelectPadFromKeyboardEnabled,
     isSelectPadFromMidiEnabled,
-    isSelectPadFromPadEnabled
+    isSelectPadFromPadEnabled,
+    isPadSelectSourceDisabled
   };
 };

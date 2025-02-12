@@ -8,23 +8,14 @@ import {
   getMediaData as dbGetMediaData,
   updateMetadataProperty as dbUpdateMetadataProperty
 } from '@model/db/api';
+import { MediaYouTube, PlayerHandler, PlayerMap } from '@model/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { MediaYouTube } from '../types';
-
-export interface PlayerHandler {
-  padId: string;
-  mediaUrl: string;
-  isReady: boolean;
-  duration: number;
-  playbackRates: number[];
-}
-
-type PlayerMap = Map<string, PlayerHandler>;
 
 const defaultPlayer: PlayerHandler = {
   padId: '',
   mediaUrl: '',
   isReady: false,
+  isError: false,
   duration: -1,
   playbackRates: []
 };

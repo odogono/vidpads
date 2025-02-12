@@ -46,14 +46,17 @@ export const usePad = (padId?: string) => {
       true
   );
 
-  const isPadSelectSourceEnabled = useSelector(
+  const isPadSelectSourceDisabled = useSelector(
     project,
-    (state) => state.context.arePadInteractionsEnabled ?? true
+    (state) => !!state.context.isPadSelectSourceDisabled
   );
 
-  const enablePadInteractions = useCallback(
+  const enablePadSelectSource = useCallback(
     (isEnabled: boolean = true) => {
-      project.send({ type: 'setPadInteractionsEnabled', isEnabled });
+      project.send({
+        type: 'setPadSelectSourceDisabled',
+        isDisabled: !isEnabled
+      });
     },
     [project]
   );
@@ -179,7 +182,7 @@ export const usePad = (padId?: string) => {
     chokeGroup,
     playPriority,
     isPadPlayEnabled,
-    isPadSelectSourceEnabled,
+    isPadSelectSourceDisabled,
     isPadAssigned,
     enablePlayers,
     pad,
@@ -188,7 +191,7 @@ export const usePad = (padId?: string) => {
     setPadIsLooped,
     setPadVolume,
     setPadPlaybackRate,
-    enablePadInteractions,
+    enablePadSelectSource,
     project,
     padLabel,
     setPadLabel,

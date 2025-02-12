@@ -29,6 +29,7 @@ export default {
         page: 'var(--page)',
         'video-off': 'var(--video-off)',
         selected: 'var(--selected)',
+        'selected-error': 'var(--selected-error)',
         pad: 'var(--pad)',
         'pad-over': 'var(--pad-over)',
         bin: 'var(--bin)',

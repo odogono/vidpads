@@ -6,9 +6,10 @@
   --background: #5A7175;
   --foreground: #FEFEFE;
 
-  --page     : #3BBAF9;
-  --video-off: #0a0a0a;
-  --selected : #EAFF00;
+  --page          : #3BBAF9;
+  --video-off     : #0a0a0a;
+  --selected      : #EAFF00;
+  --selected-error: #e10805;
 
   --pad     : #0c1618;
   --pad-over: #212e31;

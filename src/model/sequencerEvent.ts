@@ -54,12 +54,6 @@ export const joinEvents = (events: SequencerEvent[]): SequencerEvent[] => {
         duration,
         isSelected
       });
-      // console.debug(
-      //   'new joinedEvent',
-      //   JSON.stringify(joinedEvent),
-      //   'from',
-      //   intersectingEvents
-      // );
 
       candidateEvents = [...nonIntersectingEvents, joinedEvent];
     }

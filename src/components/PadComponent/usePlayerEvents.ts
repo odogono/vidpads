@@ -48,8 +48,11 @@ export const usePlayerEvents = (pad: Pad) => {
     queryClient,
     player
   ]);
+
   return {
     isPlayerReady: player?.isReady,
-    isPlayerPlaying
+    isPlayerPlaying,
+    isPlayerError: player?.isError,
+    playerError: player?.error
   };
 };

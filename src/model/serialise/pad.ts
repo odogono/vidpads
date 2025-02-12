@@ -216,8 +216,6 @@ const applyOp = (ops: Operation[], op: Operation) => {
 export const exportPadToURLString = (pad: Pad): string | undefined => {
   // export, but ask to keep the operations
   const json = exportPadToJSON(pad, true);
-
-  // console.debug('[exportPadToURLString] json:', JSON.stringify(json, null, 2));
   if (!json) {
     return undefined;
   }

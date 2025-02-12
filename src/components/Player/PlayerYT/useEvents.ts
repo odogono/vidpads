@@ -15,11 +15,12 @@ import {
   PlayerSetVolume,
   PlayerStop
 } from '../types';
+import { YTErrorToString } from './helpers';
 import type { PlayerReturn } from './index';
-import { PlayerState } from './types';
+import { OnYTErrorEvent, PlayerState } from './types';
 import { usePlayerYTState } from './usePlayerYTState';
 
-const log = createLog('player/yt/events', ['debug']);
+const log = createLog('player/yt/events', ['debug', 'error']);
 
 type PlayerYTEvents = {
   player: YTPlayer;
@@ -249,8 +250,8 @@ export const usePlayerYTEvents = ({
   );
 
   const onPlayerError = useCallback(
-    (error: Error) => {
-      log.debug('[onError]', mediaUrl, error);
+    (error: OnYTErrorEvent) => {
+      log.debug('[onError]', mediaUrl, YTErrorToString(error));
       stopTimeTracking();
       stopVideo({
         url: mediaUrl,
@@ -258,9 +259,15 @@ export const usePlayerYTEvents = ({
         time: playerRef.current?.getCurrentTime() ?? 0
       });
       // setIsReady(false);
-      // cOnPlayerUpdate({ isReady: false });
+      cOnPlayerUpdate({
+        padId: playerPadId,
+        mediaUrl,
+        isReady: false,
+        isError: true,
+        error: YTErrorToString(error)
+      });
     },
-    [mediaUrl, playerPadId, stopTimeTracking, stopVideo]
+    [cOnPlayerUpdate, mediaUrl, playerPadId, stopTimeTracking, stopVideo]
   );
 
   const [isReady, setIsReady] = useState(false);
@@ -268,7 +275,7 @@ export const usePlayerYTEvents = ({
   const handleReady = useCallback(
     (e: PlayerReady) => {
       if (!doesPlayerEventMatch(e, playerPadId)) return;
-      // log.debug('player ready', e);
+      log.debug('player ready', e);
       setIsReady(true);
       cOnPlayerUpdate({ padId: playerPadId, mediaUrl, isReady: true });
     },
@@ -278,7 +285,7 @@ export const usePlayerYTEvents = ({
   const handleNotReady = useCallback(
     (e: PlayerNotReady) => {
       if (!doesPlayerEventMatch(e, playerPadId)) return;
-      // log.debug('player not ready?', e);
+      log.debug('player not ready?', e);
       setIsReady(false);
       cOnPlayerUpdate({ padId: playerPadId, mediaUrl, isReady: false });
     },

@@ -27,6 +27,9 @@ export interface StoreContextType {
   // whether pads are enabled or disabled
   arePadInteractionsEnabled?: boolean;
 
+  // whether source selection is disabled
+  isPadSelectSourceDisabled?: boolean;
+
   // whether players are enabled or disabled
   arePlayersEnabled?: boolean;
 
@@ -333,6 +336,11 @@ export type SetProjectBgImageAction = {
   url?: string | undefined;
 };
 
+export type SetPadSelectSourceDisabledAction = {
+  type: 'setPadSelectSourceDisabled';
+  isDisabled: boolean;
+};
+
 export type Actions =
   | SetPadMediaAction
   | ClearPadAction
@@ -379,7 +387,8 @@ export type Actions =
   | CutSequencerEventsAction
   | PasteSequencerEventsAction
   | SnapSequencerEventsAction
-  | SetProjectBgImageAction;
+  | SetProjectBgImageAction
+  | SetPadSelectSourceDisabledAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

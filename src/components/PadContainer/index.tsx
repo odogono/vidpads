@@ -16,8 +16,9 @@ export const PadContainer = () => {
     projectId,
     pads,
     padToMidiMap,
-    isPadSelectSourceEnabled,
     arePlayersEnabled,
+    isPadPlayEnabled,
+    isPadSelectSourceDisabled,
     isMidiMappingModeEnabled,
     removeMidiMappingForPad
   } = usePadContainerEvents();
@@ -29,7 +30,11 @@ export const PadContainer = () => {
     [modalRef]
   );
 
-  log.debug('render', { arePlayersEnabled });
+  log.debug('render', {
+    arePlayersEnabled,
+    isPadPlayEnabled,
+    isPadSelectSourceDisabled
+  });
 
   return (
     <div className='vo-pad-container flex mt-4 w-full flex-grow rounded-lg'>
@@ -49,7 +54,7 @@ export const PadContainer = () => {
                 onEmptyPadTouch={handlePadTouch}
                 onRemoveMidiMapping={removeMidiMappingForPad}
                 isPlayEnabled={arePlayersEnabled}
-                isSelectSourceEnabled={isPadSelectSourceEnabled}
+                isSelectSourceEnabled={!isPadSelectSourceDisabled}
                 isMidiMappingModeEnabled={isMidiMappingModeEnabled}
               />
             </Suspense>
