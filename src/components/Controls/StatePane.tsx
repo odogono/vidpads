@@ -9,6 +9,7 @@ import { createLog } from '@helpers/log';
 import { usePad } from '@model/hooks/usePad';
 import { isPadLooped } from '@model/pad';
 import { OpNumberSelect } from '../common/OpNumberSelect';
+import { OpPadLabelButton } from '../common/OpPadLabelButton';
 import { PlaybackRateDial } from './Dial/PlaybackRateDial';
 import { VolumeDial } from './Dial/VolumeDial';
 import { PaneProps } from './types';
@@ -30,7 +31,9 @@ export const StatePane = () => {
     setPadChokeGroup,
     setPadPlayPriority,
     setPadPlaybackResume,
-    isResume
+    isResume,
+    padLabel,
+    setPadLabel
   } = usePad();
 
   const isLooped = isPadLooped(pad);
@@ -70,6 +73,13 @@ export const StatePane = () => {
     setPadPlaybackResume(pad.id, !isResume);
   }, [pad, setPadPlaybackResume, isResume]);
 
+  const handleLabelChange = useCallback(
+    (label: string) => {
+      setPadLabel(label);
+    },
+    [setPadLabel]
+  );
+
   log.debug('StatePane', {
     isLooped,
     isPadOneShot,
@@ -78,7 +88,7 @@ export const StatePane = () => {
   });
 
   return (
-    <div className='vo-pane-state w-full h-full rounded-lg p-1 flex gap-6 items-center justify-center'>
+    <div className='vo-pane-state w-fit h-full rounded-lg p-1 flex gap-6 items-center justify-center'>
       <VolumeDial pad={pad} setPadVolume={setPadVolume} isEnabled={isEnabled} />
       <PlaybackRateDial
         pad={pad}
@@ -120,6 +130,11 @@ export const StatePane = () => {
         value={playPriority}
         onChange={handlePlayPriority}
         isEnabled={isEnabled}
+      />
+      <OpPadLabelButton
+        isEnabled={isEnabled}
+        onChange={handleLabelChange}
+        value={padLabel}
       />
     </div>
   );

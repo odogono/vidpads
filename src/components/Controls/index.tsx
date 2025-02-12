@@ -1,13 +1,12 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useRef } from 'react';
 
 import { Indicator } from '@components/Indicator';
 import { CommonModalRef } from '@components/modals/CommonModal';
 import { DeleteModal } from '@components/modals/DeleteModal';
 import { ControlPanes } from '@types';
 import { OpBiButton } from '../common/OpBiButton';
-import { DetailsPane } from './DetailsPane';
 import { IntervalPane } from './IntervalPane';
 import { SequencerPane } from './SequencerPane';
 import { StatePane } from './StatePane';
@@ -29,7 +28,7 @@ export const Controls = () => {
 };
 
 const ControlsLoaded = () => {
-  const [isMounted, setIsMounted] = useState(false);
+  // const [isMounted, setIsMounted] = useState(false);
   // const { selectedPadId } = usePad();
   // const [selectedPane, setSelectedPane] = useState<PaneState>('details');
 
@@ -39,17 +38,17 @@ const ControlsLoaded = () => {
   const modalRef = useRef<CommonModalRef | null>(null);
   // used to prevent hydration error
   // since selectedPadId is undefined on the server
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setIsMounted(true);
+  // }, []);
 
-  const showDeleteModal = useCallback(() => {
-    modalRef.current?.open();
-  }, [modalRef]);
+  // const showDeleteModal = useCallback(() => {
+  //   modalRef.current?.open();
+  // }, [modalRef]);
 
-  if (!isMounted) {
-    return null;
-  }
+  // if (!isMounted) {
+  //   return null;
+  // }
 
   return (
     <Container
@@ -61,9 +60,9 @@ const ControlsLoaded = () => {
 
       {selectedControlPane === 'state' && <StatePane />}
       {selectedControlPane === 'interval' && <IntervalPane />}
-      {selectedControlPane === 'details' && (
+      {/* {selectedControlPane === 'details' && (
         <DetailsPane showDeleteModal={showDeleteModal} />
-      )}
+      )} */}
       {selectedControlPane === 'sequencer' && <SequencerPane />}
 
       <DeleteModal ref={modalRef} />
@@ -77,16 +76,15 @@ const Container = ({
   onPressDown,
   selectedControlPane
 }: ContainerProps) => (
-  <div className='vo-pane-container mt-4 bg-c2 rounded-lg flex flex-row'>
-    <div className='vo-pane-switcher rounded-lg  flex flex-row'>
+  <div className='vo-pane-container mt-2 portrait:md:mt-4 landscape:md:mt-4 bg-c2 rounded-lg flex flex-row'>
+    <div className='vo-pane-switcher rounded-lg flex-none flex flex-row'>
       <OpBiButton onPressUp={onPressUp} onPressDown={onPressDown} />
-      <div className='vo-pane-switcher-indicator m-2 flex flex-col gap-2 justify-center items-center '>
+      <div className='vo-pane-switcher-indicator m-2 flex flex-col gap-2 justify-center items-center'>
         <Indicator isActive={selectedControlPane === 'state'} />
         <Indicator isActive={selectedControlPane === 'interval'} />
-        <Indicator isActive={selectedControlPane === 'details'} />
         <Indicator isActive={selectedControlPane === 'sequencer'} />
       </div>
     </div>
-    {children}
+    <div className='overflow-x-auto min-w-0 w-full'>{children}</div>
   </div>
 );

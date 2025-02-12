@@ -9,7 +9,7 @@ import { useSelector } from '@xstate/store/react';
 const ControlPaneIndexes: ControlPanes[] = [
   'state',
   'interval',
-  'details',
+  // 'details',
   'sequencer'
 ];
 

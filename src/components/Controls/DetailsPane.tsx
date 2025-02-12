@@ -61,13 +61,12 @@ export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
     isPadSelectSourceDisabled
   });
   return (
-    <div className='vo-pane-details w-full h-full rounded-lg flex gap-6 items-center justify-center'>
+    <div className='vo-pane-details w-fit h-full rounded-lg flex gap-6 items-center justify-center'>
       <OpPadLabelButton
         isEnabled={isEnabled}
         onChange={handleLabelChange}
         value={padLabel}
       />
-
       <OpButton label='Cut' onPress={handleCut} isEnabled={isEnabled}>
         <ClipboardX />
       </OpButton>

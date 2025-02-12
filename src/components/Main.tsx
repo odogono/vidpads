@@ -36,7 +36,7 @@ export const Main = () => {
           }`}
         >
           <header
-            className={`flex justify-between w-full mx-auto mb-2 items-center ${isFullscreen ? 'hidden' : ''}`}
+            className={`flex justify-between w-full mx-auto p-2 items-center ${isFullscreen ? 'hidden' : ''}`}
           >
             <div className='text-white font-mono text-xl font-bold'>
               <Link href='/'>
