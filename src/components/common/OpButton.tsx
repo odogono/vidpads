@@ -2,6 +2,7 @@
 
 import { forwardRef } from 'react';
 
+import { cn } from '@helpers/tailwind';
 import { useButton } from '@heroui/react';
 import { OpLabel } from './OpLabel';
 
@@ -16,7 +17,7 @@ export const OpButton = forwardRef(
       ...props
     }: {
       label?: string;
-      size?: 'sm' | 'md' | 'lg';
+      size?: 'sm' | 'md' | 'lg' | 'xl';
       isEnabled?: boolean;
       children: React.ReactNode;
       onPress?: () => void;
@@ -33,24 +34,33 @@ export const OpButton = forwardRef(
     const sizeClasses = {
       sm: 'w-8 h-8',
       md: 'w-10 h-10',
-      lg: 'w-12 h-12'
+      lg: 'w-12 h-12',
+      xl: 'w-24 h-24'
     };
 
     return (
       <button
         ref={ref}
         {...getButtonProps()}
-        className={`flex flex-col items-center justify-center group cursor-pointer focus:outline-none ${
-          !isEnabled && 'opacity-50 cursor-not-allowed'
-        }`}
+        className={cn(
+          'flex flex-col items-center justify-center group cursor-pointer focus:outline-none',
+          {
+            'opacity-50 cursor-not-allowed': !isEnabled
+          }
+        )}
       >
         <div
-          className={`${sizeClasses[size]} 
-          flex items-center justify-center 
-          ${isEnabled ? 'bg-primary text-foreground group-hover:bg-primary-300' : 'bg-primary'} 
+          className={cn(
+            `${sizeClasses[size]} 
+          flex items-center justify-center
           text-black rounded-lg 
           aspect-square 
-          focus:outline-none`}
+          focus:outline-none`,
+            {
+              'bg-primary text-foreground hover:bg-primary/90': isEnabled,
+              'bg-primary opacity-50 cursor-not-allowed': !isEnabled
+            }
+          )}
         >
           {children}
         </div>

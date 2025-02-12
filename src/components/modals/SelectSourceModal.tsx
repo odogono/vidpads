@@ -1,15 +1,18 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { ClipboardPaste, Link, Upload } from 'lucide-react';
 
 import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
 import { isValidSourceUrl } from '@helpers/metadata';
-import { Button, Input } from '@heroui/react';
+import { Input } from '@heroui/react';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { useLastMediaUrl } from '@model/store/selectors';
+import { OpButton } from '../common/OpButton';
 import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 
 const log = createLog('SelectSourceModal', ['debug']);
@@ -107,6 +110,17 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
     close();
   }, [events, close, activeIndex]);
 
+  const handleWindowPaste = useCallback(() => {
+    if (ref.current?.open) {
+      handlePaste();
+    }
+  }, [handlePaste, ref]);
+
+  useEffect(() => {
+    window.addEventListener('paste', handleWindowPaste);
+    return () => window.removeEventListener('paste', handleWindowPaste);
+  }, [handleWindowPaste]);
+
   return (
     <CommonModal
       ref={ref}
@@ -122,20 +136,19 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
         accept={ACCEPTED_FILE_TYPES.join(',')}
         onChange={handleFileSelected}
       />
-      <Button onPress={handleFileSelect} className='w-full' color='primary'>
-        Select File
-      </Button>
-      {!isEnteringUrl ? (
-        <>
-          <Button
-            onPress={handleEnterUrl}
-            className='w-full'
-            variant='bordered'
-          >
-            Enter URL
-          </Button>
-        </>
-      ) : (
+      <div className='flex gap-2   justify-between'>
+        <OpButton size='xl' label='Add File' onPress={handleFileSelect}>
+          <Upload size={48} />
+        </OpButton>
+        <OpButton size='xl' label='Enter URL' onPress={handleEnterUrl}>
+          <Link size={48} />
+        </OpButton>
+        <OpButton size='xl' label='Paste From Clipboard' onPress={handlePaste}>
+          <ClipboardPaste size={48} />
+        </OpButton>
+      </div>
+
+      {isEnteringUrl && (
         <div className='flex flex-col gap-2'>
           <Input
             autoFocus
@@ -150,9 +163,6 @@ export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
           />
         </div>
       )}
-      <Button onPress={handlePaste} className='w-full' color='primary'>
-        Paste from clipboard
-      </Button>
     </CommonModal>
   );
 };

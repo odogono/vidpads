@@ -69,6 +69,8 @@ export const PadComponent = ({
 
   const padLabel = getPadLabel(pad);
 
+  const hasSource = !!getPadSourceUrl(pad);
+
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (isPlayerReady || isMidiMappingModeEnabled) {
@@ -76,11 +78,18 @@ export const PadComponent = ({
       }
       // setSelectedPadId(pad.id);
 
-      if (!isMidiMappingModeEnabled) {
+      if (!isMidiMappingModeEnabled && hasSource) {
         onDragStart(e, pad.id, MIME_TYPE_PAD);
       }
     },
-    [events, pad, isPlayerReady, onDragStart, isMidiMappingModeEnabled]
+    [
+      events,
+      pad,
+      hasSource,
+      isPlayerReady,
+      onDragStart,
+      isMidiMappingModeEnabled
+    ]
   );
 
   const handlePointerMove = useCallback(
@@ -220,7 +229,7 @@ export const PadComponent = ({
       isPlayerReady
     });
 
-  const isReady = !!thumbnail ? isPlayerReady : true;
+  const isReady = hasSource ? isPlayerReady : true;
 
   return (
     <div
