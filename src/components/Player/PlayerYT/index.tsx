@@ -206,7 +206,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
           videoId,
           onReady: onPlayerReady,
           onStateChange: onPlayerStateChange,
-          onError: onPlayerError
+          onError: onPlayerError as unknown as (event: Error) => void
         });
 
         // Check if component is still mounted

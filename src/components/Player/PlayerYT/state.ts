@@ -3,7 +3,6 @@
 import { createLog } from '@helpers/log';
 import { Interval } from '@model/types';
 import { createStore as createXStateStore } from '@xstate/store';
-import { PlayerStateToString, PlayerYTStateToString } from './helpers';
 import { PlayerState, PlayerYTState } from './types';
 
 const log = createLog('player/yt/state', ['debug', 'error']);
