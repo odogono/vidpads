@@ -76,12 +76,12 @@ export const OpPadLabelButton = ({
               autoFocus
               value={value}
               isClearable
-              label='Pad Label'
+              color='primary'
               variant='bordered'
+              label='Pad Label'
               size='sm'
               maxLength={30}
               isDisabled={!isEnabled}
-              className='bg-background'
               onValueChange={handleInputChange}
               onKeyDown={handleKeyDown}
               onClear={() => onChange?.('')}

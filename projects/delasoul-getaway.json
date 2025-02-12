@@ -1,6 +1,7 @@
 {
   "id": "a262c6db05",
   "name": "De La Soul - Get Away",
+  "bgImage": "https://is.gd/7wZ5eA",
   "version": "1.0.0",
   "exportVersion": "1",
   "pads": [
@@ -15,18 +16,18 @@
           "end": 178
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/ZorwKAwqPnE"
-        },
-        {
           "type": "playback",
           "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/ZorwKAwqPnE"
         }
       ]
     },
     {
-      "id": "a4",
-      "label": "Drums",
+      "id": "a2",
+      "label": "(Drums) Get Out of My Life, Wo",
       "source": "https://youtu.be/9b2MVV13xAk",
       "operations": [
         {
@@ -54,6 +55,7 @@
         {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 1
         },
         {
@@ -63,40 +65,8 @@
       ]
     },
     {
-      "id": "a5",
-      "label": "For the Last Year",
-      "source": "https://youtu.be/LAQgl7o79L4",
-      "operations": [
-        {
-          "type": "trim",
-          "start": 15.921,
-          "end": 25.251
-        },
-        {
-          "type": "source",
-          "url": "https://youtu.be/LAQgl7o79L4"
-        }
-      ]
-    },
-    {
-      "id": "a6",
-      "label": "You aint no MC",
-      "source": "https://youtu.be/LAQgl7o79L4",
-      "operations": [
-        {
-          "type": "trim",
-          "start": 80,
-          "end": 84.684
-        },
-        {
-          "type": "source",
-          "url": "https://youtu.be/LAQgl7o79L4"
-        }
-      ]
-    },
-    {
-      "id": "a7",
-      "label": "UFO",
+      "id": "a3",
+      "label": "(FX) UFO - ESG",
       "source": "https://youtu.be/V4QuH_eFU4Y",
       "operations": [
         {
@@ -115,7 +85,7 @@
       ]
     },
     {
-      "id": "a9",
+      "id": "a5",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
         {
@@ -130,7 +100,7 @@
       ]
     },
     {
-      "id": "a10",
+      "id": "a6",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
         {
@@ -145,7 +115,7 @@
       ]
     },
     {
-      "id": "a11",
+      "id": "a7",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
         {
@@ -160,7 +130,7 @@
       ]
     },
     {
-      "id": "a12",
+      "id": "a8",
       "source": "https://youtu.be/5EvNlBAaBVk",
       "operations": [
         {
@@ -173,14 +143,46 @@
           "url": "https://youtu.be/5EvNlBAaBVk"
         }
       ]
+    },
+    {
+      "id": "a10",
+      "label": "For the Last Year",
+      "source": "https://youtu.be/LAQgl7o79L4",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 15.921,
+          "end": 25.251
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/LAQgl7o79L4"
+        }
+      ]
+    },
+    {
+      "id": "a11",
+      "label": "You aint no MC",
+      "source": "https://youtu.be/LAQgl7o79L4",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 80,
+          "end": 84.684
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/LAQgl7o79L4"
+        }
+      ]
     }
   ],
   "sequencer": {
     "bpm": 60,
-    "time": null,
-    "endTime": 30,
+    "time": 0,
+    "endTime": 90,
     "events": {}
   },
   "createdAt": "2025-02-08T17:36:29Z",
-  "updatedAt": "2025-02-11T21:53:16Z"
+  "updatedAt": "2025-02-12T15:03:43Z"
 }

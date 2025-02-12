@@ -1,57 +1,166 @@
 {
   "id": "0854f993",
   "name": "DJ Shadow - Midnight in a Perfect World",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "exportVersion": "1",
   "pads": [
-    { "id": "a1", "source": "https://youtu.be/InFbBlpDTfQ" },
+    {
+      "id": "a1",
+      "label": "Midnight in a Perfect World",
+      "source": "https://youtu.be/InFbBlpDTfQ",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/InFbBlpDTfQ"
+        }
+      ]
+    },
     {
       "id": "a2",
+      "label": "Releasing Hypnotical Gases",
       "source": "https://youtu.be/-viwvgi9DYQ",
       "operations": [
-        { "type": "trim", "start": 119.795, "end": 123.561 },
-        { "type": "playbackRate", "rate": 1 },
-        { "type": "volume", "envelope": [{ "time": 0, "value": 0.66 }] }
+        {
+          "type": "trim",
+          "start": 119.795,
+          "end": 123.561
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.66
+            }
+          ]
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/-viwvgi9DYQ"
+        }
       ]
     },
     {
       "id": "a3",
+      "label": "Life Could - Rotary Connection",
       "source": "https://youtu.be/Ruj4K1L25DI",
-      "operations": [{ "type": "trim", "start": 194, "end": 197.25 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 194,
+          "end": 197.25
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/Ruj4K1L25DI"
+        }
+      ]
     },
     {
       "id": "a4",
+      "label": "Hook",
       "source": "https://youtu.be/Ldi3d1NtNhc",
       "operations": [
-        { "type": "trim", "start": 301, "end": 305 },
-        { "type": "playbackRate", "rate": 1 }
+        {
+          "type": "trim",
+          "start": 301,
+          "end": 305
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/Ldi3d1NtNhc"
+        }
       ]
     },
     {
       "id": "a5",
+      "label": "The Madness Subsides",
       "source": "https://youtu.be/TYGaJr7G3Dc",
-      "operations": [{ "type": "trim", "start": 6.919, "end": 12.82 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 6.919,
+          "end": 12.82
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/TYGaJr7G3Dc"
+        }
+      ]
     },
     {
       "id": "a6",
+      "label": "Vocals",
       "source": "https://youtu.be/4zFhsViLAjY",
-      "operations": [{ "type": "trim", "start": 7.72, "end": 23.079 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 7.72,
+          "end": 23.079
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/4zFhsViLAjY"
+        }
+      ]
     },
     {
       "id": "a7",
+      "label": "Hook",
       "source": "https://youtu.be/hF0zdkinPFI",
-      "operations": [{ "type": "trim", "start": 0.38, "end": 3.295 }]
+      "operations": [
+        {
+          "type": "trim",
+          "start": 0.38,
+          "end": 3.295
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/hF0zdkinPFI"
+        }
+      ]
     },
     {
       "id": "a8",
+      "label": "The Midnight Rush!",
       "source": "https://youtu.be/PPeLOqijtko",
       "operations": [
-        { "type": "trim", "start": 219.68, "end": 220.884 },
-        { "type": "volume", "envelope": [{ "time": 0, "value": 0.64 }] }
+        {
+          "type": "trim",
+          "start": 219.68,
+          "end": 220.884
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.64
+            }
+          ]
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/PPeLOqijtko"
+        }
       ]
     }
   ],
-  "sequencer": { "bpm": 60, "startTime": 0, "endTime": 30, "events": {} },
+  "sequencer": {
+    "bpm": 60,
+    "time": null,
+    "endTime": 30,
+    "events": {}
+  },
   "createdAt": "2025-01-30T19:49:37.113Z",
-  "updatedAt": "2025-01-31T11:03:50.323Z"
+  "updatedAt": "2025-02-12T14:51:28Z",
+  "bgImage": "https://is.gd/7Qr839"
 }

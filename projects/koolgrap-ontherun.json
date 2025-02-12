@@ -1,11 +1,13 @@
 {
   "id": "3f36d669",
-  "name": "Kool G Rap - On The Run",
-  "version": "0.1.0",
+  "name": "Kool G Rap - On The Run (Untouchable Version)",
+  "bgImage": "https://i.ytimg.com/vi/A6ZjkN5Kd6g/maxresdefault.jpg",
+  "version": "1.0.0",
   "exportVersion": "1",
   "pads": [
     {
       "id": "a1",
+      "label": "On the Run (Untouchable Version)",
       "source": "https://youtu.be/lku28XWMHNY",
       "operations": [
         {
@@ -16,6 +18,7 @@
     },
     {
       "id": "a2",
+      "label": "They got the shipment",
       "source": "https://youtu.be/lku28XWMHNY",
       "operations": [
         {
@@ -46,6 +49,7 @@
     },
     {
       "id": "a4",
+      "label": "The next thing I know it was daylight",
       "source": "https://youtu.be/lku28XWMHNY",
       "operations": [
         {
@@ -61,6 +65,7 @@
     },
     {
       "id": "a5",
+      "label": "(Hook) Up Above the Rock",
       "source": "https://youtu.be/SIEQEph0trE",
       "operations": [
         {
@@ -85,20 +90,13 @@
     },
     {
       "id": "a6",
+      "label": "They got the shipment",
       "source": "https://youtu.be/UceGF3M56bE",
       "operations": [
         {
           "type": "trim",
-          "start": 1.202,
+          "start": 2.324,
           "end": 9.187
-        },
-        {
-          "type": "source",
-          "url": "https://youtu.be/UceGF3M56bE"
-        },
-        {
-          "type": "playback",
-          "priority": 1
         },
         {
           "type": "volume",
@@ -108,11 +106,20 @@
               "value": 0.73
             }
           ]
+        },
+        {
+          "type": "playback",
+          "priority": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/UceGF3M56bE"
         }
       ]
     },
     {
       "id": "a7",
+      "label": "(Drums) It's a new Day",
       "source": "https://youtu.be/IiqO3fB4I78",
       "operations": [
         {
@@ -121,17 +128,18 @@
           "end": 2.424
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/IiqO3fB4I78"
-        },
-        {
           "type": "loop",
           "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/IiqO3fB4I78"
         }
       ]
     },
     {
       "id": "a9",
+      "label": "You be careful crossing...",
       "source": "https://youtu.be/skxqbkpLE90",
       "operations": [
         {
@@ -147,6 +155,7 @@
     },
     {
       "id": "a10",
+      "label": "I want him dead",
       "source": "https://youtu.be/UceGF3M56bE",
       "operations": [
         {
@@ -163,10 +172,10 @@
   ],
   "sequencer": {
     "bpm": 60,
-    "time": null,
+    "time": 0,
     "endTime": 30,
     "events": {}
   },
   "createdAt": "2025-01-31T11:13:49.450Z",
-  "updatedAt": "2025-02-11T15:42:22Z"
+  "updatedAt": "2025-02-12T14:57:51Z"
 }
