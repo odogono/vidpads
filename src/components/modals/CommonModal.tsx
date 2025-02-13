@@ -29,7 +29,7 @@ export interface CommonModalBase {
 export type OnOpenProps = (props?: unknown) => void;
 
 export interface CommonModalProps extends CommonModalBase {
-  title: string;
+  title?: string;
   children: React.ReactNode;
   onOpen?: OnOpenProps;
   onOk?: () => Promise<boolean>;

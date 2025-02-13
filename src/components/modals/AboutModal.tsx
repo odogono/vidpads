@@ -4,10 +4,10 @@ import { CommonModal, CommonModalBase } from './CommonModal';
 
 export const AboutModal = ({ ref }: CommonModalBase) => {
   return (
-    <CommonModal ref={ref} title='About' showCancel={false}>
+    <CommonModal ref={ref} showCancel={false}>
       <div className='flex flex-col gap-4'>
         <div className='text-center'>
-          <p className=' mb-2 text-xl font-bold'>Video Operator Pads player</p>
+          <p className=' mb-2 text-xl font-bold'>Video Operator Pads</p>
           <p className=' mb-4'>
             Made with 🤪 by{' '}
             <a href='https://dev.odgn.net'>Alexander Veenendaal</a>

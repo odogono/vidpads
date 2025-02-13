@@ -10,6 +10,7 @@ import { PadContainer } from '@components/PadContainer';
 import { PlayerContainer } from '@components/Player/Container';
 import { Sequencer } from '@components/Sequencer';
 import { ShareButton } from '@components/ShareButton';
+import { cn } from '@helpers/tailwind';
 import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useShowMode } from '@model/hooks/useShowMode';
@@ -31,12 +32,19 @@ export const Main = () => {
         }}
       >
         <div
-          className={`vo-main vo-theme rounded-lg text-foreground bg-background w-full h-full flex flex-col ${
-            isFullscreen ? 'p-0' : 'sm:p-[2vw] md:p-[3vw] lg:p-[5vw]'
-          }`}
+          className={cn(
+            'vo-main vo-theme rounded-lg text-foreground bg-background w-full h-full flex flex-col',
+            {
+              'p-0': isFullscreen,
+              'p-4': !isFullscreen
+            }
+          )}
         >
           <header
-            className={`flex justify-between w-full mx-auto p-2 items-center ${isFullscreen ? 'hidden' : ''}`}
+            className={cn(
+              'flex justify-between w-full mx-auto p-2 items-center',
+              isFullscreen ? 'hidden' : ''
+            )}
           >
             <div className='text-white font-mono text-xl font-bold'>
               <Link href='/'>
@@ -76,7 +84,7 @@ export const Main = () => {
               <BinComponent />
               {hasMidi && <MidiSetupModal />}
               <Controls />
-              <div className='flex h-[50%]'>
+              <div className='flex h-[50%] landscape:h-[40%]'>
                 {isPadsVisible && <PadContainer />}
                 {isSequencerVisible && <Sequencer />}
               </div>
