@@ -86,14 +86,19 @@ export const TitlePlayer = ({ count, loadingCount }: TitlePlayerProps) => {
         justify-center 
         gap-4`}
     >
-      <div className='vo-player-bg-image absolute top-0 left-0 w-full h-full z-[-3] overflow-hidden'>
-        <img
-          src={projectBgImage || undefined}
-          className='w-full h-full object-cover'
-          alt={''}
-        />
-      </div>
-      <div className='vo-player-crt absolute top-0 left-0 w-full h-full z-[-2] crt-without-animation' />
+      {projectBgImage && (
+        <>
+          <div className='vo-player-bg-image absolute top-0 left-0 w-full h-full z-[-3] overflow-hidden'>
+            <img
+              src={projectBgImage || undefined}
+              className='w-full h-full object-cover'
+              alt={''}
+            />
+          </div>
+
+          <div className='vo-player-crt absolute top-0 left-0 w-full h-full z-[-2] crt-without-animation' />
+        </>
+      )}
 
       <div className='vo-player-title-text bg-black/40 rounded-lg p-2 h-[3rem] px-4 min-w-[16rem] max-w-[40rem]'>
         {isEditing ? (

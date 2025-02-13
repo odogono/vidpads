@@ -32,12 +32,12 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
     end: duration
   })!;
 
-  log.debug('[NumericInterval] padSourceUrl', {
-    padSourceUrl,
-    duration,
-    padStart,
-    padEnd
-  });
+  // log.debug('[NumericInterval] padSourceUrl', {
+  //   padSourceUrl,
+  //   duration,
+  //   padStart,
+  //   padEnd
+  // });
 
   const handleTimeUpdate = useCallback(
     (time: number) => {
@@ -58,7 +58,11 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
       if (end === undefined) return;
       let newEnd = end;
 
-      if (end < value) {
+      if (end === value) {
+        // if the end is the same as the start, move the end so
+        // the interval remains the same
+        newEnd = value + (end - padStart);
+      } else if (end < value) {
         newEnd = Math.min(value + 1, duration);
         endTimeRef.current?.setValue(newEnd);
       }
@@ -66,7 +70,7 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
       log.debug('handleStartChange', { value, newEnd });
       handleIntervalChange(value, newEnd);
     },
-    [handleIntervalChange, duration]
+    [padStart, handleIntervalChange, duration]
   );
 
   const handleEndChange = useCallback(
