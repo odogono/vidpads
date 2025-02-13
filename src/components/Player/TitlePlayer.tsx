@@ -10,7 +10,7 @@ import { createLog } from '@helpers/log';
 import { useKeyboard } from '@hooks/useKeyboard';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
 
-const log = createLog('TitlePlayer');
+const log = createLog('TitlePlayer', ['debug']);
 
 interface TitlePlayerProps {
   count: number;

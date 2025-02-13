@@ -1,6 +1,6 @@
 import { createLog } from './log';
 
-const log = createLog('helpers/clipboard');
+const log = createLog('helpers/clipboard', ['debug']);
 
 export const readFromClipboard = async () =>
   await navigator.clipboard.readText();

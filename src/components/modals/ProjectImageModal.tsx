@@ -8,7 +8,7 @@ import { Input } from '@heroui/react';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const log = createLog('ProjectImageModal');
+const log = createLog('ProjectImageModal', ['debug']);
 
 export const ProjectImageModal = ({ ref }: CommonModalBase) => {
   const { projectBgImage, setProjectBgImage } = useCurrentProject();

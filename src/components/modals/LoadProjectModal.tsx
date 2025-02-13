@@ -23,7 +23,7 @@ import { useProjects } from '@model/hooks/useProjects';
 import { StoreContextType } from '@model/store/types';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const log = createLog('LoadProjectModal');
+const log = createLog('LoadProjectModal', ['debug']);
 
 export const LoadProjectModal = ({ ref }: CommonModalBase) => {
   const { getAllProjectDetails, loadProject } = useProjects();

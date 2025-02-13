@@ -26,7 +26,7 @@ import {
 } from '@model/types';
 import { getMediaType } from '../helpers';
 
-const log = createLog('db/api');
+const log = createLog('db/api', ['debug']);
 
 const DB_NAME = 'odgn-vo';
 const DB_VERSION = 4;
