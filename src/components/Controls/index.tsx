@@ -28,10 +28,6 @@ export const Controls = () => {
 };
 
 const ControlsLoaded = () => {
-  // const [isMounted, setIsMounted] = useState(false);
-  // const { selectedPadId } = usePad();
-  // const [selectedPane, setSelectedPane] = useState<PaneState>('details');
-
   const { selectedControlPane, goToPreviousControlPane, goToNextControlPane } =
     useControlPane();
 

@@ -7,8 +7,8 @@ import { useEvents } from '@hooks/events';
 import { EventInputSource } from '@hooks/events/types';
 import { useKeyboard } from '@hooks/useKeyboard';
 import { useMidiMappingMode } from '@hooks/useMidi/selectors';
+import { useIsPlayEnabled } from '@hooks/useSettings';
 import { usePlayersState } from '@model/hooks/usePlayersState';
-import { useIsPlayEnabled } from '@model/hooks/useSettings';
 import {
   getPadChokeGroup,
   getPadInterval,
@@ -137,14 +137,15 @@ export const PlayerContainer = () => {
     },
     [
       pads,
-      events,
+      isMidiMappingModeEnabled,
       arePlayersEnabled,
+      events,
+      setSelectedPadId,
       isKeyboardPlayEnabled,
       isSelectPadFromKeyboardEnabled,
-      setSelectedPadId,
+      isMetaKeyDown,
       isPadPlayEnabled,
-      isSelectPadFromPadEnabled,
-      isMidiMappingModeEnabled
+      isSelectPadFromPadEnabled
     ]
   );
 

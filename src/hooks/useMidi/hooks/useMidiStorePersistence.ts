@@ -1,7 +1,7 @@
 import { MidiStoreExport } from '@hooks/useMidi/types';
+import { VOKeys } from '@model/constants';
+import { loadMidiStore, saveMidiStore } from '@model/db/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { VOKeys } from '../constants';
-import { loadMidiStore, saveMidiStore } from '../db/api';
 
 export const useMidiStorePersistence = () => {
   const queryClient = useQueryClient();

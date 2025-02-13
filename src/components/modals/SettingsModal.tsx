@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { createLog } from '@helpers/log';
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -11,7 +12,8 @@ import {
   TableHeader,
   TableRow
 } from '@heroui/react';
-import { useSettings } from '@model/hooks/useSettings';
+import { useSettings } from '@hooks/useSettings';
+import { useProjects } from '../../model/hooks/useProjects';
 import { OpSwitch } from '../common/OpSwitch';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
@@ -71,6 +73,7 @@ const Settings: SettingDef[] = [
 
 export const SettingsModal = ({ ref }: CommonModalBase) => {
   const { updateSetting, getSetting } = useSettings();
+  const { deleteEverything } = useProjects();
 
   // const settings = JSON.parse(settingsString);
 
@@ -82,6 +85,16 @@ export const SettingsModal = ({ ref }: CommonModalBase) => {
       value: getSetting(item.path)
     }));
   }, [getSetting]);
+
+  const handleDeleteEverything = async () => {
+    if (
+      window.confirm(
+        'Are you sure you want to delete all data? This cannot be undone.'
+      )
+    ) {
+      await deleteEverything();
+    }
+  };
 
   return (
     <CommonModal ref={ref} title='Settings'>
@@ -112,6 +125,16 @@ export const SettingsModal = ({ ref }: CommonModalBase) => {
           )}
         </TableBody>
       </Table>
+
+      <div className=''>
+        <Button
+          color='danger'
+          onPress={handleDeleteEverything}
+          className='w-full'
+        >
+          Delete All Data
+        </Button>
+      </div>
     </CommonModal>
   );
 };

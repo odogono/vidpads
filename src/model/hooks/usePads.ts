@@ -14,22 +14,22 @@ const log = createLog('model/usePads');
 export const usePads = () => {
   const { project } = useProject();
   const pads = useSelector(project, (state) => state.context.pads);
-  const isPadPlayEnabled = useSelector(
-    project,
-    (state) => state.context.settings?.isPadPlayEnabled ?? true
-  );
-  const isPadSelectSourceDisabled = useSelector(
-    project,
-    (state) => state.context.isPadSelectSourceDisabled ?? false
-  );
+  // const isPadPlayEnabled = useSelector(
+  //   project,
+  //   (state) => state.context.settings?.isPadPlayEnabled ?? true
+  // );
+  // const isPadSelectSourceDisabled = useSelector(
+  //   project,
+  //   (state) => state.context.isPadSelectSourceDisabled ?? false
+  // );
   const selectedPadId = useSelector(
     project,
     (state) => state.context.selectedPadId
   );
-  const arePlayersEnabled = useSelector(
-    project,
-    (state) => state.context.arePlayersEnabled ?? true
-  );
+  // const arePlayersEnabled = useSelector(
+  //   project,
+  //   (state) => state.context.arePlayersEnabled ?? true
+  // );
 
   const setSelectedPadId = useCallback(
     (padId: string | null) => {
@@ -48,12 +48,12 @@ export const usePads = () => {
   }, [pads]);
 
   return {
-    arePlayersEnabled,
+    // arePlayersEnabled,
     pads,
     padsWithMediaStr,
     selectedPadId,
-    isPadPlayEnabled,
-    isPadSelectSourceDisabled,
+    // isPadPlayEnabled,
+    // isPadSelectSourceDisabled,
     setSelectedPadId
   };
 };

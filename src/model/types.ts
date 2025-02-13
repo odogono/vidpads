@@ -159,6 +159,7 @@ export interface ProjectExport {
   id: string;
   name: string;
   bgImage?: string | undefined;
+  version: string;
   exportVersion: string;
   createdAt: string;
   updatedAt: string;

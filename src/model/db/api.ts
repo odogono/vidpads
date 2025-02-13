@@ -13,6 +13,8 @@ import {
   isYouTubeMetadata,
   toPadThumbnailUrl
 } from '@helpers/metadata';
+import type { MidiStoreExport } from '@hooks/useMidi/types';
+import type { SettingsStoreExport } from '@hooks/useSettings/types';
 import { StoreContextType } from '@model/store/types';
 import {
   Media,
@@ -22,13 +24,12 @@ import {
   MediaYouTube,
   ProjectExport
 } from '@model/types';
-import { MidiStoreExport } from '../../hooks/useMidi/types';
 import { getMediaType } from '../helpers';
 
-const log = createLog('db/api', ['debug']);
+const log = createLog('db/api');
 
 const DB_NAME = 'odgn-vo';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 export const isIndexedDBSupported = () => {
   return (
@@ -66,6 +67,10 @@ const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
 
   if (oldVersion < 3) {
     idbCreateObjectStore(db, 'midiStore', { keyPath: 'id' });
+  }
+
+  if (oldVersion < 4) {
+    idbCreateObjectStore(db, 'settings', { keyPath: 'id' });
   }
 };
 
@@ -169,6 +174,65 @@ export const saveProject = async (project: StoreContextType): Promise<void> => {
   });
 };
 
+export const loadSettingsStore = async (
+  id: string
+): Promise<SettingsStoreExport | null> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { settings, transaction } = idbOpenTransaction(
+      db,
+      ['settings'],
+      'readonly'
+    );
+
+    const getRequest = settings.get(id);
+
+    getRequest.onerror = () => {
+      log.error(
+        'Error loading settings store from IndexedDB:',
+        getRequest.error
+      );
+      reject(getRequest.error);
+    };
+
+    getRequest.onsuccess = () => {
+      const result = getRequest.result ?? null;
+      resolve(result);
+    };
+
+    transaction.oncomplete = () => {
+      log.debug('settings store loaded from IndexedDB');
+      closeDB(db);
+    };
+  });
+};
+
+export const saveSettingsStore = async (
+  data: SettingsStoreExport
+): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const { settings, transaction } = idbOpenTransaction(
+      db,
+      ['settings'],
+      'readwrite'
+    );
+
+    const putRequest = settings.put(data);
+
+    putRequest.onerror = () => {
+      log.error('Error saving settings store to IndexedDB:', putRequest.error);
+      reject(putRequest.error);
+    };
+
+    putRequest.onsuccess = () => resolve();
+
+    transaction.oncomplete = () => {
+      log.debug('settings store saved to IndexedDB');
+      closeDB(db);
+    };
+  });
+};
 export const loadMidiStore = async (): Promise<MidiStoreExport | null> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {

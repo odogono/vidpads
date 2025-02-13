@@ -49,24 +49,27 @@ export const exportToJSON = (store: StoreType): ProjectExport => {
   const sequencerJSON = sequencer
     ? exportSequencerToJSON(sequencer)
     : undefined;
-  const padsJSON = pads.map((pad) => exportPadToJSON(pad)).filter(Boolean);
+  const padsJSON = pads
+    .map((pad) => exportPadToJSON(pad))
+    .filter(Boolean) as PadExport[];
 
-  const result = {
+  const result: Partial<ProjectExport> = {
     id: projectId || generateShortUUID(),
-    name: projectName || `Untitled Project - ${formatShortDate()}`,
-    version: EXPORT_APP_VERSION,
-    exportVersion: `${EXPORT_JSON_VERSION}`,
-    pads: padsJSON,
-    sequencer: sequencerJSON,
-    createdAt: createdAt || dateToISOString(),
-    updatedAt: updatedAt || dateToISOString()
-  } as ProjectExport;
+    name: projectName || `Untitled Project - ${formatShortDate()}`
+  };
 
   if (projectBgImage) {
     result.bgImage = projectBgImage;
   }
 
-  return result;
+  result.version = EXPORT_APP_VERSION;
+  result.exportVersion = `${EXPORT_JSON_VERSION}`;
+  result.pads = padsJSON;
+  result.sequencer = sequencerJSON;
+  result.createdAt = createdAt || dateToISOString();
+  result.updatedAt = updatedAt || dateToISOString();
+
+  return result as ProjectExport;
 };
 
 export const exportToJSONString = (store: StoreType) => {

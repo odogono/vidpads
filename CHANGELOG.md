@@ -6,8 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## v1.1.1 (2025-02-13)
 
-## v1.0.1 (2025-02-12)
+### Changed
+- moved delete all data to settings modal
+- settings are persisted outside of projects
+- improved landscape layout
+
+
+## v1.1.0 (2025-02-12)
 
 ### Added
 - added ability to set a project bg image

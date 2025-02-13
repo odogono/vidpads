@@ -7,6 +7,7 @@ import { HeroUIProvider } from '@heroui/react';
 import { KeyboardProvider } from '@hooks/useKeyboard/provider';
 import { MidiProvider } from '@hooks/useMidi/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
+import { SettingsProvider } from '@hooks/useSettings/provider';
 import { TimeSequencerProvider } from '@hooks/useTimeSequencer/provider';
 
 const Player = () => {
@@ -16,13 +17,15 @@ const Player = () => {
         <QueryClientContextProvider>
           <KeyboardProvider>
             <LoadingSuspense message='Loading project...'>
-              <ProjectProvider>
-                <MidiProvider>
-                  <TimeSequencerProvider>
-                    <Main />
-                  </TimeSequencerProvider>
-                </MidiProvider>
-              </ProjectProvider>
+              <SettingsProvider>
+                <ProjectProvider>
+                  <MidiProvider>
+                    <TimeSequencerProvider>
+                      <Main />
+                    </TimeSequencerProvider>
+                  </MidiProvider>
+                </ProjectProvider>
+              </SettingsProvider>
             </LoadingSuspense>
           </KeyboardProvider>
         </QueryClientContextProvider>

@@ -5,6 +5,7 @@ import { safeParseInt } from '@helpers/number';
 import { useEvents } from '@hooks/events';
 import { useMidiPadToMidiMap } from '@hooks/useMidi/selectors';
 import { useProject } from '@hooks/useProject';
+import { useIsPlayEnabled } from '@hooks/useSettings';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { usePads } from '@model/hooks/usePads';
 
@@ -15,15 +16,10 @@ export const usePadContainerEvents = () => {
   const { projectId } = useProject();
   const { isMidiMappingModeEnabled, padToMidiMap, removeMidiMappingForPad } =
     useMidiPadToMidiMap();
-  const {
-    pads,
-    padsWithMediaStr,
-    isPadSelectSourceDisabled,
-    isPadPlayEnabled,
-    selectedPadId,
-    setSelectedPadId,
-    arePlayersEnabled
-  } = usePads();
+  const { pads, padsWithMediaStr, selectedPadId, setSelectedPadId } = usePads();
+
+  const { isPadSelectSourceDisabled, isPadPlayEnabled, arePlayersEnabled } =
+    useIsPlayEnabled();
 
   const { cutPadToClipboard, copyPadToClipboard, pastePadFromClipboard } =
     usePadOperations();

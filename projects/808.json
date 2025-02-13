@@ -1,7 +1,8 @@
 {
   "id": "5dfc6cf5",
   "name": "808",
-  "version": "0.1.0",
+  "bgImage": "https://is.gd/KCbkhe",
+  "version": "1.1.0",
   "exportVersion": "1",
   "pads": [
     {
@@ -15,12 +16,12 @@
           "end": 2
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/gsZ7izQpywY"
-        },
-        {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
         }
       ]
     },
@@ -35,12 +36,12 @@
           "end": 17.1
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/gsZ7izQpywY"
-        },
-        {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
         }
       ]
     },
@@ -55,12 +56,12 @@
           "end": 31
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/gsZ7izQpywY"
-        },
-        {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
         }
       ]
     },
@@ -75,12 +76,12 @@
           "end": 171
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/gsZ7izQpywY"
-        },
-        {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
         }
       ]
     },
@@ -99,27 +100,29 @@
           "rate": 1
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/gsZ7izQpywY"
-        },
-        {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
         }
       ]
     },
     {
       "id": "a6",
+      "label": "Toms",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
           "type": "trim",
-          "start": 91.605,
-          "end": 184.212
+          "start": 40,
+          "end": 41
         },
         {
-          "type": "playbackRate",
-          "rate": 1
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
         },
         {
           "type": "source",
@@ -128,18 +131,65 @@
       ]
     },
     {
-      "id": "a12",
-      "label": "Ha!",
-      "source": "https://youtu.be/mFTpDtjkHV8",
+      "id": "a7",
+      "label": "Cymbal",
+      "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
           "type": "trim",
-          "start": 28.91,
-          "end": 31.171
+          "start": 107.53,
+          "end": 108.46
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
         },
         {
           "type": "source",
-          "url": "https://youtu.be/mFTpDtjkHV8"
+          "url": "https://youtu.be/gsZ7izQpywY"
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "label": "Rimshot",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 34.18,
+          "end": 35
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "label": "High Hat (Open)",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 72.11,
+          "end": 72.941
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
         }
       ]
     },
@@ -158,12 +208,12 @@
           "rate": 1
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/CYdOUyPcUm4"
-        },
-        {
           "type": "loop",
           "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/CYdOUyPcUm4"
         }
       ]
     },
@@ -191,135 +241,22 @@
           ]
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/CYdOUyPcUm4"
-        },
-        {
           "type": "loop",
           "start": 0
-        }
-      ]
-    },
-    {
-      "id": "a15",
-      "label": "Shaolin Shadow Boxing",
-      "source": "https://youtu.be/mFTpDtjkHV8",
-      "operations": [
-        {
-          "type": "trim",
-          "start": 0.905,
-          "end": 4.82
         },
         {
           "type": "source",
-          "url": "https://youtu.be/mFTpDtjkHV8"
-        }
-      ]
-    },
-    {
-      "id": "a16",
-      "label": "I've got an idea",
-      "source": "https://youtu.be/mFTpDtjkHV8",
-      "operations": [
-        {
-          "type": "trim",
-          "start": 25.891,
-          "end": 179
-        },
-        {
-          "type": "source",
-          "url": "https://youtu.be/mFTpDtjkHV8"
+          "url": "https://youtu.be/CYdOUyPcUm4"
         }
       ]
     }
   ],
   "sequencer": {
     "bpm": 60,
-    "time": 8.976,
+    "time": 4.31,
     "endTime": 45,
-    "events": {
-      "a15": [
-        [
-          0,
-          3.982
-        ]
-      ],
-      "a1": [
-        [
-          0.372,
-          0.308
-        ],
-        [
-          1.306,
-          0.308
-        ],
-        [
-          2.222,
-          0.308
-        ],
-        [
-          3.123,
-          0.308
-        ],
-        [
-          4.038,
-          0.309
-        ],
-        [
-          4.972,
-          0.309
-        ],
-        [
-          5.906,
-          0.308
-        ],
-        [
-          6.807,
-          0.309
-        ]
-      ],
-      "a3": [
-        [
-          0.604,
-          0.185
-        ],
-        [
-          1.739,
-          0.166
-        ],
-        [
-          2.688,
-          0.184
-        ],
-        [
-          3.656,
-          0.101
-        ],
-        [
-          3.939,
-          0.151
-        ],
-        [
-          4.806,
-          0.166
-        ],
-        [
-          5.758,
-          0.148
-        ],
-        [
-          6.856,
-          0.199
-        ]
-      ],
-      "a16": [
-        [
-          2.105,
-          1.691
-        ]
-      ]
-    }
+    "events": {}
   },
   "createdAt": "2025-01-24T15:48:57.341Z",
-  "updatedAt": "2025-02-11T13:20:23Z"
+  "updatedAt": "2025-02-13T15:50:02Z"
 }

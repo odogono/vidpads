@@ -21,43 +21,8 @@ export interface StoreContextType {
   selectedControlPane?: ControlPanes;
   selectedPadId?: string | null;
 
-  // whether the map midi mode is enabled
-  isMidiMappingEnabled?: boolean;
-
-  // whether pads are enabled or disabled
-  arePadInteractionsEnabled?: boolean;
-
-  // whether source selection is disabled
-  isPadSelectSourceDisabled?: boolean;
-
-  // whether players are enabled or disabled
-  arePlayersEnabled?: boolean;
-
   // whether the pads or sequencer are visible
   showMode: ShowMode;
-
-  settings?: {
-    // whether pads can trigger a player
-    isPadPlayEnabled?: boolean;
-
-    // whether keyboard can trigger a player
-    isKeyboardPlayEnabled?: boolean;
-
-    // whether midi can trigger a player
-    isMidiPlayEnabled?: boolean;
-
-    // whether the player should be hidden when it ends
-    hidePlayerOnEnd?: boolean;
-
-    // whether a keyboard event selects the pad
-    selectPadFromKeyboard?: boolean;
-
-    // whether a midi event selects the pad
-    selectPadFromMidi?: boolean;
-
-    // whether touching a pad selects it
-    selectPadFromPad?: boolean;
-  };
 
   sequencer: {
     bpm: number;
@@ -169,11 +134,6 @@ export type SetLastImportUrlAction = {
 export type SetSelectedControlPaneAction = {
   type: 'setSelectedControlPane';
   pane: ControlPanes;
-};
-
-export type SetPadInteractionsEnabledAction = {
-  type: 'setPadInteractionsEnabled';
-  isEnabled: boolean;
 };
 
 export type SetPadChokeGroupAction = {
@@ -314,26 +274,26 @@ export type SetProjectNameAction = {
   name: string;
 };
 
-export type SetSettingAction = {
-  type: 'setSetting';
-  path: string;
-  value: boolean | number | string;
-};
+// export type SetSettingAction = {
+//   type: 'setSetting';
+//   path: string;
+//   value: boolean | number | string;
+// };
 
-export type SetPlayersEnabledAction = {
-  type: 'setPlayersEnabled';
-  isEnabled: boolean;
-};
+// export type SetPlayersEnabledAction = {
+//   type: 'setPlayersEnabled';
+//   isEnabled: boolean;
+// };
 
 export type SetProjectBgImageAction = {
   type: 'setProjectBgImage';
   url?: string | undefined;
 };
 
-export type SetPadSelectSourceDisabledAction = {
-  type: 'setPadSelectSourceDisabled';
-  isDisabled: boolean;
-};
+// export type SetPadSelectSourceDisabledAction = {
+//   type: 'setPadSelectSourceDisabled';
+//   isDisabled: boolean;
+// };
 
 export type Actions =
   | SetPadMediaAction
@@ -352,7 +312,6 @@ export type Actions =
   | ApplyVolumeEnvelopeToPadAction
   | ApplyPlaybackRateToPadAction
   | SetSelectedControlPaneAction
-  | SetPadInteractionsEnabledAction
   | ApplyPadAction
   | SetShowModeAction
   | SetSequencerBpmAction
@@ -375,13 +334,10 @@ export type Actions =
   | RewindSequencerAction
   | SetSequencerIsLoopedAction
   | SetProjectNameAction
-  | SetSettingAction
-  | SetPlayersEnabledAction
   | RepeatSequencerEventsAction
   | ClipboardSequencerEventsAction
   | SnapSequencerEventsAction
-  | SetProjectBgImageAction
-  | SetPadSelectSourceDisabledAction;
+  | SetProjectBgImageAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

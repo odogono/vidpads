@@ -4,9 +4,9 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
-import { useMidiStorePersistence } from '@model/hooks/useMidiStorePersistence';
 import { MidiContext } from './context';
 import { useMidiListener } from './hooks/useMidiListener';
+import { useMidiStorePersistence } from './hooks/useMidiStorePersistence';
 import {
   MidiStoreType,
   createStore,

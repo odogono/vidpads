@@ -13,6 +13,7 @@ import { OpButton } from '@/components/common/OpButton';
 import { OpPadLabelButton } from '@/components/common/OpPadLabelButton';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
+import { useSettings } from '@hooks/useSettings';
 import { usePad } from '@model/hooks/usePad';
 import { PaneProps } from './types';
 
@@ -20,16 +21,9 @@ const log = createLog('DetailsPane', ['debug']);
 
 export const DetailsPane = ({ showDeleteModal }: PaneProps) => {
   const events = useEvents();
-  const {
-    pad,
-    isPadAssigned,
-    selectedPadId,
-    isPadPlayEnabled,
-    isPadSelectSourceDisabled,
-    enablePadSelectSource,
-    padLabel,
-    setPadLabel
-  } = usePad();
+  const { isPadPlayEnabled, isPadSelectSourceDisabled, enablePadSelectSource } =
+    useSettings();
+  const { pad, isPadAssigned, selectedPadId, padLabel, setPadLabel } = usePad();
   const isEnabled = !!selectedPadId && isPadAssigned;
   const isPasteEnabled = !!selectedPadId;
 

@@ -13,18 +13,6 @@ import type {
 export const initialContext: StoreContextType = {
   projectId: generateShortUUID(),
   projectName: '',
-  arePadInteractionsEnabled: true,
-  arePlayersEnabled: true,
-  // TODO these should be moved out of project into a global settings store
-  settings: {
-    isPadPlayEnabled: true,
-    isKeyboardPlayEnabled: true,
-    isMidiPlayEnabled: false,
-    hidePlayerOnEnd: true,
-    selectPadFromKeyboard: true,
-    selectPadFromMidi: false,
-    selectPadFromPad: true
-  },
   showMode: 'pads',
   sequencer: {
     bpm: 60,

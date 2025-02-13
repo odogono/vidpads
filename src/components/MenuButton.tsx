@@ -108,9 +108,9 @@ export const MenuButton = () => {
 
           <DropdownItem key='settings'>Settings</DropdownItem>
 
-          <DropdownItem key='delete-everything' showDivider>
+          {/* <DropdownItem key='delete-everything' showDivider>
             Delete Everything
-          </DropdownItem>
+          </DropdownItem> */}
 
           <DropdownSection aria-label='About'>
             <DropdownItem key='about'>About</DropdownItem>
