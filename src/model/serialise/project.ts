@@ -23,12 +23,11 @@ import { addOrReplacePad } from '@model/store/actions/helpers';
 import { initialContext } from '@model/store/store';
 import { StoreContext, StoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
-import { version as appVersion } from '../../../package.json';
 
 const log = createLog('model/export', ['debug']);
 
 const EXPORT_JSON_VERSION = 1;
-const EXPORT_APP_VERSION = appVersion;
+const EXPORT_APP_VERSION = process.env.VERSION;
 
 const EXPORT_URL_VERSION = 3;
 

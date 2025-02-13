@@ -150,3 +150,23 @@ export const createDate = (dateString?: Date | string | undefined): Date => {
   }
   return typeof dateString === 'string' ? parseISO(dateString) : dateString;
 };
+
+export const toDate = (dateString?: Date | string | undefined): Date => {
+  if (!dateString) {
+    return new Date();
+  }
+  return typeof dateString === 'string' ? parseISO(dateString) : dateString;
+};
+
+export const dateToLocaleString = (
+  dateString?: Date | string | undefined
+): string => {
+  return toDate(dateString).toLocaleString('en-GB', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    timeZoneName: 'short'
+  });
+};

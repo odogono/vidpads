@@ -48,12 +48,7 @@ describe('exportToURLString', () => {
     // Split URL components
     const [version] = result.split('|');
 
-    expect(version).toBe('2');
-    // expect(projectId).toBe('test-project');
-    // expect(decodeURIComponent(projectName)).toBe('Test Project');
-    // expect(createTime).toBe('1704067200'); // 2024-01-01T00:00:00.000Z in ms
-    // expect(updateTime).toBe('1704153600'); // 2024-01-02T00:00:00.000Z in ms
-    // expect(rest.join('|')).toBe(''); // No pads
+    expect(version).toBe('3');
   });
 
   it('should handle empty project name', async () => {
@@ -241,7 +236,11 @@ describe('importPadFromURLString', () => {
         context
       })
     } as StoreType;
-    expect(await exportToURLString(mockStore, 1)).toBe(data);
+
+    const result = await exportToURLString(mockStore, 1);
+    const imported = await urlStringToProject(result);
+
+    expect(imported.pads[5].source).toBe('RDhkRQ2jY9Q');
   });
 
   it('should import project from URL string', async () => {

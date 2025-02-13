@@ -1,6 +1,8 @@
-import { getCurrentYear } from '@helpers/datetime';
-import packageJson from '../../../package.json';
+import { dateToLocaleString, getCurrentYear } from '@helpers/datetime';
 import { CommonModal, CommonModalBase } from './CommonModal';
+
+const BUILT_AT = process.env.NEXT_PUBLIC_BUILT_AT;
+const VERSION = process.env.VERSION;
 
 export const AboutModal = ({ ref }: CommonModalBase) => {
   return (
@@ -8,14 +10,17 @@ export const AboutModal = ({ ref }: CommonModalBase) => {
       <div className='flex flex-col gap-4'>
         <div className='text-center'>
           <p className=' mb-2 text-xl font-bold'>Video Operator Pads</p>
-          <p className=' mb-4'>
+          <p className=' mb-8'>
             Made with 🤪 by{' '}
             <a href='https://dev.odgn.net'>Alexander Veenendaal</a>
           </p>
-          <p className=' mb-4 text-sm'>
+          <div className='mb-2 text-sm '>Version {VERSION}</div>
+          <div className='mb-2 text-sm '>
+            Built at {dateToLocaleString(BUILT_AT)}
+          </div>
+          <p className='mb-2 text-sm'>
             © {getCurrentYear()} Alexander Veenendaal
           </p>
-          <div className='text-sm '>Version {packageJson.version}</div>
         </div>
       </div>
     </CommonModal>

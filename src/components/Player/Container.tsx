@@ -5,6 +5,7 @@ import { useCallback, useEffect } from 'react';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { EventInputSource } from '@hooks/events/types';
+import { useKeyboard } from '@hooks/useKeyboard';
 import { useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import { useIsPlayEnabled } from '@model/hooks/useSettings';
@@ -49,6 +50,7 @@ export const PlayerContainer = () => {
     hidePlayerOnEnd
   } = useIsPlayEnabled();
   const { isMidiMappingModeEnabled } = useMidiMappingMode();
+  const { isMetaKeyDown } = useKeyboard();
 
   const { setSelectedPadId } = useSelectedPadId();
 
@@ -86,6 +88,8 @@ export const PlayerContainer = () => {
         if (isSelectPadFromKeyboardEnabled) {
           setSelectedPadId(padId);
         }
+        // prevent page reload key-combo from triggering pad
+        if (isMetaKeyDown()) return;
       } else if (source === 'pad') {
         if (!isPadPlayEnabled) return;
         if (isSelectPadFromPadEnabled) {

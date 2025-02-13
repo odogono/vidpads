@@ -1,10 +1,18 @@
 import type { NextConfig } from 'next';
 
+import packageJson from './package.json';
+
 // import linguiConfig from './lingui.config';
 
 const nextConfig: NextConfig = {
   output: 'export',
   reactStrictMode: true,
+
+  env: {
+    BUILT_AT: process.env.NEXT_PUBLIC_BUILT_AT,
+    VERSION: packageJson.version
+  },
+
   experimental: {
     swcPlugins: [['@lingui/swc-plugin', {}]],
     turbo: {

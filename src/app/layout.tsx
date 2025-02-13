@@ -29,6 +29,9 @@ export const generateMetadata = async () => {
   return {
     title: i18n._(`VO Pads`),
     description: i18n._(`for all your VO triggering needs`),
+    other: {
+      builtAt: process.env.NEXT_PUBLIC_BUILT_AT
+    },
     icons: {
       icon: [
         { url: '/favicon.ico' },
