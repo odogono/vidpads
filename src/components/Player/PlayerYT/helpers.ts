@@ -56,7 +56,7 @@ export const YTErrorToString = (error: OnYTErrorEvent) => {
       return 'The video cannot be found.';
     case YTError.EMBEDDING_API_ERROR:
     case YTError.EMBEDDING_API_ERROR_ALT:
-      return 'The owner of the requested video does not allow it to be played in embedded players.';
+      return `The owner of the requested video does not allow it to be played in embedded players ${error.data}`;
 
     default:
       return `Unknown error (${error.data})`;

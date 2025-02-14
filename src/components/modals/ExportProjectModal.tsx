@@ -1,6 +1,6 @@
 'use client';
 
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 import { Input } from '@heroui/react';
 import { useProjectJsonString } from '@model/hooks/useProjectJsonString';
@@ -40,7 +40,7 @@ export const ExportProjectModal = ({ ref }: CommonModalBase) => {
         <CopyButton text={json} />
       </div>
       <div className='flex w-full flex-row gap-2 justify-center'>
-        <QRCodeSVG value={url} size={256} marginSize={3} />
+        <QRCodeCanvas value={url} size={256} marginSize={3} />
       </div>
     </CommonModal>
   );

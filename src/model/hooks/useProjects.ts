@@ -6,7 +6,7 @@ import {
 } from '@/model/serialise/project';
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
-import { resetAllQueries } from '@helpers/query';
+import { invalidateQueryKeys, resetAllQueries } from '@helpers/query';
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import {
@@ -61,12 +61,6 @@ export const useProjects = () => {
 
       setProjectId(snapshot.context.projectId);
 
-      // await Promise.all(
-      //   data.pads.map((pad) =>
-      //     addUrlToPad({ url: getPadSourceUrl(pad), padId: pad.id, projectId })
-      //   )
-      // );
-
       return true;
     },
     [setProjectId]
@@ -109,10 +103,12 @@ export const useProjects = () => {
     return true;
   }, [setProjectId]);
 
-  // Add mutation for saving project
-  const saveProjectMutation = useMutation({
-    mutationFn: async ({ projectName }: { projectName: string }) => {
-      // const data = exportToJSON(project);
+  const { mutateAsync: saveProject } = useMutation({
+    mutationFn: async (projectName: string = '') => {
+      if (!projectName) {
+        projectName = `Untitled ${formatShortDate()}`;
+      }
+      log.debug('Saving project:', projectName);
 
       const data = project.getSnapshot().context;
       const saveData: StoreContextType = {
@@ -131,27 +127,9 @@ export const useProjects = () => {
       return saveData;
     },
     onSuccess: () => {
-      // invalidate queries that depend on project data
-      // holy hell this reloads everything - don't do it
-      // invalidateQueryKeys(queryClient, [[...VOKeys.projects()]]);
+      invalidateQueryKeys(queryClient, [[...VOKeys.projectDetails()]]);
     }
   });
-
-  const saveProject = useCallback(
-    async (projectName: string = '') => {
-      if (!projectName) {
-        projectName = `Untitled ${formatShortDate()}`;
-      }
-      log.debug('Saving project:', projectName);
-      await saveProjectMutation.mutateAsync({ projectName });
-      const { error } = saveProjectMutation;
-      if (error) {
-        log.error('Failed to save project:', error);
-        // throw error;
-      }
-    },
-    [saveProjectMutation]
-  );
 
   const getAllProjectDetails = useCallback(async () => {
     try {

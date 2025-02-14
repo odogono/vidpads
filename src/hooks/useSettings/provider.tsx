@@ -12,7 +12,7 @@ import {
   importStoreFromJson
 } from './store';
 
-const log = createLog('useSettings/provider');
+const log = createLog('useSettings/provider', ['debug']);
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const { settingsStoreExport, saveSettingsStoreExport, updatedAt } =
