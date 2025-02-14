@@ -53,9 +53,9 @@ export type EventEmitterEvents = {
   'player:set-volume': PlayerSetVolume;
   'player:set-playback-rate': PlayerSetPlaybackRate;
 
-  'control:toggle-one-shot': undefined;
-  'control:toggle-loop': undefined;
-  'control:toggle-resume': undefined;
+  'control:one-shot': boolean | undefined;
+  'control:loop': boolean | undefined;
+  'control:resume': boolean | undefined;
 
   'cmd:cancel': undefined;
   'cmd:copy': undefined;

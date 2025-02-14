@@ -58,11 +58,11 @@ export const useKeyMap = (store: KeyboardStoreType) => {
       }
 
       if (activeKeys.current.has(code)) {
-        log.debug(
-          '[keyboard] keydown already active:',
-          code,
-          activeKeys.current
-        );
+        // log.debug(
+        //   '[keyboard] keydown already active:',
+        //   code,
+        //   activeKeys.current
+        // );
         return;
       }
 

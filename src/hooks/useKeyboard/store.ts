@@ -33,13 +33,13 @@ const initialContext: KeyboardStoreContext = {
     KeyC: { padId: 'a15' },
     KeyV: { padId: 'a16' },
     KeyY: {
-      event: 'control:toggle-one-shot'
+      event: 'control:one-shot'
     },
     KeyU: {
-      event: 'control:toggle-loop'
+      event: 'control:loop'
     },
     KeyI: {
-      event: 'control:toggle-resume'
+      event: 'control:resume'
     },
     Escape: {
       event: 'cmd:cancel',

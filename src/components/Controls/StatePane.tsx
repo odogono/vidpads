@@ -6,6 +6,7 @@ import { Play, Repeat2, StepForward } from 'lucide-react';
 
 import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { usePad } from '@model/hooks/usePad';
 import { isPadLooped } from '@model/pad';
 import { OpNumberSelect } from '../common/OpNumberSelect';
@@ -18,13 +19,13 @@ export type StatePaneProps = PaneProps;
 
 const log = createLog('Controls/StatePane', ['debug']);
 export const StatePane = () => {
+  const events = useEvents();
   const {
     chokeGroup,
     playPriority,
     isPadOneShot,
     pad,
     setPadIsLooped,
-    setPadIsOneShot,
     selectedPadId,
     setPadVolume,
     setPadPlaybackRate,
@@ -40,9 +41,8 @@ export const StatePane = () => {
   const isEnabled = !!selectedPadId;
 
   const handleOneShot = useCallback(() => {
-    if (!pad) return;
-    setPadIsOneShot(pad.id, !isPadOneShot);
-  }, [pad, isPadOneShot, setPadIsOneShot]);
+    events.emit('control:one-shot');
+  }, [events]);
 
   const handleLooped = useCallback(() => {
     if (!pad) return;

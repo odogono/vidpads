@@ -1,11 +1,10 @@
 import { useCallback } from 'react';
 
-import toast from 'react-hot-toast';
-
 import { readFromClipboard, writeToClipboard } from '@helpers/clipboard';
 import { createLog } from '@helpers/log';
 import { getUrlMetadata, isYouTubeMetadata } from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
+import { showError, showSuccess } from '@helpers/toast';
 import { getYouTubeThumbnail } from '@helpers/youtube';
 import { useKeyboard } from '@hooks/useKeyboard';
 import { useProject } from '@hooks/useProject';
@@ -207,9 +206,9 @@ export const usePadOperations = () => {
 
         if (showToast) {
           if (success) {
-            toast.success(`Copied ${sourcePadId} to clipboard`);
+            showSuccess(`Copied ${sourcePadId} to clipboard`);
           } else {
-            toast.error(`Failed to copy ${sourcePadId} to clipboard`);
+            showError(`Failed to copy ${sourcePadId} to clipboard`);
           }
         }
       }
@@ -231,12 +230,6 @@ export const usePadOperations = () => {
       const clipboard = url ?? (await readFromClipboard());
 
       log.debug('[pastePad] clipboard:', clipboard, { targetPadId });
-
-      // if (clipboard) {
-      //   log.debug('[pastePad] query cache:', queryClient.getQueryCache());
-      //   toast.error('Paste aborted');
-      //   return false;
-      // }
 
       const sourcePad = importPadFromClipboard(clipboard);
       if (!sourcePad) {
@@ -309,7 +302,7 @@ export const usePadOperations = () => {
       ]);
 
       if (showToast) {
-        toast.success(`Pasted ${targetPad.id} from clipboard`);
+        showSuccess(`Pasted ${targetPad.id} from clipboard`);
       }
 
       return true;
@@ -348,7 +341,7 @@ export const usePadOperations = () => {
       });
 
       if (showToast) {
-        toast.success(`Cut ${sourcePadId} to clipboard`);
+        showSuccess(`Cut ${sourcePadId} to clipboard`);
       }
 
       return url;
@@ -376,7 +369,7 @@ export const usePadOperations = () => {
       });
 
       if (showToast) {
-        toast.success(`Cleared ${sourcePadId}`);
+        showSuccess(`Cleared ${sourcePadId}`);
       }
 
       return true;

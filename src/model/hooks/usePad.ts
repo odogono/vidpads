@@ -38,15 +38,6 @@ export const usePad = (padId?: string) => {
     state.context.pads.find((pad) => pad.id === padId)
   );
 
-  const setPadIsOneShot = useCallback(
-    (padId: string, isOneShot: boolean) => {
-      if (pad) {
-        project.send({ type: 'setPadIsOneShot', padId, isOneShot });
-      }
-    },
-    [pad, project]
-  );
-
   const setPadIsLooped = useCallback(
     (padId: string, isLooped: boolean) => {
       if (pad) {
@@ -140,7 +131,6 @@ export const usePad = (padId?: string) => {
     isPadAssigned,
     pad,
     selectedPadId,
-    setPadIsOneShot,
     setPadIsLooped,
     setPadVolume,
     setPadPlaybackRate,

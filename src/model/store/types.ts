@@ -73,7 +73,7 @@ export type SetSelectedPadIdAction = {
 export type SetPadIsOneShotAction = {
   type: 'setPadIsOneShot';
   padId: string;
-  isOneShot: boolean;
+  isOneShot?: boolean;
 };
 
 export type ApplyTrimToPadAction = {

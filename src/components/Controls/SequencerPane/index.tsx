@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Circle, Play, Repeat2, Rewind, Square, Trash } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 
 import { OpButton } from '@/components/common/OpButton';
 import { OpTimeInput, OpTimeInputRef } from '@/components/common/OpTimeInput';
 import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
+import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
@@ -78,7 +78,7 @@ export const SequencerPane = () => {
 
   const handleClear = useCallback(() => {
     clearEvents();
-    toast.success('Sequencer events cleared');
+    showSuccess('Sequencer events cleared');
   }, [clearEvents]);
 
   useEffect(() => {
