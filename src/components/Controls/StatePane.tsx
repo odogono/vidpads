@@ -25,13 +25,11 @@ export const StatePane = () => {
     playPriority,
     isPadOneShot,
     pad,
-    setPadIsLooped,
     selectedPadId,
     setPadVolume,
     setPadPlaybackRate,
     setPadChokeGroup,
     setPadPlayPriority,
-    setPadPlaybackResume,
     isResume,
     padLabel,
     setPadLabel
@@ -40,15 +38,17 @@ export const StatePane = () => {
   const isLooped = isPadLooped(pad);
   const isEnabled = !!selectedPadId;
 
-  const handleOneShot = useCallback(() => {
-    events.emit('control:one-shot');
-  }, [events]);
+  const handleResume = useCallback(
+    () => events.emit('control:resume'),
+    [events]
+  );
 
-  const handleLooped = useCallback(() => {
-    if (!pad) return;
-    log.debug('handleLooped', pad.id, !isLooped);
-    setPadIsLooped(pad.id, !isLooped);
-  }, [pad, isLooped, setPadIsLooped]);
+  const handleOneShot = useCallback(
+    () => events.emit('control:one-shot'),
+    [events]
+  );
+
+  const handleLooped = useCallback(() => events.emit('control:loop'), [events]);
 
   const handleChokeGroup = useCallback(
     (value: number) => {
@@ -66,12 +66,6 @@ export const StatePane = () => {
     },
     [pad, setPadPlayPriority]
   );
-
-  const handleResume = useCallback(() => {
-    if (!pad) return;
-    log.debug('handleResume', pad.id, { isResume });
-    setPadPlaybackResume(pad.id, !isResume);
-  }, [pad, setPadPlaybackResume, isResume]);
 
   const handleLabelChange = useCallback(
     (label: string) => {

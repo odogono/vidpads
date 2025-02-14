@@ -1,7 +1,7 @@
 export { applyPad } from './applyPad';
 export { applyPlaybackRateToPad } from './applyPlaybackRateToPad';
 export { applyTrimToPad } from './applyTrimToPad';
-export { applyLoopToPad } from './applyLoopToPad';
+export { setPadIsLooped } from './setPadIsLooped';
 export { applyVolumeToPad } from './applyVolumeToPad';
 export { applyVolumeEnvelopeToPad } from './applyVolumeEnvelopeToPad';
 export { clearPad } from './clearPad';

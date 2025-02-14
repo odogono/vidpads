@@ -104,15 +104,6 @@ export const usePad = (padId?: string) => {
     [pad, project]
   );
 
-  const setPadPlaybackResume = useCallback(
-    (padId: string, resume: boolean | undefined) => {
-      if (pad) {
-        project.send({ type: 'setPadPlaybackResume', padId, resume });
-      }
-    },
-    [pad, project]
-  );
-
   const isPadAssigned = !!getPadSourceUrl(pad);
 
   const padLabel = getPadLabel(pad);
@@ -139,7 +130,6 @@ export const usePad = (padId?: string) => {
     setPadLabel,
     setPadChokeGroup,
     setPadPlayPriority,
-    setPadPlaybackResume,
     isResume
   };
 };

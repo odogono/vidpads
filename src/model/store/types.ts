@@ -83,10 +83,10 @@ export type ApplyTrimToPadAction = {
   end: number;
 };
 
-export type ApplyLoopToPadAction = {
-  type: 'applyLoopToPad';
+export type SetPadIsLoopedAction = {
+  type: 'setPadIsLooped';
   padId: string;
-  start: number;
+  isLooped: boolean;
 };
 
 export type ApplyPlaybackRateToPadAction = {
@@ -151,7 +151,7 @@ export type SetPadPlayPriorityAction = {
 export type SetPadPlaybackResumeAction = {
   type: 'setPadPlaybackResume';
   padId: string;
-  resume: boolean | undefined;
+  isResume: boolean | undefined;
 };
 
 export type ApplyPadAction = {
