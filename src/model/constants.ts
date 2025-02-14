@@ -4,6 +4,9 @@ export const VOKeys = {
   allSettings: () => [...VOKeys.all, 'settings'] as const,
   settings: (id: string) => [...VOKeys.allSettings(), id] as const,
 
+  preferences: () => [...VOKeys.settings('preferences')] as const,
+  keyboard: () => [...VOKeys.settings('keyboard')] as const,
+
   midiStore: () => [...VOKeys.all, 'midiStore'] as const,
 
   projects: () => [...VOKeys.all, 'projects'] as const,

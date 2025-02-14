@@ -1,0 +1,46 @@
+import { EventEmitterEvents } from '@hooks/events/types';
+import type { SettingsStoreData } from '@hooks/useSettings/types';
+
+type Modifier = 'ctrl' | 'meta' | 'shift' | 'alt';
+
+export type EventMap = {
+  [key: string]: {
+    padId?: string;
+    event?: keyof EventEmitterEvents;
+    modifiers?: Modifier[];
+    // args?: unknown;
+    fn?: () => void;
+  };
+};
+
+export interface KeyboardStoreContext extends SettingsStoreData {
+  keyMap: EventMap;
+}
+
+export type SetKeyboardMappingAction = {
+  type: 'setKeyboardMapping';
+  code: string;
+  value: string;
+};
+
+export type ImportStoreFromJsonAction = {
+  type: 'importStoreFromJson';
+  data: SettingsStoreData;
+};
+
+export type TestAction = {
+  type: 'test';
+  message: string;
+};
+
+export type KeyboardStoreActions = ImportStoreFromJsonAction | TestAction;
+
+export type SettingUpdatedEvent = {
+  type: 'settingUpdated';
+  path: string;
+  value: boolean | number | string;
+};
+
+export type KeyboardStoreEvents = SettingUpdatedEvent;
+
+export type Emit = { emit: (event: KeyboardStoreEvents) => void };

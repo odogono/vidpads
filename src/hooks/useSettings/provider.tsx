@@ -1,47 +1,60 @@
 'use client';
 
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useRef } from 'react';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { SettingsContext } from './context';
-import { useSettingsStorePersistence } from './hooks/useSettingsStorePersistence';
+import { useSettingsPersistence } from './hooks/useSettingsPersistence';
 import {
   SettingsStoreType,
   createStore,
   exportStoreToJson,
   importStoreFromJson
 } from './store';
+import type {
+  SettingsStoreActions,
+  SettingsStoreContext,
+  SettingsStoreEvents
+} from './types';
 
-const log = createLog('useSettings/provider', ['debug']);
+// const log = createLog('useSettings/provider', ['debug']);
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
-  const { settingsStoreExport, saveSettingsStoreExport, updatedAt } =
-    useSettingsStorePersistence();
-
   const store = useRef<SettingsStoreType | undefined>(undefined);
 
   if (!store.current) {
     store.current = createStore();
   }
 
-  useEffect(() => {
-    if (settingsStoreExport) {
-      log.debug('importing settings store from json', settingsStoreExport);
-      importStoreFromJson(store.current!, settingsStoreExport);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updatedAt]);
+  useSettingsPersistence<
+    SettingsStoreContext,
+    SettingsStoreActions,
+    SettingsStoreEvents
+  >({
+    id: 'preferences',
+    store: store.current,
+    onImport: (data) => importStoreFromJson(store.current!, data),
+    onExport: (snapshot) => exportStoreToJson(snapshot)
+  });
 
-  useEffect(() => {
-    const sub = store.current?.subscribe((state) => {
-      log.debug('settingsUpdated', state);
-      saveSettingsStoreExport(exportStoreToJson('default', store.current!));
-    });
+  // useEffect(() => {
+  //   if (preferences) {
+  //     log.debug('importing settings store from json', preferences);
+  //     importStoreFromJson(store.current!, preferences);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [updatedAt]);
 
-    return () => {
-      sub?.unsubscribe();
-    };
-  }, [saveSettingsStoreExport]);
+  // useEffect(() => {
+  //   const sub = store.current?.subscribe((state) => {
+  //     log.debug('settingsUpdated', state);
+  //     savePreferences(exportStoreToJson(store.current!));
+  //   });
+
+  //   return () => {
+  //     sub?.unsubscribe();
+  //   };
+  // }, [savePreferences]);
 
   return (
     <SettingsContext.Provider value={{ store: store.current }}>

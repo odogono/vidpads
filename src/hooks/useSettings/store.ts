@@ -1,18 +1,19 @@
 import { dateToISOString } from '@helpers/datetime';
 // import { createLog } from '@helpers/log';
-import { createStore as createXStateStore } from '@xstate/store';
-import {
-  EmittedEvents,
+import { StoreSnapshot, createStore as createXStateStore } from '@xstate/store';
+import type {
   ImportStoreFromJsonAction,
   SetSettingAction,
+  SettingsStoreActions,
   SettingsStoreContext,
-  SettingsStoreExport,
-  type Actions
+  SettingsStoreData,
+  SettingsStoreEvents
 } from './types';
 
 // const log = createLog('useSettings/store', ['debug']);
 
 const initialContext: SettingsStoreContext = {
+  id: 'preferences',
   isMidiMappingEnabled: false,
   arePadInteractionsEnabled: true,
   isPadSelectSourceDisabled: false,
@@ -29,36 +30,17 @@ const initialContext: SettingsStoreContext = {
 };
 
 export const exportStoreToJson = (
-  id: string,
-  store: SettingsStoreType
-): SettingsStoreExport => {
-  const data = store.getSnapshot().context;
-
-  return {
-    ...data,
-    id
-  };
-};
+  snapshot: StoreSnapshot<SettingsStoreContext>
+): SettingsStoreData => ({ ...snapshot.context, id: 'preferences' });
 
 export const importStoreFromJson = (
   store: SettingsStoreType,
-  data: SettingsStoreExport
+  data: SettingsStoreData
 ) => {
   store.send({ type: 'importStoreFromJson', data });
 };
 
-const update = (
-  context: SettingsStoreContext,
-  data: Partial<SettingsStoreContext>
-) => {
-  return {
-    ...context,
-    ...data,
-    updatedAt: dateToISOString()
-  };
-};
-
-const Actions = {
+const SettingsStoreActions = {
   importStoreFromJson: (
     context: SettingsStoreContext,
     event: ImportStoreFromJsonAction
@@ -79,11 +61,11 @@ export const createStore = () => {
   const content = {
     types: {
       context: {} as SettingsStoreContext,
-      events: {} as Actions,
-      emitted: {} as EmittedEvents
+      events: {} as SettingsStoreActions,
+      emitted: {} as SettingsStoreEvents
     },
     context: initialContext,
-    on: Actions
+    on: SettingsStoreActions
   };
 
   const store = createXStateStore(content);
@@ -92,3 +74,14 @@ export const createStore = () => {
 };
 
 export type SettingsStoreType = ReturnType<typeof createStore>;
+
+const update = (
+  context: SettingsStoreContext,
+  data: Partial<SettingsStoreContext>
+) => {
+  return {
+    ...context,
+    ...data,
+    updatedAt: dateToISOString()
+  };
+};

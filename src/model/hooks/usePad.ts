@@ -38,50 +38,6 @@ export const usePad = (padId?: string) => {
     state.context.pads.find((pad) => pad.id === padId)
   );
 
-  // const isPadPlayEnabled = useSelector(
-  //   project,
-  //   (state) =>
-  //     (state.context.arePadInteractionsEnabled &&
-  //       state.context.settings?.isPadPlayEnabled) ??
-  //     true
-  // );
-
-  // const isPadSelectSourceDisabled = useSelector(
-  //   project,
-  //   (state) => !!state.context.isPadSelectSourceDisabled
-  // );
-
-  // const enablePadSelectSource = useCallback(
-  //   (isEnabled: boolean = true) => {
-  //     project.send({
-  //       type: 'setPadSelectSourceDisabled',
-  //       isDisabled: !isEnabled
-  //     });
-  //   },
-  //   [project]
-  // );
-
-  // const enablePlayers = useCallback(
-  //   (isEnabled: boolean = true) => {
-  //     project.send({ type: 'setPlayersEnabled', isEnabled });
-  //   },
-  //   [project]
-  // );
-
-  // const setPadPlayEnabled = useCallback(
-  //   (isEnabled: boolean) => {
-  //     project.send({ type: 'setPadPlayEnabled', isEnabled });
-  //   },
-  //   [project]
-  // );
-
-  // const setPadSelectSourceEnabled = useCallback(
-  //   (isEnabled: boolean) => {
-  //     project.send({ type: 'setPadSelectSourceEnabled', isEnabled });
-  //   },
-  //   [project]
-  // );
-
   const setPadIsOneShot = useCallback(
     (padId: string, isOneShot: boolean) => {
       if (pad) {

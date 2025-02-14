@@ -8,7 +8,7 @@ import { Input } from '@heroui/react';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const log = createLog('ProjectImageModal', ['debug']);
+const log = createLog('ProjectImageModal');
 
 export const ProjectImageModal = ({ ref }: CommonModalBase) => {
   const { projectBgImage, setProjectBgImage } = useCurrentProject();
@@ -31,7 +31,10 @@ export const ProjectImageModal = ({ ref }: CommonModalBase) => {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
+      img.onerror = (error) => {
+        resolve(false);
+        log.debug('Failed to load image:', url, error);
+      };
       img.src = url;
     });
   };

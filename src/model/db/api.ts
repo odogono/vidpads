@@ -14,7 +14,7 @@ import {
   toPadThumbnailUrl
 } from '@helpers/metadata';
 import type { MidiStoreExport } from '@hooks/useMidi/types';
-import type { SettingsStoreExport } from '@hooks/useSettings/types';
+import type { SettingsStoreData } from '@hooks/useSettings/types';
 import { StoreContextType } from '@model/store/types';
 import {
   Media,
@@ -176,7 +176,7 @@ export const saveProject = async (project: StoreContextType): Promise<void> => {
 
 export const loadSettingsStore = async (
   id: string
-): Promise<SettingsStoreExport | null> => {
+): Promise<SettingsStoreData | null> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const { settings, transaction } = idbOpenTransaction(
@@ -208,7 +208,7 @@ export const loadSettingsStore = async (
 };
 
 export const saveSettingsStore = async (
-  data: SettingsStoreExport
+  data: SettingsStoreData
 ): Promise<void> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {

@@ -3,9 +3,9 @@
 import { createContext } from 'react';
 
 export interface KeyboardContextType {
-  activeKeys: Set<string>;
-  isKeyDown: (key: string) => boolean;
-  isKeyUp: (key: string) => boolean;
+  // activeKeys: Set<string>;
+  // isKeyDown: (key: string) => boolean;
+  // isKeyUp: (key: string) => boolean;
   isShiftKeyDown: () => boolean;
   isShiftKeyUp: () => boolean;
   isAltKeyDown: () => boolean;
@@ -14,8 +14,8 @@ export interface KeyboardContextType {
   isCtrlKeyUp: () => boolean;
   isMetaKeyDown: () => boolean;
   isMetaKeyUp: () => boolean;
-  isEnabled: boolean;
-  setIsEnabled: (enabled: boolean) => void;
+  // isEnabled: boolean;
+  // setIsEnabled: (enabled: boolean) => void;
 }
 
 export const KeyboardContext = createContext<KeyboardContextType | undefined>(

@@ -1,4 +1,9 @@
-export interface SettingsStoreContext {
+export interface SettingsStoreData {
+  id: string;
+  updatedAt: string;
+}
+
+export interface SettingsStoreContext extends SettingsStoreData {
   // whether the map midi mode is enabled
   isMidiMappingEnabled?: boolean;
 
@@ -18,7 +23,6 @@ export interface SettingsStoreContext {
   selectPadFromKeyboard: boolean;
   selectPadFromMidi: boolean;
   selectPadFromPad: boolean;
-  updatedAt: string;
 }
 
 export type SetSettingAction = {
@@ -29,9 +33,9 @@ export type SetSettingAction = {
 
 export type ImportStoreFromJsonAction = {
   type: 'importStoreFromJson';
-  data: SettingsStoreExport;
+  data: SettingsStoreData;
 };
-export type Actions = SetSettingAction | ImportStoreFromJsonAction;
+export type SettingsStoreActions = SetSettingAction | ImportStoreFromJsonAction;
 
 export type SettingUpdatedEvent = {
   type: 'settingUpdated';
@@ -39,10 +43,10 @@ export type SettingUpdatedEvent = {
   value: boolean | number | string;
 };
 
-export type EmittedEvents = SettingUpdatedEvent;
+export type SettingsStoreEvents = SettingUpdatedEvent;
 
-export type Emit = { emit: (event: EmittedEvents) => void };
+export type Emit = { emit: (event: SettingsStoreEvents) => void };
 
-export interface SettingsStoreExport extends SettingsStoreContext {
-  id: string;
-}
+// export interface SettingsStoreExport extends SettingsStoreContext {
+//   id: string;
+// }
