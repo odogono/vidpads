@@ -99,12 +99,6 @@ export const useKeyMap = (store: KeyboardStoreType) => {
         return;
       }
 
-      // const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
-      // if (padId) {
-      //   events.emit('pad:touchdown', { padId, source: 'keyboard' });
-      //   return;
-      // }
-
       if (entry?.event) {
         const { event, fn } = entry;
         log.debug('[keyDown]', code, { event });
@@ -133,11 +127,6 @@ export const useKeyMap = (store: KeyboardStoreType) => {
         events.emit('pad:touchup', { padId: entry.padId, source: 'keyboard' });
         return;
       }
-
-      // const padId = KEY_PAD_MAP[code as keyof typeof KEY_PAD_MAP];
-      // if (padId) {
-      //   events.emit('pad:touchup', { padId, source: 'keyboard' });
-      // }
     },
     [events, isEnabled, keyMap]
   );

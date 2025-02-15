@@ -18,41 +18,6 @@ import type {
   KeyboardStoreEvents
 } from './types';
 
-// const KEY_PAD_MAP = {
-//   Digit1: 'a1',
-//   Digit2: 'a2',
-//   Digit3: 'a3',
-//   Digit4: 'a4',
-//   KeyQ: 'a5',
-//   KeyW: 'a6',
-//   KeyE: 'a7',
-//   KeyR: 'a8',
-//   KeyA: 'a9',
-//   KeyS: 'a10',
-//   KeyD: 'a11',
-//   KeyF: 'a12',
-//   KeyZ: 'a13',
-//   KeyX: 'a14',
-//   KeyC: 'a15',
-//   KeyV: 'a16'
-// };
-
-// const EVENT_MAP: EventMap = {
-//   Escape: {
-//     event: 'cmd:cancel',
-//     // eslint-disable-next-line no-console
-//     fn: () => console.clear()
-//   },
-//   Space: {
-//     event: 'seq:play-toggle'
-//   },
-//   Enter: {
-//     event: 'seq:rewind'
-//   }
-// };
-
-// const log = createLog('keyboard', ['debug']);
-
 export const KeyboardProvider = ({ children }: { children: ReactNode }) => {
   const store = useRef<KeyboardStoreType | undefined>(undefined);
 
