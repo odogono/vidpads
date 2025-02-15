@@ -1,20 +1,23 @@
 import { createLog } from '@helpers/log';
-import { createStore as createXStateStore } from '@xstate/store';
+import type { SettingsStoreData } from '@hooks/useSettings/types';
+import {
+  createStore as createXStateStore,
+  type StoreSnapshot
+} from '@xstate/store';
 import { dateToISOString } from '../../helpers/datetime';
 import { midiNoteToName } from './helpers';
-import {
-  Emit,
-  EmittedEvents,
+import type {
   EnableMappingModeAction,
   ImportStoreFromJsonAction,
   InputConnectedAction,
   InputDisconnectedAction,
   InputMessageAction,
   MidiInput,
+  MidiStoreActions,
   MidiStoreContext,
-  MidiStoreExport,
-  RemoveMidiMappingForPadAction,
-  type Actions
+  MidiStoreEmit,
+  MidiStoreEvents,
+  RemoveMidiMappingForPadAction
 } from './types';
 
 const log = createLog('useMidi/store', ['debug']);
@@ -42,11 +45,13 @@ const addMidiToPadMap = (
   return map;
 };
 
-export const exportStoreToJson = (store: MidiStoreType): MidiStoreExport => {
-  const { midiToPadMap, padToMidiMap, updatedAt } = store.getSnapshot().context;
+export const exportStoreToJson = (
+  snapshot: StoreSnapshot<MidiStoreContext>
+): SettingsStoreData => {
+  const { midiToPadMap, padToMidiMap, updatedAt } = snapshot.context;
 
   const data = {
-    id: 'midiStore',
+    id: 'midi',
     midiToPadMap,
     padToMidiMap,
     updatedAt
@@ -57,7 +62,7 @@ export const exportStoreToJson = (store: MidiStoreType): MidiStoreExport => {
 
 export const importStoreFromJson = (
   store: MidiStoreType,
-  data: MidiStoreExport
+  data: SettingsStoreData
 ) => {
   store.send({ type: 'importStoreFromJson', data });
 };
@@ -70,15 +75,18 @@ const update = (context: MidiStoreContext, data: Partial<MidiStoreContext>) => {
   };
 };
 
-const Actions = {
+const MidiStoreActions = {
   importStoreFromJson: (
     context: MidiStoreContext,
-    event: ImportStoreFromJsonAction
+    event: ImportStoreFromJsonAction,
+    { emit }: MidiStoreEmit
   ) => {
     const { data } = event;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { midiToPadMap, padToMidiMap, ...rest } = data;
+
+    emit({ type: 'settingStoreImported' });
 
     // a sanity check to make sure the maps are valid
     if (Object.keys(padToMidiMap ?? {}).length === 0) {
@@ -113,7 +121,7 @@ const Actions = {
   inputMessage: (
     context: MidiStoreContext,
     event: InputMessageAction,
-    { emit }: Emit
+    { emit }: MidiStoreEmit
   ) => {
     const {
       isMappingModeEnabled,
@@ -213,7 +221,7 @@ const Actions = {
   removeMidiMappingForPad: (
     context: MidiStoreContext,
     event: RemoveMidiMappingForPadAction,
-    { emit }: Emit
+    { emit }: MidiStoreEmit
   ) => {
     const { padId } = event;
     const { padToMidiMap, midiToPadMap } = context;
@@ -325,11 +333,11 @@ export const createStore = () => {
   const content = {
     types: {
       context: {} as MidiStoreContext,
-      events: {} as Actions,
-      emitted: {} as EmittedEvents
+      events: {} as MidiStoreEvents,
+      emitted: {} as MidiStoreEvents
     },
     context: initialContext,
-    on: Actions
+    on: MidiStoreActions
   };
 
   const store = createXStateStore(content);

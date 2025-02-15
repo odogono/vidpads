@@ -1,5 +1,8 @@
 import { EventEmitterEvents } from '@hooks/events/types';
-import type { SettingsStoreData } from '@hooks/useSettings/types';
+import type {
+  SettingStoreImportedEvent,
+  SettingsStoreData
+} from '@hooks/useSettings/types';
 
 type Modifier = 'ctrl' | 'meta' | 'shift' | 'alt';
 
@@ -35,12 +38,6 @@ export type TestAction = {
 
 export type KeyboardStoreActions = ImportStoreFromJsonAction | TestAction;
 
-export type SettingUpdatedEvent = {
-  type: 'settingUpdated';
-  path: string;
-  value: boolean | number | string;
-};
-
-export type KeyboardStoreEvents = SettingUpdatedEvent;
+export type KeyboardStoreEvents = SettingStoreImportedEvent;
 
 export type Emit = { emit: (event: KeyboardStoreEvents) => void };

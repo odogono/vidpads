@@ -1,7 +1,7 @@
 import { dateToISOString } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
+import type { SettingsStoreData } from '@hooks/useSettings/types';
 import { StoreSnapshot, createStore as createXStateStore } from '@xstate/store';
-import { SettingsStoreData } from '../useSettings/types';
 import type {
   ImportStoreFromJsonAction,
   KeyboardStoreActions,

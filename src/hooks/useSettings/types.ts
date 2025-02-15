@@ -37,13 +37,11 @@ export type ImportStoreFromJsonAction = {
 };
 export type SettingsStoreActions = SetSettingAction | ImportStoreFromJsonAction;
 
-export type SettingUpdatedEvent = {
-  type: 'settingUpdated';
-  path: string;
-  value: boolean | number | string;
+export type SettingStoreImportedEvent = {
+  type: 'settingStoreImported';
 };
 
-export type SettingsStoreEvents = SettingUpdatedEvent;
+export type SettingsStoreEvents = SettingStoreImportedEvent;
 
 export type Emit = { emit: (event: SettingsStoreEvents) => void };
 

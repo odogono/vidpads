@@ -13,7 +13,6 @@ import {
   isYouTubeMetadata,
   toPadThumbnailUrl
 } from '@helpers/metadata';
-import type { MidiStoreExport } from '@hooks/useMidi/types';
 import type { SettingsStoreData } from '@hooks/useSettings/types';
 import { StoreContextType } from '@model/store/types';
 import {
@@ -233,56 +232,56 @@ export const saveSettingsStore = async (
     };
   });
 };
-export const loadMidiStore = async (): Promise<MidiStoreExport | null> => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const { midiStore, transaction } = idbOpenTransaction(
-      db,
-      ['midiStore'],
-      'readonly'
-    );
+// export const loadMidiStore = async (): Promise<MidiStoreExport | null> => {
+//   const db = await openDB();
+//   return new Promise((resolve, reject) => {
+//     const { midiStore, transaction } = idbOpenTransaction(
+//       db,
+//       ['midiStore'],
+//       'readonly'
+//     );
 
-    const getRequest = midiStore.get('midiStore');
+//     const getRequest = midiStore.get('midiStore');
 
-    getRequest.onerror = () => {
-      log.error('Error loading midi store from IndexedDB:', getRequest.error);
-      reject(getRequest.error);
-    };
+//     getRequest.onerror = () => {
+//       log.error('Error loading midi store from IndexedDB:', getRequest.error);
+//       reject(getRequest.error);
+//     };
 
-    getRequest.onsuccess = () => {
-      const result = (getRequest.result as MidiStoreExport) ?? null;
-      resolve(result);
-    };
+//     getRequest.onsuccess = () => {
+//       const result = (getRequest.result as MidiStoreExport) ?? null;
+//       resolve(result);
+//     };
 
-    transaction.oncomplete = () => {
-      closeDB(db);
-    };
-  });
-};
+//     transaction.oncomplete = () => {
+//       closeDB(db);
+//     };
+//   });
+// };
 
-export const saveMidiStore = async (data: MidiStoreExport): Promise<void> => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const { midiStore, transaction } = idbOpenTransaction(
-      db,
-      ['midiStore'],
-      'readwrite'
-    );
+// export const saveMidiStore = async (data: MidiStoreExport): Promise<void> => {
+//   const db = await openDB();
+//   return new Promise((resolve, reject) => {
+//     const { midiStore, transaction } = idbOpenTransaction(
+//       db,
+//       ['midiStore'],
+//       'readwrite'
+//     );
 
-    const putRequest = midiStore.put(data);
+//     const putRequest = midiStore.put(data);
 
-    putRequest.onerror = () => {
-      log.error('Error saving midi store to IndexedDB:', putRequest.error);
-      reject(putRequest.error);
-    };
+//     putRequest.onerror = () => {
+//       log.error('Error saving midi store to IndexedDB:', putRequest.error);
+//       reject(putRequest.error);
+//     };
 
-    putRequest.onsuccess = () => resolve();
+//     putRequest.onsuccess = () => resolve();
 
-    transaction.oncomplete = () => {
-      closeDB(db);
-    };
-  });
-};
+//     transaction.oncomplete = () => {
+//       closeDB(db);
+//     };
+//   });
+// };
 
 export const loadProjectState = async (
   projectId: string

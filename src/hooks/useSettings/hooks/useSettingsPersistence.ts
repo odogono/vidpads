@@ -7,17 +7,18 @@ import { VOKeys } from '@model/constants';
 import { loadSettingsStore, saveSettingsStore } from '@model/db/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EventObject, Store, StoreSnapshot } from '@xstate/store';
-import { SettingsStoreData, SettingsStoreEvents } from '../types';
+import { SettingsStoreData } from '../types';
 
 const log = createLog('useSettingsPersistence');
 
 interface UseSettingsPersistenceProps<
   TContext,
   TEvent extends EventObject,
-  TEmitted extends SettingsStoreEvents
+  TEmitted extends EventObject
 > {
   id: string;
   store: Store<TContext, TEvent, TEmitted>;
+  storeEvent?: string;
   onImport?: (settings: SettingsStoreData) => void;
   onExport?: (snapshot: StoreSnapshot<TContext>) => SettingsStoreData;
 }
@@ -25,7 +26,7 @@ interface UseSettingsPersistenceProps<
 export const useSettingsPersistence = <
   TContext,
   TEvent extends EventObject,
-  TEmitted extends SettingsStoreEvents
+  TEmitted extends EventObject
 >({
   store,
   id,

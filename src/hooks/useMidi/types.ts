@@ -61,7 +61,7 @@ export type ClearInputsAction = {
   type: 'clearInputs';
 };
 
-export type Actions =
+export type MidiStoreActions =
   | SetIsEnabledAction
   | InputConnectedAction
   | InputDisconnectedAction
@@ -71,8 +71,6 @@ export type Actions =
   | ImportStoreFromJsonAction
   | SetAllOffAction
   | ClearInputsAction;
-
-export type ReadyEvent = { type: 'ready' };
 
 export type MidiMappingUpdatedEvent = {
   type: 'midiMappingUpdated';
@@ -96,16 +94,20 @@ export type NoteOffEvent = {
   channel: number;
 };
 
-export type EmittedEvents =
-  | ReadyEvent
+export type MidiStoreImportedEvent = {
+  type: 'settingStoreImported';
+};
+
+export type MidiStoreEvents =
+  | MidiStoreImportedEvent
   | MidiMappingUpdatedEvent
   | NoteOnEvent
   | NoteOffEvent;
-export type Emit = { emit: (event: EmittedEvents) => void };
+export type MidiStoreEmit = { emit: (event: MidiStoreEvents) => void };
 
-export interface MidiStoreExport {
-  id: string;
-  midiToPadMap: Record<string, string[]>;
-  padToMidiMap: Record<string, string>;
-  updatedAt: string;
-}
+// export interface MidiStoreExport {
+//   id: string;
+//   midiToPadMap: Record<string, string[]>;
+//   padToMidiMap: Record<string, string>;
+//   updatedAt: string;
+// }
