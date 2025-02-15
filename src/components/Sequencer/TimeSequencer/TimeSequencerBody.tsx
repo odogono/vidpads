@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
+import { showError } from '@helpers/toast';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
+import { getPadDuration } from '@model/pad';
 import { createSequencerEvent, quantizeSeconds } from '@model/sequencerEvent';
 import { Pad, SequencerEvent } from '@model/types';
 import { Position, Rect } from '@types';
@@ -37,7 +39,7 @@ export const TimeSequencerBody = ({
   const { gridRef, getGridDimensions } = useGridDimensions({ padCount });
 
   // records the duration of the last event toggled
-  const [lastEventDuration, setLastEventDuration] = useState(0.5);
+  // const [lastEventDuration, setLastEventDuration] = useState(0.5);
 
   const [tooltipPosition, setTooltipPosition] = useState<Position>({
     x: 0,
@@ -158,14 +160,8 @@ export const TimeSequencerBody = ({
       //   isLongPress
       // });
 
-      if (isFinished) {
-        if (isLongPress) {
-          // On long press, create a 1-beat event
-          // const quantizedStep = (60 / canvasBpm) * 2; // One beat duration
-          // const quantizedTime = quantizeSeconds(time, 0.5);
-          // toggleEvent(padIds[0], quantizedTime, quantizedTime + quantizedStep);
-          // log.debug('handleMarqueeSelectEnd long press', time, rect);
-        } else if (rect.width <= 5 && rect.height <= 5) {
+      if (isFinished && !isLongPress) {
+        if (rect.width <= 5 && rect.height <= 5) {
           if (hasSelectedEvents) {
             // deselect all events
             selectEventsAtTime([], -1, -1);
@@ -173,32 +169,32 @@ export const TimeSequencerBody = ({
             const eventsAtTime = getEventsAtTime(padIds[0], time);
 
             if (eventsAtTime.length > 0) {
-              const lastEvent = eventsAtTime[eventsAtTime.length - 1];
-              const evtDuration = lastEvent?.duration ?? 0.5;
-              setLastEventDuration(evtDuration);
+              // const lastEvent = eventsAtTime[eventsAtTime.length - 1];
+              // const evtDuration = lastEvent?.duration ?? 0.5;
+              // setLastEventDuration(evtDuration);
               // log.debug('handleMarqueeSelectEnd select', time, eventsAtTime);
               // selectEvents(eventsAtTime, lastEvent.time, evtDuration);
               selectEvents(eventsAtTime.slice(0, 1));
             } else {
               if (!isTooltipVisible) {
+                // add the event with the duration of the pad
+                const pad = pads.find((p) => p.id === padIds[0]);
+                const duration = getPadDuration(pad);
+
+                if (duration <= 0) {
+                  showError(`Pad ${padIds[0]} has no duration`);
+                  return;
+                }
+
                 addEvent(
                   createSequencerEvent({
                     padId: padIds[0],
                     time: quantizeSeconds(time, 4),
-                    duration: lastEventDuration
+                    duration
                   })
                 );
               }
-              // log.debug('handleMarqueeSelectEnd', {
-              //   padIds,
-              //   time,
-              //   duration,
-              //   lastEventDuration
-              // });
             }
-
-            // const quantizedTime = quantizeSeconds(time, 0.5);
-            // toggleEvent(padIds[0], time, time + lastEventDuration);
           }
         } else {
           // log.debug('handleMarqueeSelectEnd', { time, duration, padIds });
@@ -215,8 +211,8 @@ export const TimeSequencerBody = ({
       getEventsAtTime,
       selectEvents,
       isTooltipVisible,
-      addEvent,
-      lastEventDuration
+      pads,
+      addEvent
     ]
   );
 

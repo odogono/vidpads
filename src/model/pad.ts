@@ -244,6 +244,16 @@ export const getPadInterval = (
   };
 };
 
+export const getPadDuration = (pad: Pad | undefined): number => {
+  if (!pad) {
+    return 0;
+  }
+
+  const interval = getPadInterval(pad, { start: 0, end: 0 })!;
+
+  return interval.end - interval.start;
+};
+
 export const getPadPlaybackRate = (
   pad: Pad | undefined,
   defaultTo: number = 1

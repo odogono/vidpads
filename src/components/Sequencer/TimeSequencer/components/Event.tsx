@@ -48,7 +48,8 @@ export const Event = (props: SequencerRowEvent) => {
   return (
     <div
       className={cn('vo-seq-evt absolute top-0 h-full bg-seqevt box-border', {
-        'border-2 border-white': isSelected
+        'border-2 border-white': isSelected,
+        'border-1 border-white/50': !isSelected
       })}
       style={{
         left: `${x}px`,
