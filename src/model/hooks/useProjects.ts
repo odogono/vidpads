@@ -17,7 +17,7 @@ import {
 } from '@model/db/api';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
 import { createStore } from '@model/store/store';
-import { StoreContextType } from '@model/store/types';
+import { ProjectStoreContextType } from '@model/store/types';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -111,7 +111,7 @@ export const useProjects = () => {
       log.debug('Saving project:', projectName);
 
       const data = project.getSnapshot().context;
-      const saveData: StoreContextType = {
+      const saveData: ProjectStoreContextType = {
         ...data,
         projectName,
         updatedAt: dateToISOString()

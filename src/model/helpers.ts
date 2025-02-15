@@ -1,5 +1,5 @@
 import { getUnixTimeFromDate, getUnixTimeFromToday } from '@helpers/datetime';
-import { StoreContextType } from './store/types';
+import { ProjectStoreContextType } from './store/types';
 import { Media, MediaType } from './types';
 
 export const getMediaType = (media: Media): MediaType => {
@@ -10,7 +10,7 @@ export const getMediaType = (media: Media): MediaType => {
 };
 
 export const isProjectNoteworthy = (
-  project: Partial<StoreContextType>,
+  project: Partial<ProjectStoreContextType>,
   includeEmpty: boolean = false
 ) => {
   const { projectName, createdAt, updatedAt } = project;

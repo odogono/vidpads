@@ -20,7 +20,7 @@ import {
 } from '@heroui/react';
 import { isProjectNoteworthy } from '@model/helpers';
 import { useProjects } from '@model/hooks/useProjects';
-import { StoreContextType } from '@model/store/types';
+import { ProjectStoreContextType } from '@model/store/types';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
 const log = createLog('LoadProjectModal', ['debug']);
@@ -31,7 +31,7 @@ export const LoadProjectModal = ({ ref }: CommonModalBase) => {
     string | undefined
   >();
   const [projectDetails, setProjectDetails] = useState<
-    Partial<StoreContextType>[]
+    Partial<ProjectStoreContextType>[]
   >([]);
 
   const rowsPerPage = 5;

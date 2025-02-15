@@ -20,7 +20,7 @@ import { isProjectNoteworthy } from '@model/helpers';
 import { usePadOperations } from '@model/hooks/usePadOperations';
 import { getPadSourceUrl } from '@model/pad';
 import { createStore } from '@model/store/store';
-import { StoreContextType } from '@model/store/types';
+import { ProjectStoreContextType } from '@model/store/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 
 const log = createLog('useProject/hooks/useProjectPersistence', ['debug']);
@@ -28,7 +28,7 @@ const log = createLog('useProject/hooks/useProjectPersistence', ['debug']);
 export const useProjectPersistence = () => {
   const { setProjectId, projectId, importData } = useRouter();
   const queryClient = useQueryClient();
-  const snapshotRef = useRef<StoreContextType | null>(null);
+  const snapshotRef = useRef<ProjectStoreContextType | null>(null);
   const { addUrlToPad } = usePadOperations();
 
   const { data: project } = useSuspenseQuery({
@@ -131,7 +131,7 @@ export const useProjectPersistence = () => {
             isNoteWorthy: isProjectNoteworthy({
               createdAt,
               updatedAt
-            } as StoreContextType)
+            } as ProjectStoreContextType)
           });
         }
 

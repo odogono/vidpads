@@ -9,7 +9,7 @@ import type {
 import { ControlPanes } from '@types';
 import type { Store } from '@xstate/store';
 
-export interface StoreContextType {
+export interface ProjectStoreContextType {
   projectId: string;
 
   projectName: string;
@@ -295,14 +295,13 @@ export type SetProjectBgImageAction = {
 //   isDisabled: boolean;
 // };
 
-export type Actions =
+export type ProjectStoreActions =
   | SetPadMediaAction
   | ClearPadAction
   | CopyPadAction
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
   | ApplyTrimToPadAction
-  | ApplyLoopToPadAction
   | NewProjectAction
   | ImportProjectAction
   | UpdateProjectAction
@@ -375,7 +374,7 @@ export type SequencerStoppedEvent = {
   type: 'sequencerStopped';
 };
 
-export type EmittedEvents =
+export type ProjectStoreEvents =
   | PadUpdatedEvent
   | TimeUpdatedEvent
   | StoreInitialisedEvent
@@ -384,10 +383,14 @@ export type EmittedEvents =
   | SequencerStartedEvent
   | SequencerStoppedEvent;
 
-export type Emit = { emit: (event: EmittedEvents) => void };
+export type Emit = { emit: (event: ProjectStoreEvents) => void };
 
-export type StoreType = Store<StoreContextType, Actions, EmittedEvents>;
+export type ProjectStoreType = Store<
+  ProjectStoreContextType,
+  ProjectStoreActions,
+  ProjectStoreEvents
+>;
 
-export type StoreSnapshot = ReturnType<StoreType['subscribe']>;
+export type ProjectStoreSnapshot = ReturnType<ProjectStoreType['subscribe']>;
 
-export type StoreContext = NoInfer<StoreContextType>;
+export type ProjectStoreContext = NoInfer<ProjectStoreContextType>;

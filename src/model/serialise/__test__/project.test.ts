@@ -8,7 +8,7 @@ import {
 } from '@/model/serialise/project';
 import { isoStringToDate } from '@helpers/datetime';
 import { initialContext } from '@model/store/store';
-import { StoreContextType, StoreType } from '@model/store/types';
+import { ProjectStoreContextType, ProjectStoreType } from '@model/store/types';
 import {
   OperationType,
   Pad,
@@ -26,7 +26,7 @@ const defaultContext = {
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-02T00:00:00.000Z',
   pads: [] as Pad[]
-} as StoreContextType;
+} as ProjectStoreContextType;
 
 // const log = createLog('export.test');
 
@@ -41,7 +41,7 @@ describe('exportToURLString', () => {
         pads: [] as Pad[]
       }
     })
-  } as StoreType;
+  } as ProjectStoreType;
 
   it('should export basic project info to URL string', async () => {
     const result = await exportToURLString(mockStore);
@@ -62,9 +62,9 @@ describe('exportToURLString', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-02T00:00:00.000Z',
           pads: [] as Pad[]
-        } as StoreContextType
+        } as ProjectStoreContextType
       })
-    } as StoreType;
+    } as ProjectStoreType;
 
     const result = await exportToURLString(emptyNameStore);
 
@@ -96,9 +96,9 @@ describe('exportToURLString', () => {
               }
             }
           ]
-        } as StoreContextType
+        } as ProjectStoreContextType
       })
-    } as StoreType;
+    } as ProjectStoreType;
 
     const result = await exportToURLString(storeWithPads);
 
@@ -235,7 +235,7 @@ describe('importPadFromURLString', () => {
       getSnapshot: () => ({
         context
       })
-    } as StoreType;
+    } as ProjectStoreType;
 
     const result = await exportToURLString(mockStore, 1);
     const imported = await urlStringToProject(result);

@@ -2,12 +2,12 @@ import {
   roundNumberToDecimalPlaces as roundDP,
   safeParseFloat
 } from '@helpers/number';
-import { StoreContextType } from '@model/store/types';
+import { ProjectStoreContextType } from '@model/store/types';
 import { createSequencerEvent } from '../sequencerEvent';
 import { initialContext } from '../store/store';
 import { SequencerEvent, SequencerExport } from '../types';
 
-type SequencerType = StoreContextType['sequencer'];
+type SequencerType = ProjectStoreContextType['sequencer'];
 
 export const exportSequencerToJSON = (
   sequencer: SequencerType | undefined

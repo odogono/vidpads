@@ -14,7 +14,7 @@ import {
   toPadThumbnailUrl
 } from '@helpers/metadata';
 import type { SettingsStoreData } from '@hooks/useSettings/types';
-import { StoreContextType } from '@model/store/types';
+import { ProjectStoreContextType } from '@model/store/types';
 import {
   Media,
   MediaImage,
@@ -84,7 +84,7 @@ export const closeDB = (db: IDBDatabase) => {
 export const deleteDB = () => idbDeleteDB(DB_NAME);
 
 export const getAllProjectDetails = async (): Promise<
-  Partial<StoreContextType>[]
+  Partial<ProjectStoreContextType>[]
 > => {
   const db = await openDB();
 
@@ -106,7 +106,7 @@ export const getAllProjectDetails = async (): Promise<
     };
 
     getAllRequest.onsuccess = () => {
-      const projects = getAllRequest.result as StoreContextType[];
+      const projects = getAllRequest.result as ProjectStoreContextType[];
 
       const projectDetails = projects.map((project) => {
         const { projectId, projectName, createdAt, updatedAt } = project;
@@ -150,7 +150,9 @@ export const loadProject = async (
   });
 };
 
-export const saveProject = async (project: StoreContextType): Promise<void> => {
+export const saveProject = async (
+  project: ProjectStoreContextType
+): Promise<void> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const { projects, transaction } = idbOpenTransaction(
@@ -285,7 +287,7 @@ export const saveSettingsStore = async (
 
 export const loadProjectState = async (
   projectId: string
-): Promise<StoreContextType | null> => {
+): Promise<ProjectStoreContextType | null> => {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
@@ -302,7 +304,7 @@ export const loadProjectState = async (
     };
 
     getRequest.onsuccess = () => {
-      const result = (getRequest.result as StoreContextType) ?? null;
+      const result = (getRequest.result as ProjectStoreContextType) ?? null;
       resolve(result);
     };
 
@@ -313,7 +315,7 @@ export const loadProjectState = async (
 };
 
 export const saveProjectState = async (
-  project: StoreContextType
+  project: ProjectStoreContextType
 ): Promise<void> => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -338,62 +340,6 @@ export const saveProjectState = async (
     };
   });
 };
-
-// export const loadStateFromIndexedDB =
-//   async (): Promise<StoreContextType | null> => {
-//     const db = await openDB();
-
-//     return new Promise((resolve, reject) => {
-//       const { store, transaction } = idbOpenTransaction(
-//         db,
-//         ['store'],
-//         'readonly'
-//       );
-
-//       const getRequest = store.get('state');
-
-//       getRequest.onerror = () => {
-//         log.error('Error loading state from IndexedDB:', getRequest.error);
-//         reject(getRequest.error);
-//       };
-//       getRequest.onsuccess = () => {
-//         const result = (getRequest.result as StoreContextType) ?? null;
-//         resolve(result);
-//       };
-
-//       transaction.oncomplete = () => {
-//         log.debug('state loaded from IndexedDB');
-//         closeDB(db);
-//       };
-//     });
-//   };
-
-// export const saveStateToIndexedDB = async (
-//   state: StoreContextType
-// ): Promise<void> => {
-//   const db = await openDB();
-
-//   return new Promise((resolve, reject) => {
-//     const { store, transaction } = idbOpenTransaction(
-//       db,
-//       ['store'],
-//       'readwrite'
-//     );
-
-//     const putRequest = store.put(state, 'state');
-
-//     putRequest.onerror = () => {
-//       log.error('Error saving state to IndexedDB:', putRequest.error);
-//       reject(putRequest.error);
-//     };
-//     putRequest.onsuccess = () => resolve();
-
-//     transaction.oncomplete = () => {
-//       // log.debug('state saved to IndexedDB');
-//       closeDB(db);
-//     };
-//   });
-// };
 
 export const updateMetadataProperty = async (
   mediaUrl: string | undefined,
@@ -437,92 +383,6 @@ export const updateMetadataProperty = async (
     };
   });
 };
-
-// export const updateMetadataDuration = async (
-//   mediaUrl: string,
-//   duration: number
-// ): Promise<void> => {
-//   const db = await openDB();
-
-//   return new Promise((resolve, reject) => {
-//     const { metadata, transaction } = idbOpenTransaction(
-//       db,
-//       ['metadata'],
-//       'readwrite'
-//     );
-
-//     if (!mediaUrl) {
-//       reject(new Error(`Invalid media URL ${mediaUrl}`));
-//     }
-
-//     const request = metadata.get(mediaUrl);
-
-//     request.onsuccess = () => {
-//       const result = request.result;
-//       if (!result) {
-//         return reject(
-//           new Error(`updateMetadataDuration not found for ${mediaUrl}`)
-//         );
-//       }
-//       result.duration = duration;
-//       metadata.put(result);
-//       // log.debug('updated duration', mediaUrl, result);
-//     };
-
-//     transaction.onerror = () => {
-//       log.error('Error updating metadata duration:', transaction.error);
-//       reject(transaction.error);
-//     };
-
-//     transaction.oncomplete = () => {
-//       closeDB(db);
-//       resolve();
-//     };
-//   });
-// };
-
-// export const updateMetadataAvailablePlaybackRates = async (
-//   mediaUrl: string,
-//   rates: number[]
-// ): Promise<void> => {
-//   const db = await openDB();
-
-//   return new Promise((resolve, reject) => {
-//     const { metadata, transaction } = idbOpenTransaction(
-//       db,
-//       ['metadata'],
-//       'readwrite'
-//     );
-
-//     const request = metadata.get(mediaUrl);
-
-//     request.onsuccess = () => {
-//       const result = request.result;
-//       if (!result) {
-//         return reject(
-//           new Error(
-//             `updateMetadataAvailablePlaybackRates not found for ${mediaUrl}`
-//           )
-//         );
-//       }
-//       result.playbackRates = rates;
-//       metadata.put(result);
-//     };
-
-//     transaction.onerror = () => {
-//       log.error(
-//         'Error updating metadata available playback rates:',
-//         transaction.error
-//       );
-//       reject(transaction.error);
-//     };
-
-//     transaction.oncomplete = () => {
-//       closeDB(db);
-//       resolve();
-//     };
-//   });
-// };
 
 export interface SaveVideoDataProps {
   file: File;

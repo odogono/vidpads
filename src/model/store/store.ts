@@ -4,19 +4,20 @@ import { createPad } from '@model/pad';
 import { createStore as createXstateStore } from '@xstate/store';
 import * as actions from './actions';
 import type {
-  Actions,
-  EmittedEvents,
-  StoreContextType,
-  StoreType
+  ProjectStoreActions,
+  ProjectStoreContextType,
+  ProjectStoreEvents,
+  ProjectStoreType
 } from './types';
 
-export const initialContext: StoreContextType = {
+export const initialContext: ProjectStoreContextType = {
   projectId: generateShortUUID(),
   projectName: '',
   showMode: 'pads',
   sequencer: {
     bpm: 60,
     events: [],
+    isLooped: true,
     time: 0,
     endTime: 60 // secs
   },
@@ -43,8 +44,8 @@ export const initialContext: StoreContextType = {
 };
 
 export const createStore = (
-  initialState?: StoreContextType | null | undefined
-): StoreType => {
+  initialState?: ProjectStoreContextType | null | undefined
+): ProjectStoreType => {
   const date = createDate();
   const dateString = dateToISOString(date);
   const projectName = ``;
@@ -59,9 +60,9 @@ export const createStore = (
 
   const content = {
     types: {
-      context: {} as StoreContextType,
-      events: {} as Actions,
-      emitted: {} as EmittedEvents
+      context: {} as ProjectStoreContextType,
+      events: {} as ProjectStoreActions,
+      emitted: {} as ProjectStoreEvents
     },
     context: initialState ?? initial,
     on: actions
