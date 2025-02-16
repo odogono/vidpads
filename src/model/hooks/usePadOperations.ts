@@ -104,6 +104,7 @@ export const usePadOperations = () => {
       const mediaThumbnail = await getThumbnailFromMedia(media);
 
       if (mediaThumbnail) {
+        log.debug('[addUrlToPad] saving media thumbnail:', projectId, padId);
         await dbSaveMediaThumbnail(media, mediaThumbnail);
         await dbSavePadThumbnail(projectId, padId, mediaThumbnail);
       }
@@ -113,6 +114,8 @@ export const usePadOperations = () => {
         padId,
         media
       });
+
+      log.debug('[addUrlToPad] setting media thumbnail:', projectId, padId);
 
       invalidateQueryKeys(queryClient, [
         [...VOKeys.padThumbnail(projectId, padId)],
@@ -277,20 +280,17 @@ export const usePadOperations = () => {
         await dbSaveMediaData(media);
       }
 
-      if (thumbnail) {
-        await dbSaveMediaThumbnail(media, thumbnail);
-        await dbSavePadThumbnail(projectId, targetPad.id, thumbnail);
-      }
-
-      log.debug('[pastePad] target pad media:', targetPad.id, media);
-
       // log.debug('[pastePad] set pad thumbnail:', targetPad.id);
+
+      log.debug('[pastePad] applying pad:', targetPad.id, media);
       project.send({
         type: 'applyPad',
         pad: sourcePad,
         targetPadId,
         copySourceOnly: isShiftKeyDown()
       });
+
+      log.debug('[pastePad] invalidating queries:', targetPad.id, media);
 
       // queryClient.invalidateQueries({ queryKey: VOKeys.pad(targetPad.id) });
       invalidateQueryKeys(queryClient, [
@@ -300,6 +300,16 @@ export const usePadOperations = () => {
         // can be refetched correctly
         [...VOKeys.allMetadata()]
       ]);
+      if (thumbnail) {
+        await dbSaveMediaThumbnail(media, thumbnail);
+        await dbSavePadThumbnail(projectId, targetPad.id, thumbnail);
+      }
+
+      log.debug('[pastePad] target pad media:', targetPad.id, media);
+
+      queryClient.invalidateQueries({
+        queryKey: [...VOKeys.padThumbnail(projectId, targetPad.id)]
+      });
 
       if (showToast) {
         showSuccess(`Pasted ${targetPad.id} from clipboard`);

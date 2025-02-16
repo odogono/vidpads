@@ -93,6 +93,7 @@ export const SettingsModal = ({ ref }: CommonModalBase) => {
       )
     ) {
       await deleteEverything();
+      ref.current?.close();
     }
   };
 

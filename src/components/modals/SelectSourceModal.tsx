@@ -17,9 +17,7 @@ import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 
 const log = createLog('SelectSourceModal', ['debug']);
 
-export type SelectSourceModalProps = CommonModalBase;
-
-export const SelectSourceModal = ({ ref }: SelectSourceModalProps) => {
+export const SelectSourceModal = ({ ref }: CommonModalBase) => {
   const events = useEvents();
   const { projectId } = useProject();
   const [isEnteringUrl, setIsEnteringUrl] = useState(false);

@@ -821,6 +821,7 @@ export const savePadThumbnail = async (
     };
 
     transaction.oncomplete = () => {
+      log.debug('[savePadThumbnail] complete', { projectId, padId });
       closeDB(db);
       resolve(padId);
     };

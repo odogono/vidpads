@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EventObject, Store, StoreSnapshot } from '@xstate/store';
 import { SettingsStoreData } from '../types';
 
-const log = createLog('useSettingsPersistence');
+const log = createLog('useSettingsPersistence', ['debug']);
 
 interface UseSettingsPersistenceProps<
   TContext,

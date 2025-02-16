@@ -5,7 +5,7 @@ import { useEvents } from '@hooks/events';
 import { useSelector } from '@xstate/store/react';
 import { KeyboardStoreType } from '../store';
 
-const log = createLog('useKeyMap');
+const log = createLog('useKeyMap', ['debug']);
 
 export const useKeyMap = (store: KeyboardStoreType) => {
   const events = useEvents();
