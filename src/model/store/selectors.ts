@@ -6,10 +6,10 @@ import { useProject } from '@hooks/useProject';
 import { useSelector } from '@xstate/store/react';
 import { getPadSourceUrl } from '../pad';
 import { Pad } from '../types';
-import { StoreType } from './types';
+import { ProjectStoreType } from './types';
 
 export const getPadById = (
-  store: StoreType,
+  store: ProjectStoreType,
   padId: string
 ): Pad | undefined => {
   const { pads } = store.getSnapshot().context;
@@ -17,22 +17,22 @@ export const getPadById = (
 };
 
 export const getPadsBySourceUrl = (
-  store: StoreType,
+  store: ProjectStoreType,
   sourceUrl: string
 ): Pad[] => {
   const { pads } = store.getSnapshot().context;
   return pads.filter((pad) => getPadSourceUrl(pad) === sourceUrl);
 };
 
-export const getSelectedPadId = (store: StoreType): string | undefined =>
+export const getSelectedPadId = (store: ProjectStoreType): string | undefined =>
   store.getSnapshot().context.selectedPadId ?? undefined;
 
-export const getPadsWithMedia = (store: StoreType) => {
+export const getPadsWithMedia = (store: ProjectStoreType) => {
   const { pads } = store.getSnapshot().context;
   return pads.filter((pad) => getPadSourceUrl(pad));
 };
 
-export const getAllMedia = (store: StoreType) => {
+export const getAllMedia = (store: ProjectStoreType) => {
   const padsWithMedia = getPadsWithMedia(store);
   return padsWithMedia.map((pad) => getPadSourceUrl(pad));
 };

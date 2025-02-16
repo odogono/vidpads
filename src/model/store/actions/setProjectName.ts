@@ -1,10 +1,10 @@
-import { SetProjectNameAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetProjectNameAction } from '../types';
 import { update } from './helpers';
 
 export const setProjectName = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetProjectNameAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { name } = action;
   return update(context, { projectName: name });
 };

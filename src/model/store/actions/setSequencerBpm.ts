@@ -1,9 +1,9 @@
-import { SetSequencerBpmAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetSequencerBpmAction } from '../types';
 
 export const setSequencerBpm = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetSequencerBpmAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { bpm } = event;
   return { ...context, sequencer: { ...context.sequencer, bpm } };
 };

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getOffsetPosition } from '@helpers/dom';
 import { createLog } from '@helpers/log';
 import { isPointInRect } from '@helpers/number';
+import { runAfter, type TimeoutId } from '@helpers/time';
 import { Position, Rect } from '@types';
 
 const log = createLog('useMarquee');
@@ -36,7 +37,7 @@ export const useMarquee = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [isLongTouch, setIsLongTouch] = useState(false);
-  const longTouchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const longTouchTimeoutRef = useRef<TimeoutId | undefined>(undefined);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -151,11 +152,11 @@ export const useMarquee = ({
       }
       setIsMoving(beginMoving);
 
-      longTouchTimeoutRef.current = setTimeout(() => {
+      longTouchTimeoutRef.current = runAfter(250, () => {
         setIsLongTouch(true);
         setIsMoving(false);
         onLongPressDown?.(positionsToRect(pos, pos), false);
-      }, 250); // 250ms for long touch
+      });
     },
     [hasSelectedEvents, selectedEventsRect, onLongPressDown]
   );

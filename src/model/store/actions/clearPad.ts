@@ -1,11 +1,11 @@
 import { createPad } from '@model/pad';
-import { ClearPadAction, StoreContext } from '../types';
+import { ClearPadAction, ProjectStoreContext } from '../types';
 import { addOrReplacePad } from './helpers';
 
 export const clearPad = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: ClearPadAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId } = event;
   const pad = context.pads.find((pad) => pad.id === padId);
   if (!pad) {

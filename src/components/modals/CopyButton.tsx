@@ -4,7 +4,8 @@ import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 
 import { writeToClipboard } from '@helpers/clipboard';
 import { createLog } from '@helpers/log';
-import { Button } from "@heroui/react";
+import { runAfter } from '@helpers/time';
+import { Button } from '@heroui/react';
 
 export interface CopyButtonProps {
   text: string;
@@ -19,9 +20,9 @@ export const CopyButton = ({ text }: CopyButtonProps) => {
     try {
       await writeToClipboard(text);
       setIsCopied(true);
-      setTimeout(() => {
+      runAfter(2000, () => {
         setIsCopied(false);
-      }, 2000);
+      });
     } catch (error) {
       log.error('Failed to copy to clipboard:', error);
     }

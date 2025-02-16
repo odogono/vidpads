@@ -21,19 +21,19 @@ import {
 } from '@model/serialise/sequencer';
 import { addOrReplacePad } from '@model/store/actions/helpers';
 import { initialContext } from '@model/store/store';
-import { StoreContext, StoreType } from '@model/store/types';
+import { ProjectStoreContext, ProjectStoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
 
 const log = createLog('model/export', ['debug']);
 
-const EXPORT_JSON_VERSION = 1;
+const EXPORT_JSON_VERSION = '2025-02-14';
 const EXPORT_APP_VERSION = process.env.VERSION;
 
 const EXPORT_URL_VERSION = 3;
 
 export type ExportOptions = Record<string, unknown>;
 
-export const exportToJSON = (store: StoreType): ProjectExport => {
+export const exportToJSON = (store: ProjectStoreType): ProjectExport => {
   const { context } = store.getSnapshot();
 
   const {
@@ -72,13 +72,13 @@ export const exportToJSON = (store: StoreType): ProjectExport => {
   return result as ProjectExport;
 };
 
-export const exportToJSONString = (store: StoreType) => {
+export const exportToJSONString = (store: ProjectStoreType) => {
   const json = exportToJSON(store);
   return JSON.stringify(json);
 };
 
 export const exportToURLString = async (
-  project: StoreType,
+  project: ProjectStoreType,
   version: number = EXPORT_URL_VERSION
 ) => {
   switch (version) {
@@ -91,7 +91,7 @@ export const exportToURLString = async (
   }
 };
 
-const exportToURLCommon = (project: StoreType) => {
+const exportToURLCommon = (project: ProjectStoreType) => {
   const { context } = project.getSnapshot();
 
   const {
@@ -122,7 +122,7 @@ const exportToURLCommon = (project: StoreType) => {
   };
 };
 
-export const exportToURLStringV1 = (project: StoreType) => {
+export const exportToURLStringV1 = (project: ProjectStoreType) => {
   const {
     projectId,
     projectName,
@@ -162,7 +162,7 @@ const addPadsAndSequencerToResult = (
   return result;
 };
 
-export const exportToURLStringV2 = async (project: StoreType) => {
+export const exportToURLStringV2 = async (project: ProjectStoreType) => {
   const {
     projectId,
     projectName,
@@ -181,7 +181,7 @@ export const exportToURLStringV2 = async (project: StoreType) => {
   return `2|${compressed}`;
 };
 
-export const exportToURLStringV3 = async (project: StoreType) => {
+export const exportToURLStringV3 = async (project: ProjectStoreType) => {
   const {
     projectId,
     projectName,
@@ -201,12 +201,14 @@ export const exportToURLStringV3 = async (project: StoreType) => {
   return `3|${compressed}`;
 };
 
-export const importProjectExport = (data: ProjectExport): StoreContext => {
+export const importProjectExport = (
+  data: ProjectExport
+): ProjectStoreContext => {
   const pads = data.pads
     .map((pad) => importPadFromJSON({ pad, importSource: true }))
     .filter(Boolean);
 
-  const newContext: StoreContext = {
+  const newContext: ProjectStoreContext = {
     ...initialContext,
     projectId: data.id || generateShortUUID(),
     projectName: data.name || `Untitled Project - ${formatShortDate()}`,

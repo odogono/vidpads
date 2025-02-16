@@ -14,15 +14,15 @@ type PlayerStateChangeAction = {
 };
 type UpdateIntervalsAction = { type: 'updateIntervals'; intervals: Interval[] };
 
-type Actions = PlayerStateChangeAction | UpdateIntervalsAction;
+type YTStoreActions = PlayerStateChangeAction | UpdateIntervalsAction;
 
 export type StartQueuingEvent = { type: 'startQueuing'; interval: Interval };
 type ReadyEvent = { type: 'ready'; state: PlayerYTState };
 type NotReadyEvent = { type: 'notReady'; state: PlayerYTState };
 
-type EmittedEvents = StartQueuingEvent | ReadyEvent | NotReadyEvent;
-type Emit = { emit: (event: EmittedEvents) => void };
-type StoreContext = {
+type YTStoreEvents = StartQueuingEvent | ReadyEvent | NotReadyEvent;
+type YTEmit = { emit: (event: YTStoreEvents) => void };
+type YTStoreContext = {
   state: PlayerYTState;
   intervals: Interval[];
   playerId: string;
@@ -33,10 +33,10 @@ type StoreContext = {
 export const createStore = () => {
   const on = {
     playerStateChange: (
-      context: StoreContext,
+      context: YTStoreContext,
       event: PlayerStateChangeAction,
-      { emit }: Emit
-    ): StoreContext => {
+      { emit }: YTEmit
+    ): YTStoreContext => {
       const { state: playerState, player } = event;
       const { state: contextState } = context;
 
@@ -128,9 +128,9 @@ export const createStore = () => {
       return { ...context, playerState };
     },
     updateIntervals: (
-      context: StoreContext,
+      context: YTStoreContext,
       event: UpdateIntervalsAction
-    ): StoreContext => {
+    ): YTStoreContext => {
       const { state: contextState } = context;
       if (
         contextState === PlayerYTState.READY_FOR_CUE ||
@@ -149,9 +149,9 @@ export const createStore = () => {
 
   const content = {
     types: {
-      context: {} as StoreContext,
-      events: {} as Actions,
-      emitted: {} as EmittedEvents
+      context: {} as YTStoreContext,
+      events: {} as YTStoreActions,
+      emitted: {} as YTStoreEvents
     },
     context: {
       state: PlayerYTState.UNINITIALIZED,
@@ -159,7 +159,7 @@ export const createStore = () => {
       playerId: '',
       intervalIndex: -1,
       playerState: PlayerState.UNSTARTED
-    } as StoreContext,
+    } as YTStoreContext,
     on
   };
 

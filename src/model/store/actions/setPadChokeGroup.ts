@@ -1,11 +1,11 @@
 import { setPadChokeGroup as setGroup } from '@model/pad';
-import { SetPadChokeGroupAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetPadChokeGroupAction } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadChokeGroup = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadChokeGroupAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, group } = event;
 
   const pad = findPadById(context, padId);

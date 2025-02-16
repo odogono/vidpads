@@ -1,11 +1,13 @@
 import { createLog } from '@helpers/log';
 import { joinEvents, repeatEvents, splitEvents } from '@model/sequencerEvent';
-import { StoreContext } from '@model/store/types';
+import { ProjectStoreContext } from '@model/store/types';
 import { updateSequencer } from '../helpers';
 
 const log = createLog('sequencerEvents/repeatSequencerEvents');
 
-export const repeatSequencerEvents = (context: StoreContext): StoreContext => {
+export const repeatSequencerEvents = (
+  context: ProjectStoreContext
+): ProjectStoreContext => {
   const events = context.sequencer?.events ?? [];
   const endTime = context.sequencer?.endTime ?? 30;
 

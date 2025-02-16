@@ -7,7 +7,13 @@ import {
 } from 'react';
 
 import { createLog } from '@helpers/log';
-import { formatTimeStringToSeconds, formatTimeToString } from '@helpers/time';
+import {
+  clearRunAfter,
+  formatTimeStringToSeconds,
+  formatTimeToString,
+  runAfter,
+  type TimeoutId
+} from '@helpers/time';
 import { cn } from '@heroui/react';
 import { useKeyboard } from '@hooks/useKeyboard';
 
@@ -46,7 +52,7 @@ export const OpTimeInput = ({
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
   const lastValue = useRef<number>(initialValue);
   const lastPointerPos = useRef<{ x: number; y: number } | null>(null);
-  const dragTimeout = useRef<number | null>(null);
+  const dragTimeout = useRef<TimeoutId | undefined>(undefined);
 
   useEffect(() => {
     // log.debug('TimeInput', description, initialValue);
@@ -157,21 +163,20 @@ export const OpTimeInput = ({
     if (!isEnabled) return;
 
     // Start a timeout to initiate drag after a short delay
-    dragTimeout.current = window.setTimeout(() => {
+    dragTimeout.current = runAfter(200, () => {
       setIsDragging(true);
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       lastPointerPos.current = { x: e.clientX, y: e.clientY };
       lastValue.current = formatTimeStringToSeconds(inputValue);
       document.body.style.cursor = 'ew-resize';
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    }, 200); // 200ms delay before starting drag
+    });
   };
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLInputElement>) => {
       if (dragTimeout.current) {
-        clearTimeout(dragTimeout.current);
-        dragTimeout.current = null;
+        dragTimeout.current = clearRunAfter(dragTimeout.current);
         e.currentTarget.releasePointerCapture(e.pointerId);
       }
       setIsDragging(false);
@@ -185,9 +190,7 @@ export const OpTimeInput = ({
   // Clean up timeout on unmount
   useEffect(() => {
     return () => {
-      if (dragTimeout.current) {
-        clearTimeout(dragTimeout.current);
-      }
+      dragTimeout.current = clearRunAfter(dragTimeout.current);
     };
   }, []);
 

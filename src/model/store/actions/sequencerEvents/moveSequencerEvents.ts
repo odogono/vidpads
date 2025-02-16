@@ -6,14 +6,17 @@ import {
   rowIndexToPadId
 } from '@model/sequencerEvent';
 import { updateSequencer } from '@model/store/actions/helpers';
-import { MoveSequencerEventsAction, StoreContext } from '@model/store/types';
+import {
+  MoveSequencerEventsAction,
+  ProjectStoreContext
+} from '@model/store/types';
 
 // const log = createLog('sequencerEvents/moveSequencerEvents');
 
 export const moveSequencerEvents = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: MoveSequencerEventsAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { timeDelta, rowDelta, isFinished } = action;
   const events = context.sequencer?.events ?? [];
 

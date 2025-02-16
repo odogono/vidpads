@@ -30,12 +30,6 @@ const log = createLog('db/api', ['debug']);
 const DB_NAME = 'odgn-vo';
 const DB_VERSION = 4;
 
-export const isIndexedDBSupported = () => {
-  return (
-    typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined'
-  );
-};
-
 const upgradeDB = (db: IDBDatabase, event: IDBVersionChangeEvent) => {
   const oldVersion = event.oldVersion;
   const newVersion = event.newVersion ?? 1;

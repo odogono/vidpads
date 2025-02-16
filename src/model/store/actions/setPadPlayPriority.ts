@@ -1,11 +1,11 @@
 import { setPadPlayPriority as setPriority } from '@model/pad';
-import { SetPadPlayPriorityAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetPadPlayPriorityAction } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadPlayPriority = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadPlayPriorityAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, priority } = event;
 
   const pad = findPadById(context, padId);

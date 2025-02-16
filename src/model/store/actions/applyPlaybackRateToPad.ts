@@ -1,15 +1,18 @@
 import { createLog } from '@helpers/log';
 import { addOrReplacePadOperation } from '@model/pad';
-import { ApplyPlaybackRateToPadAction, StoreContext } from '@model/store/types';
+import {
+  ApplyPlaybackRateToPadAction,
+  ProjectStoreContext
+} from '@model/store/types';
 import { OperationType, PlaybackRateOperation } from '@model/types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('store/actions/applyPlaybackRateToPad');
 
 export const applyPlaybackRateToPad = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: ApplyPlaybackRateToPadAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, rate } = event;
 
   const pad = findPadById(context, padId);

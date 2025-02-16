@@ -12,12 +12,22 @@ export type OnUpgradeHandler = (
 
 const log = createLog('helpers/idb');
 
+export const idbIsSupported = () => {
+  return (
+    typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined'
+  );
+};
+
 export const idbOpen = (
   name: string,
   version: number,
   onUpgrade?: OnUpgradeHandler
 ): Promise<IDBDatabase> =>
   new Promise((resolve, reject) => {
+    if (!idbIsSupported()) {
+      return reject(new Error('IndexedDB is not supported'));
+    }
+
     const request = indexedDB.open(name, version);
 
     if (onUpgrade) {

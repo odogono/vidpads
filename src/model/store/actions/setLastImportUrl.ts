@@ -1,7 +1,7 @@
-import { SetLastImportUrlAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetLastImportUrlAction } from '../types';
 import { update } from './helpers';
 
 export const setLastImportUrl = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetLastImportUrlAction
-): StoreContext => update(context, { lastImportUrl: event.url });
+): ProjectStoreContext => update(context, { lastImportUrl: event.url });

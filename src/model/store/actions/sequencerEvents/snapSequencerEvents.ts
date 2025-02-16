@@ -1,14 +1,17 @@
 // import { createLog } from '@helpers/log';
 import { joinEvents, quantizeEvents } from '@model/sequencerEvent';
 import { updateSequencer } from '@model/store/actions/helpers';
-import { SnapSequencerEventsAction, StoreContext } from '@model/store/types';
+import {
+  ProjectStoreContext,
+  SnapSequencerEventsAction
+} from '@model/store/types';
 
 // const log = createLog('sequencerEvents/moveSequencerEvents');
 
 export const snapSequencerEvents = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SnapSequencerEventsAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { step } = action;
   const events = context.sequencer?.events ?? [];
 

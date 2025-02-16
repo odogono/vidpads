@@ -8,6 +8,7 @@ import {
 } from '@model/sequencerEvent';
 import {
   Emit,
+  ProjectStoreContext,
   RemoveSequencerEventAction,
   RewindSequencerAction,
   SetSelectedEventsDurationAction,
@@ -17,7 +18,6 @@ import {
   SetSequencerTimeAction,
   StartSequencerAction,
   StopSequencerAction,
-  StoreContext,
   ToggleSequencerEventAction
 } from '../types';
 import { update, updateSequencer } from './helpers';
@@ -25,10 +25,10 @@ import { update, updateSequencer } from './helpers';
 const log = createLog('sequencer/events');
 
 export const startSequencer = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: StartSequencerAction,
   { emit }: Emit
-): StoreContext => {
+): ProjectStoreContext => {
   const { isPlaying, isRecording } = action;
   emit({
     type: 'sequencerStarted',
@@ -41,19 +41,19 @@ export const startSequencer = (
 };
 
 export const stopSequencer = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: StopSequencerAction,
   { emit }: Emit
-): StoreContext => {
+): ProjectStoreContext => {
   emit({ type: 'sequencerStopped' });
   return context;
 };
 
 export const rewindSequencer = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: RewindSequencerAction,
   { emit }: Emit
-): StoreContext => {
+): ProjectStoreContext => {
   emit({
     type: 'sequencerTimesUpdated',
     time: 0,
@@ -63,18 +63,18 @@ export const rewindSequencer = (
 };
 
 export const setSequencerIsLooped = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetSequencerIsLoopedAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { isLooped } = action;
   log.debug('setSequencerIsLooped', { isLooped });
   return updateSequencer(context, { isLooped });
 };
 
 export const toggleSequencerEvent = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: ToggleSequencerEventAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, time, duration } = event;
   // log.debug('toggleSequencerEvent', { padId, time, duration });
   const sequencer = context.sequencer ?? {};
@@ -110,9 +110,9 @@ export const toggleSequencerEvent = (
 };
 
 export const removeSequencerEvent = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: RemoveSequencerEventAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, time } = action;
   const events = context.sequencer?.events ?? [];
 
@@ -121,7 +121,9 @@ export const removeSequencerEvent = (
   });
 };
 
-export const clearSequencerEvents = (context: StoreContext): StoreContext => {
+export const clearSequencerEvents = (
+  context: ProjectStoreContext
+): ProjectStoreContext => {
   const events = context.sequencer?.events ?? [];
 
   const [selected, nonSelected] = splitEvents(
@@ -146,10 +148,10 @@ export const clearSequencerEvents = (context: StoreContext): StoreContext => {
 };
 
 export const setSequencerTime = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetSequencerTimeAction,
   { emit }: Emit
-): StoreContext => {
+): ProjectStoreContext => {
   const { time } = action;
   const value = Math.max(0, Math.min(time, context.sequencer?.endTime ?? 0));
   emit({
@@ -163,10 +165,10 @@ export const setSequencerTime = (
 };
 
 export const setSequencerEndTime = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetSequencerEndTimeAction,
   { emit }: Emit
-): StoreContext => {
+): ProjectStoreContext => {
   const { endTime } = action;
   const { time } = context.sequencer ?? { time: 0 };
   const value = Math.max(0, Math.max(endTime, 1));
@@ -185,9 +187,9 @@ export const setSequencerEndTime = (
 };
 
 export const setSelectedEventsTime = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetSelectedEventsTimeAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { time } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];
@@ -214,9 +216,9 @@ export const setSelectedEventsTime = (
 };
 
 export const setSelectedEventsDuration = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetSelectedEventsDurationAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { duration } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];

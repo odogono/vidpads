@@ -1,10 +1,10 @@
-import { SetSelectedPadIdAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetSelectedPadIdAction } from '../types';
 import { update } from './helpers';
 
 export const setSelectedPadId = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetSelectedPadIdAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId } = event;
 
   return update(context, {

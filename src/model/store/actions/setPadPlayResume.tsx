@@ -3,13 +3,13 @@ import {
   getPadPlaybackResume,
   setPadPlaybackResume as setResume
 } from '@model/pad';
-import { SetPadPlaybackResumeAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetPadPlaybackResumeAction } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadPlaybackResume = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadPlaybackResumeAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, isResume } = event;
 
   const pad = findPadById(context, padId);

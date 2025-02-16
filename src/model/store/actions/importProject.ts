@@ -1,12 +1,12 @@
 import { importProjectExport } from '@/model/serialise/project';
-import { ImportProjectAction, StoreContext } from '@model/store/types';
+import { ImportProjectAction, ProjectStoreContext } from '@model/store/types';
 
 // const log = createLog('store/actions/importProject');
 
 export const importProject = (
-  _context: StoreContext,
+  _context: ProjectStoreContext,
   event: ImportProjectAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { data } = event;
 
   return importProjectExport(data);

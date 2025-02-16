@@ -1,4 +1,5 @@
 import { createLog } from '@helpers/log';
+import { runAfter } from '@helpers/time';
 import type { Media, MediaImage, MediaVideo } from '@model/types';
 import { getMediaData } from '../model/db/api';
 import { generateFileId } from './file';
@@ -169,10 +170,10 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
       };
 
       // Set a timeout in case the metadata never loads
-      const timeoutId = setTimeout(() => {
+      const timeoutId = runAfter(5000, () => {
         cleanup();
         reject(new Error('Timeout loading video metadata'));
-      }, 5000);
+      });
 
       video.onerror = () => {
         log.debug('[getMediaMetadata] video.onerror');
@@ -211,10 +212,10 @@ export const getMediaMetadata = (file: File): Promise<Media> => {
     };
 
     // Set a timeout in case the image never loads
-    const timeoutId = setTimeout(() => {
+    const timeoutId = runAfter(5000, () => {
       cleanup();
       reject(new Error('Timeout loading image metadata'));
-    }, 5000);
+    });
 
     img.onload = () => {
       clearTimeout(timeoutId);

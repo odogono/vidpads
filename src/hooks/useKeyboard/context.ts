@@ -14,8 +14,8 @@ export interface KeyboardContextType {
   isCtrlKeyUp: () => boolean;
   isMetaKeyDown: () => boolean;
   isMetaKeyUp: () => boolean;
-  // isEnabled: boolean;
-  // setIsEnabled: (enabled: boolean) => void;
+  isEnabled: boolean;
+  setIsEnabled: (enabled: boolean) => void;
 }
 
 export const KeyboardContext = createContext<KeyboardContextType | undefined>(

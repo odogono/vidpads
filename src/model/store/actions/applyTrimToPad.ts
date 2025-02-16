@@ -1,16 +1,16 @@
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { addOrReplacePadOperation } from '@model/pad';
-import { ApplyTrimToPadAction, StoreContext } from '@model/store/types';
+import { ApplyTrimToPadAction, ProjectStoreContext } from '@model/store/types';
 import { OperationType, TrimOperation } from '@model/types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('store/actions/applyTrimToPad');
 
 export const applyTrimToPad = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: ApplyTrimToPadAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, start, end } = event;
 
   const pad = findPadById(context, padId);

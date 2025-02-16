@@ -6,6 +6,7 @@ import { useRouter } from '@/hooks/useProject/useRouter';
 import { urlStringToProject } from '@/model/serialise/project';
 import { getUnixTimeFromDate } from '@helpers/datetime';
 import { isObjectEqual } from '@helpers/diff';
+import { idbIsSupported } from '@helpers/idb';
 import { createLog } from '@helpers/log';
 import { invalidateQueryKeys } from '@helpers/query';
 import { wait } from '@helpers/time';
@@ -13,8 +14,7 @@ import { VOKeys } from '@model/constants';
 import {
   getAllProjectDetails as dbGetAllProjectDetails,
   loadProjectState as dbLoadProjectState,
-  saveProjectState as dbSaveProjectState,
-  isIndexedDBSupported
+  saveProjectState as dbSaveProjectState
 } from '@model/db/api';
 import { isProjectNoteworthy } from '@model/helpers';
 import { usePadOperations } from '@model/hooks/usePadOperations';
@@ -34,7 +34,7 @@ export const useProjectPersistence = () => {
   const { data: project } = useSuspenseQuery({
     queryKey: VOKeys.project(projectId),
     queryFn: async () => {
-      if (!isIndexedDBSupported()) {
+      if (!idbIsSupported()) {
         // log.warn('IndexedDB is not supported');
         // note - this is workaround for nextjs server components
         return createStore();

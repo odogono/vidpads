@@ -1,7 +1,7 @@
-import { SetShowModeAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetShowModeAction } from '../types';
 import { update } from './helpers';
 
 export const setShowMode = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetShowModeAction
-): StoreContext => update(context, { showMode: event.mode });
+): ProjectStoreContext => update(context, { showMode: event.mode });

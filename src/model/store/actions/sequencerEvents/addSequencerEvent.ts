@@ -1,11 +1,14 @@
 import { joinEvents } from '@model/sequencerEvent';
-import { AddSequencerEventAction, StoreContext } from '@model/store/types';
+import {
+  AddSequencerEventAction,
+  ProjectStoreContext
+} from '@model/store/types';
 import { updateSequencer } from '../helpers';
 
 export const addSequencerEvent = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: AddSequencerEventAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { evt } = action;
   const sequencer = context.sequencer ?? {};
   const events = sequencer?.events ?? [];

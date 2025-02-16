@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from 'react';
 
 import { useEvents as useGlobalEvents } from '@hooks/events';
-import { StoreType } from '@model/store/types';
+import { ProjectStoreType } from '@model/store/types';
 import { useSelector } from '@xstate/store/react';
 
-export const useEvents = (project: StoreType) => {
+export const useEvents = (project: ProjectStoreType) => {
   const events = useGlobalEvents();
 
   const selectedPadId = useSelector(

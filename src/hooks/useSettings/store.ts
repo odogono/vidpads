@@ -22,7 +22,7 @@ const initialContext: SettingsStoreContext = {
   isPadPlayEnabled: true,
   isKeyboardPlayEnabled: true,
   isMidiPlayEnabled: false,
-  hidePlayerOnEnd: true,
+  hidePlayerOnEnd: false,
   selectPadFromKeyboard: true,
   selectPadFromMidi: false,
   selectPadFromPad: true,

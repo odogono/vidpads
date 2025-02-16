@@ -1,10 +1,10 @@
-import { SetPadLabelAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetPadLabelAction } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadLabel = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadLabelAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, label } = event;
   const pad = findPadById(context, padId);
   if (!pad) {

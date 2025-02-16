@@ -1,9 +1,9 @@
 import { dateToISOString } from '@helpers/datetime';
 import { generateShortUUID } from '@helpers/uuid';
 import { initialContext } from '../store';
-import { StoreContext } from '../types';
+import { ProjectStoreContext } from '../types';
 
-export const newProject = (): StoreContext => {
+export const newProject = (): ProjectStoreContext => {
   return {
     ...initialContext,
     selectedPadId: undefined,

@@ -1,9 +1,9 @@
-import { SetSelectedControlPaneAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetSelectedControlPaneAction } from '../types';
 
 export const setSelectedControlPane = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetSelectedControlPaneAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { pane } = event;
 
   return {

@@ -1,12 +1,12 @@
 import { showSuccess } from '@helpers/toast';
 import { getPadIsOneShot, setPadIsOneShot as setOneShot } from '@model/pad';
-import { SetPadIsOneShotAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetPadIsOneShotAction } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadIsOneShot = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadIsOneShotAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, isOneShot } = event;
   const pad = findPadById(context, padId);
   if (!pad) {

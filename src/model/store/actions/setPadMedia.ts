@@ -1,14 +1,14 @@
 import { createLog } from '@helpers/log';
 import { setPadSource } from '@model/pad';
-import { SetPadMediaAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetPadMediaAction } from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 const log = createLog('actions/setPadMedia');
 
 export const setPadMedia = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadMediaAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, media } = event;
   const pad = findPadById(context, padId);
   if (!pad) {

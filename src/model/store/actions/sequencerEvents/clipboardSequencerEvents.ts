@@ -10,13 +10,13 @@ import {
 import { updateSequencer } from '@model/store/actions/helpers';
 import {
   ClipboardSequencerEventsAction,
-  StoreContext
+  ProjectStoreContext
 } from '@model/store/types';
 
 export const clipboardSequencerEvents = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: ClipboardSequencerEventsAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { op, time, padId } = action;
   const events = context.sequencer?.events ?? [];
 

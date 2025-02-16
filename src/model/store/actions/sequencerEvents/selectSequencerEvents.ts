@@ -1,13 +1,16 @@
 // import { createLog } from '@helpers/log';
 import { getIntersectingEvents } from '@model/sequencerEvent';
 import { updateSequencer } from '@model/store/actions/helpers';
-import { SelectSequencerEventsAction, StoreContext } from '@model/store/types';
+import {
+  ProjectStoreContext,
+  SelectSequencerEventsAction
+} from '@model/store/types';
 
 // const log = createLog('sequencerEvents/moveSequencerEvents');
 export const selectSequencerEvents = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SelectSequencerEventsAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { evtIds, padIds, time, duration } = action;
   const events = context.sequencer?.events ?? [];
 

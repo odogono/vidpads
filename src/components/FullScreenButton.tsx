@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Maximize, Minimize } from 'lucide-react';
 
 import { createLog } from '@helpers/log';
+import { runAfter, type TimeoutId } from '@helpers/time';
 import { Button, cn } from '@heroui/react';
 
 const log = createLog('FullScreenButton', ['debug']);
@@ -19,7 +20,7 @@ export const FullScreenButton = ({
   isStatic = false
 }: FullScreenButtonProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const timeoutId = useRef<TimeoutId | null>(null);
 
   const handleChange = useCallback(() => {
     // Clear any existing timeout
@@ -30,9 +31,7 @@ export const FullScreenButton = ({
     setIsVisible(isFullscreen);
 
     // Set new timeout
-    const newTimeoutId = setTimeout(() => {
-      setIsVisible(false);
-    }, 3000);
+    const newTimeoutId = runAfter(3000, () => setIsVisible(false));
 
     timeoutId.current = newTimeoutId;
   }, [timeoutId, setIsVisible, isFullscreen]);

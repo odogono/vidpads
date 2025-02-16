@@ -1,12 +1,12 @@
 import { showSuccess } from '@helpers/toast';
 import { isPadLooped, setPadLoop } from '@model/pad';
-import { SetPadIsLoopedAction, StoreContext } from '@model/store/types';
+import { ProjectStoreContext, SetPadIsLoopedAction } from '@model/store/types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadIsLooped = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: SetPadIsLoopedAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, isLooped } = event;
 
   const pad = findPadById(context, padId);

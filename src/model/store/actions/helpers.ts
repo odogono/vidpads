@@ -1,16 +1,16 @@
 import { dateToISOString } from '@helpers/datetime';
-import { StoreContext } from '@model/store/types';
+import { ProjectStoreContext } from '@model/store/types';
 import { Pad } from '@model/types';
 
 export const findPadById = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   padId: string
 ): Pad | undefined => context.pads.find((pad) => pad.id === padId);
 
 export const addOrReplacePad = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   pad?: Pad | undefined
-): StoreContext => {
+): ProjectStoreContext => {
   if (!pad) return context;
 
   const padIndex = context.pads.findIndex((p) => p.id === pad.id);
@@ -28,8 +28,8 @@ export const addOrReplacePad = (
 };
 
 export const update = (
-  context: StoreContext,
-  additional: Partial<StoreContext>
+  context: ProjectStoreContext,
+  additional: Partial<ProjectStoreContext>
 ) => ({
   ...context,
   ...additional,
@@ -37,8 +37,8 @@ export const update = (
 });
 
 export const updateSequencer = (
-  context: StoreContext,
-  newSequencer: Partial<StoreContext['sequencer']>
+  context: ProjectStoreContext,
+  newSequencer: Partial<ProjectStoreContext['sequencer']>
 ) => {
   return update(context, {
     sequencer: {

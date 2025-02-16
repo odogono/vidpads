@@ -1,8 +1,8 @@
-import { SetProjectBgImageAction, StoreContext } from '../types';
+import { ProjectStoreContext, SetProjectBgImageAction } from '../types';
 import { update } from './helpers';
 
 export const setProjectBgImage = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   action: SetProjectBgImageAction
 ) => {
   const { url } = action;

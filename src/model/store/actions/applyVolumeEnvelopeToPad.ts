@@ -2,7 +2,7 @@ import { createLog } from '@helpers/log';
 import { addOrReplacePadOperation } from '@model/pad';
 import {
   ApplyVolumeEnvelopeToPadAction,
-  StoreContext
+  ProjectStoreContext
 } from '@model/store/types';
 import { OperationType, VolumeOperation } from '@model/types';
 import { addOrReplacePad, findPadById } from './helpers';
@@ -10,9 +10,9 @@ import { addOrReplacePad, findPadById } from './helpers';
 const log = createLog('store/actions/applyTrimToPad');
 
 export const applyVolumeEnvelopeToPad = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: ApplyVolumeEnvelopeToPadAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { padId, envelope } = event;
 
   const pad = findPadById(context, padId);

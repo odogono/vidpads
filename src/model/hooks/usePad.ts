@@ -42,9 +42,9 @@ export const usePad = (padId?: string) => {
     (padId: string, isLooped: boolean) => {
       if (pad) {
         project.send({
-          type: 'applyLoopToPad',
+          type: 'setPadIsLooped',
           padId,
-          start: isLooped ? 0 : -1
+          isLooped
         });
       }
     },

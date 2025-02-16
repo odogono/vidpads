@@ -130,3 +130,19 @@ export const wait = async (time: number = 1000): Promise<void> => {
     }, time);
   });
 };
+
+export type TimeoutId = ReturnType<typeof setTimeout>;
+
+/**
+ * Runs a function after a given number of milliseconds
+ * @param time Number of milliseconds to wait
+ * @param fn Function to run
+ */
+export const runAfter = (time: number, fn: () => void): TimeoutId =>
+  setTimeout(() => fn(), time);
+
+export const clearRunAfter = (timeoutId: TimeoutId | null | undefined) => {
+  if (!timeoutId) return undefined;
+  clearTimeout(timeoutId);
+  return undefined;
+};

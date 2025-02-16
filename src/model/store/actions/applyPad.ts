@@ -1,12 +1,12 @@
 import { copyPad as copyPadModel, getPadSourceUrl } from '@model/pad';
-import { ApplyPadAction, StoreContext } from '@model/store/types';
+import { ApplyPadAction, ProjectStoreContext } from '@model/store/types';
 import { OperationType } from '@model/types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const applyPad = (
-  context: StoreContext,
+  context: ProjectStoreContext,
   event: ApplyPadAction
-): StoreContext => {
+): ProjectStoreContext => {
   const { pad, targetPadId, copySourceOnly } = event;
 
   const targetPad = findPadById(context, targetPadId);

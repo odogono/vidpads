@@ -86,7 +86,7 @@ export type ApplyTrimToPadAction = {
 export type SetPadIsLoopedAction = {
   type: 'setPadIsLooped';
   padId: string;
-  isLooped: boolean;
+  isLooped: boolean | undefined;
 };
 
 export type ApplyPlaybackRateToPadAction = {
@@ -118,7 +118,7 @@ export type ImportProjectAction = {
 
 export type UpdateProjectAction = {
   type: 'updateProject';
-  project: StoreContextType;
+  project: ProjectStoreContextType;
 };
 
 export type SetLastMediaUrlAction = {
@@ -301,6 +301,7 @@ export type ProjectStoreActions =
   | CopyPadAction
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
+  | SetPadIsLoopedAction
   | ApplyTrimToPadAction
   | NewProjectAction
   | ImportProjectAction

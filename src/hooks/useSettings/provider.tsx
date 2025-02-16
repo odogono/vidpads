@@ -37,25 +37,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     onExport: (snapshot) => exportStoreToJson(snapshot)
   });
 
-  // useEffect(() => {
-  //   if (preferences) {
-  //     log.debug('importing settings store from json', preferences);
-  //     importStoreFromJson(store.current!, preferences);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [updatedAt]);
-
-  // useEffect(() => {
-  //   const sub = store.current?.subscribe((state) => {
-  //     log.debug('settingsUpdated', state);
-  //     savePreferences(exportStoreToJson(store.current!));
-  //   });
-
-  //   return () => {
-  //     sub?.unsubscribe();
-  //   };
-  // }, [savePreferences]);
-
   return (
     <SettingsContext.Provider value={{ store: store.current }}>
       {children}

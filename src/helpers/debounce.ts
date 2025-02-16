@@ -1,3 +1,5 @@
+import { clearRunAfter, runAfter, type TimeoutId } from '@helpers/time';
+
 /**
  * Creates a debounced version of a function that delays its execution
  * until after `wait` milliseconds have elapsed since the last time it was called.
@@ -12,11 +14,11 @@ export const debounce = <T extends (...args: Parameters<T>) => ReturnType<T>>(
   wait: number,
   immediate: boolean = false
 ): ((...args: Parameters<T>) => void) => {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let timeout: TimeoutId | undefined = undefined;
 
   return function (this: T, ...args: Parameters<T>): void {
     const later = () => {
-      timeout = null;
+      timeout = undefined;
       if (!immediate) {
         func.apply(this, args);
       }
@@ -24,11 +26,9 @@ export const debounce = <T extends (...args: Parameters<T>) => ReturnType<T>>(
 
     const callNow = immediate && !timeout;
 
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+    timeout = clearRunAfter(timeout);
 
-    timeout = setTimeout(later, wait);
+    timeout = runAfter(wait, later);
 
     if (callNow) {
       func.apply(this, args);
