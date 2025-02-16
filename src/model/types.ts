@@ -8,7 +8,7 @@ export interface Interval {
 export const UndefinedInterval: Interval = {
   start: -1,
   end: -1
-};
+} as const;
 
 export const MediaType = {
   Image: 'image',

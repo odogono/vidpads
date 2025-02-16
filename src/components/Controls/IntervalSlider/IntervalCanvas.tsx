@@ -9,11 +9,15 @@ import {
 } from 'react';
 
 import { useTooltip } from '@components/Tooltip/useTooltip';
+import { getComputedColor } from '@helpers/dom';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Pad } from '@model/types';
 import { Rect } from '@types';
-import { getComputedColor } from '../../../helpers/dom';
+import type {
+  HandleIntervalChangeProps,
+  HandleSeekProps
+} from '../hooks/useControlsEvents';
 import { Handle } from './handles';
 import { useTouch } from './useTouch';
 
@@ -35,8 +39,8 @@ export interface IntervalCanvasProps {
   duration: number;
   time: number | null;
   ref: React.Ref<IntervalCanvasRef>;
-  onSeek: (time: number, inProgress: boolean) => void;
-  onIntervalChange: (start: number, end: number) => void;
+  onSeek: (props: HandleSeekProps) => void;
+  onIntervalChange: (props: HandleIntervalChangeProps) => void;
 }
 
 const handleWidth = 20;
@@ -115,14 +119,18 @@ export const IntervalCanvas = ({
       x = Math.min(trackArea.x + trackArea.width, Math.max(trackArea.x, x));
       const time = xToInterval(x);
 
-      onSeek(time, false);
+      onSeek({ time, fromId: 'timeline' });
 
       if (time < intervalStart) {
         setIntervalStartX(x);
-        onIntervalChange(time, intervalEnd);
+        onIntervalChange({ start: time, end: intervalEnd, fromId: 'timeline' });
       } else if (time > intervalEnd) {
         setIntervalEndX(x);
-        onIntervalChange(intervalStart, time);
+        onIntervalChange({
+          start: intervalStart,
+          end: time,
+          fromId: 'timeline'
+        });
       }
 
       // const rect = canvasRef.current?.getBoundingClientRect();
@@ -247,7 +255,7 @@ export const IntervalCanvas = ({
       // log.debug('[handleLeftSeek]', { newX, intervalEndX });
 
       const time = xToInterval(newX);
-      onSeek(time, false);
+      onSeek({ time, fromId: 'start' });
 
       setIntervalStartX(newX);
       setToolTip(time, newX);
@@ -259,10 +267,9 @@ export const IntervalCanvas = ({
     (newX: number) => {
       const time = xToInterval(newX);
 
-      // log.debug('[handleLeftDragEnd]', { time, newX });
       setIntervalStartX(newX);
-      // onSeek(newStart, false);
-      onIntervalChange(time, intervalEnd);
+
+      onIntervalChange({ start: time, end: intervalEnd, fromId: 'start' });
       hideToolTip();
     },
     [xToInterval, onIntervalChange, intervalEnd, hideToolTip]
@@ -272,7 +279,7 @@ export const IntervalCanvas = ({
     (newX: number) => {
       const time = xToInterval(newX);
       setIntervalEndX(newX);
-      onSeek(time, false);
+      onSeek({ time, fromId: 'end' });
       setToolTip(time, newX);
     },
     [xToInterval, onSeek, setToolTip]
@@ -283,11 +290,11 @@ export const IntervalCanvas = ({
       const newEnd = xToInterval(newX);
 
       setIntervalEndX(newX);
-      onSeek(intervalStart, false);
-      onIntervalChange(intervalStart, newEnd);
+      // onSeek({ time: intervalStart, fromId: 'timeline' });
+      onIntervalChange({ start: intervalStart, end: newEnd, fromId: 'end' });
       hideToolTip();
     },
-    [xToInterval, onSeek, onIntervalChange, intervalStart, hideToolTip]
+    [xToInterval, onIntervalChange, intervalStart, hideToolTip]
   );
 
   log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });

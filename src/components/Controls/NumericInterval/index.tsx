@@ -68,7 +68,7 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
       }
 
       log.debug('handleStartChange', { value, newEnd });
-      handleIntervalChange(value, newEnd);
+      handleIntervalChange({ start: value, end: newEnd, fromId: 'start' });
     },
     [padStart, handleIntervalChange, duration]
   );
@@ -78,7 +78,7 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
       value = roundNumberToDecimalPlaces(value);
       const start = startTimeRef.current?.getValue();
       if (start === undefined) return;
-      handleIntervalChange(start, value);
+      handleIntervalChange({ start, end: value, fromId: 'end' });
     },
     [handleIntervalChange]
   );
@@ -88,7 +88,7 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
     const end = endTimeRef.current?.getValue();
     if (start === undefined || end === undefined) return;
     startTimeRef.current?.setValue(start);
-    handleIntervalChange(start, end);
+    handleIntervalChange({ start, end, fromId: 'start' });
   }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange]);
 
   const handleCopyTimeToEnd = useCallback(() => {
@@ -96,7 +96,7 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
     const end = inputTimeRef.current?.getValue();
     if (start === undefined || end === undefined) return;
     endTimeRef.current?.setValue(end);
-    handleIntervalChange(start, end);
+    handleIntervalChange({ start, end, fromId: 'end' });
   }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange]);
 
   return (

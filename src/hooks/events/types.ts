@@ -5,12 +5,11 @@ import {
   PlayerPlaying,
   PlayerReady,
   PlayerSeek,
-  PlayerSetPlaybackRate,
-  PlayerSetVolume,
   PlayerStop,
   PlayerStopped,
   PlayerThumbnailExtracted,
-  PlayerTimeUpdate
+  PlayerTimeUpdate,
+  PlayerUpdate
 } from '@components/Player/types';
 import { Media, MediaYouTube } from '@model/types';
 
@@ -48,10 +47,12 @@ export type EventEmitterEvents = {
 
   'player:playing': PlayerPlaying;
   'player:stopped': PlayerStopped;
-  'player:time-update': PlayerTimeUpdate;
+  // sent by the player when the time is updated
+  'player:time-updated': PlayerTimeUpdate;
 
-  'player:set-volume': PlayerSetVolume;
-  'player:set-playback-rate': PlayerSetPlaybackRate;
+  'player:update': PlayerUpdate;
+  // 'player:set-volume': PlayerSetVolume;
+  // 'player:set-playback-rate': PlayerSetPlaybackRate;
 
   'control:one-shot': boolean | undefined;
   'control:loop': boolean | undefined;

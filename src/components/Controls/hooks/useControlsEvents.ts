@@ -20,6 +20,18 @@ export interface UseControlsEventsProps {
   onTimeUpdate?: ((time: number) => void) | undefined;
 }
 
+export interface HandleSeekProps {
+  time: number;
+  inProgress?: boolean;
+  fromId: 'start' | 'end' | 'timeline';
+}
+
+export interface HandleIntervalChangeProps {
+  start: number;
+  end: number;
+  fromId: 'start' | 'end' | 'timeline';
+}
+
 export const useControlsEvents = ({
   pad,
   onTimeUpdate
@@ -29,14 +41,15 @@ export const useControlsEvents = ({
   const applyPadTrimOperation = usePadTrimOperation();
 
   const handleSeek = useCallback(
-    (time: number, inProgress: boolean = true) => {
+    ({ time, inProgress = true, fromId }: HandleSeekProps) => {
       if (!pad) return;
       events.emit('video:seek', {
         url: getPadSourceUrl(pad)!,
         padId: pad.id,
         time,
         inProgress,
-        requesterId: 'useControlsEvents'
+        requesterId: 'useControlsEvents',
+        fromId
       });
     },
     [pad, events]
@@ -44,24 +57,34 @@ export const useControlsEvents = ({
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleIntervalChange = useCallback(
-    debounce(async (start: number, end: number) => {
+    debounce(async ({ start, end, fromId }: HandleIntervalChangeProps) => {
       if (!pad) return;
       const padSourceUrl = getPadSourceUrl(pad);
       if (!padSourceUrl) return;
-      log.debug('handleStartAndEndTimeChange', pad.id, start, end);
+      log.debug('handleStartAndEndTimeChange', pad.id, { start, end, fromId });
+
+      await applyPadTrimOperation({
+        pad,
+        start,
+        end,
+        thumbnail: undefined
+      });
+
       // grab a new thumbnail with the new start time
       events.emit('video:extract-thumbnail', {
         url: padSourceUrl,
         time: start,
         padId: pad.id,
         requestId: `NumericInterval:${pad.id}`,
+        fromId,
         additional: {
           start,
-          end
+          end,
+          fromId
         }
       });
-    }, 100),
-    [events, pad]
+    }, 50),
+    [events, pad, applyPadTrimOperation]
   );
 
   const handleThumbnailExtracted = useCallback(
@@ -73,7 +96,8 @@ export const useControlsEvents = ({
 
       if (start === 0 && end === -1) return;
 
-      // TODO this shouldn't be done here
+      log.debug('handleThumbnailExtracted', { start, end });
+
       await applyPadTrimOperation({
         pad,
         start,
@@ -81,7 +105,7 @@ export const useControlsEvents = ({
         thumbnail
       });
     },
-    [applyPadTrimOperation, pad]
+    [pad, applyPadTrimOperation]
   );
 
   const handlePlayerTimeUpdate = useCallback(
@@ -93,10 +117,10 @@ export const useControlsEvents = ({
   );
 
   useEffect(() => {
-    events.on('player:time-update', handlePlayerTimeUpdate);
+    events.on('player:time-updated', handlePlayerTimeUpdate);
     events.on('video:thumbnail-extracted', handleThumbnailExtracted);
     return () => {
-      events.off('player:time-update', handlePlayerTimeUpdate);
+      events.off('player:time-updated', handlePlayerTimeUpdate);
       events.off('video:thumbnail-extracted', handleThumbnailExtracted);
     };
   }, [events, handlePlayerTimeUpdate, handleThumbnailExtracted]);

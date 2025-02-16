@@ -50,14 +50,21 @@ export interface ExtractVideoThumbnailFromVideoProps {
   video: HTMLVideoElement;
   frameTime: number;
   size?: number;
+  enabled?: boolean;
 }
 
 export const extractVideoThumbnailFromVideo = async ({
   video,
   frameTime,
-  size = 384
+  size = 384,
+  enabled = true
 }: ExtractVideoThumbnailFromVideoProps): Promise<string> => {
   return new Promise((resolve, reject) => {
+    if (!enabled) {
+      resolve('');
+      return;
+    }
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const existingOnSeek = video.onseeked;

@@ -11,9 +11,8 @@ import {
   PlayerPlay,
   PlayerReady,
   PlayerSeek,
-  PlayerSetPlaybackRate,
-  PlayerSetVolume,
-  PlayerStop
+  PlayerStop,
+  PlayerUpdate
 } from '../types';
 import { YTErrorToString } from './helpers';
 import type { PlayerReturn } from './index';
@@ -43,8 +42,7 @@ export interface UsePlayerYTEventsProps {
   stopVideo: (props: PlayerYTStop) => PlayerReturn | undefined;
   seekVideo: (props: PlayerYTSeek) => PlayerReturn | undefined;
   stopImmediate: () => void;
-  setVolume: (props: PlayerSetVolume) => void;
-  setPlaybackRate: (props: PlayerSetPlaybackRate) => void;
+  updatePlayer: (props: PlayerUpdate) => void;
 }
 
 export const usePlayerYTEvents = ({
@@ -55,8 +53,7 @@ export const usePlayerYTEvents = ({
   stopVideo,
   seekVideo,
   stopImmediate,
-  setVolume,
-  setPlaybackRate,
+  updatePlayer,
   startTimeRef,
   endTimeRef
 }: UsePlayerYTEventsProps) => {
@@ -103,6 +100,13 @@ export const usePlayerYTEvents = ({
   const extractThumbnail = useCallback(
     ({ padId, time, url, additional, requestId }: PlayerExtractThumbnail) => {
       if (padId !== playerPadId) return;
+
+      if (additional && additional.end) {
+        // update the end time - this means that
+        // it can be updated as the player is playing
+        endTimeRef.current = additional.end;
+      }
+
       // sadly, extracting the thumbnail at the current time is not possible
       // with the YouTube API. So the event is emitted anyway to ensure
       // the start and end times are persisted
@@ -114,7 +118,7 @@ export const usePlayerYTEvents = ({
         requestId: `YTPlayer:${requestId}`
       });
     },
-    [events, playerPadId]
+    [events, playerPadId, endTimeRef]
   );
 
   const onPlayerCreated = useCallback(
@@ -174,7 +178,8 @@ export const usePlayerYTEvents = ({
             padId: playerPadId,
             time: startTimeRef.current,
             inProgress: false,
-            requesterId: 'yt-player'
+            requesterId: 'yt-player',
+            fromId: 'timeline'
           });
         } else {
           stopVideo({
@@ -185,7 +190,7 @@ export const usePlayerYTEvents = ({
         }
       }
 
-      events.emit('player:time-update', {
+      events.emit('player:time-updated', {
         url: mediaUrl,
         padId: playerPadId,
         time,
@@ -298,7 +303,7 @@ export const usePlayerYTEvents = ({
       const result = seekVideo(e);
       if (result === undefined) return;
       const [time, duration] = result;
-      events.emit('player:time-update', {
+      events.emit('player:time-updated', {
         url: mediaUrl,
         padId: playerPadId,
         time,
@@ -319,10 +324,8 @@ export const usePlayerYTEvents = ({
     const evtExtractThumbnail = (e: PlayerEvent) =>
       isReady ? extractThumbnail(e as PlayerExtractThumbnail) : undefined;
     const evtStopAll = () => (isReady ? stopImmediate() : undefined);
-    const evtSetVolume = (e: PlayerSetVolume) =>
-      isReady ? setVolume(e) : undefined;
-    const evtSetPlaybackRate = (e: PlayerSetPlaybackRate) =>
-      isReady ? setPlaybackRate(e) : undefined;
+    const evtUpdatePlayer = (e: PlayerUpdate) =>
+      isReady ? updatePlayer(e) : undefined;
 
     events.on('video:start', evtPlayVideo);
     events.on('video:stop', evtStopVideo);
@@ -331,8 +334,7 @@ export const usePlayerYTEvents = ({
     events.on('video:extract-thumbnail', evtExtractThumbnail);
     events.on('player:ready', handleReady);
     events.on('player:not-ready', handleNotReady);
-    events.on('player:set-volume', evtSetVolume);
-    events.on('player:set-playback-rate', evtSetPlaybackRate);
+    events.on('player:update', evtUpdatePlayer);
     return () => {
       stopTimeTracking();
       events.off('video:start', evtPlayVideo);
@@ -342,8 +344,7 @@ export const usePlayerYTEvents = ({
       events.off('video:extract-thumbnail', evtExtractThumbnail);
       events.off('player:ready', handleReady);
       events.off('player:not-ready', handleNotReady);
-      events.off('player:set-volume', evtSetVolume);
-      events.off('player:set-playback-rate', evtSetPlaybackRate);
+      events.off('player:update', evtUpdatePlayer);
     };
   }, [
     events,
@@ -357,8 +358,7 @@ export const usePlayerYTEvents = ({
     stopTimeTracking,
     stopImmediate,
     handleSeek,
-    setVolume,
-    setPlaybackRate
+    updatePlayer
   ]);
 
   return {

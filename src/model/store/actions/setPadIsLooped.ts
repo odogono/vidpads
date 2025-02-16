@@ -1,11 +1,16 @@
 import { showSuccess } from '@helpers/toast';
-import { isPadLooped, setPadLoop } from '@model/pad';
-import { ProjectStoreContext, SetPadIsLoopedAction } from '@model/store/types';
+import { getPadSourceUrl, isPadLooped, setPadLoop } from '@model/pad';
+import {
+  Emit,
+  ProjectStoreContext,
+  SetPadIsLoopedAction
+} from '@model/store/types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadIsLooped = (
   context: ProjectStoreContext,
-  event: SetPadIsLoopedAction
+  event: SetPadIsLoopedAction,
+  { emit }: Emit
 ): ProjectStoreContext => {
   const { padId, isLooped } = event;
 
@@ -21,6 +26,13 @@ export const setPadIsLooped = (
   } else {
     showSuccess(`Unset ${padId} looped`);
   }
+
+  emit({
+    type: 'padIsLooped',
+    padId,
+    url: getPadSourceUrl(pad) ?? 'unknown',
+    isLooped: isLoopedValue
+  });
 
   const newPad = setPadLoop(pad, isLoopedValue ? 0 : -1);
 

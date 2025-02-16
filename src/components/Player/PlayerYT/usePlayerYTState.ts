@@ -146,3 +146,6 @@ export const usePlayerYTState = ({
     handlePlayerStateChange
   };
 };
+
+export const isPlayerPlaying = (player: YTPlayer) =>
+  player.getPlayerState() === PlayerState.PLAYING;

@@ -30,34 +30,34 @@ export const PlaybackRateDial = ({
 
   const handleDoubleTouch = useCallback(() => {
     if (!padSourceUrl || !pad?.id) return;
-    const rate = 1;
+    const playbackRate = 1;
 
-    events.emit('player:set-playback-rate', {
+    events.emit('player:update', {
       url: padSourceUrl,
       padId: pad?.id,
-      rate
+      playbackRate
     });
 
-    setPadPlaybackRate(pad?.id, rate);
+    setPadPlaybackRate(pad?.id, playbackRate);
   }, [events, pad?.id, padSourceUrl, setPadPlaybackRate]);
 
   const handleValueChange = useCallback(
     (value: number) => {
       if (!padSourceUrl || !pad?.id) return;
 
-      const rate = value; //roundNumberToDecimalPlaces(value, 1);
+      const playbackRate = value; //roundNumberToDecimalPlaces(value, 1);
 
-      events.emit('player:set-playback-rate', {
+      events.emit('player:update', {
         url: padSourceUrl,
         padId: pad?.id,
-        rate
+        playbackRate
       });
 
-      setPadPlaybackRate(pad?.id, rate);
+      setPadPlaybackRate(pad?.id, playbackRate);
 
       const rect = ref.current?.getBoundingClientRect();
       if (!rect) return;
-      setToolTip(rate, [rect.x + 10, rect.y - 40]);
+      setToolTip(playbackRate, [rect.x + 10, rect.y - 40]);
     },
     [events, padSourceUrl, pad?.id, setPadPlaybackRate, setToolTip]
   );

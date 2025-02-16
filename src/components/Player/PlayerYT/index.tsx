@@ -6,12 +6,12 @@ import {
   PlayerPlay,
   PlayerProps,
   PlayerSeek,
-  PlayerSetPlaybackRate,
-  PlayerSetVolume,
-  PlayerStop
+  PlayerStop,
+  PlayerUpdate
 } from '../types';
 import { PlayerStateToString } from './helpers';
 import { usePlayerYTEvents } from './useEvents';
+import { isPlayerPlaying } from './usePlayerYTState';
 import { destroyPlayer, initializePlayer } from './youtube';
 
 export type PlayerReturn = [number, number]; // [currentTime, duration]
@@ -116,7 +116,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   );
 
   const seekVideo = useCallback(
-    ({ url, time, inProgress, padId, requesterId }: PlayerSeek) => {
+    ({ url, time, padId, requesterId, fromId }: PlayerSeek) => {
       const player = playerRef.current;
       if (!player) return;
       if (url !== mediaUrl) return;
@@ -124,14 +124,24 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       // TODO implement better controll of this property
       // yt recommend that the parameter is set to false while the seek is in progress
       // and then set it to true again after the seek is complete
-      const allowSeekAhead = !inProgress;
+      // const allowSeekAhead = !inProgress;
+
+      log.debug('[seekVideo]', {
+        time,
+        requesterId,
+        fromId,
+        isPlaying: isPlayerPlaying(player)
+      });
+      if (isPlayerPlaying(player) && fromId !== 'timeline') {
+        // log.debug('[seekVideo] no seek while player is playing');
+        return;
+      }
+
       try {
-        log.debug('[seekVideo]', {
+        player.seekTo(
           time,
-          allowSeekAhead,
-          requesterId
-        });
-        player.seekTo(time, allowSeekAhead);
+          fromId === 'timeline' || fromId === 'start' || fromId === 'end'
+        );
       } catch {
         // TODO caused by another play request coming in while the player is still loading
         log.debug('[seekVideo] ⚠️ error seeking video');
@@ -145,29 +155,27 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     [mediaUrl, playerPadId]
   );
 
-  const setVolume = useCallback(
-    ({ url, padId, volume }: PlayerSetVolume) => {
+  const updatePlayer = useCallback(
+    ({ padId, volume, playbackRate, isLoop }: PlayerUpdate) => {
       const player = playerRef.current;
       if (!player) return;
-      if (url !== mediaUrl) return;
+      // if (url !== mediaUrl) return;
       if (padId !== playerPadId) return;
-      log.debug('[setVolume]', { volume });
-      player.setVolume(volume * 100);
-    },
-    [mediaUrl, playerPadId]
-  );
 
-  const setPlaybackRate = useCallback(
-    ({ url, padId, rate }: PlayerSetPlaybackRate) => {
-      const player = playerRef.current;
-      if (!player) return;
-      if (url !== mediaUrl) return;
-      if (padId !== playerPadId) return;
-      player.setPlaybackRate(rate);
-      const playerRate = player.getPlaybackRate();
-      log.debug('[setPlaybackRate]', { rate, playerRate });
+      if (isLoop !== undefined) {
+        isLoopedRef.current = isLoop;
+        log.debug('updatePlayer', { isLoop });
+      }
+
+      if (volume !== undefined) {
+        player.setVolume(volume * 100);
+      }
+
+      if (playbackRate !== undefined) {
+        player.setPlaybackRate(playbackRate);
+      }
     },
-    [mediaUrl, playerPadId]
+    [playerPadId]
   );
 
   // takes care of preparing the player on mount for playback
@@ -187,8 +195,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     stopVideo,
     seekVideo,
     stopImmediate,
-    setVolume,
-    setPlaybackRate
+    updatePlayer
   });
 
   useEffect(() => {

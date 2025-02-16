@@ -375,6 +375,13 @@ export type SequencerStoppedEvent = {
   type: 'sequencerStopped';
 };
 
+export type PadIsLoopedEvent = {
+  type: 'padIsLooped';
+  padId: string;
+  url: string;
+  isLooped: boolean;
+};
+
 export type ProjectStoreEvents =
   | PadUpdatedEvent
   | TimeUpdatedEvent
@@ -382,7 +389,8 @@ export type ProjectStoreEvents =
   | IsEditActiveEvent
   | SequencerTimesUpdatedEvent
   | SequencerStartedEvent
-  | SequencerStoppedEvent;
+  | SequencerStoppedEvent
+  | PadIsLoopedEvent;
 
 export type Emit = { emit: (event: ProjectStoreEvents) => void };
 

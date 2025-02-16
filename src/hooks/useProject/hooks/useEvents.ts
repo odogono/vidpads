@@ -1,8 +1,11 @@
 import { useCallback, useEffect } from 'react';
 
+// import { createLog } from '@helpers/log';
 import { useEvents as useGlobalEvents } from '@hooks/events';
-import { ProjectStoreType } from '@model/store/types';
+import { PadIsLoopedEvent, ProjectStoreType } from '@model/store/types';
 import { useSelector } from '@xstate/store/react';
+
+// const log = createLog('useEvents');
 
 export const useEvents = (project: ProjectStoreType) => {
   const events = useGlobalEvents();
@@ -33,6 +36,7 @@ export const useEvents = (project: ProjectStoreType) => {
           padId: selectedPadId,
           isLooped: value
         });
+        // log.debug('handleToggleLoop', { value });
       }
     },
     [project, selectedPadId]
@@ -51,7 +55,21 @@ export const useEvents = (project: ProjectStoreType) => {
     [project, selectedPadId]
   );
 
+  const handlePadIsLooped = useCallback(
+    ({ padId, isLooped, url }: PadIsLoopedEvent) => {
+      // log.debug('handlePadIsLooped', { padId, isLooped, url });
+      events.emit('player:update', {
+        url,
+        padId,
+        isLoop: isLooped
+      });
+    },
+    [events]
+  );
+
   useEffect(() => {
+    const evtPadLooped = project.on('padIsLooped', handlePadIsLooped);
+
     events.on('control:one-shot', handleToggleOneShot);
     events.on('control:loop', handleToggleLoop);
     events.on('control:resume', handleToggleResume);
@@ -60,8 +78,16 @@ export const useEvents = (project: ProjectStoreType) => {
       events.off('control:one-shot', handleToggleOneShot);
       events.off('control:loop', handleToggleLoop);
       events.off('control:resume', handleToggleResume);
+      evtPadLooped.unsubscribe();
     };
-  }, [events, handleToggleLoop, handleToggleOneShot, handleToggleResume]);
+  }, [
+    events,
+    handleToggleLoop,
+    handleToggleOneShot,
+    handleToggleResume,
+    handlePadIsLooped,
+    project
+  ]);
 
   return events;
 };

@@ -1,5 +1,5 @@
 import { ImagePlayer, ImagePlayerProps } from './ImagePlayer';
-import { LocalPlayer } from './LocalPlayer';
+import { LocalPlayer } from './PlayerLocal';
 import { PlayerYT } from './PlayerYT';
 import { PlayerProps } from './types';
 

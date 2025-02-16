@@ -32,7 +32,7 @@ export const VolumeDial = ({
     if (!padSourceUrl || !pad?.id) return;
     const volume = 1;
 
-    events.emit('player:set-volume', {
+    events.emit('player:update', {
       url: padSourceUrl,
       padId: pad?.id,
       volume
@@ -45,7 +45,7 @@ export const VolumeDial = ({
     (value: number) => {
       if (!padSourceUrl || !pad?.id) return;
 
-      events.emit('player:set-volume', {
+      events.emit('player:update', {
         url: padSourceUrl,
         padId: pad?.id,
         volume: value

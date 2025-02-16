@@ -60,12 +60,24 @@ export interface PlayerPlay extends PlayerEvent {
   playPriority?: number | undefined;
 }
 
-export interface PlayerSetVolume extends PlayerEvent {
-  volume: number;
-}
+// export interface PlayerSetVolume extends PlayerEvent {
+//   volume: number;
+// }
 
-export interface PlayerSetPlaybackRate extends PlayerEvent {
-  rate: number;
+// export interface PlayerSetPlaybackRate extends PlayerEvent {
+//   rate: number;
+// }
+
+// properties that can be updated as the player is playing
+export interface PlayerUpdate extends PlayerEvent {
+  volume?: number | undefined;
+  playbackRate?: number | undefined;
+  isLoop?: boolean | undefined;
+  // isOneShot?: boolean | undefined;
+  // isResume?: boolean | undefined;
+  chokeGroup?: number | undefined;
+  playPriority?: number | undefined;
+  // interval?: Interval | undefined;
 }
 
 export interface PlayerReady extends PlayerEvent {
@@ -90,6 +102,7 @@ export interface PlayerSeek extends PlayerEvent {
   time: number;
   inProgress: boolean;
   requesterId: string;
+  fromId: 'start' | 'end' | 'timeline';
 }
 
 interface PlayerAdditional {
@@ -97,15 +110,18 @@ interface PlayerAdditional {
   end?: number;
   isLoop?: boolean;
   isOneShot?: boolean;
+  fromId?: 'start' | 'end' | 'timeline';
 }
 
 export interface PlayerExtractThumbnail extends PlayerEvent {
   time: number;
+  fromId?: 'start' | 'end' | 'timeline';
 }
 
 export interface PlayerThumbnailExtracted extends PlayerEvent {
   time: number;
   thumbnail?: string;
+  fromId?: 'start' | 'end' | 'timeline';
 }
 
 export interface PlayerRef {
