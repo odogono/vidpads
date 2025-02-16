@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+
+
+## v1.1.2 (2025-02-16)
+
 ### Added
 - keyboard shortcuts for one-shot, loop and resume
 - keyboard settings (read only atm)
