@@ -24,11 +24,43 @@ const suse = SUSE({
   weight: ['400', '700']
 });
 
+const getApiBaseUrl = (): string => {
+  if (!process.env.BASE_URL) {
+    throw new Error('BASE_URL is undefined');
+  }
+
+  return process.env.BASE_URL;
+};
+
 export const generateMetadata = async () => {
   const { i18n } = initTranslation('en-gb');
   return {
     title: i18n._(`VO Pads`),
-    description: i18n._(`for all your VO triggering needs`),
+    description: i18n._(`Load, Play, Edit, and Trigger your videos`),
+    metadataBase: new URL(getApiBaseUrl() || 'http://localhost:3000'),
+    openGraph: {
+      title: 'VO Pads',
+      description: 'Load, Play, Edit, and Trigger your videos',
+      url: '/',
+      siteName: 'VO Pads',
+      images: [
+        {
+          url: '/og-regular.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'VO Pads - Video Operator Pads'
+        }
+      ],
+      locale: 'en_GB',
+      type: 'website'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'VO Pads',
+      description: 'Load, Play, Edit, and Trigger your videos',
+      creator: '@vopads',
+      images: ['/og-regular.jpg']
+    },
     other: {
       builtAt: process.env.NEXT_PUBLIC_BUILT_AT
     },

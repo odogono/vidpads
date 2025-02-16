@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "dotenv -e .env.deploy -- bun run translations:extract && next build",
-    "deploy": "bun run build && sh deploy",
+    "deploy": "dotenv -e .env.deploy -- bun run build && sh deploy",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@babel/runtime": "^7.26.7",
+    "@cloudflare/workers-types": "^4.20250214.0",
     "@eslint/eslintrc": "^3",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@lingui/cli": "^5.2.0",

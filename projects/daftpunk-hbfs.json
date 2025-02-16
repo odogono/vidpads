@@ -1,0 +1,181 @@
+{
+  "id": "f66d6b50d7",
+  "name": "Daft Punk - Harder, Better, Faster, Stronger",
+  "bgImage": "https://is.gd/rost2F",
+  "version": "1.1.1",
+  "exportVersion": "1",
+  "pads": [
+    {
+      "id": "a1",
+      "label": "Harder",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 60.52,
+          "end": 60.876
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "label": "Better",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 61.437,
+          "end": 61.865
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "label": "Faster",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 62.443,
+          "end": 62.804
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "label": "Stronger",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 63.286,
+          "end": 63.822
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "label": "Workin",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 83.307,
+          "end": 83.712
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "label": "Makin",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 84.203,
+          "end": 84.708
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "label": "Doin",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 85.242,
+          "end": 85.633
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "label": "Makes Us",
+      "source": "https://youtu.be/yydNF8tuVmU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 86.201,
+          "end": 86.638
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/yydNF8tuVmU"
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "label": "Cola Bottle Baby",
+      "source": "https://youtu.be/fiD39jo5Yo4",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/fiD39jo5Yo4"
+        },
+        {
+          "type": "trim",
+          "start": 0,
+          "end": 8.132
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a10",
+      "label": "Harder, Better, Faster, Stronger",
+      "source": "https://youtu.be/gAjR4_CbPpQ",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/gAjR4_CbPpQ"
+        },
+        {
+          "type": "trim",
+          "start": 20.475,
+          "end": 223
+        }
+      ]
+    }
+  ],
+  "sequencer": {
+    "bpm": 60,
+    "time": 0,
+    "endTime": 60,
+    "events": {}
+  },
+  "createdAt": "2025-02-12T21:00:18Z",
+  "updatedAt": "2025-02-13T21:59:26Z"
+}
