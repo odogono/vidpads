@@ -13,6 +13,8 @@ export type EventMap = {
     modifiers?: Modifier[];
     // args?: unknown;
     fn?: () => void;
+    label?: string;
+    description?: string;
   };
 };
 
@@ -36,7 +38,14 @@ export type TestAction = {
   message: string;
 };
 
-export type KeyboardStoreActions = ImportStoreFromJsonAction | TestAction;
+export type ResetKeyMapAction = {
+  type: 'resetKeyMap';
+};
+
+export type KeyboardStoreActions =
+  | ImportStoreFromJsonAction
+  | TestAction
+  | ResetKeyMapAction;
 
 export type KeyboardStoreEvents = SettingStoreImportedEvent;
 

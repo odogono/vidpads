@@ -8,13 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- keyboard shortcuts for one-shot, loop and resume
+- keyboard settings (read only atm)
+
+### Changed
 - setting pad interval start time to same as end will bump the end so the duration remains the same
-- added keyboard shortcuts for one-shot, loop and resume
 - events added to sequencer will now use the pad duration
 - pad interval updated as the player is playing
 
 ### Fixed
 - pad thumbnail not updating when source added
+
+
 
 ## v1.1.1 (2025-02-13)
 

@@ -19,6 +19,7 @@ import { CommonModalRef } from './modals/CommonModal';
 import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
 import { ExportProjectModal } from './modals/ExportProjectModal';
 import { ImportProjectModal } from './modals/ImportProjectModal';
+import { KeyboardModal } from './modals/KeyboardModal';
 import { LoadProjectModal } from './modals/LoadProjectModal';
 import { NewProjectModal } from './modals/NewProjectModal';
 import { ProjectImageModal } from './modals/ProjectImageModal';
@@ -36,6 +37,8 @@ export const MenuButton = () => {
   const settingsModalRef = useRef<CommonModalRef | null>(null);
   const aboutModalRef = useRef<CommonModalRef | null>(null);
   const projectImageModalRef = useRef<CommonModalRef | null>(null);
+  const keyboardModalRef = useRef<CommonModalRef | null>(null);
+
   const handleAction = useCallback(
     (key: string) => {
       if (key === 'new-project') {
@@ -60,6 +63,8 @@ export const MenuButton = () => {
         }
       } else if (key === 'about') {
         aboutModalRef.current?.open();
+      } else if (key === 'keyboard') {
+        keyboardModalRef.current?.open();
       }
     },
     [isMidiMappingModeEnabled, enableMappingMode]
@@ -102,6 +107,10 @@ export const MenuButton = () => {
             Export Project
           </DropdownItem>
 
+          <DropdownItem key='keyboard' showDivider>
+            Configure Keyboard
+          </DropdownItem>
+
           <DropdownItem key='configure-midi' showDivider>
             Configure Midi
           </DropdownItem>
@@ -126,6 +135,7 @@ export const MenuButton = () => {
       <SettingsModal ref={settingsModalRef} />
       <DeleteEverythingModal ref={deleteEverythingModalRef} />
       <AboutModal ref={aboutModalRef} />
+      <KeyboardModal ref={keyboardModalRef} />
     </>
   );
 };

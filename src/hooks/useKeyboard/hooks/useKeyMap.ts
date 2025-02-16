@@ -131,6 +131,10 @@ export const useKeyMap = (store: KeyboardStoreType) => {
     [events, isEnabled, keyMap]
   );
 
+  const resetKeyMap = useCallback(() => {
+    store.send({ type: 'resetKeyMap' });
+  }, [store]);
+
   const isKeyDown = (key: string) => activeKeys.current.has(key);
   const isKeyUp = (key: string) => !activeKeys.current.has(key);
   const handleBlur = useCallback(() => {
@@ -165,6 +169,7 @@ export const useKeyMap = (store: KeyboardStoreType) => {
   }, [handleKeyDown, handleKeyUp, handleBlur, events]);
 
   return {
+    keyMap,
     clearActiveKeys,
     handleKeyDown,
     handleKeyUp,
@@ -179,6 +184,7 @@ export const useKeyMap = (store: KeyboardStoreType) => {
     isCtrlKeyDown,
     isCtrlKeyUp,
     isMetaKeyDown,
-    isMetaKeyUp
+    isMetaKeyUp,
+    resetKeyMap
   };
 };

@@ -16,47 +16,63 @@ const initialContext: KeyboardStoreContext = {
   id: 'keyboard',
   updatedAt: dateToISOString(),
   keyMap: {
-    Digit1: { padId: 'a1' },
-    Digit2: { padId: 'a2' },
-    Digit3: { padId: 'a3' },
-    Digit4: { padId: 'a4' },
-    KeyQ: { padId: 'a5' },
-    KeyW: { padId: 'a6' },
-    KeyE: { padId: 'a7' },
-    KeyR: { padId: 'a8' },
-    KeyA: { padId: 'a9' },
-    KeyS: { padId: 'a10' },
-    KeyD: { padId: 'a11' },
-    KeyF: { padId: 'a12' },
-    KeyZ: { padId: 'a13' },
-    KeyX: { padId: 'a14' },
-    KeyC: { padId: 'a15' },
-    KeyV: { padId: 'a16' },
+    Digit1: { padId: 'a1', label: 'Play A01' },
+    Digit2: { padId: 'a2', label: 'Play A02' },
+    Digit3: { padId: 'a3', label: 'Play A03' },
+    Digit4: { padId: 'a4', label: 'Play A04' },
+    KeyQ: { padId: 'a5', label: 'Play A05' },
+    KeyW: { padId: 'a6', label: 'Play A06' },
+    KeyE: { padId: 'a7', label: 'Play A07' },
+    KeyR: { padId: 'a8', label: 'Play A08' },
+    KeyA: { padId: 'a9', label: 'Play A09' },
+    KeyS: { padId: 'a10', label: 'Play A10' },
+    KeyD: { padId: 'a11', label: 'Play A11' },
+    KeyF: { padId: 'a12', label: 'Play A12' },
+    KeyZ: { padId: 'a13', label: 'Play A13' },
+    KeyX: { padId: 'a14', label: 'Play A14' },
+    KeyC: { padId: 'a15', label: 'Play A15' },
+    KeyV: { padId: 'a16', label: 'Play A16' },
     KeyY: {
-      event: 'control:one-shot'
+      event: 'control:one-shot',
+      label: 'One Shot',
+      description: 'Play the pad once'
     },
     KeyU: {
-      event: 'control:loop'
+      event: 'control:loop',
+      label: 'Loop',
+      description: 'Loop the pad'
     },
     KeyI: {
-      event: 'control:resume'
+      event: 'control:resume',
+      label: 'Resume',
+      description: 'Resume the pad'
     },
     KeyH: {
-      event: 'control:interval-set-start'
+      event: 'control:interval-set-start',
+      label: 'Set Start',
+      description: 'Set the start of the interval'
     },
     KeyJ: {
-      event: 'control:interval-set-end'
+      event: 'control:interval-set-end',
+      label: 'Set End',
+      description: 'Set the end of the interval'
     },
     Escape: {
       event: 'cmd:cancel',
       // eslint-disable-next-line no-console
-      fn: () => console.clear()
+      fn: () => console.clear(),
+      label: 'Cancel',
+      description: 'Cancel all players'
     },
     Space: {
-      event: 'seq:play-toggle'
+      event: 'seq:play-toggle',
+      label: 'Sequencer Play',
+      description: 'Start/Stop the Sequencer'
     },
     Enter: {
-      event: 'seq:rewind'
+      event: 'seq:rewind',
+      label: 'Sequencer Rewind',
+      description: 'Rewind the sequencer'
     }
   }
 };
@@ -80,6 +96,10 @@ const KeyboardStoreActions = {
     const { data } = event;
 
     return update(context, data);
+  },
+
+  resetKeyMap: (context: KeyboardStoreContext) => {
+    return update(context, initialContext);
   },
 
   test: (context: KeyboardStoreContext, event: TestAction) => {

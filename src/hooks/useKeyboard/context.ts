@@ -2,6 +2,8 @@
 
 import { createContext } from 'react';
 
+import { EventMap } from './types';
+
 export interface KeyboardContextType {
   // activeKeys: Set<string>;
   // isKeyDown: (key: string) => boolean;
@@ -16,6 +18,8 @@ export interface KeyboardContextType {
   isMetaKeyUp: () => boolean;
   isEnabled: boolean;
   setIsEnabled: (enabled: boolean) => void;
+  resetKeyMap: () => void;
+  keyMap: EventMap;
 }
 
 export const KeyboardContext = createContext<KeyboardContextType | undefined>(

@@ -104,7 +104,8 @@ export const SettingsModal = ({ ref }: CommonModalBase) => {
         aria-label='Settings'
         classNames={{
           wrapper: 'text-foreground bg-background',
-          base: 'text-foreground'
+          base: 'text-foreground max-h-[300px]',
+          table: 'min-h-[300px]'
         }}
       >
         <TableHeader>
