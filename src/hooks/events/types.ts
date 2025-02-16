@@ -57,6 +57,8 @@ export type EventEmitterEvents = {
   'control:one-shot': boolean | undefined;
   'control:loop': boolean | undefined;
   'control:resume': boolean | undefined;
+  'control:interval-set-start': undefined;
+  'control:interval-set-end': undefined;
 
   'cmd:cancel': undefined;
   'cmd:copy': undefined;

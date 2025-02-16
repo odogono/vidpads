@@ -41,6 +41,12 @@ const initialContext: KeyboardStoreContext = {
     KeyI: {
       event: 'control:resume'
     },
+    KeyH: {
+      event: 'control:interval-set-start'
+    },
+    KeyJ: {
+      event: 'control:interval-set-end'
+    },
     Escape: {
       event: 'cmd:cancel',
       // eslint-disable-next-line no-console

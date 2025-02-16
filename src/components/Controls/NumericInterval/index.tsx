@@ -7,11 +7,13 @@ import { ArrowLeftFromLine, ArrowRightFromLine } from 'lucide-react';
 import { OpTimeInput, OpTimeInputRef } from '@/components/common/OpTimeInput';
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
+import { showSuccess } from '@helpers/toast';
 import { useMetadataByUrl } from '@model/hooks/useMetadata';
 import { getPadInterval, getPadSourceUrl } from '@model/pad';
 import { Pad } from '@model/types';
 import { OpButton } from '../../common/OpButton';
 import { useControlsEvents } from '../hooks/useControlsEvents';
+import { useNumericIntervalEvents } from './useNumericIntervalEvents';
 
 const log = createLog('NumericInterval', ['debug']);
 
@@ -89,7 +91,8 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
     if (start === undefined || end === undefined) return;
     startTimeRef.current?.setValue(start);
     handleIntervalChange({ start, end, fromId: 'start' });
-  }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange]);
+    showSuccess(`${pad?.id} start time set ${start}`);
+  }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange, pad]);
 
   const handleCopyTimeToEnd = useCallback(() => {
     const start = startTimeRef.current?.getValue();
@@ -97,7 +100,13 @@ export const NumericInterval = ({ pad, isEnabled }: NumericIntervalProps) => {
     if (start === undefined || end === undefined) return;
     endTimeRef.current?.setValue(end);
     handleIntervalChange({ start, end, fromId: 'end' });
-  }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange]);
+    showSuccess(`${pad?.id} end time set ${end}`);
+  }, [inputTimeRef, startTimeRef, endTimeRef, handleIntervalChange, pad]);
+
+  useNumericIntervalEvents({
+    onIntervalSetStart: handleCopyTimeToStart,
+    onIntervalSetEnd: handleCopyTimeToEnd
+  });
 
   return (
     <div className='flex flex-row gap-2'>
