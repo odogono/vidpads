@@ -14,10 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Load, Play, Edit, and Trigger your videos"
-msgstr "Load, Play, Edit, and Trigger your videos"
-
-#. js-lingui-explicit-id
 msgid "Let's Play"
 msgstr "Let's Play"
 
@@ -76,6 +72,10 @@ msgstr "The page you're looking for doesn't exist or has been moved."
 #. js-lingui-explicit-id
 msgid "VO Pads"
 msgstr "VO Pads"
+
+#. js-lingui-explicit-id
+msgid "Load, Play, Edit, and Trigger your videos"
+msgstr "Load, Play, Edit, and Trigger your videos"
 
 msgid "English"
 msgstr "English"

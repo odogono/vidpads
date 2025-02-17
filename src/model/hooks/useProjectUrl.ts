@@ -5,7 +5,7 @@ import { useProjects } from './useProjects';
 
 export const useProjectUrl = () => {
   const { exportToURLString } = useProjects();
-  const { createNewUrl } = useShareUrl();
+  const { createNewUrl } = useShareUrl({ isImport: true });
 
   const [url, setUrl] = useState('');
 
