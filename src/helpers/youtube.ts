@@ -2,8 +2,6 @@ import { createLog } from '@helpers/log';
 import { Media, MediaYouTube } from '@model/types';
 import { isYouTubeMetadata, toYTMediaUrl } from './metadata';
 
-// import { parseISO8601Duration } from './datetime';
-
 const log = createLog('youtube');
 
 export const isYouTubeUrl = (url?: string): boolean =>
@@ -46,61 +44,6 @@ export const getYoutubeVideoIdFromMedia = (
   }
   return undefined;
 };
-
-// const fetchFromYouTubeAPI = async (
-//   videoId: string
-// ): Promise<MediaYouTube | null> => {
-//   const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
-//   if (!apiKey) {
-//     log.debug('env', process.env);
-//     throw new Error('YouTube API key not configured');
-//   }
-
-//   const fetchUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,player&id=${videoId}&key=${apiKey}`;
-
-//   log.debug('Fetching YouTube metadata from:', fetchUrl);
-
-//   const response = await fetch(fetchUrl);
-
-//   if (!response.ok) {
-//     throw new Error('Failed to fetch video metadata');
-//   }
-
-//   const data = await response.json();
-
-//   if (data.items && data.items.length > 0) {
-//     const videoData = data.items[0];
-
-//     log.debug('YouTube metadata:', videoData);
-
-//     const duration = videoData.contentDetails.duration;
-//     const durationInSeconds = parseISO8601Duration(duration)?.toSeconds();
-//     if (!durationInSeconds) {
-//       throw new Error('Failed to parse duration');
-//     }
-
-//     log.debug('durationInSeconds', durationInSeconds);
-
-//     const metadata: MediaYouTube = {
-//       id: videoData.id,
-//       url: toYTMediaUrl(videoData.id),
-//       name: videoData.snippet.title,
-//       sizeInBytes: 0,
-//       mimeType: 'video/youtube',
-//       videoId: videoData.id,
-//       title: videoData.snippet.title,
-//       description: videoData.snippet.description,
-//       thumbnails: videoData.snippet.thumbnails,
-//       duration: durationInSeconds,
-//       width: parseInt(videoData.player.embedHeight, 10),
-//       height: parseInt(videoData.player.embedWidth, 10)
-//     };
-
-//     return metadata;
-//   } else {
-//     throw new Error('Video not found');
-//   }
-// };
 
 const fetchFromOEmbed = async (
   videoId: string

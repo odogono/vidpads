@@ -25,11 +25,10 @@ export const Main = () => {
   return (
     <PadDnDProvider>
       <div
-        className='w-full h-full rounded-lg'
-        style={{
-          padding: '1px',
-          background: 'linear-gradient(135deg, var(--c6), var(--c0))'
-        }}
+        className={cn('w-full h-full rounded-lg', {
+          'p-[1px] bg-[linear-gradient(135deg,var(--c6),var(--c0))]':
+            !isFullscreen
+        })}
       >
         <div
           className={cn(
