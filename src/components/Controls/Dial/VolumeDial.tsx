@@ -23,7 +23,7 @@ export const VolumeDial = ({
   isEnabled
 }: VolumeDialProps) => {
   const events = useEvents();
-  const { setToolTip, hideToolTip } = useTooltip();
+  const { setToolTipToTime, hideToolTip } = useTooltip();
   const padVolume = getPadVolume(pad, 1);
   const padSourceUrl = getPadSourceUrl(pad);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -55,9 +55,9 @@ export const VolumeDial = ({
 
       const rect = ref.current?.getBoundingClientRect();
       if (!rect) return;
-      setToolTip(value, [rect.x + 10, rect.y - 40]);
+      setToolTipToTime(value, [rect.x + 24, rect.y - 20]);
     },
-    [events, padSourceUrl, pad?.id, setPadVolume, setToolTip]
+    [events, padSourceUrl, pad?.id, setPadVolume, setToolTipToTime]
   );
 
   const handleValueChangeEnd = useCallback(() => {

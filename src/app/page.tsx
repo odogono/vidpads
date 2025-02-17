@@ -189,9 +189,9 @@ export default function LandingPage() {
                   </h3>
                   <p className='text-gray-300'>
                     <I18nTrans>
-                      Once you've created your project, you can share it with a
-                      single URL. Anyone with the link can open and play your
-                      project exactly as you've set it up.
+                      Once you&apos;ve created your project, you can share it
+                      with a single URL. Anyone with the link can open and play
+                      your project exactly as you&apos;ve set it up.
                     </I18nTrans>
                   </p>
                 </div>

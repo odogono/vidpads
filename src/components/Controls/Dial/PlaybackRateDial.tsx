@@ -23,7 +23,7 @@ export const PlaybackRateDial = ({
   isEnabled
 }: PlaybackRateDialProps) => {
   const events = useEvents();
-  const { setToolTip, hideToolTip } = useTooltip();
+  const { setToolTipToTime, hideToolTip } = useTooltip();
   const playbackRate = getPadPlaybackRate(pad, 1);
   const padSourceUrl = getPadSourceUrl(pad);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -57,9 +57,9 @@ export const PlaybackRateDial = ({
 
       const rect = ref.current?.getBoundingClientRect();
       if (!rect) return;
-      setToolTip(playbackRate, [rect.x + 10, rect.y - 40]);
+      setToolTipToTime(playbackRate, [rect.x + 24, rect.y - 20]);
     },
-    [events, padSourceUrl, pad?.id, setPadPlaybackRate, setToolTip]
+    [events, padSourceUrl, pad?.id, setPadPlaybackRate, setToolTipToTime]
   );
 
   const handleValueChangeEnd = useCallback(() => {

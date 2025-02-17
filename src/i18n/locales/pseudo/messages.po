@@ -18,54 +18,6 @@ msgid "Let's Play"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Pad Based Control"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Play videos triggered by pad, keyboard, or MIDI"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Edit Playback"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Set the start and duration, speed, and volume of the video"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Share"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Share your project with others via a single URL"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Serverless"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "No need to install anything, just open the URL"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Have a great time"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Have a great time with your friends and family"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Be a better person"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Learn to play the drums, guitar, or piano. IDK, I'm not a psychologist."
-msgstr ""
-
-#. js-lingui-explicit-id
 msgid "The page you're looking for doesn't exist or has been moved."
 msgstr ""
 
@@ -77,10 +29,43 @@ msgstr ""
 msgid "Load, Play, Edit, and Trigger your videos"
 msgstr ""
 
+msgid "Currently, VO Pads supports YouTube videos and local mp4 files. Tap on a pad to bring up a selector, where you can add a file, or paste a YouTube URL."
+msgstr ""
+
+msgid "Do I need to install anything?"
+msgstr ""
+
+msgid "Edit Playback"
+msgstr ""
+
 msgid "English"
 msgstr ""
 
+msgid "For the best experience, we recommend using Chrome."
+msgstr ""
+
+msgid "Frequently Asked Questions"
+msgstr ""
+
+msgid "How do I share my project?"
+msgstr ""
+
+msgid "No! VO Pads runs entirely in your web browser. Just open the URL and start playing. No downloads or installations required."
+msgstr ""
+
+msgid "Once you've created your project, you can share it with a single URL. Anyone with the link can open and play your project exactly as you've set it up."
+msgstr ""
+
+msgid "Pad Based Control"
+msgstr ""
+
 msgid "Pad based Video playback and control"
+msgstr ""
+
+msgid "Play videos triggered by pad, keyboard, or MIDI. Set up your perfect performance environment with customizable controls and instant playback."
+msgstr ""
+
+msgid "Please note that on iOS or iPadOS, only one video can be played at a time."
 msgstr ""
 
 msgid "Pseudo"
@@ -89,5 +74,29 @@ msgstr ""
 msgid "Return Home"
 msgstr ""
 
+msgid "Share Your Creation"
+msgstr ""
+
+msgid "Share your entire project with a single URL. No downloads, no installs - just open and play. Perfect for collaboration and live performances."
+msgstr ""
+
+msgid "Take full control of your media with precise timing controls. Set the start and duration, adjust playback speed, and fine-tune volume levels for the perfect mix."
+msgstr ""
+
 msgid "VO Pads"
+msgstr ""
+
+msgid "VO Pads is a web app, so it runs on any browser that supports HTML5."
+msgstr ""
+
+msgid "VO Pads is a web-based video player that lets you trigger and control video clips using a pad-based interface, keyboard, or MIDI controller."
+msgstr ""
+
+msgid "What browsers are supported?"
+msgstr ""
+
+msgid "What is VO Pads?"
+msgstr ""
+
+msgid "What video sources are supported?"
 msgstr ""

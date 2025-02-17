@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v1.1.3 (2025-02-16)
+
 ### Changed
 - pad error shows as icon, with tooltip text on hover
+- landing page updated with new info
 
 
 ## v1.1.2 (2025-02-16)

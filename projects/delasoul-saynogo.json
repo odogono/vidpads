@@ -21,7 +21,7 @@
         },
         {
           "type": "playback",
-          "isOneShot": true
+          "isOneShot": false
         },
         {
           "type": "loop",
@@ -45,7 +45,8 @@
         },
         {
           "type": "playback",
-          "isOneShot": false
+          "isOneShot": true,
+          "chokeGroup": 1
         }
       ]
     },
@@ -65,13 +66,14 @@
         },
         {
           "type": "playback",
-          "isOneShot": true
+          "isOneShot": true,
+          "chokeGroup": 1
         }
       ]
     },
     {
       "id": "a4",
-      "label": "(Lyrics) Don't even think about it",
+      "label": "Don't even think about it",
       "source": "https://youtu.be/ccenFp_3kq8",
       "operations": [
         {
@@ -85,7 +87,8 @@
         },
         {
           "type": "playback",
-          "isOneShot": true
+          "isOneShot": true,
+          "chokeGroup": 1
         }
       ]
     },
@@ -204,7 +207,6 @@
     },
     {
       "id": "a10",
-      "label": "Crossword Puzzle",
       "source": "https://youtu.be/d9NyLl6VAJQ",
       "operations": [
         {
@@ -224,7 +226,6 @@
     },
     {
       "id": "a11",
-      "label": "Crossword Puzzle",
       "source": "https://youtu.be/d9NyLl6VAJQ",
       "operations": [
         {
@@ -268,7 +269,6 @@
     },
     {
       "id": "a13",
-      "label": "De La Soul - Say No Go",
       "source": "https://youtu.be/QLoDlBwL2T4",
       "operations": [
         {
@@ -290,5 +290,5 @@
     "events": {}
   },
   "createdAt": "2025-02-17T14:25:56Z",
-  "updatedAt": "2025-02-17T15:02:45Z"
+  "updatedAt": "2025-02-17T18:22:58Z"
 }

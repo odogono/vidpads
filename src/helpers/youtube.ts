@@ -2,7 +2,7 @@ import { createLog } from '@helpers/log';
 import { Media, MediaYouTube } from '@model/types';
 import { isYouTubeMetadata, toYTMediaUrl } from './metadata';
 
-const log = createLog('youtube');
+const log = createLog('youtube', ['debug']);
 
 export const isYouTubeUrl = (url?: string): boolean =>
   extractVideoId(url) !== undefined;
