@@ -1,8 +1,8 @@
 {
   "id": "5022695b",
   "name": "Me, Myself, And I",
-  "version": "0.1.0",
-  "exportVersion": "1",
+  "version": "1.1.2",
+  "exportVersion": "2025-02-14",
   "pads": [
     {
       "id": "a1",
@@ -17,6 +17,10 @@
         {
           "type": "playbackRate",
           "rate": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/zR9AlcgL6_0"
         }
       ]
     },
@@ -38,6 +42,10 @@
               "value": 0.53
             }
           ]
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/zR9AlcgL6_0"
         }
       ]
     },
@@ -54,6 +62,10 @@
         {
           "type": "playbackRate",
           "rate": 1.22
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/zR9AlcgL6_0"
         }
       ]
     },
@@ -78,6 +90,10 @@
         {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/PZ-5G4J8dvM"
         }
       ]
     },
@@ -107,6 +123,10 @@
         {
           "type": "playbackRate",
           "rate": 1.08
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/zcIpu_M75Cg"
         }
       ]
     },
@@ -122,6 +142,29 @@
         {
           "type": "loop",
           "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/khtqLSXDjK0"
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "source": "https://youtu.be/khtqLSXDjK0",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1.58,
+          "end": 5.607
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/khtqLSXDjK0"
         }
       ]
     },
@@ -132,7 +175,7 @@
         {
           "type": "trim",
           "start": 0.563,
-          "end": 1.532
+          "end": 1.472
         },
         {
           "type": "loop",
@@ -141,6 +184,10 @@
         {
           "type": "playbackRate",
           "rate": 0.98
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/khtqLSXDjK0"
         }
       ]
     },
@@ -165,6 +212,10 @@
         {
           "type": "playback",
           "isOneShot": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/W_xMaCVfan8"
         }
       ]
     },
@@ -185,13 +236,17 @@
               "value": 1
             }
           ]
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/kn_RRgsHvOI"
         }
       ]
     }
   ],
   "sequencer": {
     "bpm": 60,
-    "startTime": 0,
+    "time": null,
     "endTime": 30,
     "events": {
       "a3": [
@@ -237,5 +292,5 @@
     }
   },
   "createdAt": "2025-02-04T09:35:00Z",
-  "updatedAt": "2025-02-05T11:57:14Z"
+  "updatedAt": "2025-02-17T14:21:28Z"
 }

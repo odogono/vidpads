@@ -1,0 +1,208 @@
+{
+  "id": "270de73221",
+  "name": "Eye Know - De La Soul",
+  "bgImage": "https://i.imgur.com/oPsijNX.jpeg",
+  "version": "1.1.2",
+  "exportVersion": "2025-02-14",
+  "pads": [
+    {
+      "id": "a1",
+      "label": "(Drums) Get Out of My Life",
+      "source": "https://youtu.be/uxp0Kfgpft8",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/uxp0Kfgpft8"
+        },
+        {
+          "type": "trim",
+          "start": 3.518,
+          "end": 6.062
+        },
+        {
+          "type": "playback",
+          "isOneShot": false
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.6
+            }
+          ]
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "label": "(Drums) Sing a Simple Song",
+      "source": "https://youtu.be/zd_KWoSiI3k",
+      "operations": [
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "trim",
+          "start": 5.308,
+          "end": 7.802
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.33
+            }
+          ]
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/zd_KWoSiI3k"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "label": "Hook",
+      "source": "https://youtu.be/u_pt3khMRFs",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 22.07,
+          "end": 23.958
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 0.89
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/u_pt3khMRFs"
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "label": "I Know",
+      "source": "https://youtu.be/u_pt3khMRFs",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 60.56,
+          "end": 63.35
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/u_pt3khMRFs"
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "source": "https://youtu.be/DX4cB_WhBB4",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/DX4cB_WhBB4"
+        },
+        {
+          "type": "trim",
+          "start": 0.19,
+          "end": 2.259
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 0.87
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "source": "https://youtu.be/DX4cB_WhBB4",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 4.954,
+          "end": 8.802
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/DX4cB_WhBB4"
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "label": "Sittin On the dock of the bay",
+      "source": "https://youtu.be/rTVjnBo96Ug",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/rTVjnBo96Ug"
+        },
+        {
+          "type": "trim",
+          "start": 143.307,
+          "end": 145.505
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a13",
+      "label": "De La Soul - Eye Know",
+      "source": "https://youtu.be/q9jCsOCfUUg",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/q9jCsOCfUUg"
+        },
+        {
+          "type": "playback",
+          "resume": true
+        }
+      ]
+    }
+  ],
+  "sequencer": {
+    "bpm": 60,
+    "time": 0,
+    "endTime": 60,
+    "events": {}
+  },
+  "createdAt": "2025-02-17T09:04:41Z",
+  "updatedAt": "2025-02-17T14:16:22Z"
+}

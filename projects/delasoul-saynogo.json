@@ -1,0 +1,294 @@
+{
+  "id": "4d2ce18aaf",
+  "name": "De La Soul - Say No Go",
+  "bgImage": "https://i.imgur.com/BqamyT5.jpeg",
+  "version": "1.1.2",
+  "exportVersion": "2025-02-14",
+  "pads": [
+    {
+      "id": "a1",
+      "label": "(Bass)",
+      "source": "https://youtu.be/ccenFp_3kq8",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/ccenFp_3kq8"
+        },
+        {
+          "type": "trim",
+          "start": 7.17,
+          "end": 11.337
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "label": "(Lyrics) You got my body",
+      "source": "https://youtu.be/ccenFp_3kq8",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 66.79,
+          "end": 71.047
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/ccenFp_3kq8"
+        },
+        {
+          "type": "playback",
+          "isOneShot": false
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "label": "(Lyrics) Say No Go",
+      "source": "https://youtu.be/ccenFp_3kq8",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 73.228,
+          "end": 74.302
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/ccenFp_3kq8"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "label": "(Lyrics) Don't even think about it",
+      "source": "https://youtu.be/ccenFp_3kq8",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 71.317,
+          "end": 73.155
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/ccenFp_3kq8"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "label": "(Drums) I'm Chief Kamanawanale",
+      "source": "https://youtu.be/2CpWiE86vXw",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/2CpWiE86vXw"
+        },
+        {
+          "type": "trim",
+          "start": 3.459,
+          "end": 5.717
+        },
+        {
+          "type": "playback",
+          "isOneShot": false
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "label": "(Drums) Honky Tonk Women",
+      "source": "https://youtu.be/hqqkGxZ1_8I",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/hqqkGxZ1_8I"
+        },
+        {
+          "type": "trim",
+          "start": 6,
+          "end": 8.206
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "label": "(Hook) Baby Let Me Take You",
+      "source": "https://youtu.be/ihlZ7ISXUyU",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/ihlZ7ISXUyU"
+        },
+        {
+          "type": "trim",
+          "start": 0.11,
+          "end": 3.014
+        },
+        {
+          "type": "playback",
+          "isOneShot": false
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1.41
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "label": "(Vocal) Best of My Love",
+      "source": "https://youtu.be/EbwXoN-XU5I",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/EbwXoN-XU5I"
+        },
+        {
+          "type": "trim",
+          "start": 153.889,
+          "end": 154.621
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "label": "Crossword Puzzle",
+      "source": "https://youtu.be/d9NyLl6VAJQ",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/d9NyLl6VAJQ"
+        },
+        {
+          "type": "trim",
+          "start": 9.078,
+          "end": 14.957
+        }
+      ]
+    },
+    {
+      "id": "a10",
+      "label": "Crossword Puzzle",
+      "source": "https://youtu.be/d9NyLl6VAJQ",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 6,
+          "end": 8.3
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/d9NyLl6VAJQ"
+        },
+        {
+          "type": "loop",
+          "start": 0
+        }
+      ]
+    },
+    {
+      "id": "a11",
+      "label": "Crossword Puzzle",
+      "source": "https://youtu.be/d9NyLl6VAJQ",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 2,
+          "end": 4.311
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/d9NyLl6VAJQ"
+        }
+      ]
+    },
+    {
+      "id": "a12",
+      "source": "https://youtu.be/SVxk9PW62Vk",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/SVxk9PW62Vk"
+        },
+        {
+          "type": "trim",
+          "start": 17.575,
+          "end": 18.571
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a13",
+      "label": "De La Soul - Say No Go",
+      "source": "https://youtu.be/QLoDlBwL2T4",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/QLoDlBwL2T4"
+        },
+        {
+          "type": "trim",
+          "start": 6.5,
+          "end": 259
+        }
+      ]
+    }
+  ],
+  "sequencer": {
+    "bpm": 60,
+    "time": 0,
+    "endTime": 60,
+    "events": {}
+  },
+  "createdAt": "2025-02-17T14:25:56Z",
+  "updatedAt": "2025-02-17T15:02:45Z"
+}
