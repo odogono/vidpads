@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Music2, VolumeOff } from 'lucide-react';
+import { HeartCrack, Music2, VolumeOff } from 'lucide-react';
 
 import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
@@ -17,6 +17,7 @@ import { usePadThumbnail } from '@model/hooks/usePadThumbnail';
 import { getPadLabel, getPadSourceUrl } from '@model/pad';
 import { useSelectedPadId } from '@model/store/selectors';
 import type { Pad } from '@model/types';
+import { useTooltip } from '../Tooltip/useTooltip';
 import { usePlayerEvents } from './usePlayerEvents';
 
 export interface PadComponentProps {
@@ -63,6 +64,8 @@ export const PadComponent = ({
     copyPadToPad,
     movePadToPad
   } = usePadOperations();
+
+  const { setToolTip, hideToolTip } = useTooltip();
 
   isPlayEnabled = isPlayEnabled && !isMidiMappingModeEnabled;
 
@@ -163,8 +166,29 @@ export const PadComponent = ({
     ]
   );
 
+  const handlePointerOver = useCallback(
+    (e: React.PointerEvent) => {
+      if (playerError) {
+        const padEl = window.document.getElementById(`pad-${pad.id}`);
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = padEl?.getBoundingClientRect();
+        if (rect) {
+          setToolTip(playerError, [rect.left + rect.width / 2, rect.top]);
+        }
+      }
+    },
+    [playerError, setToolTip, pad.id]
+  );
+
+  const handlePointerOut = useCallback(() => {
+    if (playerError) {
+      hideToolTip();
+    }
+  }, [playerError, hideToolTip]);
+
   const handleOver = useCallback(({ targetId, mimeType }: OnDropProps) => {
-    // log.debug('handleOver', { file, sourceId, targetId, mimeType });
+    log.debug('handleOver', { targetId, mimeType });
 
     if (mimeType !== MIME_TYPE_PAD && !ACCEPTED_FILE_TYPES.includes(mimeType)) {
       log.debug('handleOver', targetId, mimeType, 'rejected');
@@ -257,10 +281,17 @@ export const PadComponent = ({
 
   return (
     <div
+      id={`pad-${pad.id}`}
       ref={elementRef}
       className={cn(
         `
-          w-full min-h-[44px] h-full rounded-lg cursor-pointer bg-pad transition-all relative select-none touch-none`,
+          w-full min-h-[44px] h-full 
+          rounded-lg 
+          cursor-pointer 
+          bg-pad 
+          transition-all 
+          relative 
+          select-none touch-none`,
         {
           'opacity-100': isReady,
           'opacity-20': !isReady,
@@ -285,6 +316,8 @@ export const PadComponent = ({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onContextMenu={handleContextMenu}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
       // Also add this attribute to prevent text selection
       suppressContentEditableWarning={true}
       onDragOver={(e) => onNativeDragOver(e, pad.id)}
@@ -296,10 +329,12 @@ export const PadComponent = ({
           <img
             src={thumbnail}
             alt={`Thumbnail for pad ${pad.id}`}
+            title={playerError ? playerError : `Thumbnail for pad ${pad.id}`}
             className='object-cover w-full h-full rounded-lg'
           />
         </div>
       )}
+
       <span
         className={`
           absolute inset-0 rounded-lg bg-white transition-opacity duration-200
@@ -312,11 +347,11 @@ export const PadComponent = ({
         </span>
       )}
       {playerError && (
-        <span className='absolute top-1/2 -translate-y-1/2 m-2 text-xs text-c6 select-none bg-red-500/80 p-2 rounded-lg'>
-          {playerError}
+        <span className='absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-[3vh] m-2 text-xs text-c6 select-none bg-red-500/80 p-2 rounded-lg pointer-events-none'>
+          <HeartCrack size={'4vh'} />
         </span>
       )}
-      <span className='absolute bottom-2 left-2 text-xs text-gray-300 select-none'>
+      <span className='absolute bottom-2 left-2 text-xs text-gray-300 select-none pointer-events-none'>
         {!isPlayEnabled && <VolumeOff size={12} />}
       </span>
       {isMidiMappingModeEnabled && (

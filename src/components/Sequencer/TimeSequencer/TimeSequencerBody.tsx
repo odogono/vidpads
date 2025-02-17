@@ -15,6 +15,7 @@ import { Marquee } from './components/Marquee';
 import { PlayHead } from './components/PlayHead';
 import { Row } from './components/Row';
 import { pixelsToSeconds, secondsToPixels } from './helpers/timeConversion';
+import { useEventTooltip } from './hooks/useEventTooltip';
 import { useGridDimensions } from './hooks/useGridDimensions';
 import { useMarquee } from './hooks/useMarquee';
 import { useSelectedEventsRect } from './hooks/useSelectedEventsRect';
@@ -38,18 +39,12 @@ export const TimeSequencerBody = ({
 
   const { gridRef, getGridDimensions } = useGridDimensions({ padCount });
 
-  // records the duration of the last event toggled
-  // const [lastEventDuration, setLastEventDuration] = useState(0.5);
-
-  const [tooltipPosition, setTooltipPosition] = useState<Position>({
-    x: 0,
-    y: 0
-  });
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-
-  useEffect(() => {
-    setIsTooltipVisible(false);
-  }, [setIsTooltipVisible]);
+  const {
+    tooltipPosition,
+    isTooltipVisible,
+    setTooltipPosition,
+    setIsTooltipVisible
+  } = useEventTooltip();
 
   const {
     bpm,
@@ -117,7 +112,12 @@ export const TimeSequencerBody = ({
     } else {
       setIsTooltipVisible(false);
     }
-  }, [seqSelectedEventIds, selectedEventsRect]);
+  }, [
+    seqSelectedEventIds,
+    selectedEventsRect,
+    setTooltipPosition,
+    setIsTooltipVisible
+  ]);
 
   const convertGridRectToTime = useCallback(
     (rect: Rect) => {
@@ -207,6 +207,7 @@ export const TimeSequencerBody = ({
     [
       convertGridRectToTime,
       seqSelectedEventIds.length,
+      setIsTooltipVisible,
       selectEventsAtTime,
       getEventsAtTime,
       selectEvents,

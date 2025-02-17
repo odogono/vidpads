@@ -12,7 +12,7 @@ import { PlayerPlaying, PlayerStopped } from '../Player/types';
 export const usePlayerEvents = (pad: Pad) => {
   const events = useEvents();
   const padId = pad.id;
-  // const [isPlayerReady, setIsPlayerReady] = useState(false);
+
   const [isPlayerPlaying, setIsPlayerPlaying] = useState(false);
   const queryClient = useQueryClient();
   const { player } = usePlayerState(padId);

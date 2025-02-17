@@ -2,16 +2,18 @@ import { createStore } from '@xstate/store';
 
 export const store = createStore({
   // Initial context
-  context: { time: 0, pos: [-1, -1] },
+  context: { text: '', pos: [-1, -1], isVisible: false },
   // Transitions
   on: {
-    setToolTip: (context, event: { time: number; x: number; y: number }) => ({
-      time: event.time,
-      pos: [event.x, event.y]
+    setToolTip: (context, event: { text: string; x: number; y: number }) => ({
+      text: event.text,
+      pos: [event.x, event.y],
+      isVisible: true
     }),
     hideToolTip: () => ({
-      time: 0,
-      pos: [-1, -1]
+      text: '',
+      pos: [-1, -1],
+      isVisible: false
     })
   }
 });

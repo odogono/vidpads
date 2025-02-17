@@ -55,7 +55,7 @@ export const IntervalCanvas = ({
   onSeek,
   onIntervalChange
 }: IntervalCanvasProps) => {
-  const { setToolTip: setToolTipInt, hideToolTip } = useTooltip();
+  const { setToolTipToTime, hideToolTip } = useTooltip();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const timeRef = useRef<number | null>(time);
@@ -100,12 +100,9 @@ export const IntervalCanvas = ({
 
   const setToolTip = useCallback(
     (time: number, x: number) => {
-      setToolTipInt(time, [
-        dimensions.left + x - handleWidth / 2,
-        dimensions.top - 40
-      ]);
+      setToolTipToTime(time, [dimensions.left + x, dimensions.top - 20]);
     },
-    [dimensions, setToolTipInt]
+    [dimensions, setToolTipToTime]
   );
 
   useEffect(() => {
