@@ -1,4 +1,4 @@
-export type ShowMode = 'pads' | 'sequencer';
+export type ShowMode = 'pads' | 'sequencer' | 'step';
 
 export interface Interval {
   start: number;

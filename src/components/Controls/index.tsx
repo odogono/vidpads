@@ -10,6 +10,7 @@ import { OpBiButton } from '../common/OpBiButton';
 import { IntervalPane } from './IntervalPane';
 import { SequencerPane } from './SequencerPane';
 import { StatePane } from './StatePane';
+import { StepSequencerPane } from './StepSequencerPane';
 import { useControlPane } from './hooks/useControlPane';
 
 interface ContainerProps {
@@ -59,6 +60,7 @@ const ControlsLoaded = () => {
       {/* {selectedControlPane === 'details' && (
         <DetailsPane showDeleteModal={showDeleteModal} />
       )} */}
+      {selectedControlPane === 'step' && <StepSequencerPane />}
       {selectedControlPane === 'sequencer' && <SequencerPane />}
 
       <DeleteModal ref={modalRef} />
@@ -78,6 +80,7 @@ const Container = ({
       <div className='vo-pane-switcher-indicator m-2 flex flex-col gap-2 justify-center items-center'>
         <Indicator isActive={selectedControlPane === 'state'} />
         <Indicator isActive={selectedControlPane === 'interval'} />
+        <Indicator isActive={selectedControlPane === 'step'} />
         <Indicator isActive={selectedControlPane === 'sequencer'} />
       </div>
     </div>

@@ -3,12 +3,12 @@
 import { LoadingSuspense } from '@components/Loading';
 import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
+import { SequencerProvider } from '@contexts/sequencer';
 import { HeroUIProvider } from '@heroui/react';
 import { KeyboardProvider } from '@hooks/useKeyboard/provider';
 import { MidiProvider } from '@hooks/useMidi/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
 import { SettingsProvider } from '@hooks/useSettings/provider';
-import { TimeSequencerProvider } from '@hooks/useTimeSequencer/provider';
 
 const Player = () => {
   return (
@@ -20,9 +20,9 @@ const Player = () => {
               <SettingsProvider>
                 <ProjectProvider>
                   <MidiProvider>
-                    <TimeSequencerProvider>
+                    <SequencerProvider>
                       <Main />
-                    </TimeSequencerProvider>
+                    </SequencerProvider>
                   </MidiProvider>
                 </ProjectProvider>
               </SettingsProvider>

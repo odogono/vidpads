@@ -19,10 +19,12 @@ export const useShowMode = () => {
 
   const isPadsVisible = !showMode || showMode === 'pads';
   const isSequencerVisible = showMode === 'sequencer';
+  const isStepSequencerVisible = showMode === 'step';
 
   return {
     isPadsVisible,
     isSequencerVisible,
+    isStepSequencerVisible,
     showMode,
     setShowMode
   };

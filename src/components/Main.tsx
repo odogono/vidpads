@@ -10,6 +10,7 @@ import { PadContainer } from '@components/PadContainer';
 import { PlayerContainer } from '@components/Player/Container';
 import { Sequencer } from '@components/Sequencer';
 import { ShareButton } from '@components/ShareButton';
+import { StepSequencer } from '@components/StepSequencer';
 import { cn } from '@helpers/tailwind';
 import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
@@ -19,7 +20,8 @@ import { MidiSetupModal } from './modals/MidiSetupModal';
 
 export const Main = () => {
   const { isFullscreen, setIsFullscreen } = useFullscreen();
-  const { isPadsVisible, isSequencerVisible } = useShowMode();
+  const { isPadsVisible, isSequencerVisible, isStepSequencerVisible } =
+    useShowMode();
   const hasMidi = isMidiSupported();
 
   return (
@@ -86,6 +88,7 @@ export const Main = () => {
               <div className='flex h-[50%] landscape:h-[40%]'>
                 {isPadsVisible && <PadContainer />}
                 {isSequencerVisible && <Sequencer />}
+                {isStepSequencerVisible && <StepSequencer />}
               </div>
             </>
           )}

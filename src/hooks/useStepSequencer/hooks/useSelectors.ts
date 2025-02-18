@@ -15,14 +15,14 @@ export const useSelectors = () => {
 
   // time in seconds
   const time =
-    useSelector(project, (state) => state.context.stepSequencer.time) ?? 0;
+    useSelector(project, (state) => state.context.stepSequencer?.time) ?? 0;
   // endTime in seconds
   const endTime =
-    useSelector(project, (state) => state.context.stepSequencer.endTime) ?? 45;
+    useSelector(project, (state) => state.context.stepSequencer?.endTime) ?? 45;
 
   const isLooped =
-    useSelector(project, (state) => state.context.stepSequencer.isLooped) ??
-    false;
+    useSelector(project, (state) => state.context.stepSequencer?.isLooped) ??
+    true;
 
   const bpm = useSelector(
     project,
@@ -52,9 +52,9 @@ export const useSelectors = () => {
     (state) => state.context.stepSequencer?.events
   );
 
-  const seqSelectedEvents = seqEvents.filter((e) => e.isSelected);
+  const seqSelectedEvents = seqEvents?.filter((e) => e.isSelected) ?? [];
   const seqSelectedEventIds = seqSelectedEvents.map((e) => evtStr(e)).join(',');
-  const seqEventIds = seqEvents.map((e) => evtStr(e)).join(',');
+  const seqEventIds = seqEvents?.map((e) => evtStr(e)).join(',') ?? '';
 
   const getEventsAtTime = useCallback(
     (padId: string, time: number) =>
