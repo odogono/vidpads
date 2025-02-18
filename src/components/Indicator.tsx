@@ -1,6 +1,6 @@
 import { cn } from '@heroui/react';
 
-export const Indicator = ({ isActive }: { isActive: boolean }) => {
+export const Indicator = ({ isActive }: { isActive?: boolean }) => {
   return (
     <div className='switcher-indicator'>
       <div

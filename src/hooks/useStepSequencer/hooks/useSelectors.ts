@@ -18,7 +18,7 @@ export const useSelectors = () => {
     useSelector(project, (state) => state.context.stepSequencer?.time) ?? 0;
   // endTime in seconds
   const endTime =
-    useSelector(project, (state) => state.context.stepSequencer?.endTime) ?? 45;
+    useSelector(project, (state) => state.context.stepSequencer?.endTime) ?? 60;
 
   const isLooped =
     useSelector(project, (state) => state.context.stepSequencer?.isLooped) ??

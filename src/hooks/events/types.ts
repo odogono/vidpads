@@ -88,12 +88,7 @@ export type EventEmitterEvents = {
     time: number;
   };
   'seq:rewind': undefined;
-  'seq:time-update': {
-    time: number; // in secs
-    endTime: number; // in secs
-    isPlaying: boolean;
-    isRecording: boolean;
-  };
+  'seq:time-update': SequencerTimeUpdateEvent;
   'seq:playhead-update': {
     time: number;
     playHeadX: number;
@@ -108,3 +103,11 @@ export type EventEmitterEvents = {
     time: number; // in secs
   };
 };
+
+export interface SequencerTimeUpdateEvent {
+  time: number;
+  endTime: number;
+  isPlaying: boolean;
+  isRecording: boolean;
+  isStep?: boolean;
+}
