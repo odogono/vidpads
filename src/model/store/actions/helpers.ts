@@ -47,3 +47,15 @@ export const updateSequencer = (
     }
   });
 };
+
+export const updateStepSequencer = (
+  context: ProjectStoreContext,
+  newSequencer: Partial<ProjectStoreContext['stepSequencer']>
+) => {
+  return update(context, {
+    stepSequencer: {
+      ...context.stepSequencer,
+      ...newSequencer
+    }
+  });
+};
