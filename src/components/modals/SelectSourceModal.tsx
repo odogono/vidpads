@@ -104,15 +104,17 @@ export const SelectSourceModal = ({ ref }: CommonModalBase) => {
 
   const handlePaste = useCallback(async () => {
     if (!activeIndex) return;
+    log.debug('handlePaste', { activeIndex });
     events.emit('cmd:paste', { targetPadId: activeIndex });
     close();
   }, [events, close, activeIndex]);
 
   const handleWindowPaste = useCallback(() => {
-    if (ref.current?.open) {
+    if (ref.current?.open && !isEnteringUrl) {
+      log.debug('handleWindowPaste', { isEnteringUrl });
       handlePaste();
     }
-  }, [handlePaste, ref]);
+  }, [handlePaste, ref, isEnteringUrl]);
 
   useEffect(() => {
     window.addEventListener('paste', handleWindowPaste);

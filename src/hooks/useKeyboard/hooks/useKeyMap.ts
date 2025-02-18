@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useSelector } from '@xstate/store/react';
 import { KeyboardStoreType } from '../store';
+import { useIsEnabled } from './useIsEnabled';
 
 const log = createLog('useKeyMap', ['debug']);
 
 export const useKeyMap = (store: KeyboardStoreType) => {
   const events = useEvents();
   const activeKeys = useRef<Set<string>>(new Set());
-  const [isEnabled, setIsEnabled] = useState(true);
+  const { isEnabled, setIsEnabled } = useIsEnabled();
 
   const keyMap = useSelector(store, (state) => state.context.keyMap);
 
@@ -84,6 +85,7 @@ export const useKeyMap = (store: KeyboardStoreType) => {
         }
 
         if (code === 'KeyV') {
+          log.debug('[keyboard] paste', { isEnabled });
           events.emit('cmd:paste');
           activeKeys.current.delete(code);
           return;
