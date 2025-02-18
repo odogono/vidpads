@@ -21,7 +21,8 @@ export const useActions = ({
     project.send({
       type: 'startSequencer',
       isPlaying: true,
-      isRecording: false
+      isRecording: false,
+      isStep: true
     });
   }, [project]);
 

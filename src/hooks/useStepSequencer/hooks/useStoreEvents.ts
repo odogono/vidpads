@@ -36,29 +36,32 @@ export const useStoreEvents = ({
       time: currentTime,
       endTime,
       isPlaying,
-      isRecording
+      isRecording,
+      isStep: true
     });
 
-    if (currentTime >= endTime) {
-      log.debug({
-        time,
-        currentTime,
-        endTime,
-        isLooped
-      });
-      if (isLooped) {
-        project.send({ type: 'rewindSequencer' });
-        // timeRef.current = 0;
-        playStartedAtRef.current = now;
-      } else {
-        project.send({ type: 'stopSequencer' });
-      }
-    }
+    // log.debug('updateTime', { time, currentTime });
+
+    // if (currentTime >= endTime) {
+    //   log.debug({
+    //     time,
+    //     currentTime,
+    //     endTime,
+    //     isLooped
+    //   });
+    //   if (isLooped) {
+    //     project.send({ type: 'rewindSequencer' });
+    //     // timeRef.current = 0;
+    //     playStartedAtRef.current = now;
+    //   } else {
+    //     project.send({ type: 'stopSequencer' });
+    //   }
+    // }
 
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTime);
     }
-  }, [events, project, isPlaying, isRecording, endTime, isLooped, time]);
+  }, [events, isPlaying, isRecording, endTime, time]);
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
@@ -95,7 +98,7 @@ export const useStoreEvents = ({
     const now = performance.now();
     const currentTime = time + (now - playStartedAtRef.current) / 1000;
 
-    project.send({ type: 'setSequencerTime', time: currentTime });
+    // project.send({ type: 'setSequencerTime', time: currentTime, isStep: true });
     events.emit('seq:stopped', {
       time: currentTime
     });
@@ -105,14 +108,15 @@ export const useStoreEvents = ({
     setIsPlaying(false);
     setIsRecording(false);
     // log.debug('handlePlayStopped', event.time);
-  }, [events, project, time]);
+  }, [events, time]);
 
   useEffect(() => {
     events.emit('seq:time-update', {
       time,
       endTime,
       isPlaying: false,
-      isRecording: false
+      isRecording: false,
+      isStep: true
     });
   }, [events, time, endTime]);
 

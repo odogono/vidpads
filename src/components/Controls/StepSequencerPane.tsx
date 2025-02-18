@@ -10,6 +10,7 @@ import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
+import type { SequencerTimeUpdateEvent } from '@hooks/events/types';
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
@@ -33,6 +34,7 @@ export const StepSequencerPane = () => {
     record,
     stop,
     rewind,
+    bpm,
     // clearEvents,
     time,
     endTime
@@ -44,6 +46,9 @@ export const StepSequencerPane = () => {
     // setSelectedEventsTime,
     // setSelectedEventsDuration
   } = useStepSequencer();
+
+  // 60 bpm = 1 beat per second
+  // 120 bpm = 2 beats per second
 
   const handleStop = useCallback(() => {
     if (showRewind) {
@@ -62,8 +67,9 @@ export const StepSequencerPane = () => {
   }, [isPlaying, isRecording, time]);
 
   const handleTimeUpdate = useCallback(
-    (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
+    (event: SequencerTimeUpdateEvent) => {
       const { time } = event;
+      // log.debug('handleTimeUpdate', { time, isStep });
       if (!hasSelectedEvents) {
         timeRef.current?.setValue(time);
       }
@@ -149,7 +155,7 @@ export const StepSequencerPane = () => {
           <Trash />
         </OpButton>
 
-        {/* <div className='ml-6 flex flex-row gap-2'>
+        <div className='ml-6 flex flex-row gap-2'>
           <OpTimeInput
             ref={timeRef}
             label='Time'
@@ -172,7 +178,7 @@ export const StepSequencerPane = () => {
             showIncrementButtons={true}
             onChange={handleDurationChange}
           />
-        </div> */}
+        </div>
       </div>
     </>
   );

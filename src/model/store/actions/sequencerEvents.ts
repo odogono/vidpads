@@ -32,7 +32,7 @@ export const startSequencer = (
   const { isPlaying, isRecording, isStep } = action;
 
   const time = isStep
-    ? (context.stepSequencer?.time ?? 0)
+    ? 0 //(context.stepSequencer?.time ?? 0)
     : (context.sequencer?.time ?? 0);
 
   emit({
@@ -42,6 +42,10 @@ export const startSequencer = (
     time,
     isStep
   });
+
+  if (isStep) {
+    return updateStepSequencer(context, { time });
+  }
 
   return context;
 };

@@ -62,7 +62,9 @@ export const useStoreEvents = ({
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
-      const { isPlaying, isRecording, time } = event;
+      const { isPlaying, isRecording, time, isStep } = event;
+
+      if (isStep) return;
 
       log.debug('handlePlayStarted', {
         time
