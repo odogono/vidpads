@@ -178,7 +178,8 @@ export const useSequencerEvents = ({
         events.emit(event.event, {
           padId: event.padId,
           source: 'sequencer',
-          forceStop: true
+          forceStop: true,
+          requestId: 'sequencer-time-update'
         });
       }
 

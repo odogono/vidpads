@@ -4,26 +4,27 @@ import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
 import { SequencerStartedEvent } from '@model/store/types';
+import { UseSelectorsResult } from './useSelectors';
 
-const log = createLog('stepSeq/useStoreEvents');
-
-interface UseStoreEventsProps {
-  time: number;
-  endTime: number;
-  isLooped: boolean;
-}
+const log = createLog('stepSeq/useStoreEvents', ['debug']);
 
 export const useStoreEvents = ({
   time,
   endTime,
-  isLooped
-}: UseStoreEventsProps) => {
+  isLooped,
+  bpm,
+  stepToPadIds,
+  seqEventsStr
+}: UseSelectorsResult) => {
   const { project } = useProject();
   const events = useEvents();
   const animationRef = useRef<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const playStartedAtRef = useRef<number>(0);
+  const lastStepRef = useRef(-1);
+  const lastPadIdsRef = useRef<string[] | undefined>(undefined);
+  const [activeStep, setActiveStep] = useState(-1);
 
   const updateTime = useCallback(() => {
     // if (!isPlaying && !isRecording) {
@@ -40,28 +41,44 @@ export const useStoreEvents = ({
       isStep: true
     });
 
-    // log.debug('updateTime', { time, currentTime });
+    const beatsPerSecond = bpm / 60;
+    const beatsPerStep = beatsPerSecond / 4;
+    const step = Math.floor(currentTime / beatsPerStep) % 16;
 
-    // if (currentTime >= endTime) {
-    //   log.debug({
-    //     time,
-    //     currentTime,
-    //     endTime,
-    //     isLooped
-    //   });
-    //   if (isLooped) {
-    //     project.send({ type: 'rewindSequencer' });
-    //     // timeRef.current = 0;
-    //     playStartedAtRef.current = now;
-    //   } else {
-    //     project.send({ type: 'stopSequencer' });
-    //   }
-    // }
+    setActiveStep(step);
+
+    if (step !== lastStepRef.current) {
+      log.debug(
+        'step changed',
+        { step, lastStep: lastStepRef.current },
+        stepToPadIds[step]
+      );
+
+      // clear the last padIds
+      if (lastPadIdsRef.current && lastPadIdsRef.current.length > 0) {
+        for (const padId of lastPadIdsRef.current) {
+          // log.debug('pad:touchup', { padId, step });
+          events.emit('pad:touchup', { padId, source: 'step-seq' });
+        }
+      }
+
+      const padIds = stepToPadIds[step];
+      if (padIds && padIds.length > 0) {
+        for (const padId of padIds) {
+          // log.debug('pad:touchdown', { padId, step });
+          events.emit('pad:touchdown', { padId, source: 'step-seq' });
+        }
+      }
+      lastPadIdsRef.current = padIds;
+    }
+
+    lastStepRef.current = step;
 
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTime);
     }
-  }, [events, isPlaying, isRecording, endTime, time]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, isPlaying, isRecording, endTime, time, bpm, seqEventsStr]);
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
@@ -95,20 +112,25 @@ export const useStoreEvents = ({
     log.debug('handlePlayStopped');
     if (animationRef.current === null) return;
 
-    const now = performance.now();
-    const currentTime = time + (now - playStartedAtRef.current) / 1000;
+    // const now = performance.now();
+    // const currentTime = time + (now - playStartedAtRef.current) / 1000;
+
+    setActiveStep(-1);
+    lastStepRef.current = -1;
+    lastPadIdsRef.current = undefined;
 
     // project.send({ type: 'setSequencerTime', time: currentTime, isStep: true });
-    events.emit('seq:stopped', {
-      time: currentTime
-    });
+    // events.emit('seq:stopped', {
+    //   time: currentTime,
+    //   isStep: true
+    // });
 
     cancelAnimationFrame(animationRef.current);
     animationRef.current = null;
     setIsPlaying(false);
     setIsRecording(false);
     // log.debug('handlePlayStopped', event.time);
-  }, [events, time]);
+  }, []);
 
   useEffect(() => {
     events.emit('seq:time-update', {
@@ -138,5 +160,5 @@ export const useStoreEvents = ({
     };
   }, [handlePlayStarted, handleStopped, project]);
 
-  return { isPlaying, isRecording, time, endTime, isLooped };
+  return { activeStep, isPlaying, isRecording, time, endTime, isLooped };
 };

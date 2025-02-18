@@ -24,11 +24,13 @@ export type EventEmitterEvents = {
   'pad:touchdown': {
     padId: string;
     source: EventInputSource;
+    requestId?: string;
   };
   'pad:touchup': {
     padId: string;
     source: EventInputSource;
     forceStop?: boolean;
+    requestId?: string;
   };
   // request the video to start
   'video:start': PlayerPlay;
