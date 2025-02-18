@@ -117,7 +117,8 @@ export const PadComponent = ({
         events.emit('video:stop', {
           url: getPadSourceUrl(pad) ?? '',
           padId: pad.id,
-          time: 0
+          time: 0,
+          requestId: pad.id
         });
       }
     },
@@ -309,8 +310,6 @@ export const PadComponent = ({
         WebkitTapHighlightColor: 'transparent',
         // Prevent text selection and callouts
         userSelect: 'none'
-        // Prevent touch callout
-        // touchCallout: 'none'
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}

@@ -1,14 +1,13 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useProject } from '@hooks/useProject';
-import { getIntersectingEvents } from '@model/sequencerEvent';
-import { SequencerEvent } from '@model/types';
+// import { SequencerEvent } from '@model/types';
 import { useSelector } from '@xstate/store/react';
 
-const evtStr = (e: SequencerEvent) =>
-  `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
+// const evtStr = (e: SequencerEvent) =>
+//   `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
 
 export const useSelectors = () => {
   const { project } = useProject();
@@ -52,15 +51,38 @@ export const useSelectors = () => {
     (state) => state.context.stepSequencer?.events
   );
 
-  const seqSelectedEvents = seqEvents?.filter((e) => e.isSelected) ?? [];
-  const seqSelectedEventIds = seqSelectedEvents.map((e) => evtStr(e)).join(',');
-  const seqEventIds = seqEvents?.map((e) => evtStr(e)).join(',') ?? '';
+  const seqEventsStr = seqEvents ? JSON.stringify(seqEvents) : '';
 
-  const getEventsAtTime = useCallback(
-    (padId: string, time: number) =>
-      getIntersectingEvents(seqEvents, time, 0.001, [padId]),
-    [seqEvents]
-  );
+  // an array of padIds that are active for each step
+  const stepToPadIds = useMemo(() => {
+    const result: string[][] = [];
+    if (!seqEvents) return result;
+
+    const padIds = Object.keys(seqEvents);
+
+    for (const padId of padIds) {
+      const padEvents = seqEvents[padId];
+      for (let ss = 0; ss < 16; ss++) {
+        const event = padEvents[ss];
+        if (event) {
+          result[ss] = [...(result[ss] ?? []), padId];
+        }
+      }
+    }
+
+    return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seqEventsStr]);
+
+  // const seqSelectedEvents = seqEvents?.filter((e) => e.isSelected) ?? [];
+  // const seqSelectedEventIds = seqSelectedEvents.map((e) => evtStr(e)).join(',');
+  // const seqEventIds = seqEvents?.map((e) => evtStr(e)).join(',') ?? '';
+
+  // const getEventsAtTime = useCallback(
+  //   (padId: string, time: number) =>
+  //     getIntersectingEvents(seqEvents, time, 0.001, [padId]),
+  //   [seqEvents]
+  // );
 
   return {
     time,
@@ -68,11 +90,13 @@ export const useSelectors = () => {
     isLooped,
     bpm,
     seqEvents,
-    seqSelectedEvents,
-    seqSelectedEventIds,
-    seqEventIds,
-    getEventsAtTime,
+    seqEventsStr,
+    // seqSelectedEvents,
+    // seqSelectedEventIds,
+    // seqEventIds,
+    // getEventsAtTime,
     timeToStep,
-    stepToTime
+    stepToTime,
+    stepToPadIds
   };
 };

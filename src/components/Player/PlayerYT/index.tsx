@@ -16,7 +16,7 @@ import { destroyPlayer, initializePlayer } from './youtube';
 
 export type PlayerReturn = [number, number]; // [currentTime, duration]
 
-const log = createLog('player/yt', ['debug', 'error']);
+const log = createLog('player/yt', ['', 'error']);
 
 export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,6 +59,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
       log.debug('playVideo', player.odgnId, {
         start: startTime,
         end: endTime,
+        currentTime,
         isLoop,
         volume: setVolume,
         playbackRate,
@@ -79,7 +80,13 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
           player.seekTo(startTime, true);
         }
       } else {
-        player.seekTo(startTime, true);
+        const result = player.seekTo(startTime, true);
+        log.debug(
+          'playVideo seekTo',
+          startTime,
+          result,
+          player.getCurrentTime()
+        );
       }
       player.playVideo();
 
@@ -95,16 +102,18 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   }, [playerRef]);
 
   const stopVideo = useCallback(
-    ({ url, padId, all }: PlayerStop) => {
+    ({ url, padId, all, requestId }: PlayerStop) => {
       const player = playerRef.current;
       if (!player) return;
       if (!all && url !== mediaUrl) return;
       if (!all && padId !== playerPadId) return;
 
-      // log.debug('[stopVideo]', player.odgnId, {
-      //   player,
-      //   state: PlayerStateToString(player.getPlayerState())
-      // });
+      log.debug('[stopVideo]', player.odgnId, {
+        player,
+        requestId,
+        all,
+        state: PlayerStateToString(player.getPlayerState())
+      });
       try {
         player.pauseVideo();
       } catch {

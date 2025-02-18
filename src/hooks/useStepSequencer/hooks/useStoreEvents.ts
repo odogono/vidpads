@@ -123,7 +123,6 @@ export const useStoreEvents = ({
   useEffect(() => {
     // Reset animation frame when dependencies change
     if (animationRef.current !== null) {
-      log.debug('reset animation frame');
       cancelAnimationFrame(animationRef.current);
       animationRef.current = requestAnimationFrame(updateTime);
     }

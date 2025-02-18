@@ -170,7 +170,12 @@ export const PlayerContainer = () => {
       const isOneShot = getPadIsOneShot(pad);
 
       if (!isOneShot || forceStop) {
-        events.emit('video:stop', { url, padId, time: 0 });
+        events.emit('video:stop', {
+          url,
+          padId,
+          time: 0,
+          requestId: 'players-!isOneShot||forceStop'
+        });
       }
     },
     [events, pads, arePlayersEnabled, isKeyboardPlayEnabled]
@@ -195,7 +200,12 @@ export const PlayerContainer = () => {
           const { url, id } = player;
           if (id === e.padId) return;
           log.debug('ChokeGroupPlayers: stopping player', player);
-          events.emit('video:stop', { url, padId: id, time: 0 });
+          events.emit('video:stop', {
+            url,
+            padId: id,
+            time: 0,
+            requestId: 'players-chokeGroup'
+          });
         });
       }
 

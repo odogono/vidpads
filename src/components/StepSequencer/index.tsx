@@ -1,29 +1,38 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { usePads } from '@model/hooks/usePads';
 import { Pad } from '@model/types';
+import { createLog } from '../../helpers/log';
 import { PadStep } from './components/PadStep';
+import { usePadStepEvents } from './hooks/usePadStepEvents';
 import { useStepSequencerEvents } from './hooks/useStepSequencerEvents';
 
-// import { SequencerPad } from './SequencerPad';
-// import { TimeSequencerBody } from './TimeSequencer/TimeSequencerBody';
+const log = createLog('StepSequencer');
 
-const CELL_WIDTH = '1fr';
 const CELL_HEIGHT = '1fr';
 const STEPS = 16;
-const HEADER_HEIGHT = 4;
-const HEADER_WIDTH = '64px';
 
 export const StepSequencer = () => {
   const { pads } = usePads();
-  const { bpm } = useStepSequencer();
+  const { bpm, seqEvents, seqEventsStr, stepToPadIds, isPlaying } =
+    useStepSequencer();
   const padCount = pads?.length ?? 1;
 
   const { activeStep } = useStepSequencerEvents({
-    bpm
+    bpm,
+    seqEventsStr,
+    stepToPadIds,
+    isPlaying
   });
 
+  const { handlePadTouchStart, handlePadTouchEnd } = usePadStepEvents();
+
+  useEffect(() => {
+    log.debug('isPlaying', isPlaying);
+  }, [isPlaying]);
   // const activeStep = 0;
 
   // const stepContainerHeight = 1124; //CELL_HEIGHT * 17 + HEADER_HEIGHT + 100;
@@ -64,25 +73,34 @@ export const StepSequencer = () => {
             position: 'sticky'
           }}
         ></div> */}
-        {pads.map((pad) => (
-          <PadSteps
-            key={`padsteps-${pad.id}`}
-            pad={pad}
-            activeStep={activeStep}
-          />
-        ))}
+        {pads.map((pad) =>
+          Array.from({ length: STEPS }).map((_, index) => {
+            const isActive = seqEvents[pad.id]?.[index];
+            return (
+              <PadStep
+                key={`padstep-${pad.id}-${index}`}
+                pad={pad}
+                index={index}
+                isPlaying={index === activeStep}
+                isActive={isActive}
+                onTouchStart={handlePadTouchStart}
+                onTouchEnd={handlePadTouchEnd}
+              />
+            );
+          })
+        )}
       </div>
     </div>
   );
 };
 
-const PadSteps = ({ pad, activeStep }: { pad: Pad; activeStep: number }) => {
-  return Array.from({ length: STEPS }).map((_, index) => (
-    <PadStep
-      key={`padstep-${pad.id}-${index}`}
-      pad={pad}
-      index={index}
-      isPlaying={index === activeStep}
-    />
-  ));
-};
+// const PadSteps = ({ pad, activeStep }: { pad: Pad; activeStep: number }) => {
+//   return Array.from({ length: STEPS }).map((_, index) => (
+//     <PadStep
+//       key={`padstep-${pad.id}-${index}`}
+//       pad={pad}
+//       index={index}
+//       isPlaying={index === activeStep}
+//     />
+//   ));
+// };

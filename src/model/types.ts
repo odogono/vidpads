@@ -204,3 +204,5 @@ export interface SequencerEvent {
   // whether the event is currently being recorded
   inProgress?: boolean;
 }
+
+export type StepSequencerEvents = Record<string, boolean[]>;

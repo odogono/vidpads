@@ -94,7 +94,8 @@ export const useSequencerEvents = ({
       url: '',
       padId: '',
       all: true,
-      time: 0
+      time: 0,
+      requestId: 'sequencer-stopped'
     });
   }, [setIsRecording, events]);
 
