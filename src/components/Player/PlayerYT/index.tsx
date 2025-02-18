@@ -16,7 +16,7 @@ import { destroyPlayer, initializePlayer } from './youtube';
 
 export type PlayerReturn = [number, number]; // [currentTime, duration]
 
-const log = createLog('player/yt', ['', 'error']);
+const log = createLog('player/yt', ['debug', 'error']);
 
 export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +26,7 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   const playerRef = useRef<YTPlayer | null>(null);
   const mediaUrl = media.url;
   const { videoId } = media as MediaYouTube;
+  const playTicketRef = useRef<number>(0);
 
   // useRenderingTrace('PlayerYT', {
   //   media,
@@ -75,18 +76,20 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         player.setPlaybackRate(playbackRate ?? 1);
       }
 
+      playTicketRef.current = performance.now();
+
       if (isResume) {
         if (currentTime < startTime || currentTime > endTime) {
           player.seekTo(startTime, true);
         }
       } else {
-        const result = player.seekTo(startTime, true);
-        log.debug(
-          'playVideo seekTo',
-          startTime,
-          result,
-          player.getCurrentTime()
-        );
+        player.seekTo(startTime, true);
+        // log.debug(
+        //   'playVideo seekTo',
+        //   startTime,
+        //   result,
+        //   player.getCurrentTime()
+        // );
       }
       player.playVideo();
 
@@ -102,22 +105,31 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
   }, [playerRef]);
 
   const stopVideo = useCallback(
-    ({ url, padId, all, requestId }: PlayerStop) => {
+    ({ url, padId, all }: PlayerStop) => {
       const player = playerRef.current;
       if (!player) return;
       if (!all && url !== mediaUrl) return;
       if (!all && padId !== playerPadId) return;
 
-      log.debug('[stopVideo]', player.odgnId, {
-        player,
-        requestId,
-        all,
-        state: PlayerStateToString(player.getPlayerState())
-      });
-      try {
-        player.pauseVideo();
-      } catch {
-        log.debug('[stopVideo] ⚠️ error pausing video');
+      const playTicket = performance.now() - playTicketRef.current;
+
+      if (playTicket > 40) {
+        // curiously on some browsers, the seekTo does not respond
+        // quickly enough, meaning that we can get a stop on the
+        // previous play before the seek/play has started.
+        // this is a hack to try and prevent that
+        // log.debug('[stopVideo]', player.odgnId, {
+        //   player,
+        //   requestId,
+        //   all,
+        //   ticket: performance.now() - playTicket,
+        //   state: PlayerStateToString(player.getPlayerState())
+        // });
+        try {
+          player.pauseVideo();
+        } catch {
+          log.debug('[stopVideo] ⚠️ error pausing video');
+        }
       }
       return [player.getCurrentTime(), player.getDuration()] as PlayerReturn;
     },
