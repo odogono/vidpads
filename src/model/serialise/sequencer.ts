@@ -19,6 +19,14 @@ export const exportSequencerToJSON = (
   const { bpm, events, time, endTime } = sequencer;
 
   const eventsJSON = exportSequencerEventsToJSON(events);
+
+  if (
+    (!eventsJSON || Object.keys(eventsJSON).length === 0) &&
+    initialContext.sequencer.endTime === endTime
+  ) {
+    return undefined;
+  }
+
   return {
     bpm,
     time: roundDP(time),

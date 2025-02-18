@@ -23,10 +23,8 @@ export const initialContext: ProjectStoreContextType = {
   },
   stepSequencer: {
     bpm: 60,
-    events: [],
-    isLooped: true,
-    time: 0,
-    endTime: 60 // secs
+    patternIndex: 0,
+    patterns: []
   },
   createdAt: dateToISOString(),
   updatedAt: dateToISOString(),

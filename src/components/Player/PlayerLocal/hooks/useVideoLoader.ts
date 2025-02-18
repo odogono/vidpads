@@ -4,7 +4,7 @@ import { createLog } from '@helpers/log';
 import { loadVideoData as dbLoadVideoData } from '@model/db/api';
 import { MediaVideo } from '@model/types';
 
-const log = createLog('player/local/useVideoLoader', ['error']);
+const log = createLog('player/local/useVideoLoader', ['debug', 'error']);
 
 export const useVideoLoader = (
   media: MediaVideo,

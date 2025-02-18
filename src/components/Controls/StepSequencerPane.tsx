@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Circle, Play, Repeat2, Rewind, Square, Trash } from 'lucide-react';
+import { Play, Rewind, Square, Trash } from 'lucide-react';
 
 import { OpButton } from '@/components/common/OpButton';
-import { OpTimeInput, OpTimeInputRef } from '@/components/common/OpTimeInput';
-import { OpToggleButton } from '@/components/common/OpToggleButton';
+import {
+  OpIntegerInput,
+  OpIntegerInputRef
+} from '@components/common/OpIntegerInput';
+import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
 import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
@@ -22,33 +25,21 @@ export const StepSequencerPane = () => {
   const [showRewind, setShowRewind] = useState(false);
   // const [isPlaying, setIsPlaying] = useState(false);
   // const [isRecording, setIsRecording] = useState(false);
-  const durationRef = useRef<OpTimeInputRef | null>(null);
+  const bpmRef = useRef<OpIntegerInputRef | null>(null);
   const timeRef = useRef<OpTimeInputRef | null>(null);
-  const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
 
   const {
     isPlaying,
     isRecording,
-    isLooped,
     play,
-    record,
     stop,
     rewind,
     bpm,
     clearEvents,
     time,
-    endTime
-    // setTime,
-    // setEndTime,
-    // setLooped,
-    // seqSelectedEvents,
-    // seqSelectedEventIds,
-    // setSelectedEventsTime,
-    // setSelectedEventsDuration
+    endTime,
+    setBpm
   } = useStepSequencer();
-
-  // 60 bpm = 1 beat per second
-  // 120 bpm = 2 beats per second
 
   const handleStop = useCallback(() => {
     if (showRewind) {
@@ -58,28 +49,20 @@ export const StepSequencerPane = () => {
     }
   }, [showRewind, rewind, stop]);
 
-  const handleLoop = useCallback(() => {
-    // setLooped(!isLooped);
-  }, []);
-
   useEffect(() => {
     setShowRewind(!isPlaying && !isRecording && time > 0);
   }, [isPlaying, isRecording, time]);
 
-  const handleTimeUpdate = useCallback(
-    (event: SequencerTimeUpdateEvent) => {
-      const { time } = event;
-      // log.debug('handleTimeUpdate', { time, isStep });
-      if (!hasSelectedEvents) {
-        timeRef.current?.setValue(time);
-      }
-    },
-    [hasSelectedEvents]
-  );
+  const handleTimeUpdate = useCallback((event: SequencerTimeUpdateEvent) => {
+    const { time } = event;
+    // log.debug('handleTimeUpdate', { time, isStep });
+
+    timeRef.current?.setValue(time);
+  }, []);
 
   useEffect(() => {
     timeRef.current?.setValue(time);
-    durationRef.current?.setValue(endTime);
+    bpmRef.current?.setValue(endTime);
   }, [time, endTime]);
 
   const handleClear = useCallback(() => {
@@ -97,41 +80,12 @@ export const StepSequencerPane = () => {
     };
   }, [events, handleTimeUpdate, setShowMode]);
 
-  const handleTimeChange = useCallback((value: number) => {
-    // if (hasSelectedEvents) {
-    //   setSelectedEventsTime(Math.max(0, value));
-    // } else {
-    //   setTime(Math.max(0, value));
-    //   log.debug('handleTimeChange setting seq time', { value });
-    // }
-  }, []);
-
-  const handleBpmChange = useCallback((value: number) => {
-    // if (hasSelectedEvents) {
-    //   setSelectedEventsDuration(Math.max(0.1, value));
-    // } else {
-    //   setEndTime(Math.max(5, value));
-    // }
-  }, []);
-
-  useEffect(() => {
-    // if (seqSelectedEventIds.length === 0) {
-    //   log.debug('useEffect setting to no events', { time, endTime });
-    //   timeRef.current?.setValue(time);
-    //   durationRef.current?.setValue(endTime);
-    //   setHasSelectedEvents(false);
-    // } else {
-    //   const time = seqSelectedEvents.reduce((acc, event) => {
-    //     return Math.min(acc, event.time);
-    //   }, Number.MAX_VALUE);
-    //   timeRef.current?.setValue(time === Number.MAX_VALUE ? 0 : time);
-    //   const duration = seqSelectedEvents.reduce((acc, event) => {
-    //     return Math.max(acc, event.duration);
-    //   }, 0);
-    //   durationRef.current?.setValue(duration);
-    //   setHasSelectedEvents(true);
-    // }
-  }, []);
+  const handleBpmChange = useCallback(
+    (value: number) => {
+      setBpm(value);
+    },
+    [setBpm]
+  );
 
   return (
     <>
@@ -142,15 +96,15 @@ export const StepSequencerPane = () => {
         <OpButton label='Play' onPress={play}>
           <Play className={isPlaying ? 'animate-pulse' : ''} />
         </OpButton>
-        <OpButton label='Record' onPress={record}>
+        {/* <OpButton label='Record' onPress={record}>
           <Circle
             color='var(--c3)'
             className={isRecording ? 'animate-pulse' : ''}
           />
-        </OpButton>
-        <OpToggleButton label='Loop' isSelected={isLooped} onPress={handleLoop}>
+        </OpButton> */}
+        {/* <OpToggleButton label='Loop' isSelected={isLooped} onPress={handleLoop}>
           <Repeat2 />
-        </OpToggleButton>
+        </OpToggleButton> */}
         <OpButton label='Clear' onPress={handleClear}>
           <Trash />
         </OpButton>
@@ -159,21 +113,20 @@ export const StepSequencerPane = () => {
           <OpTimeInput
             ref={timeRef}
             label='Time'
-            isEnabled={true}
+            isEnabled={false}
             initialValue={0}
             defaultValue={0}
             range={[0, 100]}
             description='Time'
             showIncrementButtons={true}
-            onChange={handleTimeChange}
           />
-          <OpTimeInput
-            ref={durationRef}
+          <OpIntegerInput
+            ref={bpmRef}
             label='BPM'
             isEnabled={true}
             initialValue={bpm}
             defaultValue={bpm}
-            range={[0, 100]}
+            range={[20, 200]}
             description='BPM'
             showIncrementButtons={true}
             onChange={handleBpmChange}

@@ -23,13 +23,19 @@ import { addOrReplacePad } from '@model/store/actions/helpers';
 import { initialContext } from '@model/store/store';
 import { ProjectStoreContext, ProjectStoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
+import {
+  exportStepSequencerToJSON,
+  exportStepSequencerToURLString,
+  importStepSequencerFromJSON,
+  importStepSequencerFromURLString
+} from './stepSequencer';
 
 const log = createLog('model/export', ['debug']);
 
-const EXPORT_JSON_VERSION = '2025-02-14';
+const EXPORT_JSON_VERSION = '2025-02-18';
 const EXPORT_APP_VERSION = process.env.VERSION;
 
-const EXPORT_URL_VERSION = 3;
+const EXPORT_URL_VERSION = 4;
 
 export type ExportOptions = Record<string, unknown>;
 
@@ -41,6 +47,7 @@ export const exportToJSON = (store: ProjectStoreType): ProjectExport => {
     projectName,
     projectBgImage,
     sequencer,
+    stepSequencer,
     createdAt,
     updatedAt,
     pads
@@ -49,6 +56,11 @@ export const exportToJSON = (store: ProjectStoreType): ProjectExport => {
   const sequencerJSON = sequencer
     ? exportSequencerToJSON(sequencer)
     : undefined;
+
+  const stepSequencerJSON = stepSequencer
+    ? exportStepSequencerToJSON(stepSequencer)
+    : undefined;
+
   const padsJSON = pads
     .map((pad) => exportPadToJSON(pad))
     .filter(Boolean) as PadExport[];
@@ -66,6 +78,7 @@ export const exportToJSON = (store: ProjectStoreType): ProjectExport => {
   result.exportVersion = `${EXPORT_JSON_VERSION}`;
   result.pads = padsJSON;
   result.sequencer = sequencerJSON;
+  result.stepSequencer = stepSequencerJSON;
   result.createdAt = createdAt || dateToISOString();
   result.updatedAt = updatedAt || dateToISOString();
 
@@ -86,8 +99,10 @@ export const exportToURLString = async (
       return exportToURLStringV1(project);
     case 2:
       return exportToURLStringV2(project);
-    default:
+    case 3:
       return exportToURLStringV3(project);
+    default:
+      return exportToURLStringV4(project);
   }
 };
 
@@ -112,6 +127,7 @@ const exportToURLCommon = (project: ProjectStoreType) => {
   const updateTimeSecs = getUnixTimeFromDate(updatedAt);
 
   return {
+    context,
     projectId,
     projectName,
     projectBgImage,
@@ -201,6 +217,37 @@ export const exportToURLStringV3 = async (project: ProjectStoreType) => {
   return `3|${compressed}`;
 };
 
+export const exportToURLStringV4 = async (project: ProjectStoreType) => {
+  const {
+    context,
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  } = exportToURLCommon(project);
+
+  const { stepSequencer } = context;
+
+  const stepSequencerURL = stepSequencer
+    ? exportStepSequencerToURLString(stepSequencer)
+    : '';
+
+  let result = `${projectId}|${projectName}|${projectBgImage}|${createTimeSecs}|${updateTimeSecs}`;
+
+  result = addPadsAndSequencerToResult(result, padsURL, sequencerURL);
+
+  if (stepSequencerURL) {
+    result += `|${stepSequencerURL}`;
+  }
+
+  const compressed = await compress(result);
+
+  return `4|${compressed}`;
+};
+
 export const importProjectExport = (
   data: ProjectExport
 ): ProjectStoreContext => {
@@ -232,12 +279,23 @@ export const importProjectExport = (
       }
     : newContext;
 
+  const stepSequencer = data.stepSequencer
+    ? importStepSequencerFromJSON(data.stepSequencer)
+    : undefined;
+
+  const contextWithStepSequencer = stepSequencer
+    ? {
+        ...contextWithSequencer,
+        stepSequencer
+      }
+    : contextWithSequencer;
+
   return pads.reduce((acc, pad) => {
     if (pad) {
       return addOrReplacePad(acc, pad);
     }
     return acc;
-  }, contextWithSequencer);
+  }, contextWithStepSequencer);
 };
 
 export const urlStringToProject = async (urlString: string) => {
@@ -256,6 +314,9 @@ export const urlStringToProject = async (urlString: string) => {
   }
   if (version === '3') {
     return importFromURLStringV3(data);
+  }
+  if (version === '4') {
+    return importFromURLStringV4(data);
   }
 
   throw new Error(`Unsupported export version: ${version}`);
@@ -365,5 +426,48 @@ const importFromURLStringV3 = async (data: string) => {
     updatedAt: dateToISOString(updatedAt),
     pads,
     sequencer
+  } as ProjectExport;
+};
+
+const importFromURLStringV4 = async (data: string) => {
+  const uncompressed = await decompress(data);
+
+  log.debug('importFromURLStringV4', uncompressed);
+  const [
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL,
+    stepSequencerURL
+  ] = uncompressed.split('|');
+
+  const createdAt = getDateFromUnixTime(createTimeSecs);
+  const updatedAt = getDateFromUnixTime(updateTimeSecs);
+
+  const pads = padsURL
+    .split('(')
+    .map(importPadFromURLString)
+    .filter(Boolean) as PadExport[];
+
+  const sequencer = sequencerURL
+    ? importSequencerFromURLString(sequencerURL)
+    : undefined;
+
+  const stepSequencer = stepSequencerURL
+    ? importStepSequencerFromURLString(stepSequencerURL)
+    : undefined;
+
+  return {
+    id: projectId,
+    name: projectName,
+    bgImage: projectBgImage,
+    createdAt: dateToISOString(createdAt),
+    updatedAt: dateToISOString(updatedAt),
+    pads,
+    sequencer,
+    stepSequencer
   } as ProjectExport;
 };

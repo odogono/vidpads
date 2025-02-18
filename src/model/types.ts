@@ -165,6 +165,7 @@ export interface ProjectExport {
   updatedAt: string;
   pads: PadExport[];
   sequencer?: SequencerExport | undefined;
+  stepSequencer?: StepSequencerExport | undefined;
 }
 
 export interface PadExport {
@@ -183,6 +184,18 @@ export interface SequencerExport {
   time: number;
   endTime: number;
   events: Record<string, [number, number][]> | undefined;
+}
+
+export interface StepSequencerExport {
+  bpm: number;
+  patterns: StepSequencerPatternEntry[][] | undefined;
+}
+
+export type StepSequencerSteps = (1 | 0)[];
+
+export interface StepSequencerPatternEntry {
+  padId: string;
+  steps: StepSequencerSteps;
 }
 
 export interface ProjectLoadedEvent {

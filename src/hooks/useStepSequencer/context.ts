@@ -5,9 +5,6 @@ import { StepSequencerEvents } from '@model/types';
 export interface StepSequencerContextType {
   isPlaying: boolean;
   isRecording: boolean;
-  isLooped: boolean;
-  time: number;
-  endTime: number;
   bpm: number;
   activeStep: number;
   play: () => void;
@@ -17,17 +14,17 @@ export interface StepSequencerContextType {
   rewind: () => void;
   toggleStep: (padId: string, step: number) => void;
   clearEvents: () => void;
-  seqEvents: StepSequencerEvents;
-  seqEventsStr: string;
+  setBpm: (bpm: number) => void;
+  pattern: StepSequencerEvents;
+  patternStr: string;
+  patternIndex: number;
+  patternCount: number;
   stepToPadIds: string[][];
 }
 
 export const StepSequencerContext = createContext<StepSequencerContextType>({
   isPlaying: false,
   isRecording: false,
-  isLooped: false,
-  time: 0,
-  endTime: 0,
   bpm: 60,
   activeStep: -1,
   play: () => {},
@@ -37,7 +34,10 @@ export const StepSequencerContext = createContext<StepSequencerContextType>({
   rewind: () => {},
   toggleStep: () => {},
   clearEvents: () => {},
-  seqEvents: {},
-  seqEventsStr: '',
+  setBpm: () => {},
+  pattern: {},
+  patternStr: '',
+  patternIndex: 0,
+  patternCount: 0,
   stepToPadIds: []
 });

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
 
+import { OpModalContainer } from '@components/common/OpModalContainer';
 import { Button } from '@heroui/react';
+import { useEvents } from '@hooks/events';
 import { useMidiInputs, useMidiMappingMode } from '@hooks/useMidi/selectors';
-import { useEvents } from '../../hooks/events';
-import { OpModalContainer } from '../common/OpModalContainer';
 
 export const MidiSetupModal = () => {
   const events = useEvents();

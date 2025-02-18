@@ -8,16 +8,21 @@ export const toggleStepSequencerEvent = (
   context: ProjectStoreContext,
   action: ToggleStepSequencerEventAction
 ): ProjectStoreContext => {
-  const { padId, step } = action;
+  const { padId, patternIndex, step } = action;
   const stepSequencer = context.stepSequencer ?? {};
-  const events = stepSequencer?.events ?? {};
+  const patterns = stepSequencer?.patterns ?? [];
+  const pattern = patterns[patternIndex] ?? {};
 
-  const padSteps = [...(events[padId] ?? [])];
+  const padSteps = [...(pattern[padId] ?? [])];
   padSteps[step] = !padSteps[step];
 
-  const newEvents = { ...events, [padId]: padSteps };
+  const newPattern = { ...pattern, [padId]: padSteps };
+  const newPatterns = [...patterns];
+  newPatterns[patternIndex] = newPattern;
 
-  return updateStepSequencer(context, {
-    events: newEvents
+  const result = updateStepSequencer(context, {
+    patterns: newPatterns
   });
+
+  return result;
 };

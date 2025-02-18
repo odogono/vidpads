@@ -13,7 +13,7 @@ const STEPS = 16;
 
 export const StepSequencer = () => {
   const { pads } = usePads();
-  const { activeStep, seqEvents } = useStepSequencer();
+  const { activeStep, pattern } = useStepSequencer();
   const padCount = pads?.length ?? 1;
 
   const { handlePadTouchStart, handlePadTouchEnd } = usePadStepEvents();
@@ -30,7 +30,7 @@ export const StepSequencer = () => {
       >
         {pads.map((pad) =>
           Array.from({ length: STEPS }).map((_, index) => {
-            const isActive = seqEvents[pad.id]?.[index];
+            const isActive = pattern[pad.id]?.[index];
             return (
               <PadStep
                 key={`padstep-${pad.id}-${index}`}
