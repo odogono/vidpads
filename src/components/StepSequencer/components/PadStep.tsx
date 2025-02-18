@@ -54,7 +54,7 @@ export const PadStep = ({
         flex items-center justify-center`,
           {
             'bg-white': isPlaying,
-            'bg-white/20': !isPlaying,
+            'bg-white/20 hover:bg-white/40': !isPlaying,
             'bg-white/60': isActive
           }
         )}

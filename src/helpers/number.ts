@@ -33,3 +33,7 @@ export const isPointInRect = (point: Position, rect: Rect) => {
     point.y <= rect.y + rect.height
   );
 };
+
+export const integerToString = (value: number = 0) => {
+  return Math.round(value).toString();
+};

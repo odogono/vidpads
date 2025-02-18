@@ -6,24 +6,10 @@ import { useProject } from '@hooks/useProject';
 // import { SequencerEvent } from '@model/types';
 import { useSelector } from '@xstate/store/react';
 
-// const evtStr = (e: SequencerEvent) =>
-//   `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
-
 export type UseSelectorsResult = ReturnType<typeof useSelectors>;
 
 export const useSelectors = () => {
   const { project } = useProject();
-
-  // time in seconds
-  const time =
-    useSelector(project, (state) => state.context.stepSequencer?.time) ?? 0;
-  // endTime in seconds
-  const endTime =
-    useSelector(project, (state) => state.context.stepSequencer?.endTime) ?? 60;
-
-  const isLooped =
-    useSelector(project, (state) => state.context.stepSequencer?.isLooped) ??
-    true;
 
   const bpm = useSelector(
     project,
@@ -48,22 +34,31 @@ export const useSelectors = () => {
     [bpm]
   );
 
-  const seqEvents = useSelector(
+  const patterns = useSelector(
     project,
-    (state) => state.context.stepSequencer?.events
+    (state) => state.context.stepSequencer?.patterns
   );
 
-  const seqEventsStr = seqEvents ? JSON.stringify(seqEvents) : '';
+  const patternIndex =
+    useSelector(
+      project,
+      (state) => state.context.stepSequencer?.patternIndex
+    ) ?? 0;
+
+  const pattern = patterns?.[patternIndex] ?? [];
+  const patternCount = patterns?.length ?? 0;
+
+  const patternStr = JSON.stringify(pattern);
 
   // an array of padIds that are active for each step
   const stepToPadIds = useMemo(() => {
     const result: string[][] = [];
-    if (!seqEvents) return result;
+    if (!pattern) return result;
 
-    const padIds = Object.keys(seqEvents);
+    const padIds = Object.keys(pattern);
 
     for (const padId of padIds) {
-      const padEvents = seqEvents[padId];
+      const padEvents = pattern[padId];
       for (let ss = 0; ss < 16; ss++) {
         const event = padEvents[ss];
         if (event) {
@@ -74,29 +69,14 @@ export const useSelectors = () => {
 
     return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seqEventsStr]);
-
-  // const seqSelectedEvents = seqEvents?.filter((e) => e.isSelected) ?? [];
-  // const seqSelectedEventIds = seqSelectedEvents.map((e) => evtStr(e)).join(',');
-  // const seqEventIds = seqEvents?.map((e) => evtStr(e)).join(',') ?? '';
-
-  // const getEventsAtTime = useCallback(
-  //   (padId: string, time: number) =>
-  //     getIntersectingEvents(seqEvents, time, 0.001, [padId]),
-  //   [seqEvents]
-  // );
+  }, [patternStr]);
 
   return {
-    time,
-    endTime,
-    isLooped,
     bpm,
-    seqEvents,
-    seqEventsStr,
-    // seqSelectedEvents,
-    // seqSelectedEventIds,
-    // seqEventIds,
-    // getEventsAtTime,
+    pattern,
+    patternIndex,
+    patternCount,
+    patternStr,
     timeToStep,
     stepToTime,
     stepToPadIds

@@ -48,7 +48,7 @@ describe('exportToURLString', () => {
     // Split URL components
     const [version] = result.split('|');
 
-    expect(version).toBe('3');
+    expect(version).toBe('4');
   });
 
   it('should handle empty project name', async () => {

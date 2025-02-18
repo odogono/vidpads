@@ -17,7 +17,12 @@ export const usePadStepEvents = () => {
     (pad: Pad, step: number) => {
       log.debug('handlePadTouchStart', { pad, step });
       events.emit('pad:touchdown', { padId: pad.id, source: 'step-seq' });
-      project.send({ type: 'toggleStepSequencerEvent', padId: pad.id, step });
+      project.send({
+        type: 'toggleStepSequencerEvent',
+        padId: pad.id,
+        step,
+        patternIndex: 0
+      });
     },
     [events, project]
   );

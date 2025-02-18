@@ -37,10 +37,8 @@ export interface ProjectStoreContextType {
 
   stepSequencer: {
     bpm: number;
-    events: StepSequencerEvents;
-    time: number;
-    endTime: number;
-    isLooped?: boolean;
+    patternIndex: number;
+    patterns: StepSequencerEvents[];
   };
 
   lastMediaUrl?: string | null;
@@ -194,6 +192,7 @@ export type AddSequencerEventAction = {
 export type ToggleStepSequencerEventAction = {
   type: 'toggleStepSequencerEvent';
   padId: string;
+  patternIndex: number;
   step: number;
 };
 

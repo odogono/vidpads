@@ -9,12 +9,9 @@ import { UseSelectorsResult } from './useSelectors';
 const log = createLog('stepSeq/useStoreEvents', ['debug']);
 
 export const useStoreEvents = ({
-  time,
-  endTime,
-  isLooped,
   bpm,
   stepToPadIds,
-  seqEventsStr
+  patternStr
 }: UseSelectorsResult) => {
   const { project } = useProject();
   const events = useEvents();
@@ -31,17 +28,17 @@ export const useStoreEvents = ({
     //   return;
     // }
     const now = performance.now();
-    const currentTime = time + (now - playStartedAtRef.current) / 1000;
+    const currentTime = (now - playStartedAtRef.current) / 1000;
 
     events.emit('seq:time-update', {
       time: currentTime,
-      endTime,
+      endTime: 16,
       isPlaying,
       isRecording,
       isStep: true
     });
 
-    const beatsPerSecond = bpm / 60;
+    const beatsPerSecond = 60 / bpm;
     const beatsPerStep = beatsPerSecond / 4;
     const step = Math.floor(currentTime / beatsPerStep) % 16;
 
@@ -78,7 +75,7 @@ export const useStoreEvents = ({
       animationRef.current = requestAnimationFrame(updateTime);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [events, isPlaying, isRecording, endTime, time, bpm, seqEventsStr]);
+  }, [events, isPlaying, isRecording, bpm, patternStr]);
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
@@ -134,13 +131,13 @@ export const useStoreEvents = ({
 
   useEffect(() => {
     events.emit('seq:time-update', {
-      time,
-      endTime,
+      time: 0,
+      endTime: 16,
       isPlaying: false,
       isRecording: false,
       isStep: true
     });
-  }, [events, time, endTime]);
+  }, [events]);
 
   useEffect(() => {
     // Reset animation frame when dependencies change
@@ -160,5 +157,5 @@ export const useStoreEvents = ({
     };
   }, [handlePlayStarted, handleStopped, project]);
 
-  return { activeStep, isPlaying, isRecording, time, endTime, isLooped };
+  return { activeStep, isPlaying, isRecording };
 };

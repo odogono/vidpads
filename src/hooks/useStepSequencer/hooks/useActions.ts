@@ -64,7 +64,12 @@ export const useActions = ({
 
   const toggleStep = useCallback(
     (padId: string, step: number) => {
-      project.send({ type: 'toggleStepSequencerEvent', padId, step });
+      project.send({
+        type: 'toggleStepSequencerEvent',
+        padId,
+        step,
+        patternIndex: 0
+      });
     },
     [project]
   );
