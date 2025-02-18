@@ -21,6 +21,13 @@ export const initialContext: ProjectStoreContextType = {
     time: 0,
     endTime: 60 // secs
   },
+  stepSequencer: {
+    bpm: 60,
+    events: [],
+    isLooped: true,
+    time: 0,
+    endTime: 60 // secs
+  },
   createdAt: dateToISOString(),
   updatedAt: dateToISOString(),
   pads: [

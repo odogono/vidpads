@@ -34,10 +34,12 @@ export interface ProjectStoreContextType {
     clipboard?: string;
   };
 
-  stepSequencer?: {
+  stepSequencer: {
     bpm: number;
     events: SequencerEvent[];
+    time: number;
     endTime: number;
+    isLooped?: boolean;
   };
 
   lastMediaUrl?: string | null;
@@ -169,6 +171,7 @@ export type SetShowModeAction = {
 export type SetSequencerBpmAction = {
   type: 'setSequencerBpm';
   bpm: number;
+  isStep?: boolean;
 };
 
 export type ToggleSequencerEventAction = {
@@ -254,19 +257,23 @@ export type StartSequencerAction = {
   type: 'startSequencer';
   isPlaying: boolean;
   isRecording: boolean;
+  isStep?: boolean;
 };
 
 export type StopSequencerAction = {
   type: 'stopSequencer';
+  isStep?: boolean;
 };
 
 export type RewindSequencerAction = {
   type: 'rewindSequencer';
+  isStep?: boolean;
 };
 
 export type SetSequencerIsLoopedAction = {
   type: 'setSequencerIsLooped';
   isLooped: boolean;
+  isStep?: boolean;
 };
 
 export type SetProjectNameAction = {
@@ -369,10 +376,12 @@ export type SequencerStartedEvent = {
   isPlaying: boolean;
   isRecording: boolean;
   time: number;
+  isStep?: boolean;
 };
 
 export type SequencerStoppedEvent = {
   type: 'sequencerStopped';
+  isStep?: boolean;
 };
 
 export type PadIsLoopedEvent = {

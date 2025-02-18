@@ -20,7 +20,7 @@ import {
   StopSequencerAction,
   ToggleSequencerEventAction
 } from '../types';
-import { update, updateSequencer } from './helpers';
+import { update, updateSequencer, updateStepSequencer } from './helpers';
 
 const log = createLog('sequencer/events');
 
@@ -29,12 +29,18 @@ export const startSequencer = (
   action: StartSequencerAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  const { isPlaying, isRecording } = action;
+  const { isPlaying, isRecording, isStep } = action;
+
+  const time = isStep
+    ? (context.stepSequencer?.time ?? 0)
+    : (context.sequencer?.time ?? 0);
+
   emit({
     type: 'sequencerStarted',
     isPlaying,
     isRecording,
-    time: context.sequencer?.time ?? 0
+    time,
+    isStep
   });
 
   return context;
@@ -45,7 +51,9 @@ export const stopSequencer = (
   action: StopSequencerAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  emit({ type: 'sequencerStopped' });
+  const { isStep } = action;
+
+  emit({ type: 'sequencerStopped', isStep });
   return context;
 };
 
@@ -54,11 +62,22 @@ export const rewindSequencer = (
   action: RewindSequencerAction,
   { emit }: Emit
 ): ProjectStoreContext => {
+  const { isStep } = action;
+
+  const endTime = isStep
+    ? (context.stepSequencer?.time ?? 0)
+    : (context.sequencer?.time ?? 0);
+
   emit({
     type: 'sequencerTimesUpdated',
     time: 0,
-    endTime: context.sequencer?.endTime ?? 0
+    endTime
   });
+
+  if (isStep) {
+    return updateStepSequencer(context, { time: 0 });
+  }
+
   return updateSequencer(context, { time: 0 });
 };
 
