@@ -9,6 +9,7 @@ export interface StepSequencerContextType {
   time: number;
   endTime: number;
   bpm: number;
+  activeStep: number;
   play: () => void;
   playToggle: () => void;
   stop: () => void;
@@ -28,6 +29,7 @@ export const StepSequencerContext = createContext<StepSequencerContextType>({
   time: 0,
   endTime: 0,
   bpm: 60,
+  activeStep: -1,
   play: () => {},
   playToggle: () => {},
   stop: () => {},

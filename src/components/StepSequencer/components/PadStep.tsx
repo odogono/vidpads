@@ -59,9 +59,9 @@ export const PadStep = ({
           }
         )}
       >
-        <span className='absolute top-[10%] left-[10%]'>
+        {/* <span className='absolute top-[10%] left-[10%]'>
           <Indicator isActive={isActive} />
-        </span>
+        </span> */}
       </div>
     </button>
   );

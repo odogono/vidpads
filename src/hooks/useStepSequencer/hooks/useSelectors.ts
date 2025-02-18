@@ -9,6 +9,8 @@ import { useSelector } from '@xstate/store/react';
 // const evtStr = (e: SequencerEvent) =>
 //   `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
 
+export type UseSelectorsResult = ReturnType<typeof useSelectors>;
+
 export const useSelectors = () => {
   const { project } = useProject();
 

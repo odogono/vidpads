@@ -16,7 +16,7 @@ export const StepSequencerProvider = ({
   const events = useEvents();
   const props = useSelectors();
 
-  const { isPlaying, isRecording } = useStoreEvents(props);
+  const { isPlaying, isRecording, activeStep } = useStoreEvents(props);
 
   const actions = useActions({ isPlaying, isRecording });
 
@@ -31,6 +31,7 @@ export const StepSequencerProvider = ({
     <StepSequencerContext.Provider
       value={{
         ...props,
+        activeStep,
         ...actions
       }}
     >
