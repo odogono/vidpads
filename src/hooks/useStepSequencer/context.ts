@@ -1,5 +1,7 @@
 import { createContext } from 'react';
 
+import { StepSequencerEvents } from '@model/types';
+
 export interface StepSequencerContextType {
   isPlaying: boolean;
   isRecording: boolean;
@@ -12,6 +14,11 @@ export interface StepSequencerContextType {
   stop: () => void;
   record: () => void;
   rewind: () => void;
+  toggleStep: (padId: string, step: number) => void;
+  clearEvents: () => void;
+  seqEvents: StepSequencerEvents;
+  seqEventsStr: string;
+  stepToPadIds: string[][];
 }
 
 export const StepSequencerContext = createContext<StepSequencerContextType>({
@@ -25,5 +32,10 @@ export const StepSequencerContext = createContext<StepSequencerContextType>({
   playToggle: () => {},
   stop: () => {},
   record: () => {},
-  rewind: () => {}
+  rewind: () => {},
+  toggleStep: () => {},
+  clearEvents: () => {},
+  seqEvents: {},
+  seqEventsStr: '',
+  stepToPadIds: []
 });

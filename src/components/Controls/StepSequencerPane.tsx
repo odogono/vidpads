@@ -35,7 +35,7 @@ export const StepSequencerPane = () => {
     stop,
     rewind,
     bpm,
-    // clearEvents,
+    clearEvents,
     time,
     endTime
     // setTime,
@@ -83,9 +83,9 @@ export const StepSequencerPane = () => {
   }, [time, endTime]);
 
   const handleClear = useCallback(() => {
-    // clearEvents();
+    clearEvents();
     showSuccess('Sequencer events cleared');
-  }, []);
+  }, [clearEvents]);
 
   useEffect(() => {
     setShowMode('step');
@@ -106,7 +106,7 @@ export const StepSequencerPane = () => {
     // }
   }, []);
 
-  const handleDurationChange = useCallback((value: number) => {
+  const handleBpmChange = useCallback((value: number) => {
     // if (hasSelectedEvents) {
     //   setSelectedEventsDuration(Math.max(0.1, value));
     // } else {
@@ -169,14 +169,14 @@ export const StepSequencerPane = () => {
           />
           <OpTimeInput
             ref={durationRef}
-            label='Duration'
+            label='BPM'
             isEnabled={true}
-            initialValue={0}
-            defaultValue={0}
+            initialValue={bpm}
+            defaultValue={bpm}
             range={[0, 100]}
-            description='Duration'
+            description='BPM'
             showIncrementButtons={true}
-            onChange={handleDurationChange}
+            onChange={handleBpmChange}
           />
         </div>
       </div>

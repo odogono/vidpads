@@ -62,6 +62,17 @@ export const useActions = ({
     project.send({ type: 'rewindSequencer' });
   }, [project]);
 
+  const toggleStep = useCallback(
+    (padId: string, step: number) => {
+      project.send({ type: 'toggleStepSequencerEvent', padId, step });
+    },
+    [project]
+  );
+
+  const clearEvents = useCallback(() => {
+    project.send({ type: 'clearStepSequencerEvents' });
+  }, [project]);
+
   return {
     isPlaying,
     isRecording,
@@ -70,6 +81,8 @@ export const useActions = ({
     stop,
     record,
     rewind,
-    setBpm
+    setBpm,
+    toggleStep,
+    clearEvents
   };
 };

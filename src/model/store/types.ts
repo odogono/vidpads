@@ -4,6 +4,7 @@ import type {
   ProjectExport,
   SequencerEvent,
   ShowMode,
+  StepSequencerEvents,
   VolumeKeyPoint
 } from '@model/types';
 import { ControlPanes } from '@types';
@@ -36,7 +37,7 @@ export interface ProjectStoreContextType {
 
   stepSequencer: {
     bpm: number;
-    events: SequencerEvent[];
+    events: StepSequencerEvents;
     time: number;
     endTime: number;
     isLooped?: boolean;
@@ -190,6 +191,12 @@ export type AddSequencerEventAction = {
   evt: SequencerEvent;
 };
 
+export type ToggleStepSequencerEventAction = {
+  type: 'toggleStepSequencerEvent';
+  padId: string;
+  step: number;
+};
+
 export type RemoveSequencerEventAction = {
   type: 'removeSequencerEvent';
   padId: string;
@@ -302,6 +309,10 @@ export type SetProjectBgImageAction = {
 //   isDisabled: boolean;
 // };
 
+export type ClearStepSequencerEventsAction = {
+  type: 'clearStepSequencerEvents';
+};
+
 export type ProjectStoreActions =
   | SetPadMediaAction
   | ClearPadAction
@@ -344,7 +355,9 @@ export type ProjectStoreActions =
   | RepeatSequencerEventsAction
   | ClipboardSequencerEventsAction
   | SnapSequencerEventsAction
-  | SetProjectBgImageAction;
+  | SetProjectBgImageAction
+  | ToggleStepSequencerEventAction
+  | ClearStepSequencerEventsAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';

@@ -241,7 +241,7 @@ export const TimeSequencerBody = ({
         // selectEventsAtTime(padIds, time, duration);
       }
     },
-    [convertGridRectToTime]
+    [convertGridRectToTime, setIsTooltipVisible, setTooltipPosition]
   );
 
   const handlePaste = useCallback(() => {

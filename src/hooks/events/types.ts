@@ -13,7 +13,12 @@ import {
 } from '@components/Player/types';
 import { Media, MediaYouTube } from '@model/types';
 
-export type EventInputSource = 'keyboard' | 'midi' | 'pad' | 'sequencer';
+export type EventInputSource =
+  | 'keyboard'
+  | 'midi'
+  | 'pad'
+  | 'sequencer'
+  | 'step-seq';
 
 export type EventEmitterEvents = {
   'pad:touchdown': {

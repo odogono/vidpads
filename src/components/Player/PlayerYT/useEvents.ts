@@ -90,7 +90,8 @@ export const usePlayerYTEvents = ({
         stopVideo({
           url: mediaUrl,
           padId: playerPadId,
-          time: player.getCurrentTime()
+          time: player.getCurrentTime(),
+          requestId: 'yt-player-ended'
         });
       }
     },
@@ -185,7 +186,8 @@ export const usePlayerYTEvents = ({
           stopVideo({
             url: mediaUrl,
             padId: playerPadId,
-            time
+            time,
+            requestId: `yt-time-ended-${time}`
           });
         }
       }
@@ -261,7 +263,8 @@ export const usePlayerYTEvents = ({
       stopVideo({
         url: mediaUrl,
         padId: playerPadId,
-        time: playerRef.current?.getCurrentTime() ?? 0
+        time: playerRef.current?.getCurrentTime() ?? 0,
+        requestId: 'yt-player-error'
       });
       // setIsReady(false);
       cOnPlayerUpdate({
