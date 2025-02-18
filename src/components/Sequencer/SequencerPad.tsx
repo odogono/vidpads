@@ -4,12 +4,17 @@ import { useCallback } from 'react';
 
 import { usePlayerEvents } from '@components/PadComponent/usePlayerEvents';
 import { useEvents } from '@hooks/events';
+import { getPadLabel } from '@model/pad';
 import { Pad } from '@model/types';
 
 export const SequencerPad = ({ pad }: { pad: Pad }) => {
   const events = useEvents();
   const { isPlayerReady, isPlayerPlaying } = usePlayerEvents(pad);
   const padId = pad.id;
+  const label = getPadLabel(pad) || padId;
+
+  // truncate label to 4 characters
+  const truncatedLabel = label.slice(0, 4);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent | React.MouseEvent) => {
@@ -43,7 +48,7 @@ export const SequencerPad = ({ pad }: { pad: Pad }) => {
           ${isPlayerPlaying ? 'animate-opacity-pulse' : 'opacity-0'}
         `}
       ></span>
-      {padId}
+      {truncatedLabel}
     </div>
   );
 };
