@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 
 import { useEvents } from '@hooks/events';
 import { StepSequencerContext } from './context';
+import { useActions } from './hooks/useActions';
+import { useSelectors } from './hooks/useSelectors';
+import { useStoreEvents } from './hooks/useStoreEvents';
 
 export const StepSequencerProvider = ({
   children
