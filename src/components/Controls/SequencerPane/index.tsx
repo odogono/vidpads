@@ -10,7 +10,10 @@ import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
-import { SequencerTimeUpdateEvent } from '@hooks/events/types';
+import {
+  SequencerPlayHeadUpdateEvent,
+  SequencerTimeUpdateEvent
+} from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
@@ -62,8 +65,8 @@ export const SequencerPane = () => {
     setShowRewind(!isPlaying && !isRecording && time > 0);
   }, [isPlaying, isRecording, time]);
 
-  const handleTimeUpdate = useCallback(
-    (event: SequencerTimeUpdateEvent) => {
+  const handlePlayHeadUpdate = useCallback(
+    (event: SequencerPlayHeadUpdateEvent) => {
       const { time, mode } = event;
       if (mode !== 'time') return;
       if (!hasSelectedEvents) {
@@ -85,13 +88,13 @@ export const SequencerPane = () => {
 
   useEffect(() => {
     setShowMode('sequencer');
-    events.on('seq:time-update', handleTimeUpdate);
+    events.on('seq:playhead-update', handlePlayHeadUpdate);
 
     return () => {
       setShowMode('pads');
-      events.off('seq:time-update', handleTimeUpdate);
+      events.off('seq:playhead-update', handlePlayHeadUpdate);
     };
-  }, [events, handleTimeUpdate, setShowMode]);
+  }, [events, handlePlayHeadUpdate, setShowMode]);
 
   const handleTimeChange = useCallback(
     (value: number) => {

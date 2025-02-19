@@ -17,6 +17,14 @@ export const usePadStepEvents = () => {
     (pad: Pad, step: number) => {
       log.debug('handlePadTouchStart', { pad, step });
       events.emit('pad:touchdown', { padId: pad.id, source: 'step-seq' });
+    },
+    [events]
+  );
+
+  const handlePadTouchEnd = useCallback(
+    (pad: Pad, step: number) => {
+      log.debug('handlePadTouchEnd', { pad, step });
+      events.emit('pad:touchup', { padId: pad.id, source: 'step-seq' });
       project.send({
         type: 'toggleStepSequencerEvent',
         padId: pad.id,
@@ -25,14 +33,6 @@ export const usePadStepEvents = () => {
       });
     },
     [events, project]
-  );
-
-  const handlePadTouchEnd = useCallback(
-    (pad: Pad, step: number) => {
-      log.debug('handlePadTouchEnd', { pad, step });
-      events.emit('pad:touchup', { padId: pad.id, source: 'step-seq' });
-    },
-    [events]
   );
 
   return {

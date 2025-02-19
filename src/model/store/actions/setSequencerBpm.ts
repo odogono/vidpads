@@ -1,3 +1,4 @@
+import { isModeEqual } from '@model/helpers';
 import { ProjectStoreContext, SetSequencerBpmAction } from '../types';
 import { updateSequencer, updateStepSequencer } from './helpers';
 
@@ -6,7 +7,7 @@ export const setSequencerBpm = (
   event: SetSequencerBpmAction
 ): ProjectStoreContext => {
   const { bpm, mode } = event;
-  if (mode === 'step') {
+  if (isModeEqual(mode, 'step')) {
     return updateStepSequencer(context, {
       bpm
     });

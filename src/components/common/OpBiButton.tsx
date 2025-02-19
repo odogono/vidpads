@@ -22,7 +22,7 @@ export const OpBiButton = ({
           aria-label={'Up'}
           onPress={onPressUp}
           className={
-            'aspect-[2/1] bg-primary hover:bg-primary-300 text-black rounded-b-none border-b-[1px] border-primary-300'
+            'aspect-[2/1] bg-primary hover:bg-primary-300 text-black rounded-b-none border-b-[1px] border-c10'
           }
         >
           <ArrowUp color='var(--foreground)' />

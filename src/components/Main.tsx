@@ -37,7 +37,7 @@ export const Main = () => {
             'vo-main vo-theme rounded-lg text-foreground bg-background w-full h-full flex flex-col',
             {
               'p-0': isFullscreen,
-              'p-4': !isFullscreen
+              'p-1 portrait:md:p-6': !isFullscreen
             }
           )}
         >
@@ -48,9 +48,7 @@ export const Main = () => {
             )}
           >
             <div className='text-white font-mono text-xl font-bold'>
-              <Link href='/'>
-                <span className='text-c5'>ODGN</span> VO PADS
-              </Link>
+              <Link href='/'>VO.PADS</Link>
             </div>
             <span className='flex items-center gap-2'>
               <FullScreenButton

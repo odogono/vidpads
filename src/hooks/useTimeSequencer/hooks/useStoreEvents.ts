@@ -1,47 +1,97 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';
+import { secondsToPixels } from '@helpers/time';
+import { findTriggerEventsWithinTimeRange } from '@helpers/triggerTree';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
+import { isModeActive } from '@model/helpers';
 import {
   SequencerStartedEvent,
-  SequencerStoppedEvent
+  SequencerStoppedEvent,
+  SequencerTimesUpdatedEvent
 } from '@model/store/types';
+import { UseSelectorsResult } from './useSelectors';
+import { useTriggerTree } from './useTriggerTree';
 
 const log = createLog('timeSeq/useStoreEvents');
 
-interface UseStoreEventsProps {
-  time: number;
-  endTime: number;
-  isLooped: boolean;
-}
-
 export const useStoreEvents = ({
+  bpm,
+  canvasBpm,
+  pixelsPerBeat,
   time,
   endTime,
-  isLooped
-}: UseStoreEventsProps) => {
+  isLooped,
+  seqEvents,
+  seqEventIds
+}: UseSelectorsResult) => {
   const { project } = useProject();
   const events = useEvents();
   const animationRef = useRef<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const playStartedAtRef = useRef<number>(0);
+  const lastTimeUpdate = useRef(0);
+
+  const { triggerTree } = useTriggerTree({
+    bpm,
+    pixelsPerBeat,
+    canvasBpm,
+    seqEvents,
+    seqEventIds
+  });
 
   const updateTime = useCallback(() => {
-    // if (!isPlaying && !isRecording) {
-    //   return;
-    // }
     const now = performance.now();
     const currentTime = time + (now - playStartedAtRef.current) / 1000;
 
-    events.emit('seq:time-update', {
-      time: currentTime,
-      endTime,
-      isPlaying,
-      isRecording,
-      mode: 'time'
-    });
+    const playHeadPosition = secondsToPixels(currentTime, pixelsPerBeat, bpm);
+
+    if (isPlaying || isRecording) {
+      // emit an update event so that any events which
+      // are being recorded can update their dimensions
+      events.emit('seq:playhead-update', {
+        time: currentTime,
+        playHeadX: playHeadPosition,
+        isPlaying,
+        isRecording,
+        mode: 'time'
+      });
+      // begin firing events
+      // get all of the events between the last time this was called
+      // and the current time
+      const startTime = Math.min(currentTime, lastTimeUpdate.current);
+      const endTime = Math.max(currentTime, lastTimeUpdate.current);
+      const rangeEvents = findTriggerEventsWithinTimeRange(
+        triggerTree,
+        startTime,
+        endTime
+      );
+      // log.debug(
+      //   'rangeEvents',
+      //   { startTime, endTime, lastTime: lastTimeUpdate.current },
+      //   rangeEvents
+      // );
+      for (const event of rangeEvents) {
+        events.emit(event.event, {
+          padId: event.padId,
+          source: 'sequencer',
+          forceStop: true,
+          requestId: 'sequencer-time-update'
+        });
+      }
+      // end firing events
+    }
+    lastTimeUpdate.current = currentTime;
+
+    // events.emit('seq:time-update', {
+    //   time: currentTime,
+    //   endTime,
+    //   isPlaying,
+    //   isRecording,
+    //   mode: 'time'
+    // });
 
     if (currentTime >= endTime) {
       log.debug({
@@ -54,6 +104,7 @@ export const useStoreEvents = ({
         project.send({ type: 'rewindSequencer', mode: 'time' });
         // timeRef.current = 0;
         playStartedAtRef.current = now;
+        lastTimeUpdate.current = 0;
       } else {
         project.send({ type: 'stopSequencer', mode: 'time' });
       }
@@ -62,13 +113,24 @@ export const useStoreEvents = ({
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTime);
     }
-  }, [events, project, isPlaying, isRecording, endTime, isLooped, time]);
+  }, [
+    time,
+    pixelsPerBeat,
+    bpm,
+    isPlaying,
+    isRecording,
+    endTime,
+    events,
+    triggerTree,
+    isLooped,
+    project
+  ]);
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
       const { isPlaying, isRecording, time, mode } = event;
 
-      if (mode === 'step') return;
+      if (!isModeActive(mode, 'time')) return;
 
       log.debug('handlePlayStarted', {
         time
@@ -90,6 +152,7 @@ export const useStoreEvents = ({
       setIsRecording(isRecording);
 
       playStartedAtRef.current = performance.now();
+      lastTimeUpdate.current = time;
 
       animationRef.current = requestAnimationFrame(updateTime);
     },
@@ -124,15 +187,32 @@ export const useStoreEvents = ({
     [events, project, time]
   );
 
+  const handleTimeUpdated = useCallback(
+    (event: SequencerTimesUpdatedEvent) => {
+      const { time, mode } = event;
+      if (mode !== 'time' && mode !== 'all') return;
+      const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
+      events.emit('seq:playhead-update', {
+        time,
+        playHeadX: playHeadPosition,
+        isPlaying,
+        isRecording,
+        mode: 'time'
+      });
+    },
+    [events, isPlaying, isRecording, pixelsPerBeat, bpm]
+  );
+
   useEffect(() => {
-    events.emit('seq:time-update', {
+    const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
+    events.emit('seq:playhead-update', {
       time,
-      endTime,
-      isPlaying: false,
-      isRecording: false,
+      playHeadX: playHeadPosition,
+      isPlaying,
+      isRecording,
       mode: 'time'
     });
-  }, [events, time, endTime]);
+  }, [events, time, endTime, isPlaying, isRecording, pixelsPerBeat, bpm]);
 
   useEffect(() => {
     // Reset animation frame when dependencies change
@@ -146,12 +226,17 @@ export const useStoreEvents = ({
   useEffect(() => {
     const evtPlayStarted = project.on('sequencerStarted', handlePlayStarted);
     const evtPlayStopped = project.on('sequencerStopped', handleStopped);
+    const evtTimeUpdated = project.on(
+      'sequencerTimesUpdated',
+      handleTimeUpdated
+    );
 
     return () => {
       evtPlayStarted.unsubscribe();
       evtPlayStopped.unsubscribe();
+      evtTimeUpdated.unsubscribe();
     };
-  }, [handlePlayStarted, handleStopped, project]);
+  }, [handlePlayStarted, handleStopped, handleTimeUpdated, project]);
 
   return { isPlaying, isRecording, time, endTime, isLooped };
 };

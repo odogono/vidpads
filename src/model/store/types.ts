@@ -3,14 +3,13 @@ import type {
   Pad,
   ProjectExport,
   SequencerEvent,
+  SequencerMode,
   ShowMode,
   StepSequencerEvents,
   VolumeKeyPoint
 } from '@model/types';
 import { ControlPanes } from '@types';
 import type { Store } from '@xstate/store';
-
-export type SequencerMode = 'time' | 'step' | 'all';
 
 export interface ProjectStoreContextType {
   projectId: string;

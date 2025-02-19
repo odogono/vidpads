@@ -1,6 +1,6 @@
 import { getUnixTimeFromDate, getUnixTimeFromToday } from '@helpers/datetime';
 import { ProjectStoreContextType } from './store/types';
-import { Media, MediaType } from './types';
+import { Media, MediaType, SequencerMode } from './types';
 
 export const getMediaType = (media: Media): MediaType => {
   if (media.mimeType.startsWith('image/')) {
@@ -34,4 +34,18 @@ export const isProjectNoteworthy = (
   }
 
   return true;
+};
+
+export const isModeActive = (
+  currentMode: SequencerMode,
+  mode: SequencerMode
+) => {
+  return currentMode === mode || currentMode === 'all';
+};
+
+export const isModeEqual = (
+  currentMode: SequencerMode,
+  mode: SequencerMode
+) => {
+  return currentMode === mode;
 };

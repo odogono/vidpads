@@ -1,12 +1,12 @@
-import { TriggerEvent } from '../../types';
 import {
-  TriggerNode,
   findNextTriggerEvent,
   findPreviousTriggerEvent,
   findTriggerEventsWithinTimeRange,
   insertTriggerEvent,
-  triggerTreeCount
-} from '../triggerEvent';
+  triggerTreeCount,
+  type TriggerEvent,
+  type TriggerNode
+} from '@helpers/triggerTree';
 
 describe('triggerEvent', () => {
   describe('insertTriggerEvent', () => {

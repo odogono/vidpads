@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { TriggerEvent } from '@helpers/triggerTree';
 // import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { SequencerTimeUpdateEvent } from '@hooks/events/types';
@@ -10,11 +11,6 @@ import { PlayHead } from '../TimeSequencer/components/PlayHead';
 
 // const log = createLog('StepSequencerBody');
 
-interface TriggerEvent {
-  event: 'pad:touchdown' | 'pad:touchup';
-  time: number;
-  padId: string;
-}
 export interface SequencerBodyProps {
   padCount: number;
 }
