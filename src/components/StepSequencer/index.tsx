@@ -1,8 +1,8 @@
 'use client';
 
+// import { createLog } from '@helpers/log';
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { usePads } from '@model/hooks/usePads';
-// import { createLog } from '../../helpers/log';
 import { PadStep } from './components/PadStep';
 import { usePadStepEvents } from './hooks/usePadStepEvents';
 

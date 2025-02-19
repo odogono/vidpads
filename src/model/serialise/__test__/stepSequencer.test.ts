@@ -1,14 +1,37 @@
+import { initialContext } from '@model/store/store';
 import { ProjectStoreContextType } from '@model/store/types';
 import { StepSequencerSteps } from '../../types';
 import {
   exportStepSequencerToJSON,
   exportStepSequencerToURLString,
+  importStepSequencerFromJSON,
   importStepSequencerFromURLString,
   numberToSteps,
   padSteps,
   stepsToNumber,
   unpadSteps
 } from '../stepSequencer';
+
+describe('importStepSequencerFromJSON', () => {
+  it('should import step sequencer from no JSON', () => {
+    const result = importStepSequencerFromJSON(undefined);
+    expect(result).toEqual(initialContext.stepSequencer);
+  });
+
+  it.only('should import step sequencer from JSON', () => {
+    const result = importStepSequencerFromJSON({
+      bpm: 120,
+      patternIndex: 0,
+      patterns: [[{ padId: 'a1', steps: [1, 0, 1, 0, 1, 0, 1] }]]
+    });
+
+    expect(result).toEqual({
+      bpm: 120,
+      patternIndex: 0,
+      patterns: [{ a1: [true, false, true, false, true, false, true] }]
+    });
+  });
+});
 
 describe('exportSequencerToURLString', () => {
   it('should return undefined for undefined input', () => {
@@ -38,6 +61,20 @@ describe('exportSequencerToURLString', () => {
     const result2 = importStepSequencerFromURLString(result!);
 
     expect(result2).toEqual(json);
+  });
+});
+
+describe('importStepSequencerFromURLString', () => {
+  it('should import step sequencer from URL string', () => {
+    const result = importStepSequencerFromURLString('60[a1(43520');
+
+    // console.debug(JSON.stringify(result, null, '\t'));
+
+    expect(result).toEqual({
+      bpm: 60,
+      patternIndex: 0,
+      patterns: [[{ padId: 'a1', steps: [1, 0, 1, 0, 1, 0, 1] }]]
+    });
   });
 });
 

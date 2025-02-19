@@ -46,16 +46,16 @@ export const importFromURLStringV4 = async (data: string) => {
     ? importStepSequencerFromURLString(stepSequencerURL)
     : undefined;
 
-  log.debug('importFromURLStringV4', parts.length, parts, {
-    projectId,
-    projectName,
-    projectBgImage,
-    createdAt,
-    updatedAt,
-    pads,
-    sequencer,
-    stepSequencerURL
-  });
+  // log.debug('importFromURLStringV4', parts.length, parts, {
+  //   projectId,
+  //   projectName,
+  //   projectBgImage,
+  //   createdAt,
+  //   updatedAt,
+  //   pads,
+  //   sequencer,
+  //   stepSequencerURL
+  // });
 
   return {
     id: projectId,
@@ -96,7 +96,8 @@ export const exportToURLStringV4 = async (project: ProjectStoreType) => {
     stepSequencerURL || ''
   ].join('|');
 
-  log.debug('exportToURLStringV4', result, stepSequencerURL, context);
+  // log.debug('exportToURLStringV4', result, context);
+  // log.debug('exportToURLStringV4', stepSequencerURL);
 
   const compressed = await compress(result);
 

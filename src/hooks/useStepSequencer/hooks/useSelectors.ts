@@ -39,6 +39,8 @@ export const useSelectors = () => {
     (state) => state.context.stepSequencer?.patterns
   );
 
+  // console.debug('patterns', patterns);
+
   const patternIndex =
     useSelector(
       project,

@@ -30,6 +30,7 @@ export const exportStepSequencerToJSON = (
 
   return {
     bpm,
+    patternIndex: 0,
     patterns: patternsJSON
   };
 };
@@ -41,11 +42,11 @@ export const importStepSequencerFromJSON = (
     return initialContext.stepSequencer;
   }
 
-  const { bpm, patterns } = json;
+  const { bpm, patternIndex, patterns } = json;
 
   return {
     bpm,
-    patternIndex: 0,
+    patternIndex: patternIndex ?? 0,
     patterns: patterns?.map(importStepSequencerPatternFromJSON) ?? []
   };
 };
@@ -79,8 +80,10 @@ export const importStepSequencerPatternFromJSON = (
     return {};
   }
 
-  return Object.entries(json).reduce((acc, [padId, pattern]) => {
-    acc[padId] = pattern.steps.map((step) => step === 1);
+  // log.debug('importStepSequencerPatternFromJSON', json);
+
+  return json.reduce((acc, entry) => {
+    acc[entry.padId] = entry.steps.map((step) => step === 1);
     return acc;
   }, {} as StepSequencerEvents);
 };
@@ -139,6 +142,7 @@ export const importStepSequencerFromURLString = (
 
   return {
     bpm: safeParseFloat(bpm),
+    patternIndex: 0,
     patterns
   };
 };

@@ -1,11 +1,10 @@
 'use client';
 
-import { Indicator } from '@components/Indicator';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { cn } from '@helpers/tailwind';
 import { Pad } from '@model/types';
 
-const log = createLog('stepSeq/PadStep');
+// const log = createLog('stepSeq/PadStep');
 
 interface PadStepProps {
   index: number;
@@ -32,7 +31,13 @@ export const PadStep = ({
       onPointerUp={() => {
         onTouchEnd?.(pad, index);
       }}
-      className={`min-w-[32px] min-h-[32px] flex items-center justify-center`}
+      className={cn(
+        `min-w-[32px] min-h-[32px] flex items-center justify-center vo-step`,
+        {
+          'vo-step-playing': isPlaying,
+          'vo-step-active': isActive
+        }
+      )}
       style={{
         touchAction: 'none',
         WebkitTouchCallout: 'none',
@@ -53,9 +58,9 @@ export const PadStep = ({
         bg-white/20 rounded-sm 
         flex items-center justify-center`,
           {
-            'bg-white': isPlaying,
             'bg-white/20 hover:bg-white/40': !isPlaying,
-            'bg-white/60': isActive
+            'bg-white/60': isActive,
+            'bg-white': isPlaying
           }
         )}
       >

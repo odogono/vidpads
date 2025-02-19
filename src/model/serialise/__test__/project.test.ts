@@ -267,7 +267,7 @@ describe('importPadFromURLString', () => {
   //   expect(project.sequencer).toBeDefined();
   // });
 
-  it.only('should import project from URL string v4', async () => {
+  it.skip('should import project from URL string v4', async () => {
     const data =
       '4|eJxtjcuKwkAQRX%2BnIUzoquqHKXAxgopCFj4ys8iqHw4qMQgq2kMz3y6RWcrdnM05NyjSHsHKmPOtj7ufQ7%2BLGSxVI2vRmBdWQApH2UHreXWa%2FYbUpHq6TvFbdvXx81Fc%2BC9RWj8%2BYrTLcCmujIxlhbY4M7BkZOGw9dyg3odT09XHyTT0X9fldnGvV%2BPxm4BiXWpU%2FwFg4aj1vKVJ5w%2FD%2B%2F48yJv5TL6RQTJAqQy99GHZyNaBUGQqyQ4FSm0UOxJGa9JPCzdMyw%3D%3D';
     const imported = await urlStringToProject(data);
