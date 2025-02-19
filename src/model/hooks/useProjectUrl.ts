@@ -16,7 +16,6 @@ export const useProjectUrl = () => {
       const d = await exportToURLString();
       const url = createNewUrl({ d });
       setUrl(url);
-      console.debug('projectUpdatedAt', projectUpdatedAt);
     })();
   }, [exportToURLString, createNewUrl, projectUpdatedAt]);
 

@@ -97,7 +97,7 @@ export const exportToURLStringV4 = async (project: ProjectStoreType) => {
   ].join('|');
 
   // log.debug('exportToURLStringV4', result, context);
-  // log.debug('exportToURLStringV4', stepSequencerURL);
+  log.debug('exportToURLStringV4', { padsURL });
 
   const compressed = await compress(result);
 

@@ -95,6 +95,8 @@ const parseUrl = async (url: string) => {
 
   return {
     original: url,
+    length: url.length,
+    version: importData?.split('|')?.[0] ?? 'n/a',
     projectId,
     importData,
     project
