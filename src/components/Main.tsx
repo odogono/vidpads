@@ -2,22 +2,22 @@
 
 import Link from 'next/link';
 
-import { MenuButton } from '@/components/Buttons/MenuButton';
-import { ShareButton } from '@/components/Buttons/ShareButton';
 import { BinComponent } from '@components/Bin';
+import { MenuButton } from '@components/Buttons/MenuButton';
+import { PlayButton } from '@components/Buttons/PlayButton';
+import { ShareButton } from '@components/Buttons/ShareButton';
 import { Controls } from '@components/Controls';
 import { FullScreenButton } from '@components/FullScreenButton';
 import { PadContainer } from '@components/PadContainer';
 import { PlayerContainer } from '@components/Player/Container';
-import { Sequencer } from '@components/Sequencer';
 import { StepSequencer } from '@components/StepSequencer';
+import { TimeSequencer } from '@components/TimeSequencer';
+import { MidiSetupModal } from '@components/modals/MidiSetupModal';
+import { isMidiSupported } from '@helpers/midi';
 import { cn } from '@helpers/tailwind';
 import { useFullscreen } from '@hooks/useFullScreen';
 import { PadDnDProvider } from '@hooks/usePadDnD/provider';
 import { useShowMode } from '@model/hooks/useShowMode';
-import { isMidiSupported } from '../helpers/midi';
-import { PlayButton } from './Buttons/PlayButton';
-import { MidiSetupModal } from './modals/MidiSetupModal';
 
 export const Main = () => {
   const { isFullscreen, setIsFullscreen } = useFullscreen();
@@ -89,7 +89,7 @@ export const Main = () => {
               <Controls />
               <div className='flex h-[50%] landscape:h-[40%]'>
                 {isPadsVisible && <PadContainer />}
-                {isSequencerVisible && <Sequencer />}
+                {isSequencerVisible && <TimeSequencer />}
                 {isStepSequencerVisible && <StepSequencer />}
               </div>
             </>
