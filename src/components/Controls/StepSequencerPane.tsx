@@ -26,18 +26,16 @@ export const StepSequencerPane = () => {
   // const [isPlaying, setIsPlaying] = useState(false);
   // const [isRecording, setIsRecording] = useState(false);
   const bpmRef = useRef<OpIntegerInputRef | null>(null);
-  const timeRef = useRef<OpTimeInputRef | null>(null);
+  const timeRef = useRef<OpTimeInputRef | undefined>(undefined);
 
   const {
     isPlaying,
-    isRecording,
     play,
     stop,
     rewind,
+    activeStep,
     bpm,
     clearEvents,
-    time,
-    endTime,
     setBpm
   } = useStepSequencer();
 
@@ -49,21 +47,21 @@ export const StepSequencerPane = () => {
     }
   }, [showRewind, rewind, stop]);
 
+  // useEffect(() => {
+  //   setShowRewind(!isPlaying && !isRecording && time > 0);
+  // }, [isPlaying, isRecording, time]);
+
+  // const handleTimeUpdate = useCallback((event: SequencerTimeUpdateEvent) => {
+  //   const { time } = event;
+  //   // log.debug('handleTimeUpdate', { time, isStep });
+
+  //   timeRef.current?.setValue(time);
+  // }, []);
+
   useEffect(() => {
-    setShowRewind(!isPlaying && !isRecording && time > 0);
-  }, [isPlaying, isRecording, time]);
-
-  const handleTimeUpdate = useCallback((event: SequencerTimeUpdateEvent) => {
-    const { time } = event;
-    // log.debug('handleTimeUpdate', { time, isStep });
-
-    timeRef.current?.setValue(time);
-  }, []);
-
-  useEffect(() => {
-    timeRef.current?.setValue(time);
-    bpmRef.current?.setValue(endTime);
-  }, [time, endTime]);
+    timeRef.current?.setValue(activeStep === -1 ? undefined : activeStep + 1);
+    bpmRef.current?.setValue(bpm);
+  }, [bpm, activeStep]);
 
   const handleClear = useCallback(() => {
     clearEvents();
@@ -72,13 +70,13 @@ export const StepSequencerPane = () => {
 
   useEffect(() => {
     setShowMode('step');
-    events.on('seq:time-update', handleTimeUpdate);
+    // events.on('seq:time-update', handleTimeUpdate);
 
     return () => {
       setShowMode('pads');
-      events.off('seq:time-update', handleTimeUpdate);
+      // events.off('seq:time-update', handleTimeUpdate);
     };
-  }, [events, handleTimeUpdate, setShowMode]);
+  }, [setShowMode]);
 
   const handleBpmChange = useCallback(
     (value: number) => {

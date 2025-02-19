@@ -11,7 +11,7 @@ import {
 import { ProjectStoreType } from '@model/store/types';
 import { PadExport, ProjectExport } from '@model/types';
 
-const log = createLog('serialise/4');
+const log = createLog('serialise/4', ['debug']);
 
 export const importFromURLStringV4 = async (data: string) => {
   const uncompressed = await decompress(data);
