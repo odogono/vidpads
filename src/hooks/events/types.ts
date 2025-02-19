@@ -11,8 +11,7 @@ import {
   PlayerTimeUpdate,
   PlayerUpdate
 } from '@components/Player/types';
-import { SequencerMode } from '@model/store/types';
-import { Media, MediaYouTube } from '@model/types';
+import { Media, MediaYouTube, SequencerMode } from '@model/types';
 
 export type EventInputSource =
   | 'keyboard'
@@ -101,12 +100,7 @@ export type EventEmitterEvents = {
   };
   'seq:rewind': undefined;
   'seq:time-update': SequencerTimeUpdateEvent;
-  'seq:playhead-update': {
-    time: number;
-    playHeadX: number;
-    isPlaying: boolean;
-    isRecording: boolean;
-  };
+  'seq:playhead-update': SequencerPlayHeadUpdateEvent;
   'seq:clear-events': undefined;
   'seq:set-time': {
     time: number;
@@ -119,6 +113,14 @@ export type EventEmitterEvents = {
 export interface SequencerTimeUpdateEvent {
   time: number;
   endTime: number;
+  isPlaying: boolean;
+  isRecording: boolean;
+  mode: SequencerMode;
+}
+
+export interface SequencerPlayHeadUpdateEvent {
+  time: number;
+  playHeadX: number;
   isPlaying: boolean;
   isRecording: boolean;
   mode: SequencerMode;

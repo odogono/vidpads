@@ -1,4 +1,5 @@
 import { createLog } from '@helpers/log';
+import { isModeActive, isModeEqual } from '@model/helpers';
 import {
   createSequencerEvent,
   getIntersectingEvents,
@@ -36,7 +37,14 @@ export const startSequencer = (
 ): ProjectStoreContext => {
   const { isPlaying, isRecording, mode } = action;
 
-  const time = mode === 'time' ? 0 : (context.sequencer?.time ?? 0);
+  const time = isModeEqual(mode, 'time') ? (context.sequencer?.time ?? 0) : 0;
+
+  log.debug('startSequencer', {
+    isPlaying,
+    isRecording,
+    mode,
+    time: context.sequencer.time
+  });
 
   emit({
     type: 'sequencerStarted',
@@ -67,7 +75,9 @@ export const rewindSequencer = (
 ): ProjectStoreContext => {
   const { mode } = action;
 
-  const endTime = mode === 'step' ? 0 : (context.sequencer?.time ?? 0);
+  const endTime = isModeEqual(mode, 'step')
+    ? 0
+    : (context.sequencer?.time ?? 0);
 
   emit({
     type: 'sequencerTimesUpdated',
@@ -76,7 +86,7 @@ export const rewindSequencer = (
     mode
   });
 
-  if (mode === 'time' || mode === 'all') {
+  if (isModeActive(mode, 'time')) {
     context = updateSequencer(context, { time: 0 });
   }
 
@@ -91,7 +101,7 @@ export const setSequencerIsLooped = (
 
   log.debug('setSequencerIsLooped', { isLooped });
 
-  if (mode === 'time' || mode === 'all') {
+  if (isModeActive(mode, 'time')) {
     context = updateSequencer(context, { isLooped });
   }
 
@@ -154,7 +164,7 @@ export const clearSequencerEvents = (
 ): ProjectStoreContext => {
   const { mode } = action;
 
-  if (mode === 'step') {
+  if (isModeEqual(mode, 'step')) {
     const patternIndex = context.stepSequencer?.patternIndex ?? 0;
     return addOrReplaceStepSequencerPattern(context, {}, patternIndex);
   }
@@ -189,7 +199,7 @@ export const setSequencerTime = (
 ): ProjectStoreContext => {
   const { time, mode } = action;
 
-  if (mode === 'step') {
+  if (isModeEqual(mode, 'step')) {
     return context;
   }
 
@@ -212,7 +222,7 @@ export const setSequencerEndTime = (
 ): ProjectStoreContext => {
   const { endTime, mode } = action;
 
-  if (mode === 'step') {
+  if (isModeEqual(mode, 'step')) {
     return context;
   }
 

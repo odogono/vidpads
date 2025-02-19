@@ -1,4 +1,8 @@
-import { TriggerEvent } from '../types';
+export interface TriggerEvent {
+  event: 'pad:touchdown' | 'pad:touchup';
+  time: number;
+  padId: string;
+}
 
 export interface TriggerNode {
   event: TriggerEvent;

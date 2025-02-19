@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
+import { pixelsToSeconds, secondsToPixels } from '@helpers/time';
 import { showError } from '@helpers/toast';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { getPadDuration } from '@model/pad';
@@ -14,7 +15,6 @@ import { Header } from './components/Header';
 import { Marquee } from './components/Marquee';
 import { PlayHead } from './components/PlayHead';
 import { Row } from './components/Row';
-import { pixelsToSeconds, secondsToPixels } from './helpers/timeConversion';
 import { useEventTooltip } from './hooks/useEventTooltip';
 import { useGridDimensions } from './hooks/useGridDimensions';
 import { useMarquee } from './hooks/useMarquee';
@@ -24,16 +24,10 @@ import { useSequencerEvents } from './hooks/useSequencerEvents';
 const log = createLog('TimeSequencerBody', ['debug']);
 
 export interface SequencerBodyProps {
-  canvasBpm?: number;
-  pixelsPerBeat?: number;
   pads: Pad[];
 }
 
-export const TimeSequencerBody = ({
-  canvasBpm = 60,
-  pixelsPerBeat = 16,
-  pads
-}: SequencerBodyProps) => {
+export const TimeSequencerBody = ({ pads }: SequencerBodyProps) => {
   const padCount = pads.length;
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +42,8 @@ export const TimeSequencerBody = ({
 
   const {
     bpm,
+    pixelsPerBeat,
+    canvasBpm,
     seqEvents,
     seqEventIds,
     moveEvents,
@@ -66,9 +62,6 @@ export const TimeSequencerBody = ({
     snapEvents,
     pasteEvents
   } = useTimeSequencer();
-  const [playHeadPosition, setPlayHeadPosition] = useState(
-    secondsToPixels(time, pixelsPerBeat, bpm)
-  );
 
   const timelineDurationInPixels =
     secondsToPixels(endTime, pixelsPerBeat, bpm) + pixelsPerBeat;
@@ -79,13 +72,10 @@ export const TimeSequencerBody = ({
   //   pixelsPerBeat,
   //   bpm
   // });
-  useSequencerEvents({
-    seqEvents,
-    seqEventIds,
-    setPlayHeadPosition,
+  const { playHeadPosition } = useSequencerEvents({
     pixelsPerBeat,
     bpm,
-    canvasBpm
+    time
   });
 
   const selectedEventsRect: Rect = useSelectedEventsRect({

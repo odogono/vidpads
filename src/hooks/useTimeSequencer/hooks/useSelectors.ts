@@ -10,8 +10,13 @@ import { getIntersectingEvents } from '../../../model/sequencerEvent';
 const evtStr = (e: SequencerEvent) =>
   `${e.padId}-${e.id}-${e.time}-${e.duration}-${e.isSelected ? 's' : ''}`;
 
+export type UseSelectorsResult = ReturnType<typeof useSelectors>;
+
 export const useSelectors = () => {
   const { project } = useProject();
+
+  const canvasBpm = 60;
+  const pixelsPerBeat = 16;
 
   // time in seconds
   const time =
@@ -62,6 +67,8 @@ export const useSelectors = () => {
   );
 
   return {
+    canvasBpm,
+    pixelsPerBeat,
     time,
     endTime,
     isLooped,

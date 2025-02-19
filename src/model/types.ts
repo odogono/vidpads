@@ -220,3 +220,5 @@ export interface SequencerEvent {
 }
 
 export type StepSequencerEvents = Record<string, boolean[]>;
+
+export type SequencerMode = 'time' | 'step' | 'all';

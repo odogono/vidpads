@@ -32,14 +32,14 @@ export const PadStep = ({
         onTouchEnd?.(pad, index);
       }}
       className={cn(
-        `min-w-[32px] min-h-[32px] flex items-center justify-center vo-step`,
+        `min-w-[24px] min-h-[24px] flex items-center justify-center vo-step`,
         {
           'vo-step-playing': isPlaying,
           'vo-step-active': isActive
         }
       )}
       style={{
-        touchAction: 'none',
+        touchAction: 'auto',
         WebkitTouchCallout: 'none',
         WebkitUserSelect: 'none',
         // Add these properties to prevent magnifying glass

@@ -5,6 +5,8 @@ import { createContext } from 'react';
 import { SequencerEvent } from '@model/types';
 
 export type TimeSequencerContextType = {
+  canvasBpm: number;
+  pixelsPerBeat: number;
   isPlaying: boolean;
   isRecording: boolean;
   isLooped: boolean;
@@ -52,6 +54,8 @@ export type TimeSequencerContextType = {
 };
 
 export const TimeSequencerContext = createContext<TimeSequencerContextType>({
+  canvasBpm: 60,
+  pixelsPerBeat: 16,
   isPlaying: false,
   isRecording: false,
   isLooped: false,

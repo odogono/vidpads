@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
+import { secondsToPixels } from '@helpers/time';
 import { SequencerEvent } from '@model/types';
-import { secondsToPixels } from '../helpers/timeConversion';
 
 interface UseSelectedEventsRectProps {
   padCount: number;
