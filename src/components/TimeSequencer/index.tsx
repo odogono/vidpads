@@ -1,10 +1,10 @@
 'use client';
 
 import { usePads } from '@model/hooks/usePads';
-import { SequencerPad } from './SequencerPad';
-import { TimeSequencerBody } from './TimeSequencer/TimeSequencerBody';
+import { TimeSequencerBody } from './TimeSequencerBody';
+import { SequencerPad } from './components/SequencerPad';
 
-export const Sequencer = () => {
+export const TimeSequencer = () => {
   const { pads } = usePads();
 
   const padCount = pads?.length ?? 1;
