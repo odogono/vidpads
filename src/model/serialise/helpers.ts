@@ -73,7 +73,10 @@ export const exportToURLCommon = (project: ProjectStoreType) => {
 
   const sequencerURL = sequencer ? exportSequencerToURLString(sequencer) : '';
 
-  const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
+  const padsURL = pads
+    .map((pad) => exportPadToURLString(pad))
+    .filter(Boolean)
+    .join('(');
 
   const createTimeSecs = getUnixTimeFromDate(createdAt);
   const updateTimeSecs = getUnixTimeFromDate(updatedAt);
@@ -92,11 +95,11 @@ export const exportToURLCommon = (project: ProjectStoreType) => {
 
 export const addPadsAndSequencerToResult = (
   result: string,
-  padsURL: (string | undefined)[],
+  padsURL: string,
   sequencerURL?: string
 ) => {
   if (padsURL.length > 0) {
-    result += `|${padsURL.join('(')}`;
+    result += `|${padsURL}`;
   } else {
     result += '|';
   }
