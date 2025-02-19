@@ -43,6 +43,7 @@ export const OpIntegerInput = ({
   const [inputValue, setInputValue] = useState<string>(
     integerToString(initialValue)
   );
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
   const lastValue = useRef<number>(initialValue);
@@ -56,7 +57,10 @@ export const OpIntegerInput = ({
 
   useImperativeHandle(ref, () => ({
     setValue: (value: number) => {
-      // if (description === 'Start') log.debug('ref.setValue', value);
+      // Don't update the input value if this specific input has focus
+      if (document.activeElement === inputRef.current) {
+        return;
+      }
       setInputValue(integerToString(value));
     },
     getValue: () => {
@@ -192,6 +196,7 @@ export const OpIntegerInput = ({
   return (
     <div className='time-input flex flex-col items-center justify-center'>
       <input
+        ref={inputRef}
         className={cn(
           `rounded-r-none cursor-ns-resize text-sm outline-none w-[6.8rem] font-mono text-center`,
           'hover:border-default-400 ',
