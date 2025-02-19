@@ -10,6 +10,7 @@ import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
+import { SequencerTimeUpdateEvent } from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
@@ -62,8 +63,9 @@ export const SequencerPane = () => {
   }, [isPlaying, isRecording, time]);
 
   const handleTimeUpdate = useCallback(
-    (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
-      const { time } = event;
+    (event: SequencerTimeUpdateEvent) => {
+      const { time, mode } = event;
+      if (mode !== 'time') return;
       if (!hasSelectedEvents) {
         timeRef.current?.setValue(time);
       }

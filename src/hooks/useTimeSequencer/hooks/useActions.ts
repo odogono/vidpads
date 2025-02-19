@@ -20,49 +20,52 @@ export const useActions = ({
     project.send({
       type: 'startSequencer',
       isPlaying: true,
-      isRecording: false
+      isRecording: false,
+      mode: 'time'
     });
   }, [project]);
 
   const playToggle = useCallback(() => {
     if (isPlaying || isRecording) {
-      project.send({ type: 'stopSequencer' });
+      project.send({ type: 'stopSequencer', mode: 'time' });
     } else {
       project.send({
         type: 'startSequencer',
         isPlaying: true,
-        isRecording: false
+        isRecording: false,
+        mode: 'time'
       });
     }
   }, [project, isPlaying, isRecording]);
 
   const stop = useCallback(() => {
     log.debug('stop');
-    project.send({ type: 'stopSequencer' });
+    project.send({ type: 'stopSequencer', mode: 'time' });
   }, [project]);
 
   const record = useCallback(() => {
     project.send({
       type: 'startSequencer',
       isPlaying: false,
-      isRecording: true
+      isRecording: true,
+      mode: 'time'
     });
   }, [project]);
 
   const rewind = useCallback(() => {
-    project.send({ type: 'rewindSequencer' });
+    project.send({ type: 'rewindSequencer', mode: 'time' });
   }, [project]);
 
   const setEndTime = useCallback(
     (endTime: number) => {
-      project.send({ type: 'setSequencerEndTime', endTime });
+      project.send({ type: 'setSequencerEndTime', endTime, mode: 'time' });
     },
     [project]
   );
 
   const setTime = useCallback(
     (time: number) => {
-      project.send({ type: 'setSequencerTime', time });
+      project.send({ type: 'setSequencerTime', time, mode: 'time' });
     },
     [project]
   );
@@ -70,22 +73,22 @@ export const useActions = ({
   const setLooped = useCallback(
     (isLooped: boolean) => {
       log.debug('setLooped', { isLooped });
-      project.send({ type: 'setSequencerIsLooped', isLooped });
+      project.send({ type: 'setSequencerIsLooped', isLooped, mode: 'time' });
     },
     [project]
   );
 
   const setSequencerTimes = useCallback(
     (time: number, endTime: number) => {
-      project.send({ type: 'setSequencerTime', time });
-      project.send({ type: 'setSequencerEndTime', endTime });
+      project.send({ type: 'setSequencerTime', time, mode: 'time' });
+      project.send({ type: 'setSequencerEndTime', endTime, mode: 'time' });
     },
     [project]
   );
 
   const setBpm = useCallback(
     (bpm: number) => {
-      project.send({ type: 'setSequencerBpm', bpm });
+      project.send({ type: 'setSequencerBpm', bpm, mode: 'time' });
     },
     [project]
   );
@@ -103,7 +106,7 @@ export const useActions = ({
   );
 
   const clearEvents = useCallback(() => {
-    project.send({ type: 'clearSequencerEvents' });
+    project.send({ type: 'clearSequencerEvents', mode: 'time' });
   }, [project]);
 
   const addEvent = useCallback(
@@ -155,14 +158,18 @@ export const useActions = ({
 
   const setSelectedEventsTime = useCallback(
     (time: number) => {
-      project.send({ type: 'setSelectedEventsTime', time });
+      project.send({ type: 'setSelectedEventsTime', time, mode: 'time' });
     },
     [project]
   );
 
   const setSelectedEventsDuration = useCallback(
     (duration: number) => {
-      project.send({ type: 'setSelectedEventsDuration', duration });
+      project.send({
+        type: 'setSelectedEventsDuration',
+        duration,
+        mode: 'time'
+      });
     },
     [project]
   );

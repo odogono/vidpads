@@ -10,6 +10,8 @@ import type {
 import { ControlPanes } from '@types';
 import type { Store } from '@xstate/store';
 
+export type SequencerMode = 'time' | 'step' | 'all';
+
 export interface ProjectStoreContextType {
   projectId: string;
 
@@ -170,7 +172,7 @@ export type SetShowModeAction = {
 export type SetSequencerBpmAction = {
   type: 'setSequencerBpm';
   bpm: number;
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type ToggleSequencerEventAction = {
@@ -182,6 +184,7 @@ export type ToggleSequencerEventAction = {
 
 export type ClearSequencerEventsAction = {
   type: 'clearSequencerEvents';
+  mode: SequencerMode;
 };
 
 export type AddSequencerEventAction = {
@@ -236,21 +239,25 @@ export type SnapSequencerEventsAction = {
 export type SetSequencerTimeAction = {
   type: 'setSequencerTime';
   time: number;
+  mode: SequencerMode;
 };
 
 export type SetSequencerEndTimeAction = {
   type: 'setSequencerEndTime';
   endTime: number;
+  mode: SequencerMode;
 };
 
 export type SetSelectedEventsTimeAction = {
   type: 'setSelectedEventsTime';
   time: number;
+  mode: SequencerMode;
 };
 
 export type SetSelectedEventsDurationAction = {
   type: 'setSelectedEventsDuration';
   duration: number;
+  mode: SequencerMode;
 };
 
 export type SetPadLabelAction = {
@@ -263,23 +270,23 @@ export type StartSequencerAction = {
   type: 'startSequencer';
   isPlaying: boolean;
   isRecording: boolean;
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type StopSequencerAction = {
   type: 'stopSequencer';
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type RewindSequencerAction = {
   type: 'rewindSequencer';
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type SetSequencerIsLoopedAction = {
   type: 'setSequencerIsLooped';
   isLooped: boolean;
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type SetProjectNameAction = {
@@ -307,10 +314,6 @@ export type SetProjectBgImageAction = {
 //   type: 'setPadSelectSourceDisabled';
 //   isDisabled: boolean;
 // };
-
-export type ClearStepSequencerEventsAction = {
-  type: 'clearStepSequencerEvents';
-};
 
 export type ProjectStoreActions =
   | SetPadMediaAction
@@ -355,8 +358,7 @@ export type ProjectStoreActions =
   | ClipboardSequencerEventsAction
   | SnapSequencerEventsAction
   | SetProjectBgImageAction
-  | ToggleStepSequencerEventAction
-  | ClearStepSequencerEventsAction;
+  | ToggleStepSequencerEventAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -381,6 +383,7 @@ export type SequencerTimesUpdatedEvent = {
   type: 'sequencerTimesUpdated';
   time: number;
   endTime: number;
+  mode: SequencerMode;
 };
 
 export type SequencerStartedEvent = {
@@ -388,12 +391,12 @@ export type SequencerStartedEvent = {
   isPlaying: boolean;
   isRecording: boolean;
   time: number;
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type SequencerStoppedEvent = {
   type: 'sequencerStopped';
-  isStep?: boolean;
+  mode: SequencerMode;
 };
 
 export type PadIsLoopedEvent = {

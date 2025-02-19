@@ -7,6 +7,7 @@ import {
   splitEvents
 } from '@model/sequencerEvent';
 import {
+  ClearSequencerEventsAction,
   Emit,
   ProjectStoreContext,
   RemoveSequencerEventAction,
@@ -20,32 +21,30 @@ import {
   StopSequencerAction,
   ToggleSequencerEventAction
 } from '../types';
-import { update, updateSequencer, updateStepSequencer } from './helpers';
+import {
+  addOrReplaceStepSequencerPattern,
+  update,
+  updateSequencer
+} from './helpers';
 
-const log = createLog('sequencer/events');
+const log = createLog('sequencer/actions');
 
 export const startSequencer = (
   context: ProjectStoreContext,
   action: StartSequencerAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  const { isPlaying, isRecording, isStep } = action;
+  const { isPlaying, isRecording, mode } = action;
 
-  const time = isStep
-    ? 0 //(context.stepSequencer?.time ?? 0)
-    : (context.sequencer?.time ?? 0);
+  const time = mode === 'time' ? 0 : (context.sequencer?.time ?? 0);
 
   emit({
     type: 'sequencerStarted',
     isPlaying,
     isRecording,
     time,
-    isStep
+    mode
   });
-
-  if (isStep) {
-    return updateStepSequencer(context, { time });
-  }
 
   return context;
 };
@@ -55,9 +54,9 @@ export const stopSequencer = (
   action: StopSequencerAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  const { isStep } = action;
+  const { mode } = action;
 
-  emit({ type: 'sequencerStopped', isStep });
+  emit({ type: 'sequencerStopped', mode });
   return context;
 };
 
@@ -66,32 +65,37 @@ export const rewindSequencer = (
   action: RewindSequencerAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  const { isStep } = action;
+  const { mode } = action;
 
-  const endTime = isStep
-    ? (context.stepSequencer?.time ?? 0)
-    : (context.sequencer?.time ?? 0);
+  const endTime = mode === 'step' ? 0 : (context.sequencer?.time ?? 0);
 
   emit({
     type: 'sequencerTimesUpdated',
     time: 0,
-    endTime
+    endTime,
+    mode
   });
 
-  if (isStep) {
-    return updateStepSequencer(context, { time: 0 });
+  if (mode === 'time' || mode === 'all') {
+    context = updateSequencer(context, { time: 0 });
   }
 
-  return updateSequencer(context, { time: 0 });
+  return context;
 };
 
 export const setSequencerIsLooped = (
   context: ProjectStoreContext,
   action: SetSequencerIsLoopedAction
 ): ProjectStoreContext => {
-  const { isLooped } = action;
+  const { isLooped, mode } = action;
+
   log.debug('setSequencerIsLooped', { isLooped });
-  return updateSequencer(context, { isLooped });
+
+  if (mode === 'time' || mode === 'all') {
+    context = updateSequencer(context, { isLooped });
+  }
+
+  return context;
 };
 
 export const toggleSequencerEvent = (
@@ -145,8 +149,16 @@ export const removeSequencerEvent = (
 };
 
 export const clearSequencerEvents = (
-  context: ProjectStoreContext
+  context: ProjectStoreContext,
+  action: ClearSequencerEventsAction
 ): ProjectStoreContext => {
+  const { mode } = action;
+
+  if (mode === 'step') {
+    const patternIndex = context.stepSequencer?.patternIndex ?? 0;
+    return addOrReplaceStepSequencerPattern(context, {}, patternIndex);
+  }
+
   const events = context.sequencer?.events ?? [];
 
   const [selected, nonSelected] = splitEvents(
@@ -175,12 +187,18 @@ export const setSequencerTime = (
   action: SetSequencerTimeAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  const { time } = action;
+  const { time, mode } = action;
+
+  if (mode === 'step') {
+    return context;
+  }
+
   const value = Math.max(0, Math.min(time, context.sequencer?.endTime ?? 0));
   emit({
     type: 'sequencerTimesUpdated',
     time: value,
-    endTime: context.sequencer?.endTime ?? 0
+    endTime: context.sequencer?.endTime ?? 0,
+    mode
   });
   // log.debug('setSequencerTime', { time, value });
 
@@ -192,7 +210,12 @@ export const setSequencerEndTime = (
   action: SetSequencerEndTimeAction,
   { emit }: Emit
 ): ProjectStoreContext => {
-  const { endTime } = action;
+  const { endTime, mode } = action;
+
+  if (mode === 'step') {
+    return context;
+  }
+
   const { time } = context.sequencer ?? { time: 0 };
   const value = Math.max(0, Math.max(endTime, 1));
 
@@ -201,7 +224,8 @@ export const setSequencerEndTime = (
   emit({
     type: 'sequencerTimesUpdated',
     time: newTime,
-    endTime: value
+    endTime: value,
+    mode
   });
 
   return update(context, {

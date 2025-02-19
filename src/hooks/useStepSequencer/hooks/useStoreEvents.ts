@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
-import { SequencerStartedEvent } from '@model/store/types';
+import {
+  SequencerStartedEvent,
+  SequencerStoppedEvent
+} from '@model/store/types';
 import { UseSelectorsResult } from './useSelectors';
 
 const log = createLog('stepSeq/useStoreEvents', ['debug']);
@@ -35,7 +38,7 @@ export const useStoreEvents = ({
       endTime: 16,
       isPlaying,
       isRecording,
-      isStep: true
+      mode: 'step'
     });
 
     const beatsPerSecond = 60 / bpm;
@@ -79,7 +82,9 @@ export const useStoreEvents = ({
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
-      const { isPlaying, isRecording, time } = event;
+      const { isPlaying, isRecording, time, mode } = event;
+
+      if (mode !== 'step' && mode !== 'all') return;
 
       log.debug('handlePlayStarted', {
         time
@@ -87,11 +92,13 @@ export const useStoreEvents = ({
 
       if (isPlaying) {
         events.emit('seq:play-started', {
-          time
+          time,
+          mode: 'step'
         });
       } else if (isRecording) {
         events.emit('seq:record-started', {
-          time
+          time,
+          mode: 'step'
         });
       }
 
@@ -105,7 +112,8 @@ export const useStoreEvents = ({
     [events, updateTime]
   );
 
-  const handleStopped = useCallback(() => {
+  const handleStopped = useCallback(({ mode }: SequencerStoppedEvent) => {
+    if (mode !== 'step' && mode !== 'all') return;
     log.debug('handlePlayStopped');
     if (animationRef.current === null) return;
 
@@ -135,7 +143,7 @@ export const useStoreEvents = ({
       endTime: 16,
       isPlaying: false,
       isRecording: false,
-      isStep: true
+      mode: 'step'
     });
   }, [events]);
 

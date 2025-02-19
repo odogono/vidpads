@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
+import { SequencerTimeUpdateEvent } from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { PlayHead } from '../TimeSequencer/components/PlayHead';
 
@@ -74,8 +75,9 @@ export const StepSequencerBody = ({ padCount }: SequencerBodyProps) => {
   }, [padCount, seqEvents, handleCellTap, timeToStep]);
 
   const handleTimeUpdate = useCallback(
-    (event: { time: number }) => {
-      const { time } = event;
+    (event: SequencerTimeUpdateEvent) => {
+      const { time, mode } = event;
+      if (mode !== 'step') return;
       const stepPosition = timeToStep(time);
       setPlayHeadPosition(stepPosition * stepWidth);
 

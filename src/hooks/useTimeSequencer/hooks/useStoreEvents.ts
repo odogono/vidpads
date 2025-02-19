@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
-import { SequencerStartedEvent } from '@model/store/types';
+import {
+  SequencerStartedEvent,
+  SequencerStoppedEvent
+} from '@model/store/types';
 
 const log = createLog('timeSeq/useStoreEvents');
 
@@ -36,7 +39,8 @@ export const useStoreEvents = ({
       time: currentTime,
       endTime,
       isPlaying,
-      isRecording
+      isRecording,
+      mode: 'time'
     });
 
     if (currentTime >= endTime) {
@@ -47,11 +51,11 @@ export const useStoreEvents = ({
         isLooped
       });
       if (isLooped) {
-        project.send({ type: 'rewindSequencer' });
+        project.send({ type: 'rewindSequencer', mode: 'time' });
         // timeRef.current = 0;
         playStartedAtRef.current = now;
       } else {
-        project.send({ type: 'stopSequencer' });
+        project.send({ type: 'stopSequencer', mode: 'time' });
       }
     }
 
@@ -62,9 +66,9 @@ export const useStoreEvents = ({
 
   const handlePlayStarted = useCallback(
     (event: SequencerStartedEvent) => {
-      const { isPlaying, isRecording, time, isStep } = event;
+      const { isPlaying, isRecording, time, mode } = event;
 
-      if (isStep) return;
+      if (mode === 'step') return;
 
       log.debug('handlePlayStarted', {
         time
@@ -72,11 +76,13 @@ export const useStoreEvents = ({
 
       if (isPlaying) {
         events.emit('seq:play-started', {
-          time
+          time,
+          mode: 'time'
         });
       } else if (isRecording) {
         events.emit('seq:record-started', {
-          time
+          time,
+          mode: 'time'
         });
       }
 
@@ -90,31 +96,41 @@ export const useStoreEvents = ({
     [events, updateTime]
   );
 
-  const handleStopped = useCallback(() => {
-    log.debug('handlePlayStopped');
-    if (animationRef.current === null) return;
+  const handleStopped = useCallback(
+    ({ mode }: SequencerStoppedEvent) => {
+      if (mode !== 'time' && mode !== 'all') return;
+      log.debug('handlePlayStopped');
+      if (animationRef.current === null) return;
 
-    const now = performance.now();
-    const currentTime = time + (now - playStartedAtRef.current) / 1000;
+      const now = performance.now();
+      const currentTime = time + (now - playStartedAtRef.current) / 1000;
 
-    project.send({ type: 'setSequencerTime', time: currentTime });
-    events.emit('seq:stopped', {
-      time: currentTime
-    });
+      project.send({
+        type: 'setSequencerTime',
+        time: currentTime,
+        mode: 'time'
+      });
+      events.emit('seq:stopped', {
+        time: currentTime,
+        mode: 'time'
+      });
 
-    cancelAnimationFrame(animationRef.current);
-    animationRef.current = null;
-    setIsPlaying(false);
-    setIsRecording(false);
-    // log.debug('handlePlayStopped', event.time);
-  }, [events, project, time]);
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+      setIsPlaying(false);
+      setIsRecording(false);
+      // log.debug('handlePlayStopped', event.time);
+    },
+    [events, project, time]
+  );
 
   useEffect(() => {
     events.emit('seq:time-update', {
       time,
       endTime,
       isPlaying: false,
-      isRecording: false
+      isRecording: false,
+      mode: 'time'
     });
   }, [events, time, endTime]);
 

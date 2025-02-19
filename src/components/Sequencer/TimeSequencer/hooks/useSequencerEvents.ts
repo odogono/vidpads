@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
+import { SequencerTimeUpdateEvent } from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { createSequencerEvent } from '@model/sequencerEvent';
 import { SequencerEvent } from '@model/types';
@@ -139,8 +140,9 @@ export const useSequencerEvents = ({
   }, [seqEventIds, pixelsPerBeat, canvasBpm, bpm]);
 
   const handleTimeUpdate = useCallback(
-    (event: { time: number; isPlaying: boolean; isRecording: boolean }) => {
-      const { time, isPlaying, isRecording } = event;
+    (event: SequencerTimeUpdateEvent) => {
+      const { time, isPlaying, isRecording, mode } = event;
+      if (mode !== 'time') return;
       const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
       setPlayHeadPosition(playHeadPosition);
 
