@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
+import { TimeoutId, clearRunAfter, runAfter } from '@helpers/time';
 import { useEvents } from '@hooks/events';
 import { EventInputSource } from '@hooks/events/types';
 import { useKeyboard } from '@hooks/useKeyboard';
@@ -38,8 +39,13 @@ import {
 
 const log = createLog('player/container ❤️', ['debug']);
 
+// after the last player has stopped, display the title after
+// this many seconds
+const HIDE_LAST_PLAYER_TIMEOUT = 10 * 1000;
+
 export const PlayerContainer = () => {
   const events = useEvents();
+  const hideLastPlayerTimeoutRef = useRef<TimeoutId | undefined>(undefined);
 
   const {
     arePlayersEnabled,
@@ -186,14 +192,6 @@ export const PlayerContainer = () => {
       const { chokeGroup } = e;
 
       if (chokeGroup !== undefined) {
-        // for (const player of players) {
-        //   if (player.padId === e.padId) continue;
-        //   if (player.chokeGroup === chokeGroup) {
-        //     log.debug('ChokeGroupPlayers: stopping player', player);
-        //     // events.emit('video:stop', { url: player.url, padId: player.padId, time: 0 });
-        //   }
-        // }
-
         // stop all players in the same choke group
         const cgPlayers = getChokeGroupPlayers(chokeGroup);
         cgPlayers.forEach((player) => {
@@ -210,15 +208,26 @@ export const PlayerContainer = () => {
       }
 
       showStackPlayer(e);
+      clearRunAfter(hideLastPlayerTimeoutRef.current);
     },
     [showStackPlayer, getChokeGroupPlayers, events]
   );
 
   const handlePlayerStopped = useCallback(
     (e: PlayerStopped) => {
-      hideStackPlayer(e.padId);
+      const { playing, lastId } = hideStackPlayer(e.padId);
+
+      if (playing === 0 && !hidePlayerOnEnd && lastId) {
+        clearRunAfter(hideLastPlayerTimeoutRef.current);
+        hideLastPlayerTimeoutRef.current = runAfter(
+          HIDE_LAST_PLAYER_TIMEOUT,
+          () => {
+            hideStackPlayer(lastId, true);
+          }
+        );
+      }
     },
-    [hideStackPlayer]
+    [hideStackPlayer, hidePlayerOnEnd]
   );
 
   const handlePlayerSeek = useCallback((e: PlayerSeek) => {
@@ -255,6 +264,7 @@ export const PlayerContainer = () => {
     events.on('player:ready', handlePlayerReady);
     events.on('player:not-ready', handlePlayerNotReady);
     return () => {
+      clearRunAfter(hideLastPlayerTimeoutRef.current);
       events.off('pad:touchdown', handlePadTouchdown);
       events.off('pad:touchup', handlePadTouchup);
       events.off('player:playing', handlePlayerPlaying);
