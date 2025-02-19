@@ -37,7 +37,11 @@ export const startSequencer = (
 ): ProjectStoreContext => {
   const { isPlaying, isRecording, mode } = action;
 
-  const time = isModeEqual(mode, 'time') ? (context.sequencer?.time ?? 0) : 0;
+  const isAllMode = isModeEqual(mode, 'all');
+
+  const timeSeqTime = isAllMode ? 0 : (context.sequencer?.time ?? 0);
+
+  const time = isModeActive(mode, 'time') ? timeSeqTime : 0;
 
   log.debug('startSequencer', {
     isPlaying,
@@ -46,13 +50,24 @@ export const startSequencer = (
     time: context.sequencer.time
   });
 
-  emit({
-    type: 'sequencerStarted',
-    isPlaying,
-    isRecording,
-    time,
-    mode
-  });
+  if (isAllMode) {
+    emit({
+      type: 'sequencerStarted',
+      isPlaying,
+      isRecording,
+      time: 0,
+      mode
+    });
+    context = updateSequencer(context, { time: 0 });
+  } else {
+    emit({
+      type: 'sequencerStarted',
+      isPlaying,
+      isRecording,
+      time,
+      mode
+    });
+  }
 
   return context;
 };
@@ -203,16 +218,18 @@ export const setSequencerTime = (
     return context;
   }
 
-  const value = Math.max(0, Math.min(time, context.sequencer?.endTime ?? 0));
+  const timeSeqEndTime = context.sequencer?.endTime ?? 0;
+
+  // const value = Math.max(0, Math.min(time, timeSeqTime));
   emit({
     type: 'sequencerTimesUpdated',
-    time: value,
-    endTime: context.sequencer?.endTime ?? 0,
+    time: time,
+    endTime: timeSeqEndTime,
     mode
   });
-  // log.debug('setSequencerTime', { time, value });
+  log.debug('setSequencerTime', { time, timeSeqEndTime });
 
-  return updateSequencer(context, { time: value });
+  return updateSequencer(context, { time });
 };
 
 export const setSequencerEndTime = (
