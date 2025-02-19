@@ -73,7 +73,7 @@ describe('exportToURLString', () => {
     expect(imported.name).toBe('');
   });
 
-  it('should handle pads with operations', async () => {
+  http: it('should handle pads with operations', async () => {
     const storeWithPads = {
       getSnapshot: () => ({
         context: {
@@ -172,6 +172,7 @@ describe('importPadFromURLString', () => {
     id: '08978bb8',
     name: 'DJ Premier on the Wheels of Steel',
     exportVersion: '1',
+    version: '2025-02-18',
     createdAt: '2025-01-14T12:42:34Z',
     updatedAt: '2025-01-18T17:24:42Z',
     pads: [
@@ -265,4 +266,12 @@ describe('importPadFromURLString', () => {
 
   //   expect(project.sequencer).toBeDefined();
   // });
+
+  it.only('should import project from URL string v4', async () => {
+    const data =
+      '4|eJxtjcuKwkAQRX%2BnIUzoquqHKXAxgopCFj4ys8iqHw4qMQgq2kMz3y6RWcrdnM05NyjSHsHKmPOtj7ufQ7%2BLGSxVI2vRmBdWQApH2UHreXWa%2FYbUpHq6TvFbdvXx81Fc%2BC9RWj8%2BYrTLcCmujIxlhbY4M7BkZOGw9dyg3odT09XHyTT0X9fldnGvV%2BPxm4BiXWpU%2FwFg4aj1vKVJ5w%2FD%2B%2F48yJv5TL6RQTJAqQy99GHZyNaBUGQqyQ4FSm0UOxJGa9JPCzdMyw%3D%3D';
+    const imported = await urlStringToProject(data);
+
+    expect(imported.sequencer).toBeDefined();
+  });
 });

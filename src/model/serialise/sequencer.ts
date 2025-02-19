@@ -113,7 +113,7 @@ export const importSequencerFromURLString = (
   const [bpm, time, endTime, eventsStr] = urlString.split('[');
 
   const events =
-    eventsStr.length > 0
+    eventsStr?.length > 0
       ? eventsStr.split('+').reduce<SequencerExport['events']>(
           (acc, entry) => {
             const [padId, times] = entry.split('(');

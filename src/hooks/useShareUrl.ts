@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback } from 'react';
+
 import { usePathname, useSearchParams } from 'next/navigation';
 
 interface UseShareUrlProps {
@@ -10,20 +12,24 @@ export const useShareUrl = ({ isImport = false }: UseShareUrlProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const createNewUrl = (newParams: Record<string, string>) => {
-    const params = new URLSearchParams(searchParams);
-    const preferredPathName = isImport ? '/import' : pathname;
+  const createNewUrl = useCallback(
+    (newParams: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams);
+      const preferredPathName = isImport ? '/import' : pathname;
 
-    // Add or update parameters
-    Object.entries(newParams).forEach(([key, value]) => {
-      params.set(key, value);
-    });
+      // Add or update parameters
+      Object.entries(newParams).forEach(([key, value]) => {
+        params.set(key, value);
+      });
 
-    // Get the base URL including host and port
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      // Get the base URL including host and port
+      const baseUrl =
+        typeof window !== 'undefined' ? window.location.origin : '';
 
-    return `${baseUrl}${preferredPathName}?${params.toString()}`;
-  };
+      return `${baseUrl}${preferredPathName}?${params.toString()}`;
+    },
+    [isImport, pathname, searchParams]
+  );
 
   return {
     createNewUrl

@@ -33,7 +33,7 @@ describe('exportSequencerToURLString', () => {
     const json = exportStepSequencerToJSON(stepSequencer);
     const result = exportStepSequencerToURLString(stepSequencer);
 
-    expect(result).toBe('120[pad1=16384:pad2=32768+pad3=16384');
+    expect(result).toBe('120[pad1(16384:pad2(32768+pad3(16384');
 
     const result2 = importStepSequencerFromURLString(result!);
 
