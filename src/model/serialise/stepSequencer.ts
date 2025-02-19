@@ -1,3 +1,4 @@
+import { createLog } from '@helpers/log';
 import { safeParseFloat, safeParseInt } from '@helpers/number';
 import { ProjectStoreContextType } from '@model/store/types';
 import { initialContext } from '../store/store';
@@ -7,6 +8,8 @@ import {
   StepSequencerPatternEntry,
   StepSequencerSteps
 } from '../types';
+
+const log = createLog('stepSequencer');
 
 type StepSequencerType = ProjectStoreContextType['stepSequencer'];
 
@@ -97,7 +100,7 @@ export const exportStepSequencerToURLString = (
       // stepsToNumber(pattern.steps)
       return pattern
         .map(({ padId, steps }) => {
-          return `${padId}=${stepsToNumber(steps)}`;
+          return `${padId}(${stepsToNumber(steps)}`;
         })
         .join(':');
     })
@@ -111,9 +114,14 @@ export const importStepSequencerFromURLString = (
 ): StepSequencerExport => {
   const [bpm, patternsStr] = urlString.split('[');
 
+  log.debug('importStepSequencerFromURLString', {
+    bpm,
+    patternsStr
+  });
+
   const patterns = patternsStr.split('+').map((pattern) => {
     return pattern.split(':').map((sub) => {
-      const parts = sub.split('=');
+      const parts = sub.split('(');
       return parts.reduce(
         (acc, part, index) => {
           if (index === 0) {

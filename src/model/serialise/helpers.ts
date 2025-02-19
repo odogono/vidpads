@@ -1,3 +1,8 @@
+import { getUnixTimeFromDate } from '@helpers/datetime';
+import { exportPadToURLString } from '@model/serialise/pad';
+import { exportSequencerToURLString } from '@model/serialise/sequencer';
+import { ProjectStoreType } from '@model/store/types';
+
 export const shortenUrl = (url: string) => {
   if (url.startsWith('youtu.be/')) {
     return url.replace('youtu.be/', '~y');
@@ -51,4 +56,55 @@ export const expandUrl = (url: string) => {
   }
 
   return url;
+};
+
+export const exportToURLCommon = (project: ProjectStoreType) => {
+  const { context } = project.getSnapshot();
+
+  const {
+    projectId,
+    projectName,
+    projectBgImage,
+    createdAt,
+    updatedAt,
+    pads,
+    sequencer
+  } = context;
+
+  const sequencerURL = sequencer ? exportSequencerToURLString(sequencer) : '';
+
+  const padsURL = pads.map((pad) => exportPadToURLString(pad)).filter(Boolean);
+
+  const createTimeSecs = getUnixTimeFromDate(createdAt);
+  const updateTimeSecs = getUnixTimeFromDate(updatedAt);
+
+  return {
+    context,
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  };
+};
+
+export const addPadsAndSequencerToResult = (
+  result: string,
+  padsURL: (string | undefined)[],
+  sequencerURL?: string
+) => {
+  if (padsURL.length > 0) {
+    result += `|${padsURL.join('(')}`;
+  } else {
+    result += '|';
+  }
+
+  result += '|';
+  if (sequencerURL) {
+    result += sequencerURL;
+  }
+
+  return result;
 };
