@@ -10,8 +10,8 @@ import { isValidSourceUrl } from '@helpers/metadata';
 import { Input } from '@heroui/react';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
+import { useLastMediaUrl } from '@hooks/useProject/selectors';
 import { usePadOperations } from '@model/hooks/usePadOperations';
-import { useLastMediaUrl } from '@model/store/selectors';
 import { OpButton } from '../common/OpButton';
 import { CommonModal, CommonModalBase, OnOpenProps } from './CommonModal';
 

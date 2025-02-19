@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 
+import { useSelectedPadId } from '@hooks/useProject/selectors';
 import { usePadOperations } from '@model/hooks/usePadOperations';
-import { useSelectedPadId } from '@model/store/selectors';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
 export const DeleteModal = ({ ref }: CommonModalBase) => {

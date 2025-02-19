@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
 import { requestMIDIAccess } from '@helpers/midi';
-import { useSelectedPadId } from '@model/store/selectors';
+import { useSelectedPadId } from '@hooks/useProject/selectors';
 import { MidiStoreType } from '../store';
 
 const log = createLog('useMidiListener', ['debug']);

@@ -7,6 +7,7 @@ import { useEvents } from '@hooks/events';
 import { EventInputSource } from '@hooks/events/types';
 import { useKeyboard } from '@hooks/useKeyboard';
 import { useMidiMappingMode } from '@hooks/useMidi/selectors';
+import { useSelectedPadId } from '@hooks/useProject/selectors';
 import { useIsPlayEnabled } from '@hooks/useSettings';
 import { usePlayersState } from '@model/hooks/usePlayersState';
 import {
@@ -21,7 +22,6 @@ import {
   getPadVolume,
   isPadLooped
 } from '@model/pad';
-import { useSelectedPadId } from '@model/store/selectors';
 import { Interval } from '@model/types';
 import { Player } from './Player';
 import { TitlePlayer } from './TitlePlayer';
