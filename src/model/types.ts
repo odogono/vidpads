@@ -188,6 +188,7 @@ export interface SequencerExport {
 
 export interface StepSequencerExport {
   bpm: number;
+  patternIndex: number;
   patterns: StepSequencerPatternEntry[][] | undefined;
 }
 

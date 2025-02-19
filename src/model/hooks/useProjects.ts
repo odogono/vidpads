@@ -21,7 +21,7 @@ import { ProjectStoreContextType } from '@model/store/types';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const log = createLog('model/useProjects');
+const log = createLog('model/useProjects', ['debug']);
 
 export const useProjects = () => {
   const { project, setProjectId } = useProject();

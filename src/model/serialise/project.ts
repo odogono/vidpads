@@ -126,9 +126,9 @@ export const importProjectExport = (
       }
     : newContext;
 
-  const stepSequencer = data.stepSequencer
-    ? importStepSequencerFromJSON(data.stepSequencer)
-    : undefined;
+  const stepSequencer = importStepSequencerFromJSON(data.stepSequencer);
+
+  // log.debug('importProjectExport', { stepSequencer }, data.stepSequencer);
 
   const contextWithStepSequencer = stepSequencer
     ? {
@@ -153,7 +153,7 @@ export const urlStringToProject = async (urlString: string) => {
   const version = urlString.slice(0, firstPipe);
   const data = urlString.slice(firstPipe + 1);
 
-  log.debug('urlStringToProject', urlString, version, data);
+  // log.debug('urlStringToProject', urlString, version, data);
 
   if (version === '1') {
     return importFromURLStringV1(data);
