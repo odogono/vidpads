@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Import Prism core
 import Prism from 'prismjs';
@@ -10,10 +10,10 @@ import 'prismjs/themes/prism-okaidia.css';
 // Import language support
 import 'prismjs/components/prism-json';
 
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { urlStringToProject } from '../../model/serialise/project';
 
-const log = createLog('debug_import');
+// const log = createLog('debug_import');
 
 // Simplify the styles
 const styles = {

@@ -1,5 +1,5 @@
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
 import { exportPadToJSON, importPadFromJSON } from '@model/serialise/pad';
 import {
@@ -19,7 +19,7 @@ import { exportToURLStringV2, importFromURLStringV2 } from './versions/2';
 import { exportToURLStringV3, importFromURLStringV3 } from './versions/3';
 import { exportToURLStringV4, importFromURLStringV4 } from './versions/4';
 
-const log = createLog('serialise/project');
+// const log = createLog('serialise/project');
 
 const EXPORT_JSON_VERSION = '2025-02-18';
 const EXPORT_APP_VERSION = process.env.VERSION;

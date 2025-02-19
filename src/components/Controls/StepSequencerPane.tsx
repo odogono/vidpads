@@ -1,62 +1,33 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-import { Play, Rewind, Square, Trash } from 'lucide-react';
+import { Play, Square, Trash } from 'lucide-react';
 
-import { OpButton } from '@/components/common/OpButton';
+import { OpButton } from '@components/common/OpButton';
 import {
   OpIntegerInput,
   OpIntegerInputRef
 } from '@components/common/OpIntegerInput';
 import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
-import { useEvents } from '@hooks/events';
-import type { SequencerTimeUpdateEvent } from '@hooks/events/types';
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
-const log = createLog('StepSequencerPane', ['']);
+// const log = createLog('StepSequencerPane', ['debug']);
 
 export const StepSequencerPane = () => {
-  const events = useEvents();
   const { setShowMode } = useShowMode();
-  const [showRewind, setShowRewind] = useState(false);
-  // const [isPlaying, setIsPlaying] = useState(false);
-  // const [isRecording, setIsRecording] = useState(false);
   const bpmRef = useRef<OpIntegerInputRef | null>(null);
-  const timeRef = useRef<OpTimeInputRef | undefined>(undefined);
+  const timeRef = useRef<OpTimeInputRef | null>(null);
 
-  const {
-    isPlaying,
-    play,
-    stop,
-    rewind,
-    activeStep,
-    bpm,
-    clearEvents,
-    setBpm
-  } = useStepSequencer();
+  const { isPlaying, play, stop, activeStep, bpm, clearEvents, setBpm } =
+    useStepSequencer();
 
   const handleStop = useCallback(() => {
-    if (showRewind) {
-      rewind();
-    } else {
-      stop();
-    }
-  }, [showRewind, rewind, stop]);
-
-  // useEffect(() => {
-  //   setShowRewind(!isPlaying && !isRecording && time > 0);
-  // }, [isPlaying, isRecording, time]);
-
-  // const handleTimeUpdate = useCallback((event: SequencerTimeUpdateEvent) => {
-  //   const { time } = event;
-  //   // log.debug('handleTimeUpdate', { time, isStep });
-
-  //   timeRef.current?.setValue(time);
-  // }, []);
+    stop();
+  }, [stop]);
 
   useEffect(() => {
     timeRef.current?.setValue(activeStep === -1 ? undefined : activeStep + 1);
@@ -70,11 +41,9 @@ export const StepSequencerPane = () => {
 
   useEffect(() => {
     setShowMode('step');
-    // events.on('seq:time-update', handleTimeUpdate);
 
     return () => {
       setShowMode('pads');
-      // events.off('seq:time-update', handleTimeUpdate);
     };
   }, [setShowMode]);
 
@@ -88,21 +57,12 @@ export const StepSequencerPane = () => {
   return (
     <>
       <div className='vo-pane-sequencer w-fit h-full pl-2  flex flex-row gap-2 items-center justify-center '>
-        <OpButton label={showRewind ? 'Rewind' : 'Stop'} onPress={handleStop}>
-          {showRewind ? <Rewind /> : <Square />}
+        <OpButton label={'Stop'} onPress={handleStop} isEnabled={isPlaying}>
+          <Square />
         </OpButton>
         <OpButton label='Play' onPress={play}>
           <Play className={isPlaying ? 'animate-pulse' : ''} />
         </OpButton>
-        {/* <OpButton label='Record' onPress={record}>
-          <Circle
-            color='var(--c3)'
-            className={isRecording ? 'animate-pulse' : ''}
-          />
-        </OpButton> */}
-        {/* <OpToggleButton label='Loop' isSelected={isLooped} onPress={handleLoop}>
-          <Repeat2 />
-        </OpToggleButton> */}
         <OpButton label='Clear' onPress={handleClear}>
           <Trash />
         </OpButton>

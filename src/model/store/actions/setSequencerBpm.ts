@@ -5,8 +5,8 @@ export const setSequencerBpm = (
   context: ProjectStoreContext,
   event: SetSequencerBpmAction
 ): ProjectStoreContext => {
-  const { bpm, isStep } = event;
-  if (isStep) {
+  const { bpm, mode } = event;
+  if (mode === 'step') {
     return updateStepSequencer(context, {
       bpm
     });

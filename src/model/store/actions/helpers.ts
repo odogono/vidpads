@@ -1,6 +1,6 @@
 import { dateToISOString } from '@helpers/datetime';
 import { ProjectStoreContext } from '@model/store/types';
-import { Pad } from '@model/types';
+import { Pad, StepSequencerEvents } from '@model/types';
 
 export const findPadById = (
   context: ProjectStoreContext,
@@ -58,4 +58,18 @@ export const updateStepSequencer = (
       ...newSequencer
     }
   });
+};
+
+export const addOrReplaceStepSequencerPattern = (
+  context: ProjectStoreContext,
+  pattern: StepSequencerEvents,
+  index: number
+) => {
+  const patterns = context.stepSequencer?.patterns ?? [];
+
+  const newPatterns = [...patterns];
+
+  newPatterns[index] = pattern;
+
+  return updateStepSequencer(context, { patterns: newPatterns });
 };

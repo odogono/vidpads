@@ -168,7 +168,7 @@ export const useKeyMap = (store: KeyboardStoreType) => {
       window.removeEventListener('blur', handleBlur);
       events.off('keyboard:enabled', setIsEnabled);
     };
-  }, [handleKeyDown, handleKeyUp, handleBlur, events]);
+  }, [handleKeyDown, handleKeyUp, handleBlur, events, setIsEnabled]);
 
   return {
     keyMap,

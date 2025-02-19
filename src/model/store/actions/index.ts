@@ -17,7 +17,7 @@ export {
   stopSequencer,
   rewindSequencer,
   setSequencerIsLooped
-} from './sequencerEvents';
+} from './sequencerActions';
 export { addSequencerEvent } from './sequencerEvents/addSequencerEvent';
 export { moveSequencerEvents } from './sequencerEvents/moveSequencerEvents';
 export { repeatSequencerEvents } from './sequencerEvents/repeatSequencerEvents';
@@ -43,4 +43,3 @@ export { setPadIsOneShot } from './setPadIsOneShot';
 export { setPadPlaybackResume } from './setPadPlayResume';
 export { setProjectName } from './setProjectName';
 export { setProjectBgImage } from './setProjectBgImage';
-export { clearStepSequencerEvents } from './sequencerEvents/clearStepSequencerEvents';

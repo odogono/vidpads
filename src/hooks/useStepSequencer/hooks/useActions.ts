@@ -22,30 +22,31 @@ export const useActions = ({
       type: 'startSequencer',
       isPlaying: true,
       isRecording: false,
-      isStep: true
+      mode: 'step'
     });
   }, [project]);
 
   const playToggle = useCallback(() => {
     if (isPlaying || isRecording) {
-      project.send({ type: 'stopSequencer' });
+      project.send({ type: 'stopSequencer', mode: 'step' });
     } else {
       project.send({
         type: 'startSequencer',
         isPlaying: true,
-        isRecording: false
+        isRecording: false,
+        mode: 'step'
       });
     }
   }, [project, isPlaying, isRecording]);
 
   const stop = useCallback(() => {
     log.debug('stop');
-    project.send({ type: 'stopSequencer' });
+    project.send({ type: 'stopSequencer', mode: 'step' });
   }, [project]);
 
   const setBpm = useCallback(
     (bpm: number) => {
-      project.send({ type: 'setSequencerBpm', bpm, isStep: true });
+      project.send({ type: 'setSequencerBpm', bpm, mode: 'step' });
     },
     [project]
   );
@@ -54,12 +55,13 @@ export const useActions = ({
     project.send({
       type: 'startSequencer',
       isPlaying: false,
-      isRecording: true
+      isRecording: true,
+      mode: 'step'
     });
   }, [project]);
 
   const rewind = useCallback(() => {
-    project.send({ type: 'rewindSequencer' });
+    project.send({ type: 'rewindSequencer', mode: 'step' });
   }, [project]);
 
   const toggleStep = useCallback(
@@ -75,7 +77,7 @@ export const useActions = ({
   );
 
   const clearEvents = useCallback(() => {
-    project.send({ type: 'clearStepSequencerEvents' });
+    project.send({ type: 'clearSequencerEvents', mode: 'step' });
   }, [project]);
 
   return {

@@ -11,6 +11,7 @@ import {
   PlayerTimeUpdate,
   PlayerUpdate
 } from '@components/Player/types';
+import { SequencerMode } from '@model/store/types';
 import { Media, MediaYouTube } from '@model/types';
 
 export type EventInputSource =
@@ -83,16 +84,20 @@ export type EventEmitterEvents = {
   'seq:play-toggle': undefined;
   'seq:play-started': {
     time: number;
+    mode: SequencerMode;
   };
   'seq:record': undefined;
   'seq:record-started': {
     time: number;
+    mode: SequencerMode;
   };
   'seq:stop': {
     time: number;
+    mode: SequencerMode;
   };
   'seq:stopped': {
     time: number;
+    mode: SequencerMode;
   };
   'seq:rewind': undefined;
   'seq:time-update': SequencerTimeUpdateEvent;
@@ -116,5 +121,5 @@ export interface SequencerTimeUpdateEvent {
   endTime: number;
   isPlaying: boolean;
   isRecording: boolean;
-  isStep?: boolean;
+  mode: SequencerMode;
 }
