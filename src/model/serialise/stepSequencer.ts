@@ -9,7 +9,7 @@ import {
   StepSequencerSteps
 } from '../types';
 
-const log = createLog('stepSequencer');
+const log = createLog('serialise/stepSequencer', ['debug']);
 
 type StepSequencerType = ProjectStoreContextType['stepSequencer'];
 

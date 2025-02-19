@@ -20,7 +20,7 @@ import { useKeyboard } from '@hooks/useKeyboard';
 const log = createLog('OpTimeInput', ['debug']);
 
 export interface OpTimeInputRef {
-  setValue: (value: number) => void;
+  setValue: (value: number | undefined) => void;
   getValue: () => number;
 }
 interface OpTimeInputProps {
@@ -60,9 +60,12 @@ export const OpTimeInput = ({
   }, [initialValue]);
 
   useImperativeHandle(ref, () => ({
-    setValue: (value: number) => {
-      // if (description === 'Start') log.debug('ref.setValue', value);
-      setInputValue(formatTimeToString(value));
+    setValue: (value: number | undefined) => {
+      if (value === undefined) {
+        setInputValue('---:---:---');
+      } else {
+        setInputValue(formatTimeToString(value));
+      }
     },
     getValue: () => {
       return formatTimeStringToSeconds(inputValue);

@@ -18,7 +18,7 @@ describe('importStepSequencerFromJSON', () => {
     expect(result).toEqual(initialContext.stepSequencer);
   });
 
-  it.only('should import step sequencer from JSON', () => {
+  it('should import step sequencer from JSON', () => {
     const result = importStepSequencerFromJSON({
       bpm: 120,
       patternIndex: 0,
