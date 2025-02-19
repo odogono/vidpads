@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- step sequencer
+- top level play button - plays/stops all sequencers
+
+
+### Fixed
+- paste in select source modal text input is overriden by pad paste
+  
+
 ## v1.1.3 (2025-02-16)
 
 ### Changed

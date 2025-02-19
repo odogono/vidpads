@@ -167,6 +167,7 @@ export const useStoreEvents = ({
 
       const now = performance.now();
       const currentTime = time + (now - playStartedAtRef.current) / 1000;
+      lastTimeUpdate.current = currentTime;
 
       project.send({
         type: 'setSequencerTime',
@@ -176,6 +177,16 @@ export const useStoreEvents = ({
       events.emit('seq:stopped', {
         time: currentTime,
         mode: 'time'
+      });
+
+      // stop all players
+      // TODO should only stop active players
+      events.emit('video:stop', {
+        url: '',
+        padId: '',
+        all: true,
+        time: 0,
+        requestId: 'sequencer-stopped'
       });
 
       cancelAnimationFrame(animationRef.current);

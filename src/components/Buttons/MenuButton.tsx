@@ -13,18 +13,18 @@ import {
   DropdownTrigger
 } from '@heroui/react';
 import { useMidiMappingMode } from '@hooks/useMidi/selectors';
-import { isMidiSupported } from '../helpers/midi';
-import { AboutModal } from './modals/AboutModal';
-import { CommonModalRef } from './modals/CommonModal';
-import { DeleteEverythingModal } from './modals/DeleteEverythingModal';
-import { ExportProjectModal } from './modals/ExportProjectModal';
-import { ImportProjectModal } from './modals/ImportProjectModal';
-import { KeyboardModal } from './modals/KeyboardModal';
-import { LoadProjectModal } from './modals/LoadProjectModal';
-import { NewProjectModal } from './modals/NewProjectModal';
-import { ProjectImageModal } from './modals/ProjectImageModal';
-import { SaveProjectModal } from './modals/SaveProjectModal';
-import { SettingsModal } from './modals/SettingsModal';
+import { isMidiSupported } from '../../helpers/midi';
+import { AboutModal } from '../modals/AboutModal';
+import { CommonModalRef } from '../modals/CommonModal';
+import { DeleteEverythingModal } from '../modals/DeleteEverythingModal';
+import { ExportProjectModal } from '../modals/ExportProjectModal';
+import { ImportProjectModal } from '../modals/ImportProjectModal';
+import { KeyboardModal } from '../modals/KeyboardModal';
+import { LoadProjectModal } from '../modals/LoadProjectModal';
+import { NewProjectModal } from '../modals/NewProjectModal';
+import { ProjectImageModal } from '../modals/ProjectImageModal';
+import { SaveProjectModal } from '../modals/SaveProjectModal';
+import { SettingsModal } from '../modals/SettingsModal';
 
 export const MenuButton = () => {
   const { isMidiMappingModeEnabled, enableMappingMode } = useMidiMappingMode();

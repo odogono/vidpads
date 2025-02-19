@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { createLog } from '@helpers/log';
 import { secondsToPixels } from '@helpers/time';
-// import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { SequencerPlayHeadUpdateEvent } from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
@@ -16,7 +16,7 @@ interface UseSequencerEventsProps {
   time: number;
 }
 
-// const log = createLog('seq/useSequencerEvents');
+const log = createLog('seq/useSequencerEvents');
 
 export const useSequencerEvents = ({
   pixelsPerBeat,
@@ -79,114 +79,8 @@ export const useSequencerEvents = ({
 
   const handleStopped = useCallback(() => {
     setIsRecording(false);
-    // stop all players
-    events.emit('video:stop', {
-      url: '',
-      padId: '',
-      all: true,
-      time: 0,
-      requestId: 'sequencer-stopped'
-    });
-  }, [setIsRecording, events]);
-
-  // // creates a binary tree of trigger events
-  // const triggerTree: TriggerNode | undefined = useMemo(() => {
-  //   const result = seqEvents.reduce(
-  //     (tree, e) => {
-  //       if (!e) return tree;
-  //       const { time, duration, padId, inProgress } = e;
-
-  //       if (inProgress) return tree;
-
-  //       const adjTime = pixelsToMs(
-  //         msToPixels(time, pixelsPerBeat, canvasBpm),
-  //         pixelsPerBeat,
-  //         bpm
-  //       );
-  //       const adjDuration = pixelsToMs(
-  //         msToPixels(duration, pixelsPerBeat, canvasBpm),
-  //         pixelsPerBeat,
-  //         bpm
-  //       );
-
-  //       tree = insertTriggerEvent(tree, {
-  //         event: 'pad:touchdown',
-  //         time: adjTime,
-  //         padId
-  //       });
-  //       tree = insertTriggerEvent(tree, {
-  //         event: 'pad:touchup',
-  //         time: adjTime + adjDuration,
-  //         padId
-  //       });
-  //       return tree;
-  //     },
-  //     undefined as TriggerNode | undefined
-  //   );
-
-  //   return result;
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [seqEventIds, pixelsPerBeat, canvasBpm, bpm]);
-
-  // const handleTimeUpdate = useCallback(
-  //   (event: SequencerTimeUpdateEvent) => {
-  //     const { time, isPlaying, isRecording, mode } = event;
-  //     if (mode !== 'time') return;
-
-  //     // applyTimeUpdate(
-  //     //   time,
-  //     //   isPlaying,
-  //     //   isRecording,
-  //     //   lastTimeUpdate,
-  //     //   events,
-  //     //   triggerTree
-  //     // );
-  //     // const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
-  //     // setPlayHeadPosition(playHeadPosition);
-
-  //     // if (!isPlaying && !isRecording) {
-  //     //   lastTimeUpdate.current = time;
-  //     //   return;
-  //     // }
-
-  //     // // emit an update event so that any events which
-  //     // // are being recorded can update their dimensions
-  //     // events.emit('seq:playhead-update', {
-  //     //   time,
-  //     //   playHeadX: playHeadPosition,
-  //     //   isPlaying,
-  //     //   isRecording
-  //     // });
-
-  //     // // get all of the events between the last time this was called
-  //     // // and the current time
-  //     // const startTime = Math.min(time, lastTimeUpdate.current);
-  //     // const endTime = Math.max(time, lastTimeUpdate.current);
-  //     // const rangeEvents = findTriggerEventsWithinTimeRange(
-  //     //   triggerTree,
-  //     //   startTime,
-  //     //   endTime
-  //     // );
-
-  //     // // console.debug(
-  //     // //   '[handleTimeUpdate] rangeEvents',
-  //     // //   { time, startTime, endTime, tree: triggerTreeToEvents(triggerTree) },
-  //     // //   rangeEvents.length
-  //     // // );
-
-  //     // for (const event of rangeEvents) {
-  //     //   events.emit(event.event, {
-  //     //     padId: event.padId,
-  //     //     source: 'sequencer',
-  //     //     forceStop: true,
-  //     //     requestId: 'sequencer-time-update'
-  //     //   });
-  //     // }
-
-  //     // lastTimeUpdate.current = time;
-  //   },
-  //   []
-  // );
+    log.debug('handleStopped');
+  }, [setIsRecording]);
 
   const handlePlayHeadUpdate = useCallback(
     ({ playHeadX }: SequencerPlayHeadUpdateEvent) => {
@@ -221,56 +115,3 @@ export const useSequencerEvents = ({
 
   return { playHeadPosition };
 };
-
-// const applyTimeUpdate = (
-//   time: number,
-//   isPlaying: boolean,
-//   isRecording: boolean,
-//   lastTimeUpdate: RefObject<number>,
-//   events: EventEmitter,
-//   triggerTree: TriggerNode | undefined
-// ) => {
-//   // const playHeadPosition = secondsToPixels(time, pixelsPerBeat, bpm);
-//   // setPlayHeadPosition(playHeadPosition);
-
-//   if (!isPlaying && !isRecording) {
-//     lastTimeUpdate.current = time;
-//     return;
-//   }
-
-//   // // emit an update event so that any events which
-//   // // are being recorded can update their dimensions
-//   // events.emit('seq:playhead-update', {
-//   //   time,
-//   //   playHeadX: playHeadPosition,
-//   //   isPlaying,
-//   //   isRecording
-//   // });
-
-//   // get all of the events between the last time this was called
-//   // and the current time
-//   const startTime = Math.min(time, lastTimeUpdate.current);
-//   const endTime = Math.max(time, lastTimeUpdate.current);
-//   const rangeEvents = findTriggerEventsWithinTimeRange(
-//     triggerTree,
-//     startTime,
-//     endTime
-//   );
-
-//   // console.debug(
-//   //   '[handleTimeUpdate] rangeEvents',
-//   //   { time, startTime, endTime, tree: triggerTreeToEvents(triggerTree) },
-//   //   rangeEvents.length
-//   // );
-
-//   for (const event of rangeEvents) {
-//     events.emit(event.event, {
-//       padId: event.padId,
-//       source: 'sequencer',
-//       forceStop: true,
-//       requestId: 'sequencer-time-update'
-//     });
-//   }
-
-//   lastTimeUpdate.current = time;
-// };

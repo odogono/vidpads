@@ -10,10 +10,7 @@ import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
-import {
-  SequencerPlayHeadUpdateEvent,
-  SequencerTimeUpdateEvent
-} from '@hooks/events/types';
+import { SequencerPlayHeadUpdateEvent } from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
 
