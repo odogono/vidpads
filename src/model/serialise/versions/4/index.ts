@@ -1,9 +1,18 @@
 import { compress, decompress } from '@helpers/compress';
-import { dateToISOString, getDateFromUnixTime } from '@helpers/datetime';
+import {
+  dateToISOString,
+  getDateFromUnixTime,
+  getUnixTimeFromDate
+} from '@helpers/datetime';
 import { createLog } from '@helpers/log';
-import { exportToURLCommon } from '@model/serialise/helpers';
-import { importPadFromURLString } from '@model/serialise/pad';
-import { importSequencerFromURLString } from '@model/serialise/sequencer';
+import {
+  exportPadToURLString,
+  importPadFromURLString
+} from '@model/serialise/pad';
+import {
+  exportSequencerToURLStringV4,
+  importSequencerFromURLStringV4
+} from '@model/serialise/sequencer';
 import {
   exportStepSequencerToURLString,
   importStepSequencerFromURLString
@@ -39,7 +48,7 @@ export const importFromURLStringV4 = async (data: string) => {
     .filter(Boolean) as PadExport[];
 
   const sequencer = sequencerURL
-    ? importSequencerFromURLString(sequencerURL)
+    ? importSequencerFromURLStringV4(sequencerURL)
     : undefined;
 
   const stepSequencer = stepSequencerURL
@@ -102,4 +111,39 @@ export const exportToURLStringV4 = async (project: ProjectStoreType) => {
   const compressed = await compress(result);
 
   return `4|${compressed}`;
+};
+
+const exportToURLCommon = (project: ProjectStoreType) => {
+  const { context } = project.getSnapshot();
+
+  const {
+    projectId,
+    projectName,
+    projectBgImage,
+    createdAt,
+    updatedAt,
+    pads,
+    sequencer
+  } = context;
+
+  const sequencerURL = sequencer ? exportSequencerToURLStringV4(sequencer) : '';
+
+  const padsURL = pads
+    .map((pad) => exportPadToURLString(pad))
+    .filter(Boolean)
+    .join('(');
+
+  const createTimeSecs = getUnixTimeFromDate(createdAt);
+  const updateTimeSecs = getUnixTimeFromDate(updatedAt);
+
+  return {
+    context,
+    projectId,
+    projectName,
+    projectBgImage,
+    createTimeSecs,
+    updateTimeSecs,
+    padsURL,
+    sequencerURL
+  };
 };

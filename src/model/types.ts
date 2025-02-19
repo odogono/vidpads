@@ -183,6 +183,7 @@ export interface SequencerExport {
   bpm: number;
   time: number;
   endTime: number;
+  isLooped: boolean;
   events: Record<string, [number, number][]> | undefined;
 }
 

@@ -16,7 +16,7 @@ export const exportSequencerToJSON = (
     return undefined;
   }
 
-  const { bpm, events, time, endTime } = sequencer;
+  const { bpm, events, time, endTime, isLooped } = sequencer;
 
   const eventsJSON = exportSequencerEventsToJSON(events);
 
@@ -29,6 +29,7 @@ export const exportSequencerToJSON = (
 
   return {
     bpm,
+    isLooped: !!isLooped,
     time: roundDP(time),
     endTime: roundDP(endTime),
     events: eventsJSON
@@ -40,12 +41,13 @@ export const importSequencerFromJSON = (json: SequencerExport | undefined) => {
     return initialContext.sequencer;
   }
 
-  const { bpm, time, endTime, events } = json;
+  const { bpm, time, endTime, events, isLooped } = json;
 
   return {
     bpm,
     time,
     endTime,
+    isLooped,
     events: importSequencerEventsFromJSON(events)
   };
 };
@@ -107,43 +109,89 @@ export const exportSequencerToURLString = (
   return `${bpm}[${time}[${endTime}[${eventsStr}`;
 };
 
+export const exportSequencerToURLStringV4 = (
+  sequencer: SequencerType | undefined
+) => {
+  const json = exportSequencerToJSON(sequencer);
+  if (!json) {
+    return undefined;
+  }
+
+  const { bpm, isLooped, time, endTime, events } = json;
+
+  const eventsStr = events
+    ? Object.entries(events)
+        .reduce((acc, [padId, padEvents]) => {
+          const padEventsStr = padEvents
+            .map(([time, duration]) => `${time}:${duration}`)
+            .join(':');
+          acc.push(`${padId}(${padEventsStr}`);
+          return acc;
+        }, [] as string[])
+        .join('+')
+    : '';
+
+  const isLoopedStr = isLooped ? '1' : '';
+
+  return `${bpm}[${isLoopedStr}[${time}[${endTime}[${eventsStr}`;
+};
+
 export const importSequencerFromURLString = (
   urlString: string
 ): SequencerExport => {
   const [bpm, time, endTime, eventsStr] = urlString.split('[');
 
-  const events =
-    eventsStr?.length > 0
-      ? eventsStr.split('+').reduce<SequencerExport['events']>(
-          (acc, entry) => {
-            const [padId, times] = entry.split('(');
-
-            const [, eventsArray] = times
-              .split(':')
-              .reduce<[number[], [number, number][]]>(
-                ([timeAcc, timeList], time, index) => {
-                  timeAcc.push(safeParseFloat(time));
-                  if (index % 2 !== 0) {
-                    timeList.push(timeAcc as [number, number]);
-                    return [[], timeList];
-                  }
-                  return [timeAcc, timeList];
-                },
-                [[], []]
-              );
-
-            acc![padId] = eventsArray;
-
-            return acc;
-          },
-          {} as Record<string, [number, number][]>
-        )
-      : {};
+  const events = parseEventsURL(eventsStr);
 
   return {
     bpm: safeParseFloat(bpm),
+    isLooped: true,
     time: safeParseFloat(time),
     endTime: safeParseFloat(endTime),
     events
   };
+};
+export const importSequencerFromURLStringV4 = (
+  urlString: string
+): SequencerExport => {
+  const [bpm, isLooped, time, endTime, eventsStr] = urlString.split('[');
+
+  const events = parseEventsURL(eventsStr);
+
+  return {
+    bpm: safeParseFloat(bpm),
+    isLooped: isLooped === '1',
+    time: safeParseFloat(time),
+    endTime: safeParseFloat(endTime),
+    events
+  };
+};
+
+const parseEventsURL = (eventsStr: string | undefined) => {
+  if (!eventsStr || eventsStr.length === 0) return {};
+
+  return eventsStr.split('+').reduce<SequencerExport['events']>(
+    (acc, entry) => {
+      const [padId, times] = entry.split('(');
+
+      const [, eventsArray] = times
+        .split(':')
+        .reduce<[number[], [number, number][]]>(
+          ([timeAcc, timeList], time, index) => {
+            timeAcc.push(safeParseFloat(time));
+            if (index % 2 !== 0) {
+              timeList.push(timeAcc as [number, number]);
+              return [[], timeList];
+            }
+            return [timeAcc, timeList];
+          },
+          [[], []]
+        );
+
+      acc![padId] = eventsArray;
+
+      return acc;
+    },
+    {} as Record<string, [number, number][]>
+  );
 };
