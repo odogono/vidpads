@@ -8,6 +8,7 @@ import { showError, showSuccess } from '@helpers/toast';
 import { getYouTubeThumbnail } from '@helpers/youtube';
 import { useKeyboard } from '@hooks/useKeyboard';
 import { useProject } from '@hooks/useProject';
+import { getPadById, getPadsBySourceUrl } from '@hooks/useProject/selectors';
 import {
   AddFileToPadProps,
   AddUrlToPadProps,
@@ -25,7 +26,6 @@ import {
   savePadThumbnail as dbSavePadThumbnail
 } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
-import { getPadById, getPadsBySourceUrl } from '@model/store/selectors';
 import { Media, MediaYouTube, Pad } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { exportPadToClipboard, importPadFromClipboard } from '../serialise/pad';
