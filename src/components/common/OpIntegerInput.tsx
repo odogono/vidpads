@@ -20,6 +20,7 @@ export interface OpIntegerInputRef {
 }
 interface OpIntegerInputProps {
   label?: string;
+  labelPlacement?: 'left' | 'right' | 'bottom';
   ref?: React.RefObject<OpIntegerInputRef | null>;
   initialValue: number;
   defaultValue?: number | undefined;
@@ -32,6 +33,7 @@ interface OpIntegerInputProps {
 
 export const OpIntegerInput = ({
   label,
+  labelPlacement = 'bottom',
   ref,
   initialValue,
   defaultValue,
@@ -194,7 +196,12 @@ export const OpIntegerInput = ({
   }, []);
 
   return (
-    <div className='time-input flex flex-col items-center justify-center'>
+    <div
+      className={cn('vo-int-input flex items-center gap-2', {
+        'flex-row ': labelPlacement === 'left' || labelPlacement === 'right',
+        'flex-col': labelPlacement === 'bottom'
+      })}
+    >
       <input
         ref={inputRef}
         className={cn(
@@ -229,7 +236,7 @@ export const OpIntegerInput = ({
       />
       {label && (
         <div
-          className='text-xs text-foreground/90 mt-2'
+          className='text-xs text-foreground/90'
           style={{
             fontSize: '0.6rem',
             lineHeight: '0.75rem'

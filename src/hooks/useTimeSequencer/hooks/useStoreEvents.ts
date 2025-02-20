@@ -14,7 +14,7 @@ import {
 import { UseSelectorsResult } from './useSelectors';
 import { useTriggerTree } from './useTriggerTree';
 
-const log = createLog('timeSeq/useStoreEvents');
+const log = createLog('timeSeq/useStoreEvents', ['debug']);
 
 export const useStoreEvents = ({
   bpm,

@@ -9,7 +9,7 @@ import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { usePad } from '@model/hooks/usePad';
 import { isPadLooped } from '@model/pad';
-import { OpNumberSelect } from '../common/OpNumberSelect';
+import { OpNumberDropdown } from '../common/OpNumberDropdown';
 import { OpPadLabelButton } from '../common/OpPadLabelButton';
 import { PlaybackRateDial } from './Dial/PlaybackRateDial';
 import { VolumeDial } from './Dial/VolumeDial';
@@ -113,13 +113,13 @@ export const StatePane = () => {
       >
         <StepForward />
       </OpToggleButton>
-      <OpNumberSelect
+      <OpNumberDropdown
         label='Choke Group'
         value={chokeGroup}
         onChange={handleChokeGroup}
         isEnabled={isEnabled}
       />
-      <OpNumberSelect
+      <OpNumberDropdown
         label='Play Priority'
         value={playPriority}
         onChange={handlePlayPriority}

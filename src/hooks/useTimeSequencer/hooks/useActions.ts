@@ -4,7 +4,7 @@ import { createLog } from '@helpers/log';
 import { useProject } from '@hooks/useProject';
 import { SequencerEvent } from '@model/types';
 
-const log = createLog('timeSeq/useActions');
+const log = createLog('timeSeq/useActions', ['debug']);
 
 export const useActions = ({
   isPlaying,

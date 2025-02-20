@@ -28,7 +28,7 @@ import {
   updateSequencer
 } from './helpers';
 
-const log = createLog('sequencer/actions');
+const log = createLog('sequencer/actions', ['debug']);
 
 export const startSequencer = (
   context: ProjectStoreContext,

@@ -7,7 +7,7 @@ import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
 import { Pad } from '@model/types';
 
-const log = createLog('stepSeq/usePadStepEvents');
+const log = createLog('stepSeq/usePadStepEvents', ['debug']);
 
 export const usePadStepEvents = () => {
   const { project } = useProject();

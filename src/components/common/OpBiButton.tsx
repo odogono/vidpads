@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 import { Button } from '@heroui/react';
 
@@ -25,7 +25,7 @@ export const OpBiButton = ({
             'aspect-[2/1] bg-primary hover:bg-primary-300 text-black rounded-b-none border-b-[1px] border-c10'
           }
         >
-          <ArrowUp color='var(--foreground)' />
+          <ChevronUp color='var(--foreground)' />
         </Button>
         <Button
           size={size}
@@ -35,7 +35,7 @@ export const OpBiButton = ({
             'aspect-[2/1] bg-primary hover:bg-primary-300 text-black rounded-t-none'
           }
         >
-          <ArrowDown color='var(--foreground)' />
+          <ChevronDown color='var(--foreground)' />
         </Button>
       </div>
     </div>

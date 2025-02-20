@@ -33,10 +33,12 @@ interface OpTimeInputProps {
   onChange?: (value: number) => void;
   showIncrementButtons?: boolean;
   isEnabled?: boolean;
+  labelPlacement?: 'left' | 'right' | 'bottom';
 }
 
 export const OpTimeInput = ({
   label,
+  labelPlacement = 'bottom',
   ref,
   initialValue,
   defaultValue,
@@ -198,7 +200,12 @@ export const OpTimeInput = ({
   }, []);
 
   return (
-    <div className='time-input flex flex-col items-center justify-center'>
+    <div
+      className={cn('vo-time-input flex items-center justify-center gap-2', {
+        'flex-row ': labelPlacement === 'left' || labelPlacement === 'right',
+        'flex-col': labelPlacement === 'bottom'
+      })}
+    >
       <input
         className={cn(
           `rounded-r-none cursor-ns-resize text-sm outline-none w-[6.8rem] font-mono text-center`,
@@ -232,7 +239,7 @@ export const OpTimeInput = ({
       />
       {label && (
         <div
-          className='text-xs text-foreground/90 mt-2'
+          className='text-xs text-foreground/90'
           style={{
             fontSize: '0.6rem',
             lineHeight: '0.75rem'

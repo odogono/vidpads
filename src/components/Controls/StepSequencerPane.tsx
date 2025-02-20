@@ -22,17 +22,29 @@ export const StepSequencerPane = () => {
   const bpmRef = useRef<OpIntegerInputRef | null>(null);
   const timeRef = useRef<OpTimeInputRef | null>(null);
 
-  const { isPlaying, play, stop, activeStep, bpm, clearEvents, setBpm } =
-    useStepSequencer();
+  const {
+    isPlaying,
+    play,
+    stop,
+    activeStep,
+    bpm,
+    clearEvents,
+    setBpm,
+    patternIndex
+  } = useStepSequencer();
 
   const handleStop = useCallback(() => {
     stop();
   }, [stop]);
 
   useEffect(() => {
-    timeRef.current?.setValue(activeStep === -1 ? undefined : activeStep + 1);
+    const timeValue = patternIndex + 1 + (activeStep + 1) / 1000;
+    timeRef.current?.setValue(timeValue);
+  }, [activeStep, patternIndex]);
+
+  useEffect(() => {
     bpmRef.current?.setValue(bpm);
-  }, [bpm, activeStep]);
+  }, [bpm]);
 
   const handleClear = useCallback(() => {
     clearEvents();
@@ -67,20 +79,11 @@ export const StepSequencerPane = () => {
           <Trash />
         </OpButton>
 
-        <div className='ml-6 flex flex-row gap-2'>
-          <OpTimeInput
-            ref={timeRef}
-            label='Time'
-            isEnabled={false}
-            initialValue={0}
-            defaultValue={0}
-            range={[0, 100]}
-            description='Time'
-            showIncrementButtons={true}
-          />
+        <div className='ml-6 flex flex-col items-center gap-2 mb-4 '>
           <OpIntegerInput
             ref={bpmRef}
             label='BPM'
+            labelPlacement='right'
             isEnabled={true}
             initialValue={bpm}
             defaultValue={bpm}
@@ -88,6 +91,17 @@ export const StepSequencerPane = () => {
             description='BPM'
             showIncrementButtons={true}
             onChange={handleBpmChange}
+          />
+          <OpTimeInput
+            ref={timeRef}
+            label='Time'
+            labelPlacement='right'
+            isEnabled={false}
+            initialValue={0}
+            defaultValue={0}
+            range={[0, 100]}
+            description='Time'
+            showIncrementButtons={true}
           />
         </div>
       </div>

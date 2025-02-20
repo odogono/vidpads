@@ -5,10 +5,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger
-} from "@heroui/react";
+} from '@heroui/react';
 import { OpButton } from './OpButton';
 
-interface OpNumberSelectProps {
+interface OpNumberDropdownProps {
   label: string;
   isEnabled: boolean;
   onChange?: (value: number) => void;
@@ -23,12 +23,12 @@ const items = [
   }))
 ];
 
-export const OpNumberSelect = ({
+export const OpNumberDropdown = ({
   label,
   isEnabled,
   onChange,
   value
-}: OpNumberSelectProps) => {
+}: OpNumberDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
