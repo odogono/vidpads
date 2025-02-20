@@ -8,8 +8,7 @@ import {
   ClipboardX,
   Play,
   Plus,
-  Square,
-  Trash
+  Square
 } from 'lucide-react';
 
 import { OpButton } from '@components/common/OpButton';
@@ -20,7 +19,7 @@ import {
 import { OpNumberSelect } from '@components/common/OpNumberSelect';
 import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
 // import { createLog } from '@helpers/log';
-import { showSuccess } from '@helpers/toast';
+// import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
 import { PadInteractionEvent } from '@hooks/events/types';
 import { useStepSequencer } from '@hooks/useStepSequencer';
@@ -40,7 +39,6 @@ export const StepSequencerPane = () => {
     stop,
     activeStep,
     bpm,
-    clearEvents,
     setBpm,
     patternIndex,
     patternCount,
@@ -68,10 +66,10 @@ export const StepSequencerPane = () => {
     bpmRef.current?.setValue(bpm);
   }, [bpm]);
 
-  const handleClear = useCallback(() => {
-    clearEvents();
-    showSuccess('Sequencer events cleared');
-  }, [clearEvents]);
+  // const handleClear = useCallback(() => {
+  //   clearEvents();
+  //   showSuccess('Sequencer events cleared');
+  // }, [clearEvents]);
 
   const handlePadEnter = useCallback(
     ({ index }: PadInteractionEvent) => {
@@ -106,15 +104,12 @@ export const StepSequencerPane = () => {
 
   return (
     <>
-      <div className='vo-pane-sequencer w-fit h-full pl-2  flex flex-row gap-2 items-center justify-center '>
+      <div className='vo-pane-sequencer w-fit h-full pl-2  flex flex-row gap-2 items-center justify-center overflow-x-none'>
         <OpButton label={'Stop'} onPress={handleStop} isEnabled={isPlaying}>
           <Square />
         </OpButton>
         <OpButton label='Play' onPress={play}>
           <Play className={isPlaying ? 'animate-pulse' : ''} />
-        </OpButton>
-        <OpButton label='Clear' onPress={handleClear}>
-          <Trash />
         </OpButton>
 
         <div className='ml-6 flex flex-col items-center gap-2 mb-4 '>
@@ -142,7 +137,7 @@ export const StepSequencerPane = () => {
             showIncrementButtons={true}
           />
         </div>
-        <div className='flex flex-row gap-2 ml-6'>
+        <div className='flex flex-row gap-2 ml-4'>
           <OpNumberSelect
             label='Pattern'
             isEnabled={!isPlaying}

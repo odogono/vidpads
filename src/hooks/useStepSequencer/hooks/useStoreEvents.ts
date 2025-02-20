@@ -14,7 +14,6 @@ const log = createLog('stepSeq/useStoreEvents', ['debug']);
 export const useStoreEvents = ({
   bpm,
   stepToPadIds,
-  patternIndex,
   patternStr,
   patternCount
 }: UseSelectorsResult) => {
@@ -47,28 +46,24 @@ export const useStoreEvents = ({
     const beatsPerSecond = 60 / bpm;
     const beatsPerStep = beatsPerSecond / 4;
     const overallStep = Math.floor(currentTime / beatsPerStep);
-    let step = overallStep % 16;
+    const step = overallStep % 16;
     const pattern = Math.floor(overallStep / 16) % patternCount;
 
     setActiveStep(step);
 
-    if (pattern !== lastPatternIndexRef.current) {
-      log.debug('pattern changed', {
-        pattern,
-        lastPattern: lastPatternIndexRef.current
-      });
-      project.send({ type: 'setStepSequencerPatternIndex', index: pattern });
-
-      lastPatternIndexRef.current = pattern;
-      step = lastStepRef.current;
-    }
-
     if (step !== lastStepRef.current) {
       log.debug(
         'step changed',
-        { step, lastStep: lastStepRef.current, patternIndex },
-        stepToPadIds[step]
+        {
+          step,
+          lastStep: lastStepRef.current,
+          pattern,
+          lastPattern: lastPatternIndexRef.current
+        },
+        stepToPadIds[pattern][step]
       );
+
+      project.send({ type: 'setStepSequencerPatternIndex', index: pattern });
 
       // clear the last padIds
       if (lastPadIdsRef.current && lastPadIdsRef.current.length > 0) {
@@ -78,7 +73,7 @@ export const useStoreEvents = ({
         }
       }
 
-      const padIds = stepToPadIds[step];
+      const padIds = stepToPadIds[pattern][step];
       if (padIds && padIds.length > 0) {
         for (const padId of padIds) {
           // log.debug('pad:touchdown', { padId, step });
@@ -87,6 +82,7 @@ export const useStoreEvents = ({
       }
       lastPadIdsRef.current = padIds;
       lastStepRef.current = step;
+      lastPatternIndexRef.current = pattern;
     }
 
     if (animationRef.current !== null) {

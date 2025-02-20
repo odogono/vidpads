@@ -53,23 +53,25 @@ export const useSelectors = () => {
   const patternStr = JSON.stringify(patterns);
 
   // an array of padIds that are active for each step
+  // [patternIndex][step][...padIds]
   const stepToPadIds = useMemo(() => {
-    const result: string[][] = [];
-    if (!pattern) return result;
+    if (!patterns) return [];
 
-    const padIds = Object.keys(pattern);
+    return patterns.map((pattern) => {
+      const padIds = Object.keys(pattern);
+      const result: string[][] = [];
 
-    for (const padId of padIds) {
-      const padEvents = pattern[padId];
-      for (let ss = 0; ss < 16; ss++) {
-        const event = padEvents[ss];
-        if (event) {
-          result[ss] = [...(result[ss] ?? []), padId];
+      for (const padId of padIds) {
+        const padEvents = pattern[padId];
+        for (let ss = 0; ss < 16; ss++) {
+          const event = padEvents[ss];
+          if (event) {
+            result[ss] = [...(result[ss] ?? []), padId];
+          }
         }
       }
-    }
-
-    return result;
+      return result;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patternStr]);
 

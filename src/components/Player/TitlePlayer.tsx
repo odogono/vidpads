@@ -138,7 +138,7 @@ export const TitlePlayer = ({ count, loadingCount }: TitlePlayerProps) => {
         <div className='flex flex-row gap-2 items-center '>
           <span>{!isReady && <LoadingSpinner />}</span>
           <span>
-            {!isReady && `Loading... ${loadingCount} / ${count}`}
+            {!isReady && `Loading... ${loadingCount + 1} / ${count}`}
             {isReady && 'Ready'}
           </span>
         </div>

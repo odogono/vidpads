@@ -19,7 +19,7 @@ export interface StepSequencerContextType {
   patternStr: string;
   patternIndex: number;
   patternCount: number;
-  stepToPadIds: string[][];
+  stepToPadIds: string[][][];
   setPatternIndex: (index: number) => void;
   deletePattern: () => void;
   addPattern: () => void;
