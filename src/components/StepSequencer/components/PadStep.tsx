@@ -3,6 +3,7 @@
 // import { createLog } from '@helpers/log';
 import { cn } from '@helpers/tailwind';
 import { Pad } from '@model/types';
+import { getPadLabel } from '../../../model/pad';
 
 // const log = createLog('stepSeq/PadStep');
 
@@ -23,6 +24,10 @@ export const PadStep = ({
   isActive,
   isPlaying
 }: PadStepProps) => {
+  const label = getPadLabel(pad) || pad.id;
+
+  // truncate label to 4 characters
+  const truncatedLabel = label.slice(0, 3);
   return (
     <button
       onPointerDown={() => {
@@ -56,7 +61,8 @@ export const PadStep = ({
         
         text-sm text-black 
         bg-white/20 rounded-sm 
-        flex items-center justify-center`,
+        flex items-center justify-center
+        group`,
           {
             'bg-white/20 hover:bg-white/40': !isPlaying,
             'bg-white/60': isActive,
@@ -64,6 +70,9 @@ export const PadStep = ({
           }
         )}
       >
+        <span className='text-white absolute opacity-0 group-hover:opacity-100 transition-opacity'>
+          {truncatedLabel}
+        </span>
         {/* <span className='absolute top-[10%] left-[10%]'>
           <Indicator isActive={isActive} />
         </span> */}
