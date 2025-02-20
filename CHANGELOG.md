@@ -8,10 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+
+## v1.2.0 (2025-02-20)
+
 ### Added
 - step sequencer
 - top level play button - plays/stops all sequencers
 
+### Changed
+- last player will hide after a delay (if hideOnPlayerEnd is disabled)
 
 ### Fixed
 - paste in select source modal text input is overriden by pad paste

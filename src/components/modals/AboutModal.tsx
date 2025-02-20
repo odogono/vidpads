@@ -16,7 +16,7 @@ export const AboutModal = ({ ref }: CommonModalBase) => {
           </p>
           <div className='mb-2 text-sm '>Version {VERSION}</div>
           <div className='mb-2 text-sm '>
-            Built at {dateToLocaleString(BUILT_AT)}
+            Built on {dateToLocaleString(BUILT_AT)}
           </div>
           <p className='mb-2 text-sm'>
             © {getCurrentYear()} Alexander Veenendaal
