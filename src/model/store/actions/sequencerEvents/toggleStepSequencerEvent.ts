@@ -8,9 +8,10 @@ export const toggleStepSequencerEvent = (
   context: ProjectStoreContext,
   action: ToggleStepSequencerEventAction
 ): ProjectStoreContext => {
-  const { padId, patternIndex, step } = action;
+  const { index, padId, step } = action;
   const stepSequencer = context.stepSequencer ?? {};
   const patterns = stepSequencer?.patterns ?? [];
+  const patternIndex = index ?? stepSequencer?.patternIndex ?? 0;
   const pattern = patterns[patternIndex] ?? {};
 
   const padSteps = [...(pattern[padId] ?? [])];

@@ -1,6 +1,7 @@
 import { createLog } from '@helpers/log';
 import type { SettingsStoreData } from '@hooks/useSettings/types';
 import {
+  EnqueueObject,
   createStore as createXStateStore,
   type StoreSnapshot
 } from '@xstate/store';
@@ -15,7 +16,6 @@ import type {
   MidiInput,
   MidiStoreActions,
   MidiStoreContext,
-  MidiStoreEmit,
   MidiStoreEvents,
   RemoveMidiMappingForPadAction
 } from './types';
@@ -79,14 +79,14 @@ const MidiStoreActions = {
   importStoreFromJson: (
     context: MidiStoreContext,
     event: ImportStoreFromJsonAction,
-    { emit }: MidiStoreEmit
+    enqueue: EnqueueObject<MidiStoreEvents>
   ) => {
     const { data } = event;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { midiToPadMap, padToMidiMap, ...rest } = data;
 
-    emit({ type: 'settingStoreImported' });
+    enqueue.emit.settingStoreImported({});
 
     // a sanity check to make sure the maps are valid
     if (Object.keys(padToMidiMap ?? {}).length === 0) {
@@ -121,7 +121,7 @@ const MidiStoreActions = {
   inputMessage: (
     context: MidiStoreContext,
     event: InputMessageAction,
-    { emit }: MidiStoreEmit
+    enqueue: EnqueueObject<MidiStoreEvents>
   ) => {
     const {
       isMappingModeEnabled,
@@ -171,8 +171,7 @@ const MidiStoreActions = {
         [selectedPadId]: midiKey
       };
 
-      emit({
-        type: 'midiMappingUpdated',
+      enqueue.emit.midiMappingUpdated({
         padId: selectedPadId,
         midiKey
       });
@@ -193,8 +192,7 @@ const MidiStoreActions = {
 
     for (const padId of padIds) {
       if (isNoteOff && isNoteAlreadyOn) {
-        emit({
-          type: 'noteOff',
+        enqueue.emit.noteOff({
           padId,
           note: noteName,
           velocity,
@@ -203,8 +201,7 @@ const MidiStoreActions = {
 
         midiNoteOnMap[midiKey] = false;
       } else if (isNoteOn && !isNoteAlreadyOn) {
-        emit({
-          type: 'noteOn',
+        enqueue.emit.noteOn({
           padId,
           note: noteName,
           velocity,
@@ -221,7 +218,7 @@ const MidiStoreActions = {
   removeMidiMappingForPad: (
     context: MidiStoreContext,
     event: RemoveMidiMappingForPadAction,
-    { emit }: MidiStoreEmit
+    enqueue: EnqueueObject<MidiStoreEvents>
   ) => {
     const { padId } = event;
     const { padToMidiMap, midiToPadMap } = context;
@@ -254,8 +251,7 @@ const MidiStoreActions = {
     };
     delete newPadToMidiMap[padId];
 
-    emit({
-      type: 'midiMappingUpdated',
+    enqueue.emit.midiMappingUpdated({
       padId: padId,
       midiKey: undefined
     });

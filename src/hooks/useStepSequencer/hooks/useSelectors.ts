@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { useProject } from '@hooks/useProject';
-// import { SequencerEvent } from '@model/types';
+import { StepSequencerPattern } from '@model/types';
 import { useSelector } from '@xstate/store/react';
 
 export type UseSelectorsResult = ReturnType<typeof useSelectors>;
@@ -47,10 +47,10 @@ export const useSelectors = () => {
       (state) => state.context.stepSequencer?.patternIndex
     ) ?? 0;
 
-  const pattern = patterns?.[patternIndex] ?? [];
+  const pattern: StepSequencerPattern = patterns?.[patternIndex] ?? {};
   const patternCount = patterns?.length ?? 0;
 
-  const patternStr = JSON.stringify(pattern);
+  const patternStr = JSON.stringify(patterns);
 
   // an array of padIds that are active for each step
   const stepToPadIds = useMemo(() => {
@@ -79,6 +79,7 @@ export const useSelectors = () => {
     patternIndex,
     patternCount,
     patternStr,
+    project,
     timeToStep,
     stepToTime,
     stepToPadIds

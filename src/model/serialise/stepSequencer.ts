@@ -3,9 +3,9 @@ import { safeParseFloat, safeParseInt } from '@helpers/number';
 import { ProjectStoreContextType } from '@model/store/types';
 import { initialContext } from '../store/store';
 import {
-  StepSequencerEvents,
   StepSequencerExport,
-  StepSequencerPatternEntry,
+  StepSequencerPattern,
+  StepSequencerPatternExport,
   StepSequencerSteps
 } from '../types';
 
@@ -52,7 +52,7 @@ export const importStepSequencerFromJSON = (
 };
 
 export const exportStepSequencerPatternToJSON = (
-  pattern: StepSequencerEvents
+  pattern: StepSequencerPattern
 ) => {
   const result = Object.entries(pattern)
     .map(([padId, steps]) => {
@@ -66,16 +66,16 @@ export const exportStepSequencerPatternToJSON = (
       return {
         padId,
         steps: unpaddedSteps
-      } as StepSequencerPatternEntry;
+      } as StepSequencerPatternExport;
     })
-    .filter(Boolean) as StepSequencerPatternEntry[];
+    .filter(Boolean) as StepSequencerPatternExport[];
 
   return result;
 };
 
 export const importStepSequencerPatternFromJSON = (
-  json: StepSequencerPatternEntry[]
-): StepSequencerEvents => {
+  json: StepSequencerPatternExport[]
+): StepSequencerPattern => {
   if (!json) {
     return {};
   }
@@ -85,7 +85,7 @@ export const importStepSequencerPatternFromJSON = (
   return json.reduce((acc, entry) => {
     acc[entry.padId] = entry.steps.map((step) => step === 1);
     return acc;
-  }, {} as StepSequencerEvents);
+  }, {} as StepSequencerPattern);
 };
 
 export const exportStepSequencerToURLString = (
@@ -110,6 +110,30 @@ export const exportStepSequencerToURLString = (
     .join('+');
 
   return `${bpm}[${stepsStr}`;
+};
+
+export const exportStepSequencerPatternToURLString = (
+  pattern: StepSequencerPattern
+) => {
+  return Object.entries(pattern)
+    .map(([padId, steps]) => {
+      if (!steps || steps.length === 0) return undefined;
+      return `${padId}(${stepsToNumber(steps.map((step) => (step ? 1 : 0)))})`;
+    })
+    .filter(Boolean)
+    .join(':');
+};
+
+export const importStepSequencerPatternFromURLString = (
+  urlString: string
+): StepSequencerPattern => {
+  return urlString.split(':').reduce((acc, part) => {
+    const [padId, steps] = part.split('(');
+    acc[padId] = numberToSteps(safeParseInt(steps, 0)).map(
+      (step) => step === 1
+    );
+    return acc;
+  }, {} as StepSequencerPattern);
 };
 
 export const importStepSequencerFromURLString = (

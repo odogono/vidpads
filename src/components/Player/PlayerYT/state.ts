@@ -2,7 +2,7 @@
 
 import { createLog } from '@helpers/log';
 import { Interval } from '@model/types';
-import { createStore as createXStateStore } from '@xstate/store';
+import { EnqueueObject, createStore as createXStateStore } from '@xstate/store';
 import { PlayerState, PlayerYTState } from './types';
 
 const log = createLog('player/yt/state', ['debug', 'error']);
@@ -21,7 +21,7 @@ type ReadyEvent = { type: 'ready'; state: PlayerYTState };
 type NotReadyEvent = { type: 'notReady'; state: PlayerYTState };
 
 type YTStoreEvents = StartQueuingEvent | ReadyEvent | NotReadyEvent;
-type YTEmit = { emit: (event: YTStoreEvents) => void };
+
 type YTStoreContext = {
   state: PlayerYTState;
   intervals: Interval[];
@@ -35,13 +35,13 @@ export const createStore = () => {
     playerStateChange: (
       context: YTStoreContext,
       event: PlayerStateChangeAction,
-      { emit }: YTEmit
+      enqueue: EnqueueObject<YTStoreEvents>
     ): YTStoreContext => {
       const { state: playerState, player } = event;
       const { state: contextState } = context;
 
       if (playerState === PlayerState.DESTROYED) {
-        emit({ type: 'notReady', state: context.state });
+        enqueue.emit.notReady({ state: context.state });
         return {
           ...context,
           state: PlayerYTState.UNINITIALIZED,
@@ -52,7 +52,7 @@ export const createStore = () => {
 
       if (playerState === PlayerState.CREATED) {
         if (contextState === PlayerYTState.UNINITIALIZED) {
-          emit({ type: 'notReady', state: context.state });
+          enqueue.emit.notReady({ state: context.state });
           return {
             ...context,
             intervalIndex: -1,
@@ -82,8 +82,7 @@ export const createStore = () => {
             interval.end = player.getDuration();
           }
 
-          emit({
-            type: 'startQueuing',
+          enqueue.emit.startQueuing({
             interval: context.intervals[newIntervalIndex]
           });
           return {
@@ -103,8 +102,7 @@ export const createStore = () => {
           if (context.intervalIndex < context.intervals.length - 1) {
             // cue the next interval
             const newIntervalIndex = context.intervalIndex + 1;
-            emit({
-              type: 'startQueuing',
+            enqueue.emit.startQueuing({
               interval: context.intervals[newIntervalIndex]
             });
             return {
@@ -115,7 +113,7 @@ export const createStore = () => {
             };
           } else {
             // no more intervals to cue, we can declare the player ready
-            emit({ type: 'ready', state: contextState });
+            enqueue.emit.ready({ state: contextState });
             return {
               ...context,
               state: PlayerYTState.READY,

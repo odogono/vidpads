@@ -5,7 +5,7 @@ import { useEvents as useGlobalEvents } from '@hooks/events';
 import { PadIsLoopedEvent, ProjectStoreType } from '@model/store/types';
 import { useSelector } from '@xstate/store/react';
 
-// const log = createLog('useEvents');
+// const log = createLog('useProject/events');
 
 export const useEvents = (project: ProjectStoreType) => {
   const events = useGlobalEvents();

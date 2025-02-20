@@ -190,12 +190,12 @@ export interface SequencerExport {
 export interface StepSequencerExport {
   bpm: number;
   patternIndex: number;
-  patterns: StepSequencerPatternEntry[][] | undefined;
+  patterns: StepSequencerPatternExport[][] | undefined;
 }
 
 export type StepSequencerSteps = (1 | 0)[];
 
-export interface StepSequencerPatternEntry {
+export interface StepSequencerPatternExport {
   padId: string;
   steps: StepSequencerSteps;
 }
@@ -220,6 +220,6 @@ export interface SequencerEvent {
   inProgress?: boolean;
 }
 
-export type StepSequencerEvents = Record<string, boolean[]>;
+export type StepSequencerPattern = Record<string, boolean[]>;
 
 export type SequencerMode = 'time' | 'step' | 'all';

@@ -5,10 +5,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@heroui/react';
 
 export const OpBiButton = ({
+  isEnabled = true,
   onPressUp,
   onPressDown,
   size = 'md'
 }: {
+  isEnabled?: boolean;
   label?: string;
   size?: 'sm' | 'md' | 'lg';
   onPressUp?: () => void;
@@ -18,6 +20,7 @@ export const OpBiButton = ({
     <div className='flex flex-col items-center justify-center'>
       <div className='relative flex flex-col'>
         <Button
+          isDisabled={!isEnabled}
           size={size}
           aria-label={'Up'}
           onPress={onPressUp}
@@ -28,6 +31,7 @@ export const OpBiButton = ({
           <ChevronUp color='var(--foreground)' />
         </Button>
         <Button
+          isDisabled={!isEnabled}
           size={size}
           aria-label={'Down'}
           onPress={onPressDown}

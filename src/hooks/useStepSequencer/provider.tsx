@@ -18,7 +18,7 @@ export const StepSequencerProvider = ({
 
   const { isPlaying, isRecording, activeStep } = useStoreEvents(props);
 
-  const actions = useActions({ isPlaying, isRecording });
+  const actions = useActions({ ...props, isPlaying, isRecording });
 
   useEffect(() => {
     events.on('cmd:cancel', actions.stop);

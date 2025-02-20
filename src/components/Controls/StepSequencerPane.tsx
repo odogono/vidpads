@@ -2,7 +2,15 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
-import { Play, Square, Trash } from 'lucide-react';
+import {
+  ClipboardCopy,
+  ClipboardPaste,
+  ClipboardX,
+  Play,
+  Plus,
+  Square,
+  Trash
+} from 'lucide-react';
 
 import { OpButton } from '@components/common/OpButton';
 import {
@@ -14,6 +22,8 @@ import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
 import { showSuccess } from '@helpers/toast';
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
+import { OpBiButton } from '../common/OpBiButton';
+import { OpNumberSelect } from '../common/OpNumberSelect';
 
 // const log = createLog('StepSequencerPane', ['debug']);
 
@@ -30,7 +40,13 @@ export const StepSequencerPane = () => {
     bpm,
     clearEvents,
     setBpm,
-    patternIndex
+    patternIndex,
+    patternCount,
+    setPatternIndex,
+    addPattern,
+    copyPatternToClipboard,
+    cutPatternToClipboard,
+    pastePatternFromClipboard
   } = useStepSequencer();
 
   const handleStop = useCallback(() => {
@@ -103,6 +119,49 @@ export const StepSequencerPane = () => {
             description='Time'
             showIncrementButtons={true}
           />
+        </div>
+        <div className='flex flex-row gap-2 ml-6'>
+          <OpNumberSelect
+            label='Pattern'
+            isEnabled={true}
+            value={patternIndex}
+            valueMax={patternCount}
+          />
+          <OpBiButton
+            label='Pattern'
+            size='sm'
+            isEnabled={!isPlaying}
+            onPressUp={() => setPatternIndex(patternIndex - 1)}
+            onPressDown={() => setPatternIndex(patternIndex + 1)}
+          />
+          <OpButton
+            label='Add'
+            onPress={() => addPattern()}
+            isEnabled={!isPlaying}
+          >
+            <Plus />
+          </OpButton>
+          <OpButton
+            label='Cut'
+            onPress={() => cutPatternToClipboard()}
+            isEnabled={!isPlaying}
+          >
+            <ClipboardX />
+          </OpButton>
+          <OpButton
+            label='Copy'
+            onPress={() => copyPatternToClipboard()}
+            isEnabled={!isPlaying}
+          >
+            <ClipboardCopy />
+          </OpButton>
+          <OpButton
+            label='Paste'
+            onPress={() => pastePatternFromClipboard()}
+            isEnabled={!isPlaying}
+          >
+            <ClipboardPaste />
+          </OpButton>
         </div>
       </div>
     </>

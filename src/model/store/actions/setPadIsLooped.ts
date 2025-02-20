@@ -1,16 +1,17 @@
 import { showSuccess } from '@helpers/toast';
 import { getPadSourceUrl, isPadLooped, setPadLoop } from '@model/pad';
 import {
-  Emit,
   ProjectStoreContext,
+  ProjectStoreEvents,
   SetPadIsLoopedAction
 } from '@model/store/types';
+import { EnqueueObject } from '@xstate/store';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadIsLooped = (
   context: ProjectStoreContext,
   event: SetPadIsLoopedAction,
-  { emit }: Emit
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { padId, isLooped } = event;
 
@@ -27,8 +28,7 @@ export const setPadIsLooped = (
     showSuccess(`Unset ${padId} looped`);
   }
 
-  emit({
-    type: 'padIsLooped',
+  enqueue.emit.padIsLooped({
     padId,
     url: getPadSourceUrl(pad) ?? 'unknown',
     isLooped: isLoopedValue

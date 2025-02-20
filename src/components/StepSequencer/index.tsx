@@ -1,10 +1,10 @@
 'use client';
 
 // import { createLog } from '@helpers/log';
-import { useStepSequencer } from '@hooks/useStepSequencer';
 import { usePads } from '@model/hooks/usePads';
 import { PadStep } from './components/PadStep';
 import { usePadStepEvents } from './hooks/usePadStepEvents';
+import { useStepSequencerEvents } from './hooks/useStepSequencerEvents';
 
 // const log = createLog('StepSequencer');
 
@@ -13,10 +13,12 @@ const STEPS = 16;
 
 export const StepSequencer = () => {
   const { pads } = usePads();
-  const { activeStep, pattern } = useStepSequencer();
+
   const padCount = pads?.length ?? 1;
 
   const { handlePadTouchStart, handlePadTouchEnd } = usePadStepEvents();
+
+  const { activeStep, pattern } = useStepSequencerEvents();
 
   return (
     <div className='vo-stepseq w-full h-full mt-4 mb-4 rounded-lg bg-c2 border border-gray-300 flex'>

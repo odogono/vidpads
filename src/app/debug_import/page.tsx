@@ -12,6 +12,7 @@ import 'prismjs/components/prism-json';
 
 // import { createLog } from '@helpers/log';
 import { urlStringToProject } from '../../model/serialise/project';
+import { importStepSequencerPatternFromURLString } from '../../model/serialise/stepSequencer';
 
 // const log = createLog('debug_import');
 
@@ -78,13 +79,30 @@ export default function DebugImportPage() {
 }
 
 const parseUrl = async (url: string) => {
-  const parsed = safeParseUrl(url);
+  // const project = await parseProjectUrl(url);
+  const pattern = parseStepSequencerPatternUrl(url);
+
+  if (pattern) {
+    return pattern;
+  }
+
+  const project = await parseProjectUrl(url);
+
+  if (project) {
+    return project;
+  }
+
+  return {
+    original: url
+  };
+};
+
+const parseProjectUrl = async (urlString: string) => {
+  if (!urlString || !urlString.startsWith('http')) return undefined;
+
+  const parsed = safeParseUrl(urlString);
   if (!parsed) {
-    return {
-      original: url,
-      projectId: undefined,
-      importData: undefined
-    };
+    return undefined;
   }
 
   // Fix TypeScript type safety for URLSearchParams
@@ -94,8 +112,8 @@ const parseUrl = async (url: string) => {
   const project = importData ? await urlStringToProject(importData) : undefined;
 
   return {
-    original: url,
-    length: url.length,
+    original: urlString,
+    length: urlString.length,
     version: importData?.split('|')?.[0] ?? 'n/a',
     projectId,
     importData,
@@ -109,4 +127,23 @@ const safeParseUrl = (url: string) => {
   } catch {
     return undefined;
   }
+};
+
+const parseStepSequencerPatternUrl = (urlString: string) => {
+  if (!urlString.startsWith('odgn-vo://stepSeq')) return undefined;
+
+  const url = safeParseUrl(urlString);
+  if (!url) {
+    return undefined;
+  }
+
+  const data = url.searchParams.get('pattern');
+  if (!data) return undefined;
+
+  const pattern = importStepSequencerPatternFromURLString(data);
+
+  return {
+    original: urlString,
+    pattern
+  };
 };

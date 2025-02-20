@@ -9,12 +9,14 @@ import {
 } from '@model/store/types';
 import { UseSelectorsResult } from './useSelectors';
 
-const log = createLog('stepSeq/useStoreEvents', ['debug']);
+const log = createLog('stepSeq/useStoreEvents');
 
 export const useStoreEvents = ({
   bpm,
   stepToPadIds,
-  patternStr
+  patternIndex,
+  patternStr,
+  patternCount
 }: UseSelectorsResult) => {
   const { project } = useProject();
   const events = useEvents();
@@ -23,6 +25,7 @@ export const useStoreEvents = ({
   const [isRecording, setIsRecording] = useState(false);
   const playStartedAtRef = useRef<number>(0);
   const lastStepRef = useRef(-1);
+  const lastPatternIndexRef = useRef(-1);
   const lastPadIdsRef = useRef<string[] | undefined>(undefined);
   const [activeStep, setActiveStep] = useState(-1);
 
@@ -43,14 +46,27 @@ export const useStoreEvents = ({
 
     const beatsPerSecond = 60 / bpm;
     const beatsPerStep = beatsPerSecond / 4;
-    const step = Math.floor(currentTime / beatsPerStep) % 16;
+    const overallStep = Math.floor(currentTime / beatsPerStep);
+    let step = overallStep % 16;
+    const pattern = Math.floor(overallStep / 16) % patternCount;
 
     setActiveStep(step);
+
+    if (pattern !== lastPatternIndexRef.current) {
+      log.debug('pattern changed', {
+        pattern,
+        lastPattern: lastPatternIndexRef.current
+      });
+      project.send({ type: 'setStepSequencerPatternIndex', index: pattern });
+
+      lastPatternIndexRef.current = pattern;
+      step = lastStepRef.current;
+    }
 
     if (step !== lastStepRef.current) {
       log.debug(
         'step changed',
-        { step, lastStep: lastStepRef.current },
+        { step, lastStep: lastStepRef.current, patternIndex },
         stepToPadIds[step]
       );
 
@@ -70,9 +86,8 @@ export const useStoreEvents = ({
         }
       }
       lastPadIdsRef.current = padIds;
+      lastStepRef.current = step;
     }
-
-    lastStepRef.current = step;
 
     if (animationRef.current !== null) {
       animationRef.current = requestAnimationFrame(updateTime);
@@ -123,12 +138,7 @@ export const useStoreEvents = ({
     setActiveStep(-1);
     lastStepRef.current = -1;
     lastPadIdsRef.current = undefined;
-
-    // project.send({ type: 'setSequencerTime', time: currentTime, isStep: true });
-    // events.emit('seq:stopped', {
-    //   time: currentTime,
-    //   isStep: true
-    // });
+    lastPatternIndexRef.current = -1;
 
     cancelAnimationFrame(animationRef.current);
     animationRef.current = null;

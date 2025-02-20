@@ -1,19 +1,31 @@
 import { useCallback } from 'react';
 
+import { readFromClipboard, writeToClipboard } from '@helpers/clipboard';
 import { createLog } from '@helpers/log';
+import { showSuccess } from '@helpers/toast';
 import { useProject } from '@hooks/useProject';
+import {
+  createStepSequencerPatternUrl,
+  parseStepSequencerPatternUrl
+} from '../helpers';
+import { UseSelectorsResult } from './useSelectors';
 
 // import { SequencerEvent } from '@model/types';
 
-const log = createLog('timeSeq/useActions');
+const log = createLog('stepSeq/useActions');
+
+interface UseActionsProps extends UseSelectorsResult {
+  isPlaying: boolean;
+  isRecording: boolean;
+}
 
 export const useActions = ({
   isPlaying,
-  isRecording
-}: {
-  isPlaying: boolean;
-  isRecording: boolean;
-}) => {
+  isRecording,
+  patternIndex,
+  pattern,
+  patternStr
+}: UseActionsProps) => {
   const { project } = useProject();
 
   const play = useCallback(() => {
@@ -69,8 +81,7 @@ export const useActions = ({
       project.send({
         type: 'toggleStepSequencerEvent',
         padId,
-        step,
-        patternIndex: 0
+        step
       });
     },
     [project]
@@ -79,6 +90,63 @@ export const useActions = ({
   const clearEvents = useCallback(() => {
     project.send({ type: 'clearSequencerEvents', mode: 'step' });
   }, [project]);
+
+  const setPatternIndex = useCallback(
+    (index: number) => {
+      project.send({
+        type: 'setStepSequencerPatternIndex',
+        index
+      });
+    },
+    [project]
+  );
+
+  const deletePattern = useCallback(() => {
+    project.send({ type: 'deleteStepSequencerPattern', index: patternIndex });
+  }, [project, patternIndex]);
+
+  const addPattern = useCallback(
+    (copyFromCurrent: boolean = false) => {
+      project.send({
+        type: 'addStepSequencerPattern',
+        copy: copyFromCurrent,
+        setIndex: true
+      });
+    },
+    [project]
+  );
+
+  const copyPatternToClipboard = useCallback(async () => {
+    const url = createStepSequencerPatternUrl(pattern);
+    await writeToClipboard(url);
+    showSuccess(`Copied pattern ${patternIndex + 1} to clipboard`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project, patternIndex, patternStr]);
+
+  const cutPatternToClipboard = useCallback(async () => {
+    const url = createStepSequencerPatternUrl(pattern);
+    await writeToClipboard(url);
+
+    project.send({
+      type: 'deleteStepSequencerPattern',
+      index: patternIndex
+    });
+
+    showSuccess(`Cut pattern ${patternIndex + 1} to clipboard`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project, patternStr, patternIndex]);
+
+  const pastePatternFromClipboard = useCallback(async () => {
+    const clipboard = await readFromClipboard();
+    const pattern = parseStepSequencerPatternUrl(clipboard);
+    if (!pattern) return;
+
+    project.send({
+      type: 'setStepSequencerPattern',
+      index: patternIndex,
+      pattern
+    });
+  }, [project, patternIndex]);
 
   return {
     isPlaying,
@@ -90,6 +158,12 @@ export const useActions = ({
     rewind,
     setBpm,
     toggleStep,
-    clearEvents
+    clearEvents,
+    setPatternIndex,
+    deletePattern,
+    addPattern,
+    copyPatternToClipboard,
+    cutPatternToClipboard,
+    pastePatternFromClipboard
   };
 };

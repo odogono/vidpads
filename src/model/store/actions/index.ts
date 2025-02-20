@@ -18,6 +18,12 @@ export {
   rewindSequencer,
   setSequencerIsLooped
 } from './sequencerActions';
+
+export { addStepSequencerPattern } from './stepSequencer/addStepSequencerPattern';
+export { deleteStepSequencerPattern } from './stepSequencer/deleteStepSequencerPattern';
+export { setStepSequencerPatternIndex } from './stepSequencer/setStepSequencerPatternIndex';
+export { setStepSequencerPattern } from './stepSequencer/setStepSequencerPattern';
+
 export { addSequencerEvent } from './sequencerEvents/addSequencerEvent';
 export { moveSequencerEvents } from './sequencerEvents/moveSequencerEvents';
 export { repeatSequencerEvents } from './sequencerEvents/repeatSequencerEvents';
@@ -25,6 +31,7 @@ export { selectSequencerEvents } from './sequencerEvents/selectSequencerEvents';
 export { snapSequencerEvents } from './sequencerEvents/snapSequencerEvents';
 export { clipboardSequencerEvents } from './sequencerEvents/clipboardSequencerEvents';
 export { toggleStepSequencerEvent } from './sequencerEvents/toggleStepSequencerEvent';
+
 export { copyPad } from './copyPad';
 export { importProject } from './importProject';
 export { newProject } from './newProject';

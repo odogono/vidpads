@@ -7,10 +7,11 @@ import {
   removeEvents,
   splitEvents
 } from '@model/sequencerEvent';
+import { EnqueueObject } from '@xstate/store';
 import {
   ClearSequencerEventsAction,
-  Emit,
   ProjectStoreContext,
+  ProjectStoreEvents,
   RemoveSequencerEventAction,
   RewindSequencerAction,
   SetSelectedEventsDurationAction,
@@ -33,7 +34,7 @@ const log = createLog('sequencer/actions', ['debug']);
 export const startSequencer = (
   context: ProjectStoreContext,
   action: StartSequencerAction,
-  { emit }: Emit
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { isPlaying, isRecording, mode } = action;
 
@@ -51,8 +52,7 @@ export const startSequencer = (
   });
 
   if (isAllMode) {
-    emit({
-      type: 'sequencerStarted',
+    enqueue.emit.sequencerStarted({
       isPlaying,
       isRecording,
       time: 0,
@@ -60,8 +60,7 @@ export const startSequencer = (
     });
     context = updateSequencer(context, { time: 0 });
   } else {
-    emit({
-      type: 'sequencerStarted',
+    enqueue.emit.sequencerStarted({
       isPlaying,
       isRecording,
       time,
@@ -75,18 +74,18 @@ export const startSequencer = (
 export const stopSequencer = (
   context: ProjectStoreContext,
   action: StopSequencerAction,
-  { emit }: Emit
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { mode } = action;
 
-  emit({ type: 'sequencerStopped', mode });
+  enqueue.emit.sequencerStopped({ mode });
   return context;
 };
 
 export const rewindSequencer = (
   context: ProjectStoreContext,
   action: RewindSequencerAction,
-  { emit }: Emit
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { mode } = action;
 
@@ -94,8 +93,7 @@ export const rewindSequencer = (
     ? 0
     : (context.sequencer?.time ?? 0);
 
-  emit({
-    type: 'sequencerTimesUpdated',
+  enqueue.emit.sequencerTimesUpdated({
     time: 0,
     endTime,
     mode
@@ -210,7 +208,7 @@ export const clearSequencerEvents = (
 export const setSequencerTime = (
   context: ProjectStoreContext,
   action: SetSequencerTimeAction,
-  { emit }: Emit
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { time, mode } = action;
 
@@ -221,8 +219,7 @@ export const setSequencerTime = (
   const timeSeqEndTime = context.sequencer?.endTime ?? 0;
 
   // const value = Math.max(0, Math.min(time, timeSeqTime));
-  emit({
-    type: 'sequencerTimesUpdated',
+  enqueue.emit.sequencerTimesUpdated({
     time: time,
     endTime: timeSeqEndTime,
     mode
@@ -235,7 +232,7 @@ export const setSequencerTime = (
 export const setSequencerEndTime = (
   context: ProjectStoreContext,
   action: SetSequencerEndTimeAction,
-  { emit }: Emit
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { endTime, mode } = action;
 
@@ -248,8 +245,7 @@ export const setSequencerEndTime = (
 
   const newTime = Math.max(0, Math.min(time, value));
 
-  emit({
-    type: 'sequencerTimesUpdated',
+  enqueue.emit.sequencerTimesUpdated({
     time: newTime,
     endTime: value,
     mode

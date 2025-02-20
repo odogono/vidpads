@@ -103,11 +103,3 @@ export type MidiStoreEvents =
   | MidiMappingUpdatedEvent
   | NoteOnEvent
   | NoteOffEvent;
-export type MidiStoreEmit = { emit: (event: MidiStoreEvents) => void };
-
-// export interface MidiStoreExport {
-//   id: string;
-//   midiToPadMap: Record<string, string[]>;
-//   padToMidiMap: Record<string, string>;
-//   updatedAt: string;
-// }

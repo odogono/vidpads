@@ -28,8 +28,7 @@ export const usePadStepEvents = () => {
       project.send({
         type: 'toggleStepSequencerEvent',
         padId: pad.id,
-        step,
-        patternIndex: 0
+        step
       });
     },
     [events, project]

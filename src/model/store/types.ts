@@ -5,7 +5,7 @@ import type {
   SequencerEvent,
   SequencerMode,
   ShowMode,
-  StepSequencerEvents,
+  StepSequencerPattern,
   VolumeKeyPoint
 } from '@model/types';
 import { ControlPanes } from '@types';
@@ -39,7 +39,7 @@ export interface ProjectStoreContextType {
   stepSequencer: {
     bpm: number;
     patternIndex: number;
-    patterns: StepSequencerEvents[];
+    patterns: StepSequencerPattern[];
   };
 
   lastMediaUrl?: string | null;
@@ -194,7 +194,7 @@ export type AddSequencerEventAction = {
 export type ToggleStepSequencerEventAction = {
   type: 'toggleStepSequencerEvent';
   padId: string;
-  patternIndex: number;
+  index?: number;
   step: number;
 };
 
@@ -314,6 +314,28 @@ export type SetProjectBgImageAction = {
 //   isDisabled: boolean;
 // };
 
+export type SetStepSequencerPatternIndexAction = {
+  type: 'setStepSequencerPatternIndex';
+  index: number;
+};
+
+export type SetStepSequencerPatternAction = {
+  type: 'setStepSequencerPattern';
+  index: number;
+  pattern: StepSequencerPattern;
+};
+
+export type DeleteStepSequencerPatternAction = {
+  type: 'deleteStepSequencerPattern';
+  index: number;
+};
+
+export type AddStepSequencerPatternAction = {
+  type: 'addStepSequencerPattern';
+  copy: boolean;
+  setIndex?: boolean;
+};
+
 export type ProjectStoreActions =
   | SetPadMediaAction
   | ClearPadAction
@@ -357,7 +379,11 @@ export type ProjectStoreActions =
   | ClipboardSequencerEventsAction
   | SnapSequencerEventsAction
   | SetProjectBgImageAction
-  | ToggleStepSequencerEventAction;
+  | ToggleStepSequencerEventAction
+  | SetStepSequencerPatternIndexAction
+  | DeleteStepSequencerPatternAction
+  | AddStepSequencerPatternAction
+  | SetStepSequencerPatternAction;
 
 export type PadUpdatedEvent = {
   type: 'padUpdated';
@@ -414,8 +440,6 @@ export type ProjectStoreEvents =
   | SequencerStartedEvent
   | SequencerStoppedEvent
   | PadIsLoopedEvent;
-
-export type Emit = { emit: (event: ProjectStoreEvents) => void };
 
 export type ProjectStoreType = Store<
   ProjectStoreContextType,
