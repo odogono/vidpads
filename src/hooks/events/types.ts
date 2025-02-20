@@ -20,18 +20,21 @@ export type EventInputSource =
   | 'sequencer'
   | 'step-seq';
 
+export interface PadInteractionEvent {
+  padId: string;
+  source: EventInputSource;
+  requestId?: string;
+  index?: number;
+  forceStop?: boolean;
+}
+
 export type EventEmitterEvents = {
-  'pad:touchdown': {
-    padId: string;
-    source: EventInputSource;
-    requestId?: string;
-  };
-  'pad:touchup': {
-    padId: string;
-    source: EventInputSource;
-    forceStop?: boolean;
-    requestId?: string;
-  };
+  'pad:touchdown': PadInteractionEvent;
+  'pad:touchup': PadInteractionEvent;
+  // mostly for step sequencer hover
+  'pad:enter': PadInteractionEvent;
+  'pad:leave': PadInteractionEvent;
+
   // request the video to start
   'video:start': PlayerPlay;
   // request the video to stop

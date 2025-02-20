@@ -12,6 +12,8 @@ interface PadStepProps {
   pad: Pad;
   onTouchStart?: (pad: Pad, step: number) => void;
   onTouchEnd?: (pad: Pad, step: number) => void;
+  onEnter?: (pad: Pad, step: number) => void;
+  onLeave?: (pad: Pad, step: number) => void;
   isActive?: boolean;
   isPlaying?: boolean;
 }
@@ -21,6 +23,8 @@ export const PadStep = ({
   pad,
   onTouchStart,
   onTouchEnd,
+  onEnter,
+  onLeave,
   isActive,
   isPlaying
 }: PadStepProps) => {
@@ -30,12 +34,10 @@ export const PadStep = ({
   const truncatedLabel = label.slice(0, 3);
   return (
     <button
-      onPointerDown={() => {
-        onTouchStart?.(pad, index);
-      }}
-      onPointerUp={() => {
-        onTouchEnd?.(pad, index);
-      }}
+      onPointerDown={() => onTouchStart?.(pad, index)}
+      onPointerUp={() => onTouchEnd?.(pad, index)}
+      onPointerEnter={() => onEnter?.(pad, index)}
+      onPointerLeave={() => onLeave?.(pad, index)}
       className={cn(
         `min-w-[24px] min-h-[24px] flex items-center justify-center vo-step`,
         {

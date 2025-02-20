@@ -16,7 +16,12 @@ export const StepSequencer = () => {
 
   const padCount = pads?.length ?? 1;
 
-  const { handlePadTouchStart, handlePadTouchEnd } = usePadStepEvents();
+  const {
+    handlePadTouchStart,
+    handlePadTouchEnd,
+    handlePadEnter,
+    handlePadLeave
+  } = usePadStepEvents();
 
   const { activeStep, pattern } = useStepSequencerEvents();
 
@@ -42,6 +47,8 @@ export const StepSequencer = () => {
                 isActive={isActive}
                 onTouchStart={handlePadTouchStart}
                 onTouchEnd={handlePadTouchEnd}
+                onEnter={handlePadEnter}
+                onLeave={handlePadLeave}
               />
             );
           })

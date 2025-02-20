@@ -34,8 +34,34 @@ export const usePadStepEvents = () => {
     [events, project]
   );
 
+  const handlePadEnter = useCallback(
+    (pad: Pad, step: number) => {
+      log.debug('handlePadEnter', { pad, step });
+      events.emit('pad:enter', {
+        padId: pad.id,
+        source: 'step-seq',
+        index: step
+      });
+    },
+    [events]
+  );
+
+  const handlePadLeave = useCallback(
+    (pad: Pad, step: number) => {
+      log.debug('handlePadLeave', { pad, step });
+      events.emit('pad:leave', {
+        padId: pad.id,
+        source: 'step-seq',
+        index: step
+      });
+    },
+    [events]
+  );
+
   return {
     handlePadTouchStart,
-    handlePadTouchEnd
+    handlePadTouchEnd,
+    handlePadEnter,
+    handlePadLeave
   };
 };

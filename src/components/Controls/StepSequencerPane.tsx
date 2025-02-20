@@ -20,14 +20,18 @@ import {
 import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
 // import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
+import { useEvents } from '@hooks/events';
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
+import { PadInteractionEvent } from '../../hooks/events/types';
+import { Pad } from '../../model/types';
 import { OpBiButton } from '../common/OpBiButton';
 import { OpNumberSelect } from '../common/OpNumberSelect';
 
 // const log = createLog('StepSequencerPane', ['debug']);
 
 export const StepSequencerPane = () => {
+  const events = useEvents();
   const { setShowMode } = useShowMode();
   const bpmRef = useRef<OpIntegerInputRef | null>(null);
   const timeRef = useRef<OpTimeInputRef | null>(null);
@@ -53,10 +57,14 @@ export const StepSequencerPane = () => {
     stop();
   }, [stop]);
 
-  useEffect(() => {
-    const timeValue = patternIndex + 1 + (activeStep + 1) / 1000;
+  const setPatternDisplay = useCallback((pattern: number, step: number = 0) => {
+    const timeValue = pattern + 1 + (step + 1) / 1000;
     timeRef.current?.setValue(timeValue);
-  }, [activeStep, patternIndex]);
+  }, []);
+
+  useEffect(() => {
+    setPatternDisplay(patternIndex, activeStep);
+  }, [activeStep, patternIndex, setPatternDisplay]);
 
   useEffect(() => {
     bpmRef.current?.setValue(bpm);
@@ -67,13 +75,29 @@ export const StepSequencerPane = () => {
     showSuccess('Sequencer events cleared');
   }, [clearEvents]);
 
+  const handlePadEnter = useCallback(
+    ({ index }: PadInteractionEvent) => {
+      if (isPlaying) return;
+      setPatternDisplay(patternIndex, index);
+    },
+    [isPlaying, patternIndex, setPatternDisplay]
+  );
+
+  const handlePadLeave = useCallback(() => {
+    if (isPlaying) return;
+    setPatternDisplay(patternIndex, -1);
+  }, [isPlaying, patternIndex, setPatternDisplay]);
+
   useEffect(() => {
     setShowMode('step');
-
+    events.on('pad:enter', handlePadEnter);
+    events.on('pad:leave', handlePadLeave);
     return () => {
       setShowMode('pads');
+      events.off('pad:enter', handlePadEnter);
+      events.off('pad:leave', handlePadLeave);
     };
-  }, [setShowMode]);
+  }, [setShowMode, handlePadEnter, handlePadLeave, events]);
 
   const handleBpmChange = useCallback(
     (value: number) => {
