@@ -1,7 +1,7 @@
 {
   "name": "video-operator-pads",
   "author": "Alexander Veenendaal <alex@opendoorgonorth.com>",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

@@ -17,8 +17,8 @@ type UpdateIntervalsAction = { type: 'updateIntervals'; intervals: Interval[] };
 type YTStoreActions = PlayerStateChangeAction | UpdateIntervalsAction;
 
 export type StartQueuingEvent = { type: 'startQueuing'; interval: Interval };
-type ReadyEvent = { type: 'ready'; state: PlayerYTState };
-type NotReadyEvent = { type: 'notReady'; state: PlayerYTState };
+export type ReadyEvent = { type: 'ready'; state: PlayerYTState };
+export type NotReadyEvent = { type: 'notReady'; state: PlayerYTState };
 
 type YTStoreEvents = StartQueuingEvent | ReadyEvent | NotReadyEvent;
 
@@ -66,12 +66,9 @@ export const createStore = () => {
         contextState === PlayerYTState.READY_FOR_CUE &&
         playerState === PlayerState.CUED
       ) {
-        // log.debug('we have', context.intervals.length, 'intervals');
         if (context.intervals.length > 0) {
           const newIntervalIndex = context.intervalIndex + 1;
           const interval = context.intervals[newIntervalIndex];
-          // log.debug('[playerStateChange] startQueuing player', player);
-          // log.debug('[playerStateChange] startQueuing interval', interval);
 
           // check that the interval end is valid
           if (interval.end === -1) {

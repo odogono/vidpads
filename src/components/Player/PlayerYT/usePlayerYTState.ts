@@ -128,9 +128,21 @@ export const usePlayerYTState = ({
   );
 
   useEffect(() => {
-    const evtStartQueuing = store.on('startQueuing', handleStartQueuing);
-    const evtReady = store.on('ready', handleReady);
-    const evtNotReady = store.on('notReady', handleNotReady);
+    const evtStartQueuing = store.on(
+      'startQueuing',
+      //@ts-expect-error - wierd xstate type issue
+      handleStartQueuing
+    );
+    const evtReady = store.on(
+      'ready',
+      //@ts-expect-error - wierd xstate type issue
+      handleReady
+    );
+    const evtNotReady = store.on(
+      'notReady',
+      //@ts-expect-error - wierd xstate type issue
+      handleNotReady
+    );
     return () => {
       evtStartQueuing.unsubscribe();
       evtReady.unsubscribe();

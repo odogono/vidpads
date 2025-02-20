@@ -41,7 +41,9 @@ export const useMidiEvents = (store: MidiStoreType) => {
   useEffect(() => {
     events.on('cmd:cancel', handleCancel);
 
+    //@ts-expect-error - wierd xstate type issue
     const subNoteOn = store.on('noteOn', handleNoteOn);
+    //@ts-expect-error - wierd xstate type issue
     const subNoteOff = store.on('noteOff', handleNoteOff);
 
     return () => {
