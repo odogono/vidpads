@@ -17,16 +17,14 @@ import {
   OpIntegerInput,
   OpIntegerInputRef
 } from '@components/common/OpIntegerInput';
+import { OpNumberSelect } from '@components/common/OpNumberSelect';
 import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
 // import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
 import { useEvents } from '@hooks/events';
+import { PadInteractionEvent } from '@hooks/events/types';
 import { useStepSequencer } from '@hooks/useStepSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
-import { PadInteractionEvent } from '../../hooks/events/types';
-import { Pad } from '../../model/types';
-import { OpBiButton } from '../common/OpBiButton';
-import { OpNumberSelect } from '../common/OpNumberSelect';
 
 // const log = createLog('StepSequencerPane', ['debug']);
 
@@ -147,14 +145,9 @@ export const StepSequencerPane = () => {
         <div className='flex flex-row gap-2 ml-6'>
           <OpNumberSelect
             label='Pattern'
-            isEnabled={true}
+            isEnabled={!isPlaying}
             value={patternIndex}
             valueMax={patternCount}
-          />
-          <OpBiButton
-            label='Pattern'
-            size='sm'
-            isEnabled={!isPlaying}
             onPressUp={() => setPatternIndex(patternIndex - 1)}
             onPressDown={() => setPatternIndex(patternIndex + 1)}
           />

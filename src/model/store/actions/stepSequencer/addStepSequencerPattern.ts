@@ -5,7 +5,7 @@ import {
 } from '@model/store/types';
 import { copyStepSequencerPattern, updateStepSequencer } from '../helpers';
 
-const log = createLog('actions/addStepSequencerPattern');
+const log = createLog('actions/addStepSequencerPattern', ['debug']);
 
 export const addStepSequencerPattern = (
   context: ProjectStoreContext,
@@ -16,6 +16,11 @@ export const addStepSequencerPattern = (
   const patternIndex = context.stepSequencer?.patternIndex ?? 0;
   const patterns = context.stepSequencer?.patterns ?? [{}];
   const newPatternIndex = patternIndex + 1;
+
+  if (patterns.length >= 99) {
+    log.debug('max patterns reached');
+    return context;
+  }
 
   const newPatterns = [...patterns];
 

@@ -10,9 +10,7 @@ import {
 } from '../helpers';
 import { UseSelectorsResult } from './useSelectors';
 
-// import { SequencerEvent } from '@model/types';
-
-const log = createLog('stepSeq/useActions');
+const log = createLog('stepSeq/useActions', ['debug']);
 
 interface UseActionsProps extends UseSelectorsResult {
   isPlaying: boolean;

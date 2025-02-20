@@ -1,69 +1,100 @@
 'use client';
 
+import { ChevronDown, ChevronUp } from 'lucide-react';
+
 import { cn } from '@helpers/tailwind';
-import { useButton } from '@heroui/react';
 import { OpLabel } from './OpLabel';
 
-export const OpNumberSelect = ({
-  label,
-  isEnabled = true,
-  onPress,
-  size = 'lg',
-  value = 0,
-  valueMax = 1,
-  ...props
-}: {
+interface OpNumberSelectProps {
   label?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isEnabled?: boolean;
-  onPress?: () => void;
+  onPressUp?: () => void;
+  onPressDown?: () => void;
+
   value?: number;
   valueMax?: number;
-}) => {
-  const { getButtonProps } = useButton({
-    isDisabled: !isEnabled,
-    onPress,
-    'aria-label': label,
-    ...props
-  });
+}
 
-  const displayValue = value ?? 0;
+export const OpNumberSelect = (props: OpNumberSelectProps) => {
+  const {
+    label,
+    size = 'lg',
+    isEnabled = true,
+    value = 0,
+    valueMax = 1
+  } = props;
+
+  const displayValue = `${(value ?? 0) + 1}`.padStart(2, '0');
+  const displayValueMax = `${valueMax ?? 1}`.padStart(2, '0');
   const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12',
-    xl: 'w-24 h-24'
+    sm: 'w-10 h-8',
+    md: 'w-12 h-10',
+    lg: 'w-14 h-12',
+    xl: 'w-26 h-24'
   };
 
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center group pointer-events-none focus:outline-none',
+        'flex flex-col items-center justify-center group focus:outline-none',
         {
           'opacity-50 cursor-not-allowed': !isEnabled
         }
       )}
     >
-      <div
-        className={cn(
-          `${sizeClasses[size]} 
+      <div className='flex flex-row items-center justify-center'>
+        <div
+          className={cn(
+            `${sizeClasses[size]} 
           flex items-center justify-center
-          text-black rounded-lg 
-          aspect-square 
-          focus:outline-none`,
-          {
-            'bg-primary text-foreground hover:bg-primary/90': isEnabled,
-            'bg-primary opacity-50 cursor-not-allowed': !isEnabled
-          }
-        )}
-      >
-        <span className='text-white'>
-          {displayValue + 1}/{valueMax}
-        </span>
+          rounded-l-lg 
+          font-mono
+          pointer-events-none
+          focus:outline-none
+          bg-secondary-800 text-secondary-500`
+          )}
+        >
+          <span className='text-c6'>
+            {displayValue}:{displayValueMax}
+          </span>
+        </div>
+        <Buttons {...props} />
       </div>
       <OpLabel label={label} isEnabled={isEnabled} />
     </div>
   );
 };
 
-OpNumberSelect.displayName = 'OpNumberSelect';
+const Buttons = ({
+  onPressUp,
+  onPressDown,
+  isEnabled
+}: OpNumberSelectProps) => {
+  return (
+    <div className='flex flex-col items-center justify-center'>
+      <button
+        className={cn(
+          'bg-primary hover:bg-primary-300 rounded-tr-lg w-8 flex justify-center',
+          {
+            'opacity-50 cursor-not-allowed': !isEnabled
+          }
+        )}
+        onPointerDown={onPressUp}
+      >
+        <ChevronUp color='var(--foreground)' />
+      </button>
+      <button
+        className={cn(
+          'bg-primary hover:bg-primary-300 rounded-br-lg w-8 flex justify-center',
+          {
+            'opacity-50 cursor-not-allowed': !isEnabled
+          }
+        )}
+        onPointerDown={onPressDown}
+      >
+        <ChevronDown color='var(--foreground)' />
+      </button>
+    </div>
+  );
+};

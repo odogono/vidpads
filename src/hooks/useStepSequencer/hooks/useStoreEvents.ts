@@ -9,7 +9,7 @@ import {
 } from '@model/store/types';
 import { UseSelectorsResult } from './useSelectors';
 
-const log = createLog('stepSeq/useStoreEvents');
+const log = createLog('stepSeq/useStoreEvents', ['debug']);
 
 export const useStoreEvents = ({
   bpm,
