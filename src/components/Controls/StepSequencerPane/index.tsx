@@ -75,7 +75,7 @@ export const StepSequencerPane = () => {
           <Play className={isPlaying ? 'animate-pulse' : ''} />
         </OpButton>
 
-        <div className='ml-6 flex flex-col items-end gap-1 '>
+        <div className='ml-6 flex flex-col items-end gap-1'>
           <OpIntegerInput
             ref={bpmDisplayRef}
             label='BPM'

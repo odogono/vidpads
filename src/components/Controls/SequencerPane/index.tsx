@@ -137,17 +137,12 @@ export const SequencerPane = () => {
             className={isRecording ? 'animate-pulse' : ''}
           />
         </OpButton>
-        <OpToggleButton label='Loop' isSelected={isLooped} onPress={handleLoop}>
-          <Repeat2 />
-        </OpToggleButton>
-        <OpButton label='Clear' onPress={handleClear}>
-          <Trash />
-        </OpButton>
 
-        <div className='ml-6 flex flex-row gap-2'>
+        <div className='ml-6 flex flex-col items-end gap-1'>
           <OpTimeInput
             ref={timeRef}
             label='Time'
+            labelPlacement='left'
             isEnabled={true}
             initialValue={0}
             defaultValue={0}
@@ -159,6 +154,7 @@ export const SequencerPane = () => {
           <OpTimeInput
             ref={durationRef}
             label='Duration'
+            labelPlacement='left'
             isEnabled={true}
             initialValue={0}
             defaultValue={0}
@@ -167,6 +163,18 @@ export const SequencerPane = () => {
             showIncrementButtons={true}
             onChange={handleDurationChange}
           />
+        </div>
+        <div className='flex flex-row gap-2 ml-4'>
+          <OpToggleButton
+            label='Loop'
+            isSelected={isLooped}
+            onPress={handleLoop}
+          >
+            <Repeat2 />
+          </OpToggleButton>
+          <OpButton label='Clear' onPress={handleClear}>
+            <Trash />
+          </OpButton>
         </div>
       </div>
     </>
