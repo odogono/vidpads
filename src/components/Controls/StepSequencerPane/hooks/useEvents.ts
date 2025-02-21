@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { OpTimeInputRef } from '@components/common/OpTimeInput';
 import { useEvents as useEventsBase } from '@hooks/events';
@@ -12,16 +12,17 @@ interface UseEventsProps {
   isPlaying: boolean;
   patternIndex: number;
   setPatternDisplay: (patternIndex: number, index?: number) => void;
+  timeDisplayRef: React.RefObject<OpTimeInputRef | null>;
 }
 
 export const useEvents = ({
   isPlaying,
   patternIndex,
-  setPatternDisplay
+  setPatternDisplay,
+  timeDisplayRef
 }: UseEventsProps) => {
   const events = useEventsBase();
   const { setShowMode } = useShowMode();
-  const timeRef = useRef<OpTimeInputRef | null>(null);
 
   const handlePadEnter = useCallback(
     ({ index }: PadInteractionEvent) => {
@@ -36,9 +37,12 @@ export const useEvents = ({
     setPatternDisplay(patternIndex, -1);
   }, [isPlaying, patternIndex, setPatternDisplay]);
 
-  const handleStepUpdate = useCallback((evt: StepSequencerTimeUpdateEvent) => {
-    timeRef.current?.setValue(evt.time);
-  }, []);
+  const handleStepUpdate = useCallback(
+    (evt: StepSequencerTimeUpdateEvent) => {
+      timeDisplayRef.current?.setValue(evt.time);
+    },
+    [timeDisplayRef]
+  );
 
   useEffect(() => {
     setShowMode('step');
@@ -52,6 +56,4 @@ export const useEvents = ({
       events.off('seq:step-update', handleStepUpdate);
     };
   }, [setShowMode, handlePadEnter, handlePadLeave, events, handleStepUpdate]);
-
-  return { timeRef };
 };

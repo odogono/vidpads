@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - time sequencer pane layout
+- increased max length of pad label
 
 
 ## v1.2.3 (2025-02-21)

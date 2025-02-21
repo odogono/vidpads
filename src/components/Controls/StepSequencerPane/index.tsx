@@ -24,6 +24,7 @@ import { useEvents } from './hooks/useEvents';
 export const StepSequencerPane = () => {
   const bpmDisplayRef = useRef<OpIntegerInputRef | null>(null);
   const patternDisplayRef = useRef<OpTimeInputRef | null>(null);
+  const timeDisplayRef = useRef<OpTimeInputRef | null>(null);
 
   const {
     isPlaying,
@@ -45,10 +46,18 @@ export const StepSequencerPane = () => {
     stop();
   }, [stop]);
 
-  const setPatternDisplay = useCallback((pattern: number, step: number = 0) => {
-    const timeValue = pattern + 1 + (step + 1) / 1000;
-    patternDisplayRef.current?.setValue(timeValue);
-  }, []);
+  const setPatternDisplay = useCallback(
+    (pattern: number, step: number = 0) => {
+      const patternValue = pattern + 1 + (step + 1) / 1000;
+      patternDisplayRef.current?.setValue(patternValue);
+
+      // convert the pattern and step to time
+      const beatsPerStep = 60 / bpm / 4;
+      const timeValue = step * beatsPerStep + pattern * 16 * beatsPerStep;
+      timeDisplayRef.current?.setValue(step >= 0 ? timeValue : 0);
+    },
+    [bpm]
+  );
 
   useEffect(() => {
     setPatternDisplay(patternIndex, activeStep);
@@ -63,7 +72,7 @@ export const StepSequencerPane = () => {
     [setBpm]
   );
 
-  const { timeRef } = useEvents({ isPlaying, patternIndex, setPatternDisplay });
+  useEvents({ isPlaying, patternIndex, setPatternDisplay, timeDisplayRef });
 
   return (
     <>
@@ -100,7 +109,7 @@ export const StepSequencerPane = () => {
             showIncrementButtons={true}
           />
           <OpTimeInput
-            ref={timeRef}
+            ref={timeDisplayRef}
             label='Time'
             labelPlacement='left'
             isEnabled={false}
