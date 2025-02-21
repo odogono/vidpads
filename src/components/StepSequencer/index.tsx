@@ -23,7 +23,7 @@ export const StepSequencer = () => {
     handlePadLeave
   } = usePadStepEvents();
 
-  const { activeStep, pattern } = useStepSequencerEvents();
+  const { activeStep, pattern, padsPlaying } = useStepSequencerEvents();
 
   return (
     <div className='vo-stepseq w-full h-full mt-4 mb-4 rounded-lg bg-c2 border border-gray-300 flex'>
@@ -38,12 +38,14 @@ export const StepSequencer = () => {
         {pads.map((pad) =>
           Array.from({ length: STEPS }).map((_, index) => {
             const isActive = pattern[pad.id]?.[index];
+            const isPadPlaying = padsPlaying.includes(pad.id);
             return (
               <PadStep
                 key={`padstep-${pad.id}-${index}`}
                 pad={pad}
                 index={index}
                 isPlaying={index === activeStep}
+                isPadPlaying={isPadPlaying}
                 isActive={isActive}
                 onTouchStart={handlePadTouchStart}
                 onTouchEnd={handlePadTouchEnd}

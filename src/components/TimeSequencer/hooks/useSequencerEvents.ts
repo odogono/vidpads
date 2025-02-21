@@ -16,7 +16,7 @@ interface UseSequencerEventsProps {
   time: number;
 }
 
-const log = createLog('seq/useSequencerEvents');
+const log = createLog('seq/useSequencerEvents', ['debug']);
 
 export const useSequencerEvents = ({
   pixelsPerBeat,

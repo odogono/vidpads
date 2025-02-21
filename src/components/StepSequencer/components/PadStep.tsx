@@ -2,8 +2,8 @@
 
 // import { createLog } from '@helpers/log';
 import { cn } from '@helpers/tailwind';
+import { getPadLabel } from '@model/pad';
 import { Pad } from '@model/types';
-import { getPadLabel } from '../../../model/pad';
 
 // const log = createLog('stepSeq/PadStep');
 
@@ -16,6 +16,7 @@ interface PadStepProps {
   onLeave?: (pad: Pad, step: number) => void;
   isActive?: boolean;
   isPlaying?: boolean;
+  isPadPlaying?: boolean;
 }
 
 export const PadStep = ({
@@ -26,7 +27,8 @@ export const PadStep = ({
   onEnter,
   onLeave,
   isActive,
-  isPlaying
+  isPlaying,
+  isPadPlaying
 }: PadStepProps) => {
   const label = getPadLabel(pad) || pad.id;
 
@@ -67,7 +69,8 @@ export const PadStep = ({
         group`,
           {
             'bg-white/20 hover:bg-white/40': !isPlaying,
-            'bg-white/60': isActive,
+            'bg-white/40 animate-pulse': isPadPlaying && !isActive,
+            'bg-white/70': isActive,
             'bg-white': isPlaying
           }
         )}
