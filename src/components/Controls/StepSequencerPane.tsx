@@ -62,10 +62,14 @@ export const StepSequencerPane = () => {
     setPatternDisplay(patternIndex, activeStep);
   }, [activeStep, patternIndex, setPatternDisplay]);
 
-  useEffect(() => {
-    bpmRef.current?.setValue(bpm);
-  }, [bpm]);
+  // set the bpm from state
+  useEffect(() => bpmRef.current?.setValue(bpm), [bpm]);
 
+  // set the bpm from the input
+  const handleBpmChange = useCallback(
+    (value: number) => setBpm(value),
+    [setBpm]
+  );
   // const handleClear = useCallback(() => {
   //   clearEvents();
   //   showSuccess('Sequencer events cleared');
@@ -95,13 +99,6 @@ export const StepSequencerPane = () => {
     };
   }, [setShowMode, handlePadEnter, handlePadLeave, events]);
 
-  const handleBpmChange = useCallback(
-    (value: number) => {
-      setBpm(value);
-    },
-    [setBpm]
-  );
-
   return (
     <>
       <div className='vo-pane-sequencer w-fit h-full pl-2  flex flex-row gap-2 items-center justify-center overflow-x-none'>
@@ -120,7 +117,7 @@ export const StepSequencerPane = () => {
             isEnabled={true}
             initialValue={bpm}
             defaultValue={bpm}
-            range={[20, 200]}
+            range={[1, 200]}
             description='BPM'
             showIncrementButtons={true}
             onChange={handleBpmChange}

@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { createLog } from '@helpers/log';
-import { integerToString, safeParseInt } from '@helpers/number';
+import { roundNumberToDecimalPlaces, safeParseFloat } from '@helpers/number';
 import { clearRunAfter, runAfter, type TimeoutId } from '@helpers/time';
 import { cn } from '@heroui/react';
 import { useKeyboard } from '@hooks/useKeyboard';
@@ -29,7 +29,14 @@ interface OpIntegerInputProps {
   onChange?: (value: number) => void;
   showIncrementButtons?: boolean;
   isEnabled?: boolean;
+  allowNumbers?: boolean;
 }
+
+const bpmToString = (value: number) => {
+  return roundNumberToDecimalPlaces(value, 1).toString();
+};
+
+const stringToBpm = (value: string) => safeParseFloat(value);
 
 export const OpIntegerInput = ({
   label,
@@ -43,7 +50,7 @@ export const OpIntegerInput = ({
 }: OpIntegerInputProps) => {
   const { isMetaKeyDown, setIsEnabled: setKeyboardEnabled } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
-    integerToString(initialValue)
+    bpmToString(initialValue)
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -52,10 +59,7 @@ export const OpIntegerInput = ({
   const lastPointerPos = useRef<{ x: number; y: number } | null>(null);
   const dragTimeout = useRef<TimeoutId | undefined>(undefined);
 
-  useEffect(() => {
-    // log.debug('TimeInput', description, initialValue);
-    setInputValue(integerToString(initialValue));
-  }, [initialValue]);
+  useEffect(() => setInputValue(bpmToString(initialValue)), [initialValue]);
 
   useImperativeHandle(ref, () => ({
     setValue: (value: number) => {
@@ -63,10 +67,10 @@ export const OpIntegerInput = ({
       if (document.activeElement === inputRef.current) {
         return;
       }
-      setInputValue(integerToString(value));
+      setInputValue(bpmToString(value));
     },
     getValue: () => {
-      return safeParseInt(inputValue);
+      return stringToBpm(inputValue);
     }
   }));
 
@@ -74,13 +78,13 @@ export const OpIntegerInput = ({
     const input = e.target.value;
     // log.debug('handleChange', input);
     try {
-      const newValue = safeParseInt(input);
-      log.debug('handleChange', input, newValue, integerToString(newValue));
-      setInputValue(integerToString(newValue));
+      const newValue = stringToBpm(input);
+      log.debug('handleChange', input, newValue, bpmToString(newValue));
+      setInputValue(bpmToString(newValue));
       onChange?.(newValue);
     } catch {
       log.debug('Invalid integer format', input);
-      setInputValue(integerToString(defaultValue ?? 0));
+      setInputValue(bpmToString(defaultValue ?? 0));
       onChange?.(defaultValue ?? 0);
     }
   };
@@ -107,14 +111,14 @@ export const OpIntegerInput = ({
 
       const [min, max] = range ? range : [0, 100];
 
-      const currentSeconds = safeParseInt(inputValue);
+      const currentSeconds = stringToBpm(inputValue);
       log.debug('handleWheel', { currentSeconds, min, max, inputValue, range });
       const delta = e.deltaY < 0 ? increment : -increment;
       const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
       // log.debug('handleWheel', { newValue });
 
       log.debug('handleWheel', { currentSeconds, newValue, min, max });
-      setInputValue(integerToString(newValue));
+      setInputValue(bpmToString(newValue));
       onChange?.(newValue);
       (e.target as HTMLInputElement).blur();
     },
@@ -154,7 +158,7 @@ export const OpIntegerInput = ({
       );
 
       lastValue.current = newValue;
-      setInputValue(integerToString(newValue));
+      setInputValue(bpmToString(newValue));
       onChange?.(newValue);
     },
     [isDragging, isEnabled, isMetaKeyDown, range, onChange]
@@ -168,7 +172,7 @@ export const OpIntegerInput = ({
       setIsDragging(true);
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       lastPointerPos.current = { x: e.clientX, y: e.clientY };
-      lastValue.current = safeParseInt(inputValue);
+      lastValue.current = stringToBpm(inputValue);
       document.body.style.cursor = 'ew-resize';
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
     });
