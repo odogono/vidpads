@@ -46,7 +46,12 @@ export const OpTimeInput = ({
   range,
   isEnabled
 }: OpTimeInputProps) => {
-  const { isMetaKeyDown, setIsEnabled: setKeyboardEnabled } = useKeyboard();
+  const {
+    isAltKeyDown,
+    isMetaKeyDown,
+    isShiftKeyDown,
+    setIsEnabled: setKeyboardEnabled
+  } = useKeyboard();
   const [inputValue, setInputValue] = useState<string>(
     formatTimeToString(initialValue)
   );
@@ -94,6 +99,14 @@ export const OpTimeInput = ({
       handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
       // unfocus the input
       (e.target as HTMLInputElement).blur();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.stopPropagation();
+      incrementTime(1, e.altKey, e.shiftKey, e.metaKey);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      e.stopPropagation();
+      incrementTime(-1, e.altKey, e.shiftKey, e.metaKey);
     }
   };
 
@@ -102,27 +115,37 @@ export const OpTimeInput = ({
     setInputValue(e.target.value);
   };
 
-  const handleWheel = useCallback(
-    (e: React.WheelEvent<HTMLInputElement>) => {
+  const incrementTime = useCallback(
+    (delta: number, isAlt: boolean, isShift: boolean, isMeta: boolean) => {
       if (!isEnabled) return;
-      const isMeta = isMetaKeyDown();
 
-      const increment = isMeta ? 0.001 : 0.01;
+      if (isAlt) delta *= 0.1;
+      if (isShift) delta *= 0.1;
+      if (isMeta) delta *= 0.1;
 
       const [min, max] = range ? range : [0, 100];
-
       const currentSeconds = formatTimeStringToSeconds(inputValue);
-      log.debug('handleWheel', { currentSeconds, min, max, inputValue, range });
-      const delta = e.deltaY < 0 ? increment : -increment;
       const newValue = Math.max(min, Math.min(max, currentSeconds + delta));
-      // log.debug('handleWheel', { newValue });
 
-      log.debug('handleWheel', { currentSeconds, newValue, min, max });
+      // log.debug('incrementTime', { delta, isShift, isMeta, newValue });
+
       setInputValue(formatTimeToString(newValue));
       onChange?.(newValue);
+    },
+    [isEnabled, range, inputValue, onChange]
+  );
+
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLInputElement>) => {
+      const isShift = isShiftKeyDown();
+      const isMeta = isMetaKeyDown();
+      const isAlt = isAltKeyDown();
+
+      incrementTime(e.deltaY < 0 ? 0.01 : -0.01, isAlt, isShift, isMeta);
+
       (e.target as HTMLInputElement).blur();
     },
-    [isEnabled, isMetaKeyDown, range, inputValue, onChange]
+    [incrementTime, isAltKeyDown, isMetaKeyDown, isShiftKeyDown]
   );
 
   const handlePointerMove = useCallback(

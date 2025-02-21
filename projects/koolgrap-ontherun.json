@@ -2,8 +2,8 @@
   "id": "3f36d669",
   "name": "Kool G Rap - On The Run (Untouchable Version)",
   "bgImage": "https://i.ytimg.com/vi/A6ZjkN5Kd6g/maxresdefault.jpg",
-  "version": "1.0.0",
-  "exportVersion": "1",
+  "version": "1.2.4",
+  "exportVersion": "2025-02-18",
   "pads": [
     {
       "id": "a1",
@@ -70,8 +70,8 @@
       "operations": [
         {
           "type": "trim",
-          "start": 9,
-          "end": 18.481
+          "start": 10.302,
+          "end": 19.409
         },
         {
           "type": "volume",
@@ -85,6 +85,18 @@
         {
           "type": "source",
           "url": "https://youtu.be/SIEQEph0trE"
+        },
+        {
+          "type": "playback",
+          "resume": true
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
         }
       ]
     },
@@ -124,8 +136,8 @@
       "operations": [
         {
           "type": "trim",
-          "start": 0,
-          "end": 2.424
+          "start": 0.344,
+          "end": 2.534
         },
         {
           "type": "loop",
@@ -168,14 +180,130 @@
           "url": "https://youtu.be/UceGF3M56bE"
         }
       ]
+    },
+    {
+      "id": "a11",
+      "label": "They got the shipment",
+      "source": "https://youtu.be/UceGF3M56bE",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 6.4,
+          "end": 19.459
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.73
+            }
+          ]
+        },
+        {
+          "type": "playback",
+          "isOneShot": false,
+          "resume": false,
+          "priority": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/UceGF3M56bE"
+        }
+      ]
+    },
+    {
+      "id": "a13",
+      "label": "Mister, Hey Mister",
+      "source": "https://youtu.be/skxqbkpLE90",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 106.446,
+          "end": 117.539
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/skxqbkpLE90"
+        }
+      ]
     }
   ],
   "sequencer": {
     "bpm": 60,
-    "time": 0,
+    "isLooped": false,
+    "time": 30,
     "endTime": 30,
-    "events": {}
+    "events": {
+      "a3": [
+        [
+          20,
+          10.969
+        ]
+      ]
+    }
+  },
+  "stepSequencer": {
+    "bpm": 6,
+    "patternIndex": 0,
+    "patterns": [
+      [
+        {
+          "padId": "a7",
+          "steps": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "padId": "a10",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a11",
+          "steps": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a9",
+          "steps": [
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a13",
+          "steps": [
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    ]
   },
   "createdAt": "2025-01-31T11:13:49.450Z",
-  "updatedAt": "2025-02-12T14:57:51Z"
+  "updatedAt": "2025-02-21T16:08:10Z"
 }
