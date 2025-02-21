@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v1.2.4 (2025-02-21)
+
+### Added
+- step sequencer time display
+
+### Changed
+- time sequencer pane layout
+
+
 ## v1.2.3 (2025-02-21)
 
 ### Added
