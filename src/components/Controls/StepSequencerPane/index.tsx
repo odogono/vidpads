@@ -18,20 +18,12 @@ import {
 } from '@components/common/OpIntegerInput';
 import { OpNumberSelect } from '@components/common/OpNumberSelect';
 import { OpTimeInput, OpTimeInputRef } from '@components/common/OpTimeInput';
-// import { createLog } from '@helpers/log';
-// import { showSuccess } from '@helpers/toast';
-import { useEvents } from '@hooks/events';
-import { PadInteractionEvent } from '@hooks/events/types';
 import { useStepSequencer } from '@hooks/useStepSequencer';
-import { useShowMode } from '@model/hooks/useShowMode';
-
-// const log = createLog('StepSequencerPane', ['debug']);
+import { useEvents } from './hooks/useEvents';
 
 export const StepSequencerPane = () => {
-  const events = useEvents();
-  const { setShowMode } = useShowMode();
-  const bpmRef = useRef<OpIntegerInputRef | null>(null);
-  const timeRef = useRef<OpTimeInputRef | null>(null);
+  const bpmDisplayRef = useRef<OpIntegerInputRef | null>(null);
+  const patternDisplayRef = useRef<OpTimeInputRef | null>(null);
 
   const {
     isPlaying,
@@ -55,7 +47,7 @@ export const StepSequencerPane = () => {
 
   const setPatternDisplay = useCallback((pattern: number, step: number = 0) => {
     const timeValue = pattern + 1 + (step + 1) / 1000;
-    timeRef.current?.setValue(timeValue);
+    patternDisplayRef.current?.setValue(timeValue);
   }, []);
 
   useEffect(() => {
@@ -63,45 +55,19 @@ export const StepSequencerPane = () => {
   }, [activeStep, patternIndex, setPatternDisplay]);
 
   // set the bpm from state
-  useEffect(() => bpmRef.current?.setValue(bpm), [bpm]);
+  useEffect(() => bpmDisplayRef.current?.setValue(bpm), [bpm]);
 
   // set the bpm from the input
   const handleBpmChange = useCallback(
     (value: number) => setBpm(value),
     [setBpm]
   );
-  // const handleClear = useCallback(() => {
-  //   clearEvents();
-  //   showSuccess('Sequencer events cleared');
-  // }, [clearEvents]);
 
-  const handlePadEnter = useCallback(
-    ({ index }: PadInteractionEvent) => {
-      if (isPlaying) return;
-      setPatternDisplay(patternIndex, index);
-    },
-    [isPlaying, patternIndex, setPatternDisplay]
-  );
-
-  const handlePadLeave = useCallback(() => {
-    if (isPlaying) return;
-    setPatternDisplay(patternIndex, -1);
-  }, [isPlaying, patternIndex, setPatternDisplay]);
-
-  useEffect(() => {
-    setShowMode('step');
-    events.on('pad:enter', handlePadEnter);
-    events.on('pad:leave', handlePadLeave);
-    return () => {
-      setShowMode('pads');
-      events.off('pad:enter', handlePadEnter);
-      events.off('pad:leave', handlePadLeave);
-    };
-  }, [setShowMode, handlePadEnter, handlePadLeave, events]);
+  const { timeRef } = useEvents({ isPlaying, patternIndex, setPatternDisplay });
 
   return (
     <>
-      <div className='vo-pane-sequencer w-fit h-full pl-2  flex flex-row gap-2 items-center justify-center overflow-x-none'>
+      <div className='vo-pane-sequencer w-fit h-full pl-2 flex flex-row gap-2 items-center justify-center overflow-x-none'>
         <OpButton label={'Stop'} onPress={handleStop} isEnabled={isPlaying}>
           <Square />
         </OpButton>
@@ -109,11 +75,11 @@ export const StepSequencerPane = () => {
           <Play className={isPlaying ? 'animate-pulse' : ''} />
         </OpButton>
 
-        <div className='ml-6 flex flex-col items-center gap-2 mb-4 '>
+        <div className='ml-6 flex flex-col items-end gap-1 '>
           <OpIntegerInput
-            ref={bpmRef}
+            ref={bpmDisplayRef}
             label='BPM'
-            labelPlacement='right'
+            labelPlacement='left'
             isEnabled={true}
             initialValue={bpm}
             defaultValue={bpm}
@@ -123,9 +89,20 @@ export const StepSequencerPane = () => {
             onChange={handleBpmChange}
           />
           <OpTimeInput
+            ref={patternDisplayRef}
+            label='Pattern'
+            labelPlacement='left'
+            isEnabled={false}
+            initialValue={0}
+            defaultValue={0}
+            range={[0, 100]}
+            description='Time'
+            showIncrementButtons={true}
+          />
+          <OpTimeInput
             ref={timeRef}
             label='Time'
-            labelPlacement='right'
+            labelPlacement='left'
             isEnabled={false}
             initialValue={0}
             defaultValue={0}

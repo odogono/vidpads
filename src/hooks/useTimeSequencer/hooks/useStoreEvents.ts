@@ -85,14 +85,6 @@ export const useStoreEvents = ({
     }
     lastTimeUpdate.current = currentTime;
 
-    // events.emit('seq:time-update', {
-    //   time: currentTime,
-    //   endTime,
-    //   isPlaying,
-    //   isRecording,
-    //   mode: 'time'
-    // });
-
     if (currentTime >= endTime) {
       log.debug({
         time,

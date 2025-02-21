@@ -9,22 +9,19 @@ import { OpTimeInput, OpTimeInputRef } from '@/components/common/OpTimeInput';
 import { OpToggleButton } from '@/components/common/OpToggleButton';
 import { createLog } from '@helpers/log';
 import { showSuccess } from '@helpers/toast';
-import { useEvents } from '@hooks/events';
-import { SequencerPlayHeadUpdateEvent } from '@hooks/events/types';
 import { useTimeSequencer } from '@hooks/useTimeSequencer';
 import { useShowMode } from '@model/hooks/useShowMode';
+import { usePlayHeadUpdate } from './hooks/usePlayHeadUpdate';
 
 const log = createLog('SequencerPane', ['debug']);
 
 export const SequencerPane = () => {
-  const events = useEvents();
   const { setShowMode } = useShowMode();
   const [showRewind, setShowRewind] = useState(false);
-  // const [isPlaying, setIsPlaying] = useState(false);
-  // const [isRecording, setIsRecording] = useState(false);
   const durationRef = useRef<OpTimeInputRef | null>(null);
-  const timeRef = useRef<OpTimeInputRef | null>(null);
   const [hasSelectedEvents, setHasSelectedEvents] = useState(false);
+
+  const { timeRef } = usePlayHeadUpdate({ hasSelectedEvents });
 
   const {
     isPlaying,
@@ -62,21 +59,10 @@ export const SequencerPane = () => {
     setShowRewind(!isPlaying && !isRecording && time > 0);
   }, [isPlaying, isRecording, time]);
 
-  const handlePlayHeadUpdate = useCallback(
-    (event: SequencerPlayHeadUpdateEvent) => {
-      const { time, mode } = event;
-      if (mode !== 'time') return;
-      if (!hasSelectedEvents) {
-        timeRef.current?.setValue(time);
-      }
-    },
-    [hasSelectedEvents]
-  );
-
   useEffect(() => {
     timeRef.current?.setValue(time);
     durationRef.current?.setValue(endTime);
-  }, [time, endTime]);
+  }, [time, endTime, timeRef]);
 
   const handleClear = useCallback(() => {
     clearEvents();
@@ -85,13 +71,11 @@ export const SequencerPane = () => {
 
   useEffect(() => {
     setShowMode('sequencer');
-    events.on('seq:playhead-update', handlePlayHeadUpdate);
 
     return () => {
       setShowMode('pads');
-      events.off('seq:playhead-update', handlePlayHeadUpdate);
     };
-  }, [events, handlePlayHeadUpdate, setShowMode]);
+  }, [setShowMode]);
 
   const handleTimeChange = useCallback(
     (value: number) => {

@@ -201,9 +201,10 @@ export const OpTimeInput = ({
 
   return (
     <div
-      className={cn('vo-time-input flex items-center justify-center gap-2', {
-        'flex-row ': labelPlacement === 'left' || labelPlacement === 'right',
-        'flex-col': labelPlacement === 'bottom'
+      className={cn('vo-time-input flex items-center gap-2', {
+        'flex-row ': labelPlacement === 'right',
+        'flex-row-reverse ': labelPlacement === 'left',
+        'flex-col justify-center': labelPlacement === 'bottom'
       })}
     >
       <input
@@ -239,7 +240,7 @@ export const OpTimeInput = ({
       />
       {label && (
         <div
-          className='text-xs text-foreground/90'
+          className='text-xs text-foreground/90 '
           style={{
             fontSize: '0.6rem',
             lineHeight: '0.75rem'

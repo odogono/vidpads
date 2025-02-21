@@ -102,7 +102,8 @@ export type EventEmitterEvents = {
     mode: SequencerMode;
   };
   'seq:rewind': undefined;
-  'seq:time-update': SequencerTimeUpdateEvent;
+  // 'seq:time-update': SequencerTimeUpdateEvent;
+  'seq:step-update': StepSequencerTimeUpdateEvent;
   'seq:playhead-update': SequencerPlayHeadUpdateEvent;
   'seq:clear-events': undefined;
   'seq:set-time': {
@@ -113,13 +114,20 @@ export type EventEmitterEvents = {
   };
 };
 
-export interface SequencerTimeUpdateEvent {
+export interface StepSequencerTimeUpdateEvent {
+  bpm: number;
+  pattern: number;
+  step: number;
   time: number;
-  endTime: number;
-  isPlaying: boolean;
-  isRecording: boolean;
-  mode: SequencerMode;
 }
+
+// export interface SequencerTimeUpdateEvent {
+//   time: number;
+//   endTime: number;
+//   isPlaying: boolean;
+//   isRecording: boolean;
+//   mode: SequencerMode;
+// }
 
 export interface SequencerPlayHeadUpdateEvent {
   time: number;

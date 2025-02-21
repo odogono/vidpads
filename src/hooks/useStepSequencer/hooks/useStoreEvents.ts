@@ -35,19 +35,18 @@ export const useStoreEvents = ({
     const now = performance.now();
     const currentTime = (now - playStartedAtRef.current) / 1000;
 
-    events.emit('seq:time-update', {
-      time: currentTime,
-      endTime: 16,
-      isPlaying,
-      isRecording,
-      mode: 'step'
-    });
-
     const beatsPerSecond = 60 / bpm;
     const beatsPerStep = beatsPerSecond / 4;
     const overallStep = Math.floor(currentTime / beatsPerStep);
     const step = overallStep % 16;
     const pattern = Math.floor(overallStep / 16) % patternCount;
+
+    events.emit('seq:step-update', {
+      time: currentTime,
+      bpm,
+      pattern,
+      step
+    });
 
     setActiveStep(step);
 
@@ -125,45 +124,48 @@ export const useStoreEvents = ({
     [events, updateTime]
   );
 
-  const handleStopped = useCallback(({ mode }: SequencerStoppedEvent) => {
-    if (!isModeActive(mode, 'step')) return;
-    log.debug('handlePlayStopped');
+  const handleStopped = useCallback(
+    ({ mode }: SequencerStoppedEvent) => {
+      if (!isModeActive(mode, 'step')) return;
+      log.debug('handlePlayStopped');
 
-    if (animationRef.current === null) return;
+      if (animationRef.current === null) return;
 
-    // touch up all the pads that were touched
-    log.debug('touching up pads', { pads: padsTouched.current });
-    for (const padId of padsTouched.current) {
-      events.emit('pad:touchup', {
-        padId,
-        forceStop: true,
-        source: 'step-seq'
-      });
-    }
+      // touch up all the pads that were touched
+      log.debug('touching up pads', { pads: padsTouched.current });
+      for (const padId of padsTouched.current) {
+        events.emit('pad:touchup', {
+          padId,
+          forceStop: true,
+          source: 'step-seq'
+        });
+      }
 
-    padsTouched.current.clear();
+      padsTouched.current.clear();
 
-    setActiveStep(-1);
-    lastStepRef.current = -1;
-    lastPadIdsRef.current = undefined;
-    lastPatternIndexRef.current = -1;
+      setActiveStep(-1);
+      lastStepRef.current = -1;
+      lastPadIdsRef.current = undefined;
+      lastPatternIndexRef.current = -1;
 
-    cancelAnimationFrame(animationRef.current);
-    animationRef.current = null;
-    setIsPlaying(false);
-    setIsRecording(false);
-    // log.debug('handlePlayStopped', event.time);
-  }, []);
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+      setIsPlaying(false);
+      setIsRecording(false);
+      // log.debug('handlePlayStopped', event.time);
+    },
+    [events]
+  );
 
-  useEffect(() => {
-    events.emit('seq:time-update', {
-      time: 0,
-      endTime: 16,
-      isPlaying: false,
-      isRecording: false,
-      mode: 'step'
-    });
-  }, [events]);
+  // useEffect(() => {
+  //   events.emit('seq:time-update', {
+  //     time: 0,
+  //     endTime: 16,
+  //     isPlaying: false,
+  //     isRecording: false,
+  //     mode: 'step'
+  //   });
+  // }, [events]);
 
   useEffect(() => {
     // Reset animation frame when dependencies change

@@ -202,7 +202,8 @@ export const OpIntegerInput = ({
   return (
     <div
       className={cn('vo-int-input flex items-center gap-2', {
-        'flex-row ': labelPlacement === 'left' || labelPlacement === 'right',
+        'flex-row ': labelPlacement === 'right',
+        'flex-row-reverse': labelPlacement === 'left',
         'flex-col': labelPlacement === 'bottom'
       })}
     >
