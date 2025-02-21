@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';
+import { isModeActive } from '@model/helpers';
 import {
   SequencerStartedEvent,
   SequencerStoppedEvent
@@ -28,10 +29,9 @@ export const useStoreEvents = ({
   const lastPadIdsRef = useRef<string[] | undefined>(undefined);
   const [activeStep, setActiveStep] = useState(-1);
 
+  const padsTouched = useRef(new Set<string>());
+
   const updateTime = useCallback(() => {
-    // if (!isPlaying && !isRecording) {
-    //   return;
-    // }
     const now = performance.now();
     const currentTime = (now - playStartedAtRef.current) / 1000;
 
@@ -68,16 +68,18 @@ export const useStoreEvents = ({
       // clear the last padIds
       if (lastPadIdsRef.current && lastPadIdsRef.current.length > 0) {
         for (const padId of lastPadIdsRef.current) {
-          // log.debug('pad:touchup', { padId, step });
+          log.debug('pad:touchup', { padId, step });
           events.emit('pad:touchup', { padId, source: 'step-seq' });
+          // padsTouched.current.delete(padId);
         }
       }
 
       const padIds = stepToPadIds[pattern][step];
       if (padIds && padIds.length > 0) {
         for (const padId of padIds) {
-          // log.debug('pad:touchdown', { padId, step });
+          log.debug('pad:touchdown', { padId, step });
           events.emit('pad:touchdown', { padId, source: 'step-seq' });
+          padsTouched.current.add(padId);
         }
       }
       lastPadIdsRef.current = padIds;
@@ -95,7 +97,7 @@ export const useStoreEvents = ({
     (event: SequencerStartedEvent) => {
       const { isPlaying, isRecording, time, mode } = event;
 
-      if (mode !== 'step' && mode !== 'all') return;
+      if (!isModeActive(mode, 'step')) return;
 
       log.debug('handlePlayStarted', {
         time
@@ -124,12 +126,22 @@ export const useStoreEvents = ({
   );
 
   const handleStopped = useCallback(({ mode }: SequencerStoppedEvent) => {
-    if (mode !== 'step' && mode !== 'all') return;
+    if (!isModeActive(mode, 'step')) return;
     log.debug('handlePlayStopped');
+
     if (animationRef.current === null) return;
 
-    // const now = performance.now();
-    // const currentTime = time + (now - playStartedAtRef.current) / 1000;
+    // touch up all the pads that were touched
+    log.debug('touching up pads', { pads: padsTouched.current });
+    for (const padId of padsTouched.current) {
+      events.emit('pad:touchup', {
+        padId,
+        forceStop: true,
+        source: 'step-seq'
+      });
+    }
+
+    padsTouched.current.clear();
 
     setActiveStep(-1);
     lastStepRef.current = -1;
