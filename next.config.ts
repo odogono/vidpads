@@ -5,7 +5,6 @@ import packageJson from './package.json';
 // import linguiConfig from './lingui.config';
 
 const nextConfig: NextConfig = {
-  output: 'export',
   reactStrictMode: true,
 
   env: {

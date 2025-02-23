@@ -38,9 +38,6 @@
       "@components/*": [
         "./src/components/*"
       ],
-      "@config": [
-        "./src/config/index.ts"
-      ],
       "@contexts/*": [
         "./src/contexts/*"
       ],
@@ -55,6 +52,9 @@
       ],
       "@model/*": [
         "./src/model/*"
+      ],
+      "@page/*": [
+        "./src/page/*"
       ],
       "@types": [
         "./src/types/index.ts"

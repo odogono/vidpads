@@ -1,42 +1,37 @@
 'use client';
 
-import { Toaster } from 'react-hot-toast';
-
 import { Tooltip } from '@components/Tooltip';
+import { Toast } from '@helpers/toast';
 import { useFullscreen } from '@hooks/useFullScreen';
+import { fontVariables } from '@page/fonts';
 
-// TODO sort this out
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   const { isFullscreen, areScreenDimsVisible } = useFullscreen();
 
   return (
-    <>
+    <body
+      className={`${fontVariables} bg-background antialiased font-sans overflow-y-hidden`}
+    >
       <Tooltip />
-      <Toaster
-        toastOptions={{
-          className: '',
-          style: {
-            border: '1px solid var(--c0)',
-            padding: '16px',
-            color: 'var(--c6)',
-            backgroundColor: 'var(--c2)'
-          },
-          success: {
-            iconTheme: {
-              primary: 'var(--c7)',
-              secondary: 'black'
-            }
-          },
-          error: {
-            iconTheme: {
-              primary: 'var(--c3)',
-              secondary: 'var(--c6)'
-            }
-          }
-        }}
-      />
-      <div
-        className={`
+      <Toast />
+      <Container isFullscreen={isFullscreen}>{children}</Container>
+      <ScreenDimsDebug isVisible={areScreenDimsVisible} />
+    </body>
+  );
+};
+
+export default PlayerLayout;
+
+const Container = ({
+  children,
+  isFullscreen
+}: {
+  children: React.ReactNode;
+  isFullscreen: boolean;
+}) => {
+  return (
+    <div
+      className={`
           vo-root-a
           overflow-y-hidden
           ${
@@ -54,12 +49,12 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
           
           overflow-hidden
         `}
-        style={{
-          backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
-        }}
-      >
-        <div
-          className={`
+      style={{
+        backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
+      }}
+    >
+      <div
+        className={`
             vo-root-b
             relative
             ${
@@ -82,39 +77,40 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
             `
             }
           `}
-        >
-          {children}
-        </div>
+      >
+        {children}
       </div>
-      {areScreenDimsVisible && (
-        <div className='absolute left-10 top-10 bg-black/50 text-white px-2 py-1 rounded text-sm font-mono'>
-          <span className='block portrait:sm:hidden landscape:hidden'>
-            {'<480px'}
-          </span>
-          <span className='hidden portrait:sm:block portrait:md:hidden landscape:hidden'>
-            {'480-834px'}
-          </span>
-          <span className='hidden portrait:md:block portrait:lg:hidden landscape:hidden'>
-            {'834-1440px'}
-          </span>
-          <span className='hidden portrait:lg:block landscape:hidden'>
-            {'>1440px'}
-          </span>
-
-          <span className='hidden landscape:block landscape:sm:hidden'>
-            {'<768px (L)'}
-          </span>
-          <span className='hidden landscape:sm:block landscape:md:hidden'>
-            {'768-1024px (L)'}
-          </span>
-          <span className='hidden landscape:md:block landscape:lg:hidden'>
-            {'1024-1440px (L)'}
-          </span>
-          <span className='hidden landscape:lg:block'>{'>1440px (L)'}</span>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 
-export default PlayerLayout;
+const ScreenDimsDebug = ({ isVisible }: { isVisible: boolean }) => {
+  if (!isVisible) return null;
+  return (
+    <div className='absolute left-10 top-10 bg-black/50 text-white px-2 py-1 rounded text-sm font-mono'>
+      <span className='block portrait:sm:hidden landscape:hidden'>
+        {'<480px'}
+      </span>
+      <span className='hidden portrait:sm:block portrait:md:hidden landscape:hidden'>
+        {'480-834px'}
+      </span>
+      <span className='hidden portrait:md:block portrait:lg:hidden landscape:hidden'>
+        {'834-1440px'}
+      </span>
+      <span className='hidden portrait:lg:block landscape:hidden'>
+        {'>1440px'}
+      </span>
+
+      <span className='hidden landscape:block landscape:sm:hidden'>
+        {'<768px (L)'}
+      </span>
+      <span className='hidden landscape:sm:block landscape:md:hidden'>
+        {'768-1024px (L)'}
+      </span>
+      <span className='hidden landscape:md:block landscape:lg:hidden'>
+        {'1024-1440px (L)'}
+      </span>
+      <span className='hidden landscape:lg:block'>{'>1440px (L)'}</span>
+    </div>
+  );
+};
