@@ -6,9 +6,6 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": [
-      "WebMidi"
-    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

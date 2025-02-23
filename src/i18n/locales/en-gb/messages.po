@@ -14,20 +14,16 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "Play, Edit, and Sequence your videos"
+msgstr "Play, Edit, and Sequence your videos"
+
+#. js-lingui-explicit-id
 msgid "Let's Play"
 msgstr "Let's Play"
 
 #. js-lingui-explicit-id
 msgid "The page you're looking for doesn't exist or has been moved."
 msgstr "The page you're looking for doesn't exist or has been moved."
-
-#. js-lingui-explicit-id
-msgid "VO Pads"
-msgstr "VO Pads"
-
-#. js-lingui-explicit-id
-msgid "Load, Play, Edit, and Trigger your videos"
-msgstr "Load, Play, Edit, and Trigger your videos"
 
 msgid "Currently, VO Pads supports YouTube videos and local mp4 files. Tap on a pad to bring up a selector, where you can add a file, or paste a YouTube URL."
 msgstr "Currently, VO Pads supports YouTube videos and local mp4 files. Tap on a pad to bring up a selector, where you can add a file, or paste a YouTube URL."

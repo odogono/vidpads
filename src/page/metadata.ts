@@ -6,26 +6,27 @@ import { urlStringToProject } from '@model/serialise/project';
 import { ProjectExport } from '@model/types';
 import { getApiBaseUrl } from './helpers';
 
-const log = createLog('page/metadata');
+const log = createLog('page/metadata', ['debug']);
 
 type Props = {
   params: Promise<{ [key: string]: string | string[] | undefined }> | undefined;
   searchParams: Promise<{ [key: string]: string | undefined }> | undefined;
 };
 
-//localhost:3000/import?p=132143f62b&title=poop&d=4%7CeJwzNDYyNDFOMzNKqqmpMTQ3MTA2MLQws4QyjS0NTWsSDaOLreoq07LckuNzKvxdHS1qagCdXRAl
-
 export const generateMetadata = async (
-  props: Props
+  { searchParams }: Props
   // parent: ResolvingMetadata
 ): Promise<Metadata> => {
   const { i18n } = initTranslation('en-gb');
 
-  log.debug('params:', await props.params);
-  log.debug('Search params:', await props.searchParams);
+  const { metadataBase, currentUrl } = await getApiBaseUrl();
+
+  log.debug('metadataBase:', metadataBase.toString());
+  log.debug('currentUrl:', currentUrl);
+  log.debug('Search params:', await searchParams);
 
   // Get the resolved search params
-  const params = await props.searchParams;
+  const params = await searchParams;
 
   const project = await parseProjectUrl(params?.d);
 
@@ -40,7 +41,7 @@ export const generateMetadata = async (
   return {
     title,
     description,
-    metadataBase: new URL(getApiBaseUrl() || 'http://localhost:3000'),
+    metadataBase,
     openGraph: generateOpenGraph({
       title,
       description,

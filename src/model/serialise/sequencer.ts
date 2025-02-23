@@ -16,7 +16,7 @@ export const exportSequencerToJSON = (
     return undefined;
   }
 
-  const { bpm, events, time, endTime, isLooped } = sequencer;
+  const { bpm, events, time, endTime, isLooped = true } = sequencer;
 
   const eventsJSON = exportSequencerEventsToJSON(events);
 
@@ -29,7 +29,7 @@ export const exportSequencerToJSON = (
 
   return {
     bpm,
-    isLooped: !!isLooped,
+    isLooped,
     time: roundDP(time),
     endTime: roundDP(endTime),
     events: eventsJSON
@@ -41,7 +41,7 @@ export const importSequencerFromJSON = (json: SequencerExport | undefined) => {
     return initialContext.sequencer;
   }
 
-  const { bpm, time, endTime, events, isLooped } = json;
+  const { bpm, time, endTime, events, isLooped = true } = json;
 
   return {
     bpm,

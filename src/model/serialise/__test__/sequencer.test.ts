@@ -34,6 +34,7 @@ describe('sequencer serialization', () => {
         bpm: 120,
         time: 0,
         endTime: 4,
+        isLooped: true,
         events: {
           pad1: [
             [0, 1],
@@ -57,6 +58,7 @@ describe('sequencer serialization', () => {
         bpm: 140,
         time: 0,
         endTime: 8,
+        isLooped: true,
         events: {
           pad1: [
             [0, 1],
@@ -212,6 +214,7 @@ describe('sequencer serialization', () => {
         bpm: 120,
         time: 0,
         endTime: 4,
+        isLooped: true,
         events: {
           pad1: [
             [0, 1],
@@ -231,6 +234,7 @@ describe('sequencer serialization', () => {
         bpm: 120,
         time: 0,
         endTime: 4,
+        isLooped: true,
         events: {}
       });
     });
@@ -244,6 +248,7 @@ describe('sequencer serialization', () => {
         bpm: 132.5,
         time: 0.25,
         endTime: 4.75,
+        isLooped: true,
         events: {
           pad1: [[0.5, 1.25]]
         }

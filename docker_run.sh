@@ -1,0 +1,1 @@
+docker run -d -e SERVER_PORT=3000 -p 3000:3000 --restart unless-stopped --name vopads-server vopads-server

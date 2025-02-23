@@ -1,0 +1,1 @@
+docker build --no-cache --build-arg BUILD_TYPE=aarch64-unknown-linux-gnu -t vopads-server .

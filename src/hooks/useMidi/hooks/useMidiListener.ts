@@ -74,6 +74,7 @@ export const useMidiListener = ({ isEnabled, store }: UseMidiListenerProps) => {
       });
 
       midiAccess.onstatechange = (e) => {
+        if (!e?.port) return;
         const { id, state, name, connection } = e.port;
         log.debug('MIDI state changed', { name, id, state, connection });
         if (state === 'disconnected') {
