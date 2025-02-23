@@ -5,16 +5,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "dotenv -e .env.deploy -- bun run translations:extract && next build",
-    "deploy": "dotenv -e .env.deploy -- bun run build && sh deploy",
-    "start:standalone": "bun .next/standalone/server.js",
-    "start:docker": "bun server.js",
+    "build": "dotenv -e .env.deploy -- pnpm run translations:extract && next build",
+    "deploy": "dotenv -e .env.deploy -- pnpm run build && sh deploy",
+    "start:standalone": "node .next/standalone/server.js",
+    "start:docker": "node server.js",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
     "prettier:fix": "prettier --write src",
-    "outdated": "bunx npm-check-updates --interactive --format group",
+    "outdated": "npx npm-check-updates --interactive --format group",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -26,6 +26,7 @@
     "@heroicons/react": "^2.2.0",
     "@heroui/react": "2.7.2",
     "@lingui/core": "^5.2.0",
+    "@lingui/format-po": "^5.2.0",
     "@lingui/loader": "^5.2.0",
     "@lingui/react": "^5.2.0",
     "@tanstack/react-query": "^5.66.9",
@@ -84,6 +85,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "typescript-eslint": "^8.24.1"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }

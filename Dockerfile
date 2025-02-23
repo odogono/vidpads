@@ -1,29 +1,29 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1.2.3-alpine AS base
+# Use Node.js as base image
+FROM node:23-alpine AS base
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-# Install dependencies into temp directory
+# Install dependencies
 FROM base AS deps
-# Copy only package.json and bun.lock to leverage layer caching
-COPY package.json bun.lock ./
-# Install production dependencies first
-RUN --mount=type=cache,target=/root/.bun \
-  bun install --frozen-lockfile --production
-# Install dev dependencies for build
-RUN --mount=type=cache,target=/root/.bun \
-  bun install --frozen-lockfile
+# Copy package configs
+COPY package.json pnpm-lock.yaml* ./
+# Install production dependencies
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm install --frozen-lockfile --prod
+# Install all dependencies for build
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm install --frozen-lockfile
 
 # Builder stage
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-# Copy necessary source files
 COPY . .
 # Set production environment
 ENV NODE_ENV=production
 ENV SERVER_PORT=3000
 # Build the application
-RUN bun run build
+RUN pnpm run build
 
 # Production stage
 FROM base AS runner
@@ -39,6 +39,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 # Use non-root user
-USER bun
+RUN addgroup --system --gid 1001 nodejs && \
+  adduser --system --uid 1001 nextjs && \
+  chown -R nextjs:nodejs /app
+USER nextjs
+
 EXPOSE ${SERVER_PORT}
-CMD ["bun", "server.js"]
+CMD ["node", "server.js"]
