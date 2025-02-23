@@ -1,6 +1,7 @@
 'use client';
 
 import { Indicator } from '@components/Indicator';
+import { cn } from '@helpers/tailwind';
 import { useButton } from '@heroui/react';
 import { OpLabel } from './OpLabel';
 
@@ -38,9 +39,13 @@ export const OpToggleButton = ({
   return (
     <button
       {...getButtonProps()}
-      className={`flex flex-col items-center justify-center group cursor-pointer focus:outline-none ${
-        !isEnabled && 'opacity-50 cursor-not-allowed'
-      }`}
+      className={cn(
+        'flex flex-col items-center justify-center group focus:outline-none',
+        {
+          'cursor-pointer': isEnabled,
+          'opacity-50 cursor-not-allowed': !isEnabled
+        }
+      )}
     >
       <div
         className={`${sizeClasses[size]} 
