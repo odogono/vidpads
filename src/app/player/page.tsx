@@ -1,37 +1,11 @@
-'use client';
+import { PagePlayer } from '@components/PagePlayer';
+import { generateMetadata } from '@page/metadata';
 
-import { LoadingSuspense } from '@components/Loading';
-import { Main } from '@components/Main';
-import { QueryClientContextProvider } from '@contexts/queryclient';
-import { SequencerProvider } from '@contexts/sequencer';
-import { HeroUIProvider } from '@heroui/react';
-import { KeyboardProvider } from '@hooks/useKeyboard/provider';
-import { MidiProvider } from '@hooks/useMidi/provider';
-import { ProjectProvider } from '@hooks/useProject/provider';
-import { SettingsProvider } from '@hooks/useSettings/provider';
+// eslint-disable-next-line react-refresh/only-export-components
+export { generateMetadata };
 
 const Player = () => {
-  return (
-    <LoadingSuspense>
-      <HeroUIProvider disableAnimation className='w-full h-full flex flex-col'>
-        <QueryClientContextProvider>
-          <KeyboardProvider>
-            <LoadingSuspense message='Loading project...'>
-              <SettingsProvider>
-                <ProjectProvider>
-                  <MidiProvider>
-                    <SequencerProvider>
-                      <Main />
-                    </SequencerProvider>
-                  </MidiProvider>
-                </ProjectProvider>
-              </SettingsProvider>
-            </LoadingSuspense>
-          </KeyboardProvider>
-        </QueryClientContextProvider>
-      </HeroUIProvider>
-    </LoadingSuspense>
-  );
+  return <PagePlayer />;
 };
 
 export default Player;

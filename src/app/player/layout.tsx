@@ -3,20 +3,18 @@
 import { Tooltip } from '@components/Tooltip';
 import { Toast } from '@helpers/toast';
 import { useFullscreen } from '@hooks/useFullScreen';
-import { fontVariables } from '@page/fonts';
+import { Body } from '@page/body';
 
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   const { isFullscreen, areScreenDimsVisible } = useFullscreen();
 
   return (
-    <body
-      className={`${fontVariables} bg-background antialiased font-sans overflow-y-hidden`}
-    >
+    <Body preventYScroll>
       <Tooltip />
       <Toast />
       <Container isFullscreen={isFullscreen}>{children}</Container>
       <ScreenDimsDebug isVisible={areScreenDimsVisible} />
-    </body>
+    </Body>
   );
 };
 

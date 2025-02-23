@@ -4,13 +4,13 @@ import type { Viewport } from 'next';
 import { EventsProvider } from '@hooks/events/provider';
 import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
 import { I18nProvider } from '@i18n/I18nProvider';
-import { generateMetadata } from '@page/metadata';
+// import { generateMetadata } from '@page/metadata';
 import { initTranslation } from '../i18n/initTranslation';
 
 import './styles/globals.css';
 import './styles/crt.css';
 
-export { generateMetadata };
+// export { generateMetadata };
 
 export const viewport: Viewport = {
   width: 'device-width',

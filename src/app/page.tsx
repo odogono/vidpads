@@ -8,12 +8,16 @@ import { Logo } from '@components/Logo';
 import { getCurrentYear } from '@helpers/datetime';
 import { useTranslation } from '@i18n/useTranslation';
 import { Trans as I18nTrans } from '@lingui/react/macro';
-import { fontVariables } from '@page/fonts';
+import { Body } from '@page/body';
+import { generateMetadata } from '@page/metadata';
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { generateMetadata };
 
 export default function LandingPage() {
   const { i18n } = useTranslation();
   return (
-    <body className={`${fontVariables} bg-background antialiased font-sans`}>
+    <Body>
       <main
         className='min-h-screen flex flex-col text-white'
         style={{
@@ -260,6 +264,6 @@ export default function LandingPage() {
           </div>
         </footer>
       </main>
-    </body>
+    </Body>
   );
 }

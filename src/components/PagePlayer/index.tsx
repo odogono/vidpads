@@ -1,7 +1,6 @@
 'use client';
 
 import { LoadingSuspense } from '@components/Loading';
-import { Main } from '@components/Main';
 import { QueryClientContextProvider } from '@contexts/queryclient';
 import { SequencerProvider } from '@contexts/sequencer';
 import { HeroUIProvider } from '@heroui/react';
@@ -9,9 +8,9 @@ import { KeyboardProvider } from '@hooks/useKeyboard/provider';
 import { MidiProvider } from '@hooks/useMidi/provider';
 import { ProjectProvider } from '@hooks/useProject/provider';
 import { SettingsProvider } from '@hooks/useSettings/provider';
+import { Main } from './Main';
 
-// TODO dupe of player
-const Import = () => {
+export const PagePlayer = () => {
   return (
     <LoadingSuspense>
       <HeroUIProvider disableAnimation className='w-full h-full flex flex-col'>
@@ -34,5 +33,3 @@ const Import = () => {
     </LoadingSuspense>
   );
 };
-
-export default Import;
