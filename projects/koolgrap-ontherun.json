@@ -13,6 +13,10 @@
         {
           "type": "source",
           "url": "https://youtu.be/lku28XWMHNY"
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 1
         }
       ]
     },
@@ -29,6 +33,11 @@
         {
           "type": "source",
           "url": "https://youtu.be/lku28XWMHNY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
         }
       ]
     },
@@ -44,6 +53,11 @@
         {
           "type": "source",
           "url": "https://youtu.be/lku28XWMHNY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
         }
       ]
     },
@@ -60,6 +74,11 @@
         {
           "type": "source",
           "url": "https://youtu.be/lku28XWMHNY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
         }
       ]
     },
@@ -137,7 +156,7 @@
         {
           "type": "trim",
           "start": 0.344,
-          "end": 2.534
+          "end": 2.744
         },
         {
           "type": "loop",
@@ -146,6 +165,15 @@
         {
           "type": "source",
           "url": "https://youtu.be/IiqO3fB4I78"
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.52
+            }
+          ]
         }
       ]
     },
@@ -162,6 +190,11 @@
         {
           "type": "source",
           "url": "https://youtu.be/skxqbkpLE90"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 2
         }
       ]
     },
@@ -178,6 +211,10 @@
         {
           "type": "source",
           "url": "https://youtu.be/UceGF3M56bE"
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 2
         }
       ]
     },
@@ -204,7 +241,8 @@
           "type": "playback",
           "isOneShot": false,
           "resume": false,
-          "priority": 1
+          "priority": 1,
+          "chokeGroup": 2
         },
         {
           "type": "source",
@@ -225,6 +263,10 @@
         {
           "type": "source",
           "url": "https://youtu.be/skxqbkpLE90"
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 2
         }
       ]
     }
@@ -232,7 +274,7 @@
   "sequencer": {
     "bpm": 60,
     "isLooped": false,
-    "time": 30,
+    "time": 30.001,
     "endTime": 30,
     "events": {
       "a3": [
@@ -305,5 +347,5 @@
     ]
   },
   "createdAt": "2025-01-31T11:13:49.450Z",
-  "updatedAt": "2025-02-21T16:08:10Z"
+  "updatedAt": "2025-02-22T17:14:24Z"
 }

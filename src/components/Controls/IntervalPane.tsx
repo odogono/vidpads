@@ -23,7 +23,7 @@ export const IntervalPane = () => {
 
   return (
     <>
-      <div className='vo-pane-interval w-fit portrait:md:w-full landscape:md:w-full h-full pl-2 pr-2 rounded-lg flex flex-col gap-1 items-center'>
+      <div className='vo-pane-interval w-fit portrait:sm:w-full landscape:sm:w-full h-full pl-2 pr-2 rounded-lg flex flex-col gap-1 items-center'>
         <IntervalSlider pad={pad} isEnabled={isEnabled} />
         <NumericInterval pad={pad} isEnabled={isEnabled} />
       </div>
