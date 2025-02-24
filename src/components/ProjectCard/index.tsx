@@ -21,10 +21,11 @@ export const ProjectCard = ({
   return (
     <Link href={link} className='block hover:opacity-70 transition-opacity'>
       <Card className='vo-project-card py-4 bg-[#323535] max-w-[40vw] min-h-[21vh]'>
-        <CardBody className='vo-project-card-body py-2 '>
+        <CardBody className='vo-project-card-body py-2'>
           <img
             alt='Card background'
-            className='object-cover rounded-xl max-h-[12vh]'
+            style={{ animationPlayState: 'paused' }}
+            className='object-cover rounded-xl max-h-[12vh] hover:[animation-play-state:running]'
             src={image}
           />
         </CardBody>

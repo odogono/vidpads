@@ -1,13 +1,13 @@
 {
   "id": "5dfc6cf5",
-  "name": "808",
-  "bgImage": "https://is.gd/KCbkhe",
-  "version": "1.1.0",
-  "exportVersion": "1",
+  "name": "TR-808",
+  "bgImage": "https://i.imgur.com/yALwKK4.jpeg",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
   "pads": [
     {
       "id": "a1",
-      "label": "Kick",
+      "label": "BD",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
@@ -27,17 +27,18 @@
     },
     {
       "id": "a2",
-      "label": "Snare",
+      "label": "SD",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
           "type": "trim",
           "start": 17,
-          "end": 17.1
+          "end": 17.15
         },
         {
           "type": "playback",
-          "isOneShot": true
+          "isOneShot": true,
+          "resume": false
         },
         {
           "type": "source",
@@ -47,7 +48,7 @@
     },
     {
       "id": "a3",
-      "label": "Clap",
+      "label": "CP",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
@@ -62,12 +63,21 @@
         {
           "type": "source",
           "url": "https://youtu.be/gsZ7izQpywY"
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.52
+            }
+          ]
         }
       ]
     },
     {
       "id": "a4",
-      "label": "Cowbell",
+      "label": "CB",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
@@ -82,42 +92,47 @@
         {
           "type": "source",
           "url": "https://youtu.be/gsZ7izQpywY"
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.09
+            }
+          ]
         }
       ]
     },
     {
       "id": "a5",
-      "label": "Bass",
+      "label": "CH",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
           "type": "trim",
-          "start": 146.85,
-          "end": 147.992
-        },
-        {
-          "type": "playbackRate",
-          "rate": 1
-        },
-        {
-          "type": "playback",
-          "isOneShot": true
+          "start": 47.06,
+          "end": 48.012
         },
         {
           "type": "source",
           "url": "https://youtu.be/gsZ7izQpywY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
         }
       ]
     },
     {
       "id": "a6",
-      "label": "Toms",
+      "label": "OH",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
           "type": "trim",
-          "start": 40,
-          "end": 41
+          "start": 72.35,
+          "end": 72.941
         },
         {
           "type": "playback",
@@ -137,7 +152,7 @@
       "operations": [
         {
           "type": "trim",
-          "start": 107.53,
+          "start": 107.62,
           "end": 108.46
         },
         {
@@ -158,7 +173,7 @@
       "operations": [
         {
           "type": "trim",
-          "start": 34.18,
+          "start": 34.3,
           "end": 35
         },
         {
@@ -173,14 +188,39 @@
       ]
     },
     {
-      "id": "a9",
-      "label": "High Hat (Open)",
+      "id": "a11",
+      "label": "Toms",
       "source": "https://youtu.be/gsZ7izQpywY",
       "operations": [
         {
           "type": "trim",
-          "start": 72.11,
-          "end": 72.941
+          "start": 40,
+          "end": 41
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/gsZ7izQpywY"
+        }
+      ]
+    },
+    {
+      "id": "a12",
+      "label": "Bass",
+      "source": "https://youtu.be/gsZ7izQpywY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 146.85,
+          "end": 147.992
+        },
+        {
+          "type": "playbackRate",
+          "rate": 1
         },
         {
           "type": "playback",
@@ -253,10 +293,205 @@
   ],
   "sequencer": {
     "bpm": 60,
-    "time": 4.31,
+    "isLooped": true,
+    "time": 10.09,
     "endTime": 45,
     "events": {}
   },
+  "stepSequencer": {
+    "bpm": 120,
+    "patternIndex": 0,
+    "patterns": [
+      [
+        {
+          "padId": "a1",
+          "steps": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a2",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a3",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a4",
+          "steps": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a5",
+          "steps": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      [
+        {
+          "padId": "a1",
+          "steps": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a2",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a3",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a4",
+          "steps": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a5",
+          "steps": [
+            1,
+            0,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    ]
+  },
   "createdAt": "2025-01-24T15:48:57.341Z",
-  "updatedAt": "2025-02-13T15:50:02Z"
+  "updatedAt": "2025-02-24T15:10:12Z"
 }

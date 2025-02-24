@@ -1,0 +1,199 @@
+{
+  "id": "e935a0c3ce",
+  "name": "Citizen Kane",
+  "bgImage": "https://i.imgur.com/lD5EfEh.jpeg",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
+  "pads": [
+    {
+      "id": "a1",
+      "label": "If the Headline is Big Enough",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 2176.7,
+          "end": 2179.995
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "label": "You Provide the Prose Poems",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1527.409,
+          "end": 1530.8
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "label": "I Only Saw Her For One Second",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1862.956,
+          "end": 1878.282
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "label": "I Just Try Everything I Can...",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1489.646,
+          "end": 1493.199
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "source": "https://youtu.be/0s7pxn_u_tk",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/0s7pxn_u_tk"
+        },
+        {
+          "type": "trim",
+          "start": 70.52,
+          "end": 75.665
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "label": "No trick to Make a Lot of Mone",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1925.036,
+          "end": 1934.488
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "label": "I Can Remember Everything",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 2974.809,
+          "end": 2983.554
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "label": "It's The Only Disease, Mr Thom",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 2954.802,
+          "end": 2963.006
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "label": "I Might Have Been A Really Gre",
+      "source": "https://youtu.be/74ol6mKC3aY",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 1755.802,
+          "end": 1765.716
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/74ol6mKC3aY"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-02-20T19:50:18Z",
+  "updatedAt": "2025-02-24T14:48:56Z"
+}

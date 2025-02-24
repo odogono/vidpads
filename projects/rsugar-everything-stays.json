@@ -1,0 +1,384 @@
+{
+  "id": "accfc80890",
+  "name": "Everything Stays",
+  "bgImage": "https://i.imgur.com/27XMyav.gif",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
+  "pads": [
+    {
+      "id": "a1",
+      "label": "Let's go in the garden",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        },
+        {
+          "type": "trim",
+          "start": 27.763,
+          "end": 32.553
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "label": "Right there where you left it",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 32.553,
+          "end": 38.381
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "label": "When you finally find it",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 38.691,
+          "end": 43.837
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "label": "The underside is lighter",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 44,
+          "end": 49
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "label": "Let's go in the garden",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 54.665,
+          "end": 59.691
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "label": "Right there where you left it",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 59.931,
+          "end": 64.857
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "label": "When you finally find it",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 65.597,
+          "end": 70.648
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "label": "The underside is lighter",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 71,
+          "end": 75.648
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false,
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "label": "Everything stays",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 75.778,
+          "end": 97.446
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a10",
+      "label": "But it still changes",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 80.898,
+          "end": 85.778
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        }
+      ]
+    },
+    {
+      "id": "a11",
+      "label": "Ever so slightly",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 85.778,
+          "end": 91.148
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a12",
+      "label": "In little ways",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 91.448,
+          "end": 96.778
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        },
+        {
+          "type": "playback",
+          "chokeGroup": 2
+        }
+      ]
+    },
+    {
+      "id": "a13",
+      "label": "I don't want to sleep",
+      "source": "https://youtu.be/bNnfuvC1LlU",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 9.269,
+          "end": 24.126
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/bNnfuvC1LlU"
+        }
+      ]
+    }
+  ],
+  "stepSequencer": {
+    "bpm": 3,
+    "patternIndex": 0,
+    "patterns": [
+      [
+        {
+          "padId": "a1",
+          "steps": [
+            1
+          ]
+        },
+        {
+          "padId": "a6",
+          "steps": [
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a3",
+          "steps": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a9",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a8",
+          "steps": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a5",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a2",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a7",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a4",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    ]
+  },
+  "createdAt": "2025-02-22T17:20:32Z",
+  "updatedAt": "2025-02-24T14:41:51Z"
+}

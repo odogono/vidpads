@@ -1,9 +1,9 @@
 {
   "id": "270de73221",
-  "name": "Eye Know - De La Soul",
+  "name": "De La Soul - Eye Know",
   "bgImage": "https://i.imgur.com/oPsijNX.jpeg",
-  "version": "1.1.2",
-  "exportVersion": "2025-02-14",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
   "pads": [
     {
       "id": "a1",
@@ -11,17 +11,9 @@
       "source": "https://youtu.be/uxp0Kfgpft8",
       "operations": [
         {
-          "type": "source",
-          "url": "https://youtu.be/uxp0Kfgpft8"
-        },
-        {
           "type": "trim",
           "start": 3.518,
           "end": 6.062
-        },
-        {
-          "type": "playback",
-          "isOneShot": false
         },
         {
           "type": "loop",
@@ -39,6 +31,10 @@
         {
           "type": "playbackRate",
           "rate": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/uxp0Kfgpft8"
         }
       ]
     },
@@ -73,7 +69,7 @@
     },
     {
       "id": "a3",
-      "label": "Hook",
+      "label": "(Riff) Peg - Steely Dan",
       "source": "https://youtu.be/u_pt3khMRFs",
       "operations": [
         {
@@ -97,7 +93,7 @@
     },
     {
       "id": "a4",
-      "label": "I Know",
+      "label": "(Vocal) Peg - Steely Dan",
       "source": "https://youtu.be/u_pt3khMRFs",
       "operations": [
         {
@@ -121,12 +117,9 @@
     },
     {
       "id": "a5",
+      "label": "(riff) Make This Young Lady Mine",
       "source": "https://youtu.be/DX4cB_WhBB4",
       "operations": [
-        {
-          "type": "source",
-          "url": "https://youtu.be/DX4cB_WhBB4"
-        },
         {
           "type": "trim",
           "start": 0.19,
@@ -139,11 +132,16 @@
         {
           "type": "playbackRate",
           "rate": 0.87
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/DX4cB_WhBB4"
         }
       ]
     },
     {
       "id": "a6",
+      "label": "(riff) Make This Young Lady Mine",
       "source": "https://youtu.be/DX4cB_WhBB4",
       "operations": [
         {
@@ -167,10 +165,6 @@
       "source": "https://youtu.be/rTVjnBo96Ug",
       "operations": [
         {
-          "type": "source",
-          "url": "https://youtu.be/rTVjnBo96Ug"
-        },
-        {
           "type": "trim",
           "start": 143.307,
           "end": 145.505
@@ -178,6 +172,10 @@
         {
           "type": "loop",
           "start": 0
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/rTVjnBo96Ug"
         }
       ]
     },
@@ -187,22 +185,16 @@
       "source": "https://youtu.be/q9jCsOCfUUg",
       "operations": [
         {
-          "type": "source",
-          "url": "https://youtu.be/q9jCsOCfUUg"
-        },
-        {
           "type": "playback",
           "resume": true
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/q9jCsOCfUUg"
         }
       ]
     }
   ],
-  "sequencer": {
-    "bpm": 60,
-    "time": 0,
-    "endTime": 60,
-    "events": {}
-  },
   "createdAt": "2025-02-17T09:04:41Z",
-  "updatedAt": "2025-02-17T14:16:22Z"
+  "updatedAt": "2025-02-24T15:07:59Z"
 }

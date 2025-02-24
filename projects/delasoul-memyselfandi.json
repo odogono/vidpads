@@ -1,8 +1,9 @@
 {
   "id": "5022695b",
-  "name": "Me, Myself, And I",
-  "version": "1.1.2",
-  "exportVersion": "2025-02-14",
+  "name": "De La Soul - Me, Myself, And I",
+  "bgImage": "https://i.imgur.com/5nVUAP4.gif",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
   "pads": [
     {
       "id": "a1",
@@ -246,7 +247,8 @@
   ],
   "sequencer": {
     "bpm": 60,
-    "time": null,
+    "isLooped": true,
+    "time": 0,
     "endTime": 30,
     "events": {
       "a3": [
@@ -292,5 +294,5 @@
     }
   },
   "createdAt": "2025-02-04T09:35:00Z",
-  "updatedAt": "2025-02-17T14:21:28Z"
+  "updatedAt": "2025-02-24T15:03:30Z"
 }

@@ -52,11 +52,11 @@ export default function LandingPage() {
           {/* Hero Section */}
           <div className='flex flex-col items-center justify-center text-center py-20 gap-8'>
             <div className='flex flex-col md:flex-row items-center'>
-              <span className='mb-6 md:mb-0 md:mr-4 w-[9rem] h-[9rem]'>
+              <span className='mb-6 md:mb-8 md:mr-4 w-[9rem] h-[9rem]'>
                 <Logo />
               </span>
               <div>
-                <h1 className='text-5xl md:text-8xl font-bold font-suse mb-6 bg-clip-text text-c6 flex items-start'>
+                <h1 className='text-5xl md:text-8xl md:pt-8 font-bold font-suse mb-6 bg-clip-text text-c6 flex items-start'>
                   <I18nTrans>VO Pads</I18nTrans>
                   <span className='ml-4 text-sm bg-blue-500 text-white px-2 py-1 rounded-md font-mono uppercase tracking-wider'>
                     Beta
@@ -101,7 +101,7 @@ export default function LandingPage() {
                 name='Interactive Drum Machine'
                 description='the classic forerunner of VO pads, from 13 years ago'
                 image='https://i.imgur.com/wXrpscL.gif'
-                link='https://is.gd/FB6SYC'
+                link='https://is.gd/lumwoV'
               />
               <ProjectCard
                 name='Everything Stays'

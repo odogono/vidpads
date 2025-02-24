@@ -1,35 +1,18 @@
 {
-  "id": "a262c6db05",
+  "id": "eeb3a4d99b",
   "name": "De La Soul - Get Away",
-  "bgImage": "https://is.gd/7wZ5eA",
-  "version": "1.0.0",
-  "exportVersion": "1",
+  "bgImage": "https://i.imgur.com/7LPsBPu.gif",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
   "pads": [
     {
       "id": "a1",
-      "label": "Get Away",
-      "source": "https://youtu.be/ZorwKAwqPnE",
-      "operations": [
-        {
-          "type": "trim",
-          "start": 30.4,
-          "end": 178
-        },
-        {
-          "type": "playback",
-          "chokeGroup": 1
-        },
-        {
-          "type": "source",
-          "url": "https://youtu.be/ZorwKAwqPnE"
-        }
-      ]
-    },
-    {
-      "id": "a2",
-      "label": "(Drums) Get Out of My Life, Wo",
       "source": "https://youtu.be/9b2MVV13xAk",
       "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/9b2MVV13xAk"
+        },
         {
           "type": "trim",
           "start": 5.311,
@@ -40,35 +23,19 @@
           "start": 0
         },
         {
-          "type": "volume",
-          "envelope": [
-            {
-              "time": 0,
-              "value": 0.39
-            }
-          ]
-        },
-        {
-          "type": "playbackRate",
-          "rate": 0.9
-        },
-        {
           "type": "playback",
-          "isOneShot": true,
-          "resume": false,
-          "chokeGroup": 1
-        },
-        {
-          "type": "source",
-          "url": "https://youtu.be/9b2MVV13xAk"
+          "isOneShot": true
         }
       ]
     },
     {
-      "id": "a3",
-      "label": "(FX) UFO - ESG",
+      "id": "a2",
       "source": "https://youtu.be/V4QuH_eFU4Y",
       "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/V4QuH_eFU4Y"
+        },
         {
           "type": "trim",
           "start": 1.144,
@@ -79,8 +46,8 @@
           "start": 0
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/V4QuH_eFU4Y"
+          "type": "playback",
+          "isOneShot": true
         }
       ]
     },
@@ -91,7 +58,12 @@
         {
           "type": "trim",
           "start": 1502.765,
-          "end": 1514.17
+          "end": 1505.355
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
         },
         {
           "type": "source",
@@ -106,7 +78,12 @@
         {
           "type": "trim",
           "start": 1494.643,
-          "end": 1514.17
+          "end": 1497.051
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
         },
         {
           "type": "source",
@@ -121,7 +98,12 @@
         {
           "type": "trim",
           "start": 1508.236,
-          "end": 1514.17
+          "end": 1510.671
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
         },
         {
           "type": "source",
@@ -139,6 +121,11 @@
           "end": 1514.17
         },
         {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false
+        },
+        {
           "type": "source",
           "url": "https://youtu.be/5EvNlBAaBVk"
         }
@@ -146,14 +133,23 @@
     },
     {
       "id": "a10",
-      "label": "For the Last Year",
       "source": "https://youtu.be/LAQgl7o79L4",
       "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/LAQgl7o79L4"
+        },
         {
           "type": "trim",
           "start": 15.921,
           "end": 25.251
-        },
+        }
+      ]
+    },
+    {
+      "id": "a11",
+      "source": "https://youtu.be/LAQgl7o79L4",
+      "operations": [
         {
           "type": "source",
           "url": "https://youtu.be/LAQgl7o79L4"
@@ -161,28 +157,27 @@
       ]
     },
     {
-      "id": "a11",
-      "label": "You aint no MC",
-      "source": "https://youtu.be/LAQgl7o79L4",
+      "id": "a13",
+      "source": "https://youtu.be/ZorwKAwqPnE",
       "operations": [
         {
           "type": "trim",
-          "start": 80,
-          "end": 84.684
+          "start": 30.4,
+          "end": 178
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": true,
+          "chokeGroup": 1
         },
         {
           "type": "source",
-          "url": "https://youtu.be/LAQgl7o79L4"
+          "url": "https://youtu.be/ZorwKAwqPnE"
         }
       ]
     }
   ],
-  "sequencer": {
-    "bpm": 60,
-    "time": 0,
-    "endTime": 90,
-    "events": {}
-  },
-  "createdAt": "2025-02-08T17:36:29Z",
-  "updatedAt": "2025-02-12T15:03:43Z"
+  "createdAt": "2025-02-17T17:22:22Z",
+  "updatedAt": "2025-02-24T15:15:48Z"
 }
