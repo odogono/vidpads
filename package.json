@@ -1,10 +1,11 @@
 {
   "name": "video-operator-pads",
   "author": "Alexander Veenendaal <alex@opendoorgonorth.com>",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "node bin/generate-build-time.ts",
     "build": "dotenv -e .env.deploy -- pnpm run translations:extract && next build",
     "deploy": "dotenv -e .env.deploy -- pnpm run build && sh deploy",
     "start:standalone": "node .next/standalone/server.js",
@@ -85,5 +86,13 @@
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "typescript-eslint": "^8.24.1"
-  }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@heroui/shared-utils",
+      "esbuild",
+      "sharp"
+    ]
+  },
+  "type": "module"
 }

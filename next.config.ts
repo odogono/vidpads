@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 
   env: {
-    BUILT_AT: process.env.NEXT_PUBLIC_BUILT_AT,
     VERSION: packageJson.version
   },
 

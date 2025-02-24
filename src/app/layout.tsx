@@ -1,8 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Viewport } from 'next';
 
-import { EventsProvider } from '@hooks/events/provider';
-import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
 import { I18nProvider } from '@i18n/I18nProvider';
 // import { generateMetadata } from '@page/metadata';
 import { initTranslation } from '../i18n/initTranslation';
@@ -48,9 +46,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
       </head>
 
       <I18nProvider initialLocale='en-gb' initialMessages={i18n.messages}>
-        <EventsProvider>
-          <FullscreenContextProvider>{children}</FullscreenContextProvider>
-        </EventsProvider>
+        {children}
       </I18nProvider>
     </html>
   );

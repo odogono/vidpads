@@ -2,34 +2,33 @@
 
 import { Tooltip } from '@components/Tooltip';
 import { Toast } from '@helpers/toast';
+import { EventsProvider } from '@hooks/events/provider';
 import { useFullscreen } from '@hooks/useFullScreen';
+import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
 import { Body } from '@page/body';
 
 const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isFullscreen, areScreenDimsVisible } = useFullscreen();
-
   return (
     <Body preventYScroll>
-      <Tooltip />
-      <Toast />
-      <Container isFullscreen={isFullscreen}>{children}</Container>
-      <ScreenDimsDebug isVisible={areScreenDimsVisible} />
+      <EventsProvider>
+        <FullscreenContextProvider>
+          <Container>{children}</Container>
+        </FullscreenContextProvider>
+      </EventsProvider>
     </Body>
   );
 };
 
 export default PlayerLayout;
 
-const Container = ({
-  children,
-  isFullscreen
-}: {
-  children: React.ReactNode;
-  isFullscreen: boolean;
-}) => {
+const Container = ({ children }: { children: React.ReactNode }) => {
+  const { isFullscreen, areScreenDimsVisible } = useFullscreen();
   return (
-    <div
-      className={`
+    <>
+      <Tooltip />
+      <Toast />
+      <div
+        className={`
           vo-root-a
           overflow-y-hidden
           ${
@@ -47,12 +46,12 @@ const Container = ({
           
           overflow-hidden
         `}
-      style={{
-        backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
-      }}
-    >
-      <div
-        className={`
+        style={{
+          backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
+        }}
+      >
+        <div
+          className={`
             vo-root-b
             relative
             ${
@@ -75,10 +74,12 @@ const Container = ({
             `
             }
           `}
-      >
-        {children}
+        >
+          {children}
+        </div>
       </div>
-    </div>
+      <ScreenDimsDebug isVisible={areScreenDimsVisible} />
+    </>
   );
 };
 

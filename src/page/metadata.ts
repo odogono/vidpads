@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { BUILT_AT } from '@/buildTime.config';
 import { createLog } from '@helpers/log';
 import { initTranslation } from '@i18n/initTranslation';
 import { urlStringToProject } from '@model/serialise/project';
@@ -53,7 +54,7 @@ export const generateMetadata = async (
       image
     }),
     other: {
-      builtAt: process.env.NEXT_PUBLIC_BUILT_AT || 'unknown'
+      builtAt: BUILT_AT || 'unknown'
     },
     icons: {
       icon: [

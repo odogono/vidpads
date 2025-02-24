@@ -1,7 +1,7 @@
+import { BUILT_AT } from '@/buildTime.config';
 import { dateToLocaleString, getCurrentYear } from '@helpers/datetime';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const BUILT_AT = process.env.NEXT_PUBLIC_BUILT_AT;
 const VERSION = process.env.VERSION;
 
 export const AboutModal = ({ ref }: CommonModalBase) => {

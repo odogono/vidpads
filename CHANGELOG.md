@@ -8,8 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v1.3.0 (2025-02-24)
+
 ### Changed
+- switched from static build to allow generation of open graph from import url
 - time input fine control via up/down arrows and alt/shift/meta keys
+
 
 ## v1.2.4 (2025-02-21)
 
