@@ -1,0 +1,304 @@
+{
+  "id": "ce4bcad9ce",
+  "name": "19 - Paul Hardcastle",
+  "bgImage": "https://i.imgur.com/uyRO9em.jpeg",
+  "version": "1.3.0",
+  "exportVersion": "2025-02-18",
+  "pads": [
+    {
+      "id": "a1",
+      "source": "https://youtu.be/lJN850qHklw",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 246.26,
+          "end": 248.171
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.5
+            }
+          ]
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false,
+          "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/lJN850qHklw"
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "source": "https://youtu.be/lJN850qHklw",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 50.015,
+          "end": 54.168
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.5
+            }
+          ]
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false,
+          "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/lJN850qHklw"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "source": "https://youtu.be/lJN850qHklw",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 84.845,
+          "end": 93.078
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.5
+            }
+          ]
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false,
+          "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/lJN850qHklw"
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "label": "In 1965",
+      "source": "https://youtu.be/0hv9glzf560",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/0hv9glzf560"
+        },
+        {
+          "type": "trim",
+          "start": 210.682,
+          "end": 220.021
+        },
+        {
+          "type": "playback",
+          "isOneShot": false
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "label": "In world war II, the average age",
+      "source": "https://youtu.be/0hv9glzf560",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 220.551,
+          "end": 227.027
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/0hv9glzf560"
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "label": "19",
+      "source": "https://youtu.be/0hv9glzf560",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 226.291,
+          "end": 227.027
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/0hv9glzf560"
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "playback",
+          "isOneShot": true
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "label": "The heaviest fighting",
+      "source": "https://youtu.be/0hv9glzf560",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 578.896,
+          "end": 584.486
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/0hv9glzf560"
+        },
+        {
+          "type": "playback",
+          "resume": false
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "label": "In Vietnam, the combat soldier typically served a 12 month",
+      "source": "https://youtu.be/0hv9glzf560",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 796.587,
+          "end": 805.145
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/0hv9glzf560"
+        }
+      ]
+    },
+    {
+      "id": "a13",
+      "source": "https://youtu.be/Euw4fxJCMC0",
+      "operations": [
+        {
+          "type": "source",
+          "url": "https://youtu.be/Euw4fxJCMC0"
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "chokeGroup": 1
+        },
+        {
+          "type": "trim",
+          "start": 21.316,
+          "end": 30.767
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a14",
+      "source": "https://youtu.be/Euw4fxJCMC0",
+      "operations": [
+        {
+          "type": "trim",
+          "start": 145.903,
+          "end": 155.503
+        },
+        {
+          "type": "loop",
+          "start": 0
+        },
+        {
+          "type": "playback",
+          "isOneShot": true,
+          "resume": false,
+          "chokeGroup": 1
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/Euw4fxJCMC0"
+        },
+        {
+          "type": "volume",
+          "envelope": [
+            {
+              "time": 0,
+              "value": 0.5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "stepSequencer": {
+    "bpm": 120,
+    "patternIndex": 0,
+    "patterns": [
+      [
+        {
+          "padId": "a7",
+          "steps": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    ]
+  },
+  "createdAt": "2025-02-24T16:33:18Z",
+  "updatedAt": "2025-02-24T17:33:18Z"
+}

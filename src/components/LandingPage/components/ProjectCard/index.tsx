@@ -20,7 +20,7 @@ export const ProjectCard = ({
 }: ProjectCardProps) => {
   return (
     <Link href={link} className='block hover:opacity-70 transition-opacity'>
-      <Card className='vo-project-card py-4 bg-[#323535] max-w-[40vw] min-h-[21vh]'>
+      <Card className='vo-project-card py-4 bg-[#323535]  min-h-[21vh]'>
         <CardBody className='vo-project-card-body py-2'>
           <img
             alt='Card background'
