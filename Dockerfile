@@ -7,7 +7,7 @@ WORKDIR /app
 # Install dependencies
 FROM base AS deps
 # Copy package configs
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml* .npmrc ./
 # Install production dependencies
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
   pnpm install --frozen-lockfile --prod
@@ -22,6 +22,7 @@ COPY . .
 # Set production environment
 ENV NODE_ENV=production
 ENV SERVER_PORT=3000
+ENV NEXT_TELEMETRY_DISABLED=1
 # Build the application
 RUN pnpm run build
 
@@ -30,7 +31,7 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV SERVER_PORT=3000
 ENV HOSTNAME="0.0.0.0"
-
+ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 
 # Copy only the necessary files from builder
