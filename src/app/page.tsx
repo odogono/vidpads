@@ -3,6 +3,9 @@ import 'server-only';
 import { SquarePlay } from 'lucide-react';
 import Link from 'next/link';
 
+import { IconBluesky } from '@components/Icons/bluesky';
+import { IconGithub } from '@components/Icons/github';
+import { IconTwitter } from '@components/Icons/twitter';
 import { Logo } from '@components/Logo';
 import { getCurrentYear } from '@helpers/datetime';
 import { useTranslation } from '@i18n/useTranslation';
@@ -24,6 +27,27 @@ export default function LandingPage() {
           backgroundImage: 'linear-gradient(#2e2e2e, #0e0e0e), url(/noise.svg)'
         }}
       >
+        {/* Add nav section at the top */}
+        <nav className='container mx-auto px-4 py-4 flex justify-end'>
+          <div className='flex items-center gap-4'>
+            <SocialLink
+              href='https://bsky.app/profile/vo.odgn.net'
+              label='Bluesky'
+            >
+              <IconBluesky size='small' fill='#888' />
+            </SocialLink>
+            <SocialLink
+              href='https://github.com/odogono/video-operator-pads'
+              label='GitHub'
+            >
+              <IconGithub size='small' fill='#888' />
+            </SocialLink>
+            <SocialLink href='https://x.com/vopads' label='Twitter'>
+              <IconTwitter size='small' fill='#888' />
+            </SocialLink>
+          </div>
+        </nav>
+
         <div className='container mx-auto px-4 py-16 flex-1'>
           {/* Hero Section */}
           <div className='flex flex-col items-center justify-center text-center py-20 gap-8'>
@@ -77,19 +101,19 @@ export default function LandingPage() {
                 name='Interactive Drum Machine'
                 description='the classic forerunner of VO pads, from 13 years ago'
                 image='https://i.imgur.com/wXrpscL.gif'
-                link='https://is.gd/v4lDg3'
+                link='https://is.gd/FB6SYC'
               />
               <ProjectCard
                 name='Everything Stays'
                 description={`Rebecca Sugar's timeless song`}
                 image='https://i.imgur.com/27XMyav.gif'
-                link='https://is.gd/uUvFmq'
+                link='https://is.gd/hmFlc5'
               />
               <ProjectCard
                 name='Citizen Kane'
                 description='Infamous quotes from this 1941 classic movie'
                 image='https://i.imgur.com/lD5EfEh.jpeg'
-                link='https://is.gd/EcaTTk'
+                link='https://is.gd/u0xEIN'
               />
               <ProjectCard
                 name='Get Away - De La Soul'
@@ -246,40 +270,23 @@ export default function LandingPage() {
           <div className='container mx-auto px-4 py-8'>
             <div className='flex flex-col items-center gap-4'>
               <div className='flex items-center gap-4'>
-                <a
-                  href='https://bsky.app/profile/vo.odgn.net'
-                  className='text-gray-400 hover:text-blue-400 transition-colors'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  aria-label='Bluesky'
-                >
-                  <svg
-                    className='w-12 h-12'
-                    viewBox='0 0 1024 1024'
-                    fill='none'
-                    xmlns='http://www.w3.org/2000/svg'
+                <div className='flex items-center gap-4'>
+                  <SocialLink
+                    href='https://bsky.app/profile/vo.odgn.net'
+                    label='Bluesky'
                   >
-                    <path
-                      d='M351.121 315.106C416.241 363.994 486.281 463.123 512 516.315C537.719 463.123 607.759 363.994 672.879 315.106C719.866 279.83 796 252.536 796 339.388C796 356.734 786.055 485.101 780.222 505.943C759.947 578.396 686.067 596.876 620.347 585.691C735.222 605.242 764.444 670.002 701.333 734.762C581.473 857.754 529.061 703.903 515.631 664.481C513.169 657.254 512.017 653.873 512 656.748C511.983 653.873 510.831 657.254 508.369 664.481C494.939 703.903 442.527 857.754 322.667 734.762C259.556 670.002 288.778 605.242 403.653 585.691C337.933 596.876 264.053 578.396 243.778 505.943C237.945 485.101 228 356.734 228 339.388C228 252.536 304.134 279.83 351.121 315.106Z'
-                      fill='#1185FE'
-                    />
-                  </svg>
-                </a>
-                <a
-                  href='https://x.com/vopads'
-                  className='text-gray-400 hover:text-blue-400 transition-colors'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  aria-label='Twitter'
-                >
-                  <svg
-                    className='w-6 h-6'
-                    viewBox='0 0 24 24'
-                    fill='currentColor'
+                    <IconBluesky size='small' fill='#888' />
+                  </SocialLink>
+                  <SocialLink
+                    href='https://github.com/odogono/video-operator-pads'
+                    label='GitHub'
                   >
-                    <path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' />
-                  </svg>
-                </a>
+                    <IconGithub size='small' fill='#888' />
+                  </SocialLink>
+                  <SocialLink href='https://x.com/vopads' label='Twitter'>
+                    <IconTwitter size='small' fill='#888' />
+                  </SocialLink>
+                </div>
               </div>
 
               <p className='text-gray-400 text-sm text-center'>
@@ -301,3 +308,25 @@ export default function LandingPage() {
     </Body>
   );
 }
+
+const SocialLink = ({
+  href,
+  label,
+  children
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <a
+      href={href}
+      className='text-gray-400 hover:text-blue-400 transition-colors'
+      target='_blank'
+      rel='noopener noreferrer'
+      aria-label={label}
+    >
+      {children}
+    </a>
+  );
+};
