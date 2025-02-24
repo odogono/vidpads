@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import 'server-only';
 
 import { SquarePlay } from 'lucide-react';
@@ -10,6 +9,7 @@ import { useTranslation } from '@i18n/useTranslation';
 import { Trans as I18nTrans } from '@lingui/react/macro';
 import { Body } from '@page/body';
 import { generateMetadata } from '@page/metadata';
+import { ProjectCard } from '../components/ProjectCard';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export { generateMetadata };
@@ -21,7 +21,7 @@ export default function LandingPage() {
       <main
         className='min-h-screen flex flex-col text-white'
         style={{
-          backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
+          backgroundImage: 'linear-gradient(#2e2e2e, #0e0e0e), url(/noise.svg)'
         }}
       >
         <div className='container mx-auto px-4 py-16 flex-1'>
@@ -39,7 +39,9 @@ export default function LandingPage() {
                   </span>
                 </h1>
                 <p className='text-lg md:text-xl text-gray-300 max-w-2xl mb-8'>
-                  <I18nTrans>Pad based Video playback and control</I18nTrans>
+                  <I18nTrans>
+                    Perfomative Video player with editing and sequencing
+                  </I18nTrans>
                 </p>
               </div>
             </div>
@@ -53,7 +55,7 @@ export default function LandingPage() {
             </Link>
 
             {/* Add screenshot */}
-            <div className='w-2/3 max-w-4xl mt-8'>
+            {/* <div className='w-1/3 max-w-4xl mt-8'>
               <div className='relative rounded-lg overflow-hidden shadow-2xl border border-gray-800'>
                 <img
                   src='/media/vo-screen.png'
@@ -63,8 +65,40 @@ export default function LandingPage() {
                   height={720}
                 />
               </div>
-            </div>
+            </div> */}
           </div>
+
+          <section className='px-4 py-16 -mx-4'>
+            <h2 className='text-3xl font-bold text-blue-400 mb-4'>
+              <I18nTrans>Examples</I18nTrans>
+            </h2>
+            <div className='grid grid-cols-2 md:grid-cols-2 gap-8'>
+              <ProjectCard
+                name='Interactive Drum Machine'
+                description='the classic forerunner of VO pads, from 13 years ago'
+                image='https://i.imgur.com/wXrpscL.gif'
+                link='https://is.gd/v4lDg3'
+              />
+              <ProjectCard
+                name='Everything Stays'
+                description={`Rebecca Sugar's timeless song`}
+                image='https://i.imgur.com/27XMyav.gif'
+                link='https://is.gd/uUvFmq'
+              />
+              <ProjectCard
+                name='Citizen Kane'
+                description='Infamous quotes from this 1941 classic movie'
+                image='https://i.imgur.com/lD5EfEh.jpeg'
+                link='https://is.gd/EcaTTk'
+              />
+              <ProjectCard
+                name='Get Away - De La Soul'
+                description='A slice of wu flavoured genius. Explore the sample sources'
+                image='https://i.imgur.com/hqd2pFs.jpeg'
+                link='https://is.gd/TbjRYA'
+              />
+            </div>
+          </section>
 
           {/* Replace the article and FeatureCard components with these sections */}
           <div className='space-y-24'>
