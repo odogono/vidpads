@@ -1,7 +1,7 @@
 {
   "id": "eeb3a4d99b",
   "name": "De La Soul - Get Away",
-  "bgImage": "https://i.imgur.com/djOiEQt.mp4",
+  "bgImage": "https://i.imgur.com/3CgQrGV.gif",
   "version": "1.3.0",
   "exportVersion": "2025-02-18",
   "pads": [
@@ -24,7 +24,8 @@
         },
         {
           "type": "playback",
-          "isOneShot": true
+          "isOneShot": true,
+          "resume": false
         }
       ]
     },
@@ -178,6 +179,99 @@
       ]
     }
   ],
+  "sequencer": {
+    "bpm": 60,
+    "isLooped": true,
+    "time": 0,
+    "endTime": 60,
+    "events": {
+      "a2": [
+        [
+          9.818,
+          2.892
+        ]
+      ],
+      "a1": [
+        [
+          11,
+          4.669
+        ]
+      ],
+      "a8": [
+        [
+          13.25,
+          3.179
+        ]
+      ],
+      "a5": [
+        [
+          13.25,
+          2.59
+        ]
+      ],
+      "a7": [
+        [
+          14,
+          2.435
+        ]
+      ],
+      "a6": [
+        [
+          15.25,
+          2.408
+        ]
+      ]
+    }
+  },
+  "stepSequencer": {
+    "bpm": 7,
+    "patternIndex": 0,
+    "patterns": [
+      [
+        {
+          "padId": "a5",
+          "steps": [
+            1,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a6",
+          "steps": [
+            0,
+            1,
+            0,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a7",
+          "steps": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "padId": "a8",
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    ]
+  },
   "createdAt": "2025-02-17T17:22:22Z",
-  "updatedAt": "2025-02-24T15:15:48Z"
+  "updatedAt": "2025-02-25T15:51:36Z"
 }

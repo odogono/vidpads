@@ -1,7 +1,7 @@
 {
   "id": "ea0ae7c925",
   "name": "Interactive Drum Machine",
-  "bgImage": "https://i.imgur.com/9RPOq6m.mp4",
+  "bgImage": "https://i.imgur.com/jp9H6B3.gif",
   "version": "1.3.0",
   "exportVersion": "2025-02-18",
   "pads": [
@@ -350,5 +350,5 @@
     ]
   },
   "createdAt": "2025-02-18T07:16:09Z",
-  "updatedAt": "2025-02-24T14:29:09Z"
+  "updatedAt": "2025-02-25T16:11:12Z"
 }

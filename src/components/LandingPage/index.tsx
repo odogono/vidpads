@@ -53,20 +53,22 @@ export const LandingPage = () => {
             {i18n._(`Let's Play`)}
             <SquarePlay className='w-6 h-6 group-hover:translate-x-1 transition-transform' />
           </Link>
-
-          {/* Add screenshot */}
-          {/* <div className='w-1/3 max-w-4xl mt-8'>
-              <div className='relative rounded-lg overflow-hidden shadow-2xl border border-gray-800'>
-                <img
-                  src='/media/vo-screen.png'
-                  alt='VO Pads application interface'
-                  className='w-full h-auto'
-                  width={1280}
-                  height={720}
-                />
-              </div>
-            </div> */}
         </div>
+
+        <section className='px-4 py-16 -mx-4'>
+          <h2 className='text-3xl font-bold text-blue-400 mb-4'>
+            <I18nTrans>Overview</I18nTrans>
+          </h2>
+          <div className='relative rounded-lg overflow-hidden shadow-2xl border border-gray-800 aspect-video'>
+            <iframe
+              src='https://www.youtube.com/embed/fIHXmgrRzSc'
+              title='VO Pads Demo'
+              allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+              allowFullScreen
+              className='absolute top-0 left-0 w-full h-full'
+            />
+          </div>
+        </section>
 
         <section className='px-4 py-16 -mx-4'>
           <h2 className='text-3xl font-bold text-blue-400 mb-4'>
@@ -77,25 +79,25 @@ export const LandingPage = () => {
               name='Interactive Drum Machine'
               description='the classic forerunner of VO pads, from 13 years ago'
               image='https://i.imgur.com/9RPOq6m.mp4'
-              link='https://is.gd/lumwoV'
+              link='https://is.gd/wyNj4n'
             />
             <ProjectCard
               name='Everything Stays'
               description={`Rebecca Sugar's timeless song`}
               image='https://i.imgur.com/uQ7ieo5.mp4'
-              link='https://is.gd/hmFlc5'
+              link='https://is.gd/skpxeZ'
             />
             <ProjectCard
               name='Time... to die'
               description={`I've seen things you people wouldn't believe...`}
               image='https://i.imgur.com/P4P2kZ1.mp4'
-              link='https://is.gd/1sTzi9'
+              link='https://is.gd/5WHu0U'
             />
             <ProjectCard
               name='Get Away - De La Soul'
               description='Explore the sample sources from this Wu flavoured track'
               image='https://i.imgur.com/djOiEQt.mp4'
-              link='https://is.gd/TbjRYA'
+              link='https://is.gd/Tp2zsV'
             />
           </div>
         </section>

@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+
+## v1.3.1 (2025-02-25)
+
+### Fixed
+- yt pad thumbnail not shown on add
+- yt start time not being set
+
+### Changed
+- support mp4 in project image (not shareable via social graph!)
+
+
 ## v1.3.0 (2025-02-24)
 
 ### Changed

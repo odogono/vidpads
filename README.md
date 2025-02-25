@@ -32,7 +32,7 @@ VO Pads is a pad based video player with editing and sequencing abilities.
 
 ## Demo
 
-<!-- add video here -->
+[![Watch the demo](https://img.youtube.com/vi/fIHXmgrRzSc/hqdefault.jpg)](https://www.youtube.com/watch?v=fIHXmgrRzSc)
 
 
 ## Getting Started

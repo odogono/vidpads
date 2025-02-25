@@ -1,7 +1,7 @@
 {
   "id": "b4df7802a9",
-  "name": "Tears... In Rain",
-  "bgImage": "https://i.imgur.com/r3tkubv.gif",
+  "name": "Time... To Die...",
+  "bgImage": "https://i.imgur.com/Cz9tIda.gif",
   "version": "1.3.0",
   "exportVersion": "2025-02-18",
   "pads": [
@@ -241,5 +241,5 @@
     }
   ],
   "createdAt": "2025-02-24T16:05:32Z",
-  "updatedAt": "2025-02-24T18:20:02Z"
+  "updatedAt": "2025-02-25T15:48:01Z"
 }
