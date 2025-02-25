@@ -1,7 +1,7 @@
 {
   "id": "b4df7802a9",
   "name": "Tears... In Rain",
-  "bgImage": "https://i.imgur.com/1CcJrwj.gif",
+  "bgImage": "https://i.imgur.com/P4P2kZ1.mp4",
   "version": "1.3.0",
   "exportVersion": "2025-02-18",
   "pads": [
@@ -11,13 +11,13 @@
       "source": "https://youtu.be/NoAzpa1x7jU",
       "operations": [
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "trim",
           "start": 109.76,
           "end": 117.901
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -96,13 +96,14 @@
           "end": 110.458
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -117,13 +118,14 @@
           "end": 111.938
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -138,13 +140,14 @@
           "end": 112.66
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -159,13 +162,14 @@
           "end": 113.342
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -180,13 +184,14 @@
           "end": 114.007
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -201,13 +206,14 @@
           "end": 114.352
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     },
@@ -222,17 +228,18 @@
           "end": 115.337
         },
         {
-          "type": "source",
-          "url": "https://youtu.be/NoAzpa1x7jU"
-        },
-        {
           "type": "playback",
           "isOneShot": true,
+          "resume": false,
           "chokeGroup": 2
+        },
+        {
+          "type": "source",
+          "url": "https://youtu.be/NoAzpa1x7jU"
         }
       ]
     }
   ],
   "createdAt": "2025-02-24T16:05:32Z",
-  "updatedAt": "2025-02-24T17:42:32Z"
+  "updatedAt": "2025-02-24T18:20:02Z"
 }

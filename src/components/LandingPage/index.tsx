@@ -76,25 +76,25 @@ export const LandingPage = () => {
             <ProjectCard
               name='Interactive Drum Machine'
               description='the classic forerunner of VO pads, from 13 years ago'
-              image='https://i.imgur.com/wXrpscL.gif'
+              image='https://i.imgur.com/9RPOq6m.mp4'
               link='https://is.gd/lumwoV'
             />
             <ProjectCard
               name='Everything Stays'
               description={`Rebecca Sugar's timeless song`}
-              image='https://i.imgur.com/27XMyav.gif'
+              image='https://i.imgur.com/uQ7ieo5.mp4'
               link='https://is.gd/hmFlc5'
             />
             <ProjectCard
               name='Time... to die'
               description={`I've seen things you people wouldn't believe...`}
-              image='https://i.imgur.com/1CcJrwj.gif'
+              image='https://i.imgur.com/P4P2kZ1.mp4'
               link='https://is.gd/1sTzi9'
             />
             <ProjectCard
               name='Get Away - De La Soul'
               description='Explore the sample sources from this Wu flavoured track'
-              image='https://i.imgur.com/hqd2pFs.jpeg'
+              image='https://i.imgur.com/djOiEQt.mp4'
               link='https://is.gd/TbjRYA'
             />
           </div>

@@ -73,6 +73,7 @@ export const TitlePlayer = ({ count, loadingCount }: TitlePlayerProps) => {
   }, []);
 
   const isReady = loadingCount >= count;
+  const isVideo = projectBgImage?.endsWith('.mp4');
 
   return (
     <div
@@ -89,11 +90,22 @@ export const TitlePlayer = ({ count, loadingCount }: TitlePlayerProps) => {
       {projectBgImage && (
         <>
           <div className='vo-player-bg-image absolute top-0 left-0 w-full h-full z-[-3] overflow-hidden'>
-            <img
-              src={projectBgImage || undefined}
-              className='w-full h-full object-cover'
-              alt={''}
-            />
+            {isVideo ? (
+              <video
+                src={projectBgImage}
+                className='w-full h-full object-cover'
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={projectBgImage || undefined}
+                className='w-full h-full object-cover'
+                alt={''}
+              />
+            )}
           </div>
 
           <div className='vo-player-crt absolute top-0 left-0 w-full h-full z-[-2] crt-without-animation' />

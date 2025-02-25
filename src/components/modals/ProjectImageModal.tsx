@@ -20,54 +20,93 @@ export const ProjectImageModal = ({ ref }: CommonModalBase) => {
 
   const handleUrlChange = (e?: React.ChangeEvent<HTMLInputElement>) => {
     const url = e?.target.value ?? null;
+    log.debug('[handleUrlChange] setting preview url:', url);
     setPreviewUrl(url);
     setError('');
   };
 
-  const validateImage = (url: string = ''): Promise<boolean> => {
+  const isVideoUrl = (url: string = '') => {
+    return url.toLowerCase().endsWith('.mp4');
+  };
+
+  const validateMedia = (url: string = ''): Promise<boolean> => {
+    log.debug('[validateMedia] validating url:', url);
     // blank is ok
-    if (url === '') return Promise.resolve(true);
+    if (!url) return Promise.resolve(true);
 
     return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = (error) => {
-        resolve(false);
-        log.debug('Failed to load image:', url, error);
-      };
-      img.src = url;
+      if (isVideoUrl(url)) {
+        const video = document.createElement('video');
+        video.onloadedmetadata = () => resolve(true);
+        video.onerror = (error) => {
+          log.debug('Failed to load video:', url, error);
+          resolve(false);
+        };
+        video.src = url;
+      } else {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = (error) => {
+          log.debug('Failed to load image:', url, error);
+          resolve(false);
+        };
+        img.src = url;
+      }
     });
   };
 
   const handleSave = async () => {
     const url = inputRef.current?.value;
     try {
-      const isValid = await validateImage(url);
+      const isValid = await validateMedia(url);
       if (!isValid) {
-        setError('Invalid image URL');
+        setError('Invalid media URL');
         return false;
       }
 
       setProjectBgImage(url);
       return true;
     } catch (error) {
-      log.error('Failed to set project image:', error);
-      setError('Failed to set image');
+      log.error('Failed to set project media:', error);
+      setError('Failed to set media');
     }
     return false;
   };
 
+  // log.debug('[ProjectImageModal] projectBgImage:', { projectBgImage, error });
+
   return (
-    <CommonModal ref={ref} title='Set Project Background' onOk={handleSave}>
+    <CommonModal
+      ref={ref}
+      title='Set Project Background'
+      onOk={handleSave}
+      onOpen={() => {
+        setPreviewUrl(projectBgImage ?? null);
+        setError('');
+      }}
+    >
       <div className='flex gap-4 items-center'>
         <div className='w-[200px] h-[150px] border border-default-200 rounded-lg overflow-hidden flex items-center justify-center'>
           {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt='Preview'
-              className='max-w-full max-h-full object-contain'
-              onError={() => setError('Invalid image URL')}
-            />
+            isVideoUrl(previewUrl) ? (
+              <video
+                src={previewUrl}
+                className='max-w-full max-h-full object-contain'
+                controls={false}
+                muted
+                loop
+                autoPlay
+                playsInline
+                onError={() => setError('Invalid video URL')}
+              />
+            ) : (
+              <img
+                src={previewUrl}
+                alt='Preview'
+                className='max-w-full max-h-full object-contain'
+                onError={() => setError('Invalid image URL')}
+              />
+            )
           ) : (
             <span className='text-default-400 text-sm'>Preview</span>
           )}
@@ -77,8 +116,8 @@ export const ProjectImageModal = ({ ref }: CommonModalBase) => {
             isClearable
             ref={inputRef}
             type='url'
-            label='Image URL'
-            placeholder='Enter image URL'
+            label='Media URL'
+            placeholder='Enter image or video URL'
             defaultValue={projectBgImage}
             onClear={handleUrlChange}
             onChange={handleUrlChange}
