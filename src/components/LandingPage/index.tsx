@@ -40,7 +40,7 @@ export const LandingPage = () => {
               </h1>
               <p className='text-lg md:text-xl text-gray-300 max-w-2xl mb-8'>
                 <I18nTrans>
-                  Perfomative Video player with editing and sequencing
+                  Expressive Video player with editing and sequencing
                 </I18nTrans>
               </p>
             </div>

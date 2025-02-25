@@ -14,7 +14,7 @@
 
 <br/>
 
-VO Pads is a performative video player with editing and sequencing abilities.
+VO Pads is a pad based video player with editing and sequencing abilities.
 
 ## Features
 
@@ -45,17 +45,17 @@ cd vopads
 ```
 
 
-### 2. Install npm dependencies
+### 2. Install dependencies
 
 ```shell
-npm install
+pnpm install
 ```
 
 
 ### 3. Run the project
 
 ```shell
-npm run dev
+pnpm dev
 ```
 
 

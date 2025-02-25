@@ -95,7 +95,9 @@ export const LoadProjectModal = ({ ref }: CommonModalBase) => {
         className='vo-theme'
         classNames={{
           wrapper: 'text-foreground bg-background',
-          base: 'text-foreground'
+          base: 'text-foreground',
+          tr: 'data-[selected=true]:bg-white/30 data-[selected=true]:rounded-md data-[hover=true]:bg-c4/20',
+          td: 'data-[selected=true]:text-white'
         }}
         selectionMode='single'
         onSelectionChange={(e: Selection) => {
