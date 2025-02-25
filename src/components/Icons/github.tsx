@@ -6,7 +6,7 @@ export const IconGithub = ({ size = 'medium', fill = '#777' }: IconProps) => {
   return (
     <svg
       style={{ width: dimension, height: dimension }}
-      viewBox='0 0 98 96'
+      viewBox='0 4 98 92'
       xmlns='http://www.w3.org/2000/svg'
     >
       <path
