@@ -1,14 +1,17 @@
 import { useEffect, useRef } from 'react';
 
 import { createLog } from '@helpers/log';
+import { getUrlMetadata, isYouTubeMetadata } from '@helpers/metadata';
+import { getYouTubeThumbnail } from '@helpers/youtube';
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import {
   deletePadThumbnail as dbDeletePadThumbnail,
-  getPadThumbnail as dbGetPadThumbnail
+  getPadThumbnail as dbGetPadThumbnail,
+  savePadThumbnail as dbSavePadThumbnail
 } from '@model/db/api';
 import { getPadSourceUrl } from '@model/pad';
-import { Pad } from '@model/types';
+import { MediaYouTube, Pad } from '@model/types';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 
 const log = createLog('usePadThumbnail', ['debug']);
@@ -46,7 +49,23 @@ export const usePadThumbnail = (pad: Pad) => {
         }
         const result = await dbGetPadThumbnail(projectId, pad.id);
         log.debug('getting thumbnail', projectId, pad.id, result);
-        return result;
+
+        if (result) return result;
+        // if no thumbnail, try to get it from the source url
+        // note - this should have already been fetched in the usePadOperations hook
+        // but probably due to timing, it isn't yet available
+        // TODO figure out why this is happening and fix it
+        const media = await getUrlMetadata(sourceUrl);
+        if (!media) return result;
+        if (!isYouTubeMetadata(media)) return result;
+        const thumbnail = await getYouTubeThumbnail(media as MediaYouTube);
+        if (!thumbnail) return result;
+
+        await dbSavePadThumbnail(projectId, pad.id, thumbnail);
+
+        log.debug('got media', projectId, pad.id, media, thumbnail);
+
+        return thumbnail;
       } catch {
         log.debug('error getting thumbnail', projectId, pad.id);
         return null;

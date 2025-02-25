@@ -8,7 +8,7 @@ import { Input } from '@heroui/react';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const log = createLog('ProjectImageModal');
+const log = createLog('ProjectImageModal', ['debug']);
 
 export const ProjectImageModal = ({ ref }: CommonModalBase) => {
   const { projectBgImage, setProjectBgImage } = useCurrentProject();
@@ -20,7 +20,6 @@ export const ProjectImageModal = ({ ref }: CommonModalBase) => {
 
   const handleUrlChange = (e?: React.ChangeEvent<HTMLInputElement>) => {
     const url = e?.target.value ?? null;
-    log.debug('[handleUrlChange] setting preview url:', url);
     setPreviewUrl(url);
     setError('');
   };
@@ -30,7 +29,6 @@ export const ProjectImageModal = ({ ref }: CommonModalBase) => {
   };
 
   const validateMedia = (url: string = ''): Promise<boolean> => {
-    log.debug('[validateMedia] validating url:', url);
     // blank is ok
     if (!url) return Promise.resolve(true);
 
@@ -72,8 +70,6 @@ export const ProjectImageModal = ({ ref }: CommonModalBase) => {
     }
     return false;
   };
-
-  // log.debug('[ProjectImageModal] projectBgImage:', { projectBgImage, error });
 
   return (
     <CommonModal
