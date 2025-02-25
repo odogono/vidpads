@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 
+## v1.3.2 (2025-02-25)
+
+### Fixed
+- occasional server crash due to half-baked i18n impl
+
 ## v1.3.1 (2025-02-25)
 
 ### Fixed

@@ -1,5 +1,3 @@
-import { Trans as I18nTrans } from '@lingui/react/macro';
-
 interface ContentSectionProps {
   title: string;
   content: string;
@@ -19,12 +17,8 @@ export const ContentSection = ({
         <div
           className={`max-w-3xl ${align === 'right' ? 'ml-auto text-right' : ''}`}
         >
-          <h2 className='text-3xl font-bold text-blue-400 mb-4'>
-            <I18nTrans>{title}</I18nTrans>
-          </h2>
-          <p className='text-xl text-gray-300'>
-            <I18nTrans>{content}</I18nTrans>
-          </p>
+          <h2 className='text-3xl font-bold text-blue-400 mb-4'>{title}</h2>
+          <p className='text-xl text-gray-300'>{content}</p>
         </div>
       </div>
     </section>

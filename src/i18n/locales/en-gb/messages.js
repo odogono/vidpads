@@ -1,1 +1,0 @@
-/*eslint-disable*/module.exports={messages:JSON.parse("{\"lYGfRP\":[\"English\"],\"M55mLW\":[\"Pseudo\"],\"M9Q7DY\":[\"Return Home\"],\"0xD8Of\":[\"The page you're looking for doesn't exist or has been moved.\"]}")};

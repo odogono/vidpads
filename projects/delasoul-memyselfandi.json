@@ -1,8 +1,8 @@
 {
   "id": "5022695b",
   "name": "De La Soul - Me, Myself, And I",
-  "bgImage": "https://i.imgur.com/tnaMFPD.mp4",
-  "version": "1.3.0",
+  "bgImage": "https://i.imgur.com/5nVUAP4.gif",
+  "version": "1.3.2",
   "exportVersion": "2025-02-18",
   "pads": [
     {
@@ -294,5 +294,5 @@
     }
   },
   "createdAt": "2025-02-04T09:35:00Z",
-  "updatedAt": "2025-02-24T15:03:30Z"
+  "updatedAt": "2025-02-25T17:34:15Z"
 }

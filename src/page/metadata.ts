@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 import { BUILT_AT } from '@/buildTime.config';
 import { createLog } from '@helpers/log';
-import { initTranslation } from '@i18n/initTranslation';
+// import { initTranslation } from '@i18n/initTranslation';
 import { urlStringToProject } from '@model/serialise/project';
 import { ProjectExport } from '@model/types';
 import { getApiBaseUrl } from './helpers';
@@ -18,7 +18,7 @@ export const generateMetadata = async (
   { searchParams }: Props
   // parent: ResolvingMetadata
 ): Promise<Metadata> => {
-  const { i18n } = initTranslation('en-gb');
+  // const { i18n } = initTranslation('en-gb');
 
   const { metadataBase, currentUrl } = await getApiBaseUrl();
 
@@ -33,7 +33,7 @@ export const generateMetadata = async (
 
   const title = project ? `VO Pads - ${project.name}` : 'VO Pads';
   const image = project?.bgImage || '/og-regular.jpg';
-  const description = i18n._(`Play, Edit, and Sequence your videos`);
+  const description = `Play, Edit, and Sequence your videos`;
 
   log.debug('project metadata title:', title);
   log.debug('project metadata description:', description);

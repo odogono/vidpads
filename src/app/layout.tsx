@@ -1,9 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Viewport } from 'next';
 
-import { I18nProvider } from '@i18n/I18nProvider';
+// import { I18nProvider } from '@i18n/I18nProvider';
 // import { generateMetadata } from '@page/metadata';
-import { initTranslation } from '../i18n/initTranslation';
+// import { initTranslation } from '../i18n/initTranslation';
 
 import './styles/globals.css';
 import './styles/crt.css';
@@ -23,7 +23,7 @@ interface RootLayoutProps {
 }
 
 const RootLayout = ({ children }: RootLayoutProps) => {
-  const { i18n } = initTranslation('en-gb');
+  // const { i18n } = initTranslation('en-gb');
 
   return (
     <html lang='en' className='overscroll-none'>
@@ -45,9 +45,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
         <link rel='manifest' href='/site.webmanifest' />
       </head>
 
-      <I18nProvider initialLocale='en-gb' initialMessages={i18n.messages}>
-        {children}
-      </I18nProvider>
+      {children}
     </html>
   );
 };
