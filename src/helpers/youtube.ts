@@ -1,6 +1,7 @@
 import { createLog } from '@helpers/log';
+import { isYouTubeMetadata } from '@helpers/metadata';
+import { toYTMediaUrl } from '@helpers/url';
 import { Media, MediaYouTube } from '@model/types';
-import { isYouTubeMetadata, toYTMediaUrl } from './metadata';
 
 const log = createLog('youtube', ['debug']);
 
@@ -97,7 +98,6 @@ export const getYouTubeMetadata = async (
     }
 
     return fetchFromOEmbed(videoId);
-    // return fetchFromYouTubeAPI(videoId);
   } catch (err) {
     log.error('Failed to fetch YouTube metadata:', err);
     return null;

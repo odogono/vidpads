@@ -10,9 +10,10 @@ import 'prismjs/themes/prism-okaidia.css';
 // Import language support
 import 'prismjs/components/prism-json';
 
+import { safeParseUrl } from '@helpers/url';
 // import { createLog } from '@helpers/log';
-import { urlStringToProject } from '../../model/serialise/project';
-import { importStepSequencerPatternFromURLString } from '../../model/serialise/stepSequencer';
+import { urlStringToProject } from '@model/serialise/project';
+import { importStepSequencerPatternFromURLString } from '@model/serialise/stepSequencer';
 
 // const log = createLog('debug_import');
 
@@ -119,14 +120,6 @@ const parseProjectUrl = async (urlString: string) => {
     importData,
     project
   };
-};
-
-const safeParseUrl = (url: string) => {
-  try {
-    return new URL(url);
-  } catch {
-    return undefined;
-  }
 };
 
 const parseStepSequencerPatternUrl = (urlString: string) => {

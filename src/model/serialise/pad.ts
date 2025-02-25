@@ -4,7 +4,7 @@ import {
   isYTMediaUrl,
   parsePadUrl,
   toMediaUrl
-} from '@helpers/metadata';
+} from '@helpers/url';
 import { isYouTubeUrl, isYouTubeVideoId } from '@helpers/youtube';
 import {
   Interval,

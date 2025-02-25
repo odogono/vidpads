@@ -78,8 +78,8 @@ export type SetPadIsOneShotAction = {
   isOneShot?: boolean;
 };
 
-export type ApplyTrimToPadAction = {
-  type: 'applyTrimToPad';
+export type SetPadIntervalAction = {
+  type: 'setPadInterval';
   padId: string;
   start: number;
   end: number;
@@ -343,7 +343,7 @@ export type ProjectStoreActions =
   | SetSelectedPadIdAction
   | SetPadIsOneShotAction
   | SetPadIsLoopedAction
-  | ApplyTrimToPadAction
+  | SetPadIntervalAction
   | NewProjectAction
   | ImportProjectAction
   | UpdateProjectAction

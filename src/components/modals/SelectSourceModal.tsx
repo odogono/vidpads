@@ -6,7 +6,7 @@ import { ClipboardPaste, Link, Upload } from 'lucide-react';
 
 import { ACCEPTED_FILE_TYPES } from '@constants';
 import { createLog } from '@helpers/log';
-import { isValidSourceUrl } from '@helpers/metadata';
+import { isValidSourceUrl } from '@helpers/url';
 import { Input } from '@heroui/react';
 import { useEvents } from '@hooks/events';
 import { useProject } from '@hooks/useProject';

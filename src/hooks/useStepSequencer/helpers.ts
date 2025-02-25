@@ -1,3 +1,4 @@
+import { stepSequencerUrl } from '@helpers/url';
 import {
   exportStepSequencerPatternToURLString,
   importStepSequencerPatternFromURLString
@@ -8,7 +9,7 @@ export const createStepSequencerPatternUrl = (
   pattern: StepSequencerPattern
 ) => {
   const data = exportStepSequencerPatternToURLString(pattern);
-  const url = new URL('odgn-vo://stepSeq');
+  const url = new URL(stepSequencerUrl);
   if (data) {
     url.searchParams.set('pattern', data);
   }
@@ -20,7 +21,7 @@ export const parseStepSequencerPatternUrl = (
 ): StepSequencerPattern | undefined => {
   if (!url) return undefined;
 
-  if (!url.startsWith('odgn-vo://stepSeq')) return undefined;
+  if (!url.startsWith(stepSequencerUrl)) return undefined;
 
   const urlObj = new URL(url);
   const data = urlObj.searchParams.get('pattern');

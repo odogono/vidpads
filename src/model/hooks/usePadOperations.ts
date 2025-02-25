@@ -2,7 +2,11 @@ import { useCallback } from 'react';
 
 import { readFromClipboard, writeToClipboard } from '@helpers/clipboard';
 import { createLog } from '@helpers/log';
-import { getUrlMetadata, isYouTubeMetadata } from '@helpers/metadata';
+import {
+  getIntervalFromUrl,
+  getUrlMetadata,
+  isYouTubeMetadata
+} from '@helpers/metadata';
 import { invalidateQueryKeys } from '@helpers/query';
 import { showError, showSuccess } from '@helpers/toast';
 import { getYouTubeThumbnail } from '@helpers/youtube';
@@ -115,6 +119,22 @@ export const usePadOperations = () => {
         media
       });
 
+      const interval = await getIntervalFromUrl(url);
+
+      if (interval) {
+        log.debug(
+          '[addUrlToPad] applying interval to pad:',
+          projectId,
+          padId,
+          interval
+        );
+        project.send({
+          type: 'setPadInterval',
+          padId,
+          start: interval.start,
+          end: interval.end
+        });
+      }
       log.debug('[addUrlToPad] setting media thumbnail:', projectId, padId);
 
       invalidateQueryKeys(queryClient, [

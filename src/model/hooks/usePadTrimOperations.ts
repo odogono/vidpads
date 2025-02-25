@@ -17,7 +17,7 @@ export const usePadTrimOperation = () => {
 
   return async ({ pad, start, end, thumbnail }: UsePadTrimOperationProps) => {
     project.send({
-      type: 'applyTrimToPad',
+      type: 'setPadInterval',
       padId: pad.id,
       start,
       end

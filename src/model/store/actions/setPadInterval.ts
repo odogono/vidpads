@@ -1,15 +1,15 @@
 import { createLog } from '@helpers/log';
 import { roundNumberToDecimalPlaces } from '@helpers/number';
 import { addOrReplacePadOperation } from '@model/pad';
-import { ApplyTrimToPadAction, ProjectStoreContext } from '@model/store/types';
+import { ProjectStoreContext, SetPadIntervalAction } from '@model/store/types';
 import { OperationType, TrimOperation } from '@model/types';
 import { addOrReplacePad, findPadById } from './helpers';
 
-const log = createLog('store/actions/applyTrimToPad');
+const log = createLog('store/actions/setPadInterval');
 
-export const applyTrimToPad = (
+export const setPadInterval = (
   context: ProjectStoreContext,
-  event: ApplyTrimToPadAction
+  event: SetPadIntervalAction
 ): ProjectStoreContext => {
   const { padId, start, end } = event;
 

@@ -7,12 +7,12 @@ import {
   idbOpenTransaction
 } from '@helpers/idb';
 import { createLog } from '@helpers/log';
+import { isYouTubeMetadata } from '@helpers/metadata';
 import {
   fromPadThumbnailUrl,
   isValidMediaUrl,
-  isYouTubeMetadata,
   toPadThumbnailUrl
-} from '@helpers/metadata';
+} from '@helpers/url';
 import type { SettingsStoreData } from '@hooks/useSettings/types';
 import { ProjectStoreContextType } from '@model/store/types';
 import {
