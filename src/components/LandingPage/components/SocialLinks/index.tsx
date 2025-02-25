@@ -37,10 +37,7 @@ export const SocialLinks = () => {
       >
         <IconGithub size='small' fill='#888' />
       </SocialLink>
-      <SocialLink
-        href='https://discord.com/channels/1343830946734145567/1343834241141837916'
-        label='Discord'
-      >
+      <SocialLink href='https://discord.gg/Ap5xXYqM' label='Discord'>
         <IconDiscord size='small' fill='#888' />
       </SocialLink>
       <SocialLink href='https://x.com/vopads' label='Twitter'>
