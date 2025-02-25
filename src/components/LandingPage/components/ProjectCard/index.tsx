@@ -42,7 +42,10 @@ export const ProjectCard = ({
     e.pointerType === 'touch' && stopVideo();
 
   return (
-    <Link href={link} className='block hover:opacity-70 transition-opacity'>
+    <Link
+      href={link}
+      className='block opacity-70 hover:opacity-100 transition-opacity'
+    >
       <Card
         className='vo-project-card py-4 bg-[#323535] min-h-[21vh]'
         onPointerEnter={handlePointerEnter}

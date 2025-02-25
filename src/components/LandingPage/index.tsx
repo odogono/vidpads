@@ -6,6 +6,7 @@ import { getCurrentYear } from '@helpers/datetime';
 import { ContentSection } from './components/ContentSection';
 import { ProjectCard } from './components/ProjectCard';
 import { SocialLinks } from './components/SocialLinks';
+import { ThankyouSection } from './components/ThankyouSection';
 
 export const LandingPage = () => {
   return (
@@ -170,6 +171,8 @@ export const LandingPage = () => {
               </div>
             </div>
           </section>
+
+          <ThankyouSection />
         </div>
       </div>
 
