@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 
+## v1.3.4 (2025-02-28)
+
+### Changed
+- play btn only active if there is sequencer data
+  
+### Fixed
+- Pad Label button not losing focus after close
+
+
 ## v1.3.3 (2025-02-25)
 
 ### Added
