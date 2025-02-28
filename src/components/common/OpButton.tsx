@@ -43,7 +43,7 @@ export const OpButton = forwardRef(
         ref={ref}
         {...getButtonProps()}
         className={cn(
-          'flex flex-col items-center justify-center group cursor-pointer focus:outline-none',
+          'vo-btn flex flex-col items-center justify-center group cursor-pointer focus:outline-none',
           {
             'opacity-50 cursor-not-allowed': !isEnabled
           }

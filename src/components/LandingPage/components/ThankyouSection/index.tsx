@@ -65,6 +65,7 @@ const ThankyouItem = ({
       >
         <img
           src={image}
+          alt={name}
           className='w-[20vw] h-[20vw] aspect-square object-cover rounded-md'
         />
 
