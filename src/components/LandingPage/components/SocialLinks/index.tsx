@@ -1,5 +1,4 @@
 import { IconBluesky } from '@components/Icons/bluesky';
-import { IconDiscord } from '@components/Icons/discord';
 import { IconGithub } from '@components/Icons/github';
 import { IconTwitter } from '@components/Icons/twitter';
 
@@ -36,9 +35,6 @@ export const SocialLinks = () => {
         label='GitHub'
       >
         <IconGithub size='small' fill='#888' />
-      </SocialLink>
-      <SocialLink href='https://discord.gg/Ap5xXYqM' label='Discord'>
-        <IconDiscord size='small' fill='#888' />
       </SocialLink>
       <SocialLink href='https://x.com/vopads' label='Twitter'>
         <IconTwitter size='small' fill='#888' />
