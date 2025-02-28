@@ -39,8 +39,6 @@ export const useSelectors = () => {
     (state) => state.context.stepSequencer?.patterns
   );
 
-  // console.debug('patterns', patterns);
-
   const patternIndex =
     useSelector(
       project,
@@ -75,7 +73,11 @@ export const useSelectors = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patternStr]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const hasEvents = useMemo(() => stepToPadIds.flat().length > 0, [patternStr]);
+
   return {
+    hasEvents,
     bpm,
     pattern,
     patternIndex,

@@ -12,12 +12,20 @@ import { useTimeSequencer } from '@hooks/useTimeSequencer';
 export const PlayButton = () => {
   // const [isPlaying, setIsPlaying] = useState(false);
   const { project } = useProject();
-  const { isPlaying: isTimePlaying, isRecording: isTimeRecording } =
-    useTimeSequencer();
-  const { isPlaying: isStepPlaying, isRecording: isStepRecording } =
-    useStepSequencer();
+  const {
+    isPlaying: isTimePlaying,
+    isRecording: isTimeRecording,
+    hasEvents: hasTimeEvents
+  } = useTimeSequencer();
+  const {
+    isPlaying: isStepPlaying,
+    isRecording: isStepRecording,
+    hasEvents: hasStepEvents
+  } = useStepSequencer();
   const isPlaying =
     isTimePlaying || isStepPlaying || isTimeRecording || isStepRecording;
+
+  const isEnabled = hasTimeEvents || hasStepEvents;
 
   const handleOnPress = useCallback(async () => {
     if (isPlaying) {
@@ -34,7 +42,12 @@ export const PlayButton = () => {
 
   return (
     <>
-      <Button color='primary' onPress={handleOnPress} isIconOnly>
+      <Button
+        color='primary'
+        onPress={handleOnPress}
+        isIconOnly
+        isDisabled={!isEnabled}
+      >
         {isPlaying ? <Pause className='animate-pulse' /> : <Play />}
       </Button>
     </>

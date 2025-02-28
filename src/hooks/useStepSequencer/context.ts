@@ -3,6 +3,7 @@ import { createContext } from 'react';
 import { StepSequencerPattern } from '@model/types';
 
 export interface StepSequencerContextType {
+  hasEvents: boolean;
   isPlaying: boolean;
   isRecording: boolean;
   bpm: number;
@@ -29,6 +30,7 @@ export interface StepSequencerContextType {
 }
 
 export const StepSequencerContext = createContext<StepSequencerContextType>({
+  hasEvents: false,
   isPlaying: false,
   isRecording: false,
   bpm: 60,

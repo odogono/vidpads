@@ -60,6 +60,8 @@ export const useSelectors = () => {
   const seqSelectedEventIds = seqSelectedEvents.map((e) => evtStr(e)).join(',');
   const seqEventIds = seqEvents.map((e) => evtStr(e)).join(',');
 
+  const hasEvents = seqEvents.length > 0;
+
   const getEventsAtTime = useCallback(
     (padId: string, time: number) =>
       getIntersectingEvents(seqEvents, time, 0.001, [padId]),
@@ -67,6 +69,7 @@ export const useSelectors = () => {
   );
 
   return {
+    hasEvents,
     canvasBpm,
     pixelsPerBeat,
     time,
