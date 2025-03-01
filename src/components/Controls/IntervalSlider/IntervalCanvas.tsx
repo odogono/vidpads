@@ -11,22 +11,18 @@ import {
 import { useTooltip } from '@components/Tooltip/useTooltip';
 import { getComputedColor } from '@helpers/dom';
 import { createLog } from '@helpers/log';
-import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
-import { Pad } from '@model/types';
 import { Rect } from '@types';
 import type {
   HandleIntervalChangeProps,
   HandleSeekProps
 } from '../hooks/useControlsEvents';
-import { Handle } from './handles';
+import { Handle } from './Handle';
+import { IntervalBorders } from './IntervalBorders';
+import { HANDLE_WIDTH, INTERVAL_BORDER_WIDTH } from './constants';
+import { useIntervalCoordinates } from './useIntervalCoordinates';
 import { useTouch } from './useTouch';
 
 const log = createLog('IntervalCanvas', ['debug']);
-
-export interface IntervalSliderProps {
-  pad: Pad | undefined;
-  onTimeChange?: (time: number, x: number) => void;
-}
 
 export interface IntervalCanvasRef {
   render: () => void;
@@ -43,9 +39,6 @@ export interface IntervalCanvasProps {
   onIntervalChange: (props: HandleIntervalChangeProps) => void;
 }
 
-const handleWidth = 20;
-const intervalBorderWidth = 3;
-
 export const IntervalCanvas = ({
   intervalStart,
   intervalEnd,
@@ -59,7 +52,6 @@ export const IntervalCanvas = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const timeRef = useRef<number | null>(time);
-  // const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState<DOMRect>(new DOMRect());
   const [trackArea, setTrackArea] = useState<Rect>({
     x: 0,
@@ -68,35 +60,19 @@ export const IntervalCanvas = ({
     height: 0
   });
 
-  const intervalToX = useCallback(
-    (time: number) => {
-      if (!duration) {
-        return trackArea.x;
-      }
-      return time * (trackArea.width / duration) + trackArea.x;
-    },
-    [duration, trackArea.width, trackArea.x]
-  );
-
-  // log.debug('[IntervalCanvas]', {
-  //   intervalStart,
-  //   intervalEnd,
-  //   duration,
-  //   x: trackArea.x,
-  //   width: trackArea.width
-  // });
-
-  const xToInterval = useCallback(
-    (x: number) => roundDP((x - trackArea.x) * (duration / trackArea.width)),
-    [duration, trackArea.width, trackArea.x]
-  );
-
-  const [intervalStartX, setIntervalStartX] = useState(() =>
-    intervalToX(intervalStart)
-  );
-  const [intervalEndX, setIntervalEndX] = useState(() =>
-    intervalToX(intervalEnd)
-  );
+  const {
+    intervalToX,
+    xToInterval,
+    intervalStartX,
+    intervalEndX,
+    setIntervalStartX,
+    setIntervalEndX
+  } = useIntervalCoordinates({
+    duration,
+    trackArea,
+    intervalStart,
+    intervalEnd
+  });
 
   const setToolTip = useCallback(
     (time: number, x: number) => {
@@ -104,12 +80,6 @@ export const IntervalCanvas = ({
     },
     [dimensions, setToolTipToTime]
   );
-
-  useEffect(() => {
-    // convert time to local coordinate
-    setIntervalStartX(intervalToX(intervalStart));
-    setIntervalEndX(intervalToX(intervalEnd));
-  }, [intervalStart, intervalEnd, intervalToX]);
 
   const handleTouch = useCallback(
     (x: number) => {
@@ -130,9 +100,6 @@ export const IntervalCanvas = ({
         });
       }
 
-      // const rect = canvasRef.current?.getBoundingClientRect();
-      // if (!rect) return;
-      // onTimeChange?.(time, dimensions.left + x);
       setToolTip(time, x);
     },
     [
@@ -148,9 +115,7 @@ export const IntervalCanvas = ({
   );
 
   const handleTouchEnd = useCallback(() => {
-    // onTimeChange?.(0, -1);
     hideToolTip();
-    // log.debug('[handleTouchEnd]', { x: -1 });
   }, [hideToolTip]);
 
   const touchHandlers = useTouch({
@@ -162,7 +127,6 @@ export const IntervalCanvas = ({
   useEffect(() => {
     const updateCanvasSize = () => {
       const canvas = canvasRef.current;
-      // log.debug('[updateCanvasSize]', { canvas });
       if (!canvas) return;
 
       ctxRef.current = canvas.getContext('2d');
@@ -173,30 +137,19 @@ export const IntervalCanvas = ({
       setDimensions(rect);
 
       const area = {
-        x: handleWidth,
-        y: intervalBorderWidth,
-        width: rect.width - handleWidth * 2,
-        height: rect.height - intervalBorderWidth * 2
+        x: HANDLE_WIDTH,
+        y: INTERVAL_BORDER_WIDTH,
+        width: rect.width - HANDLE_WIDTH * 2,
+        height: rect.height - INTERVAL_BORDER_WIDTH * 2
       };
       setTrackArea(area);
-
-      // log.debug('[updateCanvasSize]', { area, rect });
     };
 
     window.addEventListener('resize', updateCanvasSize);
-
     updateCanvasSize();
 
     return () => window.removeEventListener('resize', updateCanvasSize);
   }, []);
-
-  useImperativeHandle(ref, () => ({
-    render: render,
-    setTime: (time: number) => {
-      timeRef.current = time;
-      requestAnimationFrame(render);
-    }
-  }));
 
   const render = useCallback(() => {
     const ctx = ctxRef.current;
@@ -212,18 +165,9 @@ export const IntervalCanvas = ({
 
     const lineX = intervalToX(timeRef.current ?? 0);
 
-    // log.debug('render', {
-    //   time: timeRef.current,
-    //   lineX,
-    //   intervalStartX,
-    //   intervalEndX
-    // });
-    // log.debug('render', { trackArea, dimensions });
-
     ctx.imageSmoothingEnabled = false;
     ctx.lineWidth = 1;
 
-    // Update the fillStyle and strokeStyle to use computed colors
     ctx.fillStyle = getComputedColor('var(--c2)');
     ctx.fillRect(trackX, trackY, trackWidth, trackHeight);
 
@@ -242,18 +186,22 @@ export const IntervalCanvas = ({
     ctx.stroke();
   }, [dimensions, trackArea, intervalToX, intervalStartX, intervalEndX]);
 
-  // render on mount
+  useImperativeHandle(ref, () => ({
+    render,
+    setTime: (time: number) => {
+      timeRef.current = time;
+      requestAnimationFrame(render);
+    }
+  }));
+
   useEffect(() => {
     requestAnimationFrame(render);
   }, [render]);
 
   const handleLeftSeek = useCallback(
     (newX: number) => {
-      // log.debug('[handleLeftSeek]', { newX, intervalEndX });
-
       const time = xToInterval(newX);
       onSeek({ time, fromId: 'start' });
-
       setIntervalStartX(newX);
       setToolTip(time, newX);
     },
@@ -263,9 +211,7 @@ export const IntervalCanvas = ({
   const handleLeftDragEnd = useCallback(
     (newX: number) => {
       const time = xToInterval(newX);
-
       setIntervalStartX(newX);
-
       onIntervalChange({ start: time, end: intervalEnd, fromId: 'start' });
       hideToolTip();
     },
@@ -285,16 +231,12 @@ export const IntervalCanvas = ({
   const handleRightDragEnd = useCallback(
     (newX: number) => {
       const newEnd = xToInterval(newX);
-
       setIntervalEndX(newX);
-      // onSeek({ time: intervalStart, fromId: 'timeline' });
       onIntervalChange({ start: intervalStart, end: newEnd, fromId: 'end' });
       hideToolTip();
     },
     [xToInterval, onIntervalChange, intervalStart, hideToolTip]
   );
-
-  log.debug('[IntervalCanvas]', { intervalStartX, intervalStart });
 
   return (
     <div className='pointer-events-none relative w-full h-full bg-c1 rounded-sm'>
@@ -311,37 +253,22 @@ export const IntervalCanvas = ({
       <Handle
         direction='left'
         x={intervalStartX}
-        width={handleWidth}
+        width={HANDLE_WIDTH}
         minX={trackArea.x}
         maxX={intervalEndX}
         height={dimensions.height}
         onDrag={handleLeftDragEnd}
         onSeek={handleLeftSeek}
       />
-      <div
-        className='absolute'
-        style={{
-          backgroundColor: 'var(--c7)',
-          top: 0,
-          left: intervalStartX,
-          width: intervalEndX - intervalStartX,
-          height: intervalBorderWidth
-        }}
-      ></div>
-      <div
-        className='absolute'
-        style={{
-          backgroundColor: 'var(--c7)',
-          top: trackArea.y + trackArea.height,
-          left: intervalStartX,
-          width: intervalEndX - intervalStartX,
-          height: intervalBorderWidth
-        }}
-      ></div>
+      <IntervalBorders
+        intervalStartX={intervalStartX}
+        intervalEndX={intervalEndX}
+        trackArea={trackArea}
+      />
       <Handle
         direction='right'
         x={intervalEndX}
-        width={handleWidth}
+        width={HANDLE_WIDTH}
         minX={intervalStartX}
         maxX={trackArea.x + trackArea.width}
         height={dimensions.height}
