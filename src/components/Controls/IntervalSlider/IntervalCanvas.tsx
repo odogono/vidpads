@@ -9,8 +9,8 @@ import {
 } from 'react';
 
 import { useTooltip } from '@components/Tooltip/useTooltip';
-import { getComputedColor } from '@helpers/dom';
-import { createLog } from '@helpers/log';
+import { getComputedColor } from '@helpers/colour';
+// import { createLog } from '@helpers/log';
 import { Rect } from '@types';
 import type {
   HandleIntervalChangeProps,
@@ -19,10 +19,11 @@ import type {
 import { Handle } from './Handle';
 import { IntervalBorders } from './IntervalBorders';
 import { HANDLE_WIDTH, INTERVAL_BORDER_WIDTH } from './constants';
+import { renderTrackAndInterval } from './helpers';
 import { useIntervalCoordinates } from './useIntervalCoordinates';
 import { useTouch } from './useTouch';
 
-const log = createLog('IntervalCanvas', ['debug']);
+// const log = createLog('IntervalCanvas', ['debug']);
 
 export interface IntervalCanvasRef {
   render: () => void;
@@ -66,7 +67,8 @@ export const IntervalCanvas = ({
     intervalStartX,
     intervalEndX,
     setIntervalStartX,
-    setIntervalEndX
+    setIntervalEndX,
+    trackTimeWidth
   } = useIntervalCoordinates({
     duration,
     trackArea,
@@ -110,7 +112,9 @@ export const IntervalCanvas = ({
       intervalStart,
       intervalEnd,
       setToolTip,
-      onIntervalChange
+      onIntervalChange,
+      setIntervalStartX,
+      setIntervalEndX
     ]
   );
 
@@ -156,35 +160,35 @@ export const IntervalCanvas = ({
     if (!ctx) return;
     const { width, height } = dimensions;
     ctx.clearRect(0, 0, width, height);
-    const {
-      x: trackX,
-      y: trackY,
-      width: trackWidth,
-      height: trackHeight
-    } = trackArea;
+    const { y: trackY, height: trackHeight } = trackArea;
 
     const lineX = intervalToX(timeRef.current ?? 0);
 
     ctx.imageSmoothingEnabled = false;
     ctx.lineWidth = 1;
 
-    ctx.fillStyle = getComputedColor('var(--c2)');
-    ctx.fillRect(trackX, trackY, trackWidth, trackHeight);
-
-    ctx.fillStyle = getComputedColor('var(--c4)');
-    ctx.fillRect(
+    renderTrackAndInterval(
+      ctx,
+      trackArea,
       intervalStartX,
-      trackY,
-      intervalEndX - intervalStartX,
-      trackHeight
+      intervalEndX,
+      trackTimeWidth
     );
 
+    // render playhead
     ctx.strokeStyle = getComputedColor('var(--c3)');
     ctx.beginPath();
     ctx.moveTo(lineX + 0.5, trackY);
     ctx.lineTo(lineX + 0.5, trackY + trackHeight);
     ctx.stroke();
-  }, [dimensions, trackArea, intervalToX, intervalStartX, intervalEndX]);
+  }, [
+    dimensions,
+    trackArea,
+    trackTimeWidth,
+    intervalToX,
+    intervalStartX,
+    intervalEndX
+  ]);
 
   useImperativeHandle(ref, () => ({
     render,
@@ -205,7 +209,7 @@ export const IntervalCanvas = ({
       setIntervalStartX(newX);
       setToolTip(time, newX);
     },
-    [xToInterval, onSeek, setToolTip]
+    [xToInterval, onSeek, setToolTip, setIntervalStartX]
   );
 
   const handleLeftDragEnd = useCallback(
@@ -215,7 +219,7 @@ export const IntervalCanvas = ({
       onIntervalChange({ start: time, end: intervalEnd, fromId: 'start' });
       hideToolTip();
     },
-    [xToInterval, onIntervalChange, intervalEnd, hideToolTip]
+    [xToInterval, onIntervalChange, intervalEnd, hideToolTip, setIntervalStartX]
   );
 
   const handleRightSeek = useCallback(
@@ -225,7 +229,7 @@ export const IntervalCanvas = ({
       onSeek({ time, fromId: 'end' });
       setToolTip(time, newX);
     },
-    [xToInterval, onSeek, setToolTip]
+    [xToInterval, onSeek, setToolTip, setIntervalEndX]
   );
 
   const handleRightDragEnd = useCallback(
@@ -235,7 +239,7 @@ export const IntervalCanvas = ({
       onIntervalChange({ start: intervalStart, end: newEnd, fromId: 'end' });
       hideToolTip();
     },
-    [xToInterval, onIntervalChange, intervalStart, hideToolTip]
+    [xToInterval, onIntervalChange, intervalStart, hideToolTip, setIntervalEndX]
   );
 
   return (

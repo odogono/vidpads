@@ -1,14 +1,5 @@
 import { GeneralTouchEvent, Position } from '@types';
 
-// Add this helper function to get computed CSS values
-export const getComputedColor = (varName: string) => {
-  // Remove var() wrapper if it exists
-  const cleanVarName = varName.replace(/^var\((.*)\)$/, '$1').trim();
-
-  const style = getComputedStyle(document.documentElement);
-  return style.getPropertyValue(cleanVarName).trim();
-};
-
 export const isTouchEvent = (e: GeneralTouchEvent) => e.type.includes('touch');
 export const isMouseEvent = (e: GeneralTouchEvent) => e.type.includes('mouse');
 export const isPointerEvent = (e: GeneralTouchEvent) =>

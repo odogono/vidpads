@@ -181,7 +181,7 @@ export const LocalPlayer = ({
       video.play();
       startTimeTracking();
     },
-    [mediaUrl, playerPadId, startTimeTracking, stopTimeTracking]
+    [mediaUrl, playerPadId, startTimeTracking]
   );
 
   const stopAll = useCallback(() => {

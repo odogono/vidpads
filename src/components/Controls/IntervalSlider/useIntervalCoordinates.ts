@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { roundNumberToDecimalPlaces as roundDP } from '@helpers/number';
 import { Rect } from '@types';
@@ -17,11 +17,11 @@ export const useIntervalCoordinates = ({
   intervalEnd
 }: UseIntervalCoordinatesProps) => {
   const intervalToX = useCallback(
-    (time: number) => {
+    (timeInSeconds: number) => {
       if (!duration) {
         return trackArea.x;
       }
-      return time * (trackArea.width / duration) + trackArea.x;
+      return timeInSeconds * (trackArea.width / duration) + trackArea.x;
     },
     [duration, trackArea.width, trackArea.x]
   );
@@ -43,12 +43,25 @@ export const useIntervalCoordinates = ({
     setIntervalEndX(intervalToX(intervalEnd));
   }, [intervalStart, intervalEnd, intervalToX]);
 
+  const trackTimeWidth = useMemo(() => {
+    // default to 5 minutes
+    let time = 5 * 60;
+    // if duration is less than 10 seconds, use 1 second
+    if (duration < 10) time = 1;
+    // if duration is less than 5 minutes, use 10 seconds
+    else if (duration < 5 * 60) time = 10;
+    // if duration is less than 1 hour, use 1 minute
+    else if (duration < 3600) time = 60;
+    return intervalToX(time) - trackArea.x;
+  }, [intervalToX, trackArea.x, duration]);
+
   return {
     intervalToX,
     xToInterval,
     intervalStartX,
     intervalEndX,
     setIntervalStartX,
-    setIntervalEndX
+    setIntervalEndX,
+    trackTimeWidth
   };
 };
