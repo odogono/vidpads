@@ -126,6 +126,15 @@ export const PlayerContainer = () => {
       const volume = getPadVolume(pad, 1);
       const playbackRate = getPadPlaybackRate(pad, 1);
 
+      log.debug('❤️ video:start', {
+        url: mediaUrl,
+        padId: pad.id,
+        isOneShot,
+        isLoop,
+        start,
+        end
+      });
+
       events.emit('video:start', {
         url: mediaUrl,
         padId: pad.id,

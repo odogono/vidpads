@@ -114,24 +114,27 @@ export const LocalPlayer = ({
 
       const video = videoRef.current;
 
-      if (isPlaying(video) && isLoopedRef.current) {
-        stopTimeTracking();
-        video.pause();
-        // isPlayingRef.current = false;
-        return;
-      }
+      // if (isPlaying(video) && isLoopedRef.current) {
+      //   stopTimeTracking();
+      //   video.pause();
+      //   // isPlayingRef.current = false;
+      //   return;
+      // }
 
       const currentTime = video.currentTime;
       const startTime = (start ?? 0) === -1 ? 0 : (start ?? 0);
-      const endTime =
-        (end ?? Number.MAX_SAFE_INTEGER) === -1
-          ? Number.MAX_SAFE_INTEGER
-          : (end ?? Number.MAX_SAFE_INTEGER);
+      const endTime = Math.min(video.duration, end ?? Number.MAX_SAFE_INTEGER);
+      // const endTime =
+      //   (end ?? Number.MAX_SAFE_INTEGER) === -1
+      // ? Number.MAX_SAFE_INTEGER
+      // : (end ?? Number.MAX_SAFE_INTEGER);
 
       log.debug('playVideo', {
         currentTime,
         startTime,
         endTime,
+        end,
+        start,
         isLoop,
         url,
         padId,
@@ -147,11 +150,18 @@ export const LocalPlayer = ({
       video.playbackRate = playbackRate ?? 1;
       video.volume = volume ?? 1;
 
-      if (isResume) {
+      if (isPlaying(video) && isLoopedRef.current) {
+        log.debug('playVideo', 'isPlaying/isLoop', startTime);
+        // stopTimeTracking();
+        // video.pause();
+        video.currentTime = startTime;
+      } else if (isResume) {
+        log.debug('playVideo', 'isResume', startTime);
         if (currentTime < startTime || currentTime > endTime) {
           video.currentTime = startTime;
         }
       } else {
+        log.debug('playVideo', 'seeking to start', startTime);
         video.currentTime = startTime;
       }
 
@@ -240,7 +250,11 @@ export const LocalPlayer = ({
     }
     // readyCallbackRef.current?.();
 
-    log.debug('❤️ player:ready', mediaUrl, playerPadId);
+    log.debug('❤️ player:ready', mediaUrl, playerPadId, {
+      duration: video.duration
+    });
+
+    endTimeRef.current = Math.min(video.duration, endTimeRef.current);
 
     cOnPlayerUpdate({
       padId: playerPadId,

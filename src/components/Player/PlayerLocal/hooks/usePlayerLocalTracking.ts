@@ -43,7 +43,11 @@ export const usePlayerLocalTracking = ({
     if (!video) return;
     const time = video.currentTime;
     const duration = video.duration;
-    // log.debug('updateTimeTracking', time, duration);
+    // log.debug('updateTimeTracking', {
+    //   time,
+    //   duration,
+    //   end: endTimeRef.current
+    // });
     if (time !== undefined && duration !== undefined) {
       if (time >= endTimeRef.current) {
         if (isLoopedRef.current) {

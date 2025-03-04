@@ -1,4 +1,4 @@
-import { safeParseInt } from '../../helpers/number';
+import { safeParseInt } from '@helpers/number';
 
 interface DataSetPlayerData {
   isPlaying: boolean;
