@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 
+## v1.4.0 (2025-03-04)
+
+### Changed
+- interval editor has shading to indicate time segments
+
+### Fixed
+- local player not restarting when oneshot/loop enabled
+
+
+
 ## v1.3.4 (2025-02-28)
 
 ### Changed
