@@ -1,11 +1,21 @@
 import { showSuccess } from '@helpers/toast';
-import { getPadIsOneShot, setPadIsOneShot as setOneShot } from '@model/pad';
-import { ProjectStoreContext, SetPadIsOneShotAction } from '../types';
+import {
+  getPadIsOneShot,
+  getPadSourceUrl,
+  setPadIsOneShot as setOneShot
+} from '@model/pad';
+import { EnqueueObject } from '@xstate/store';
+import {
+  ProjectStoreContext,
+  ProjectStoreEvents,
+  SetPadIsOneShotAction
+} from '../types';
 import { addOrReplacePad, findPadById } from './helpers';
 
 export const setPadIsOneShot = (
   context: ProjectStoreContext,
-  event: SetPadIsOneShotAction
+  event: SetPadIsOneShotAction,
+  enqueue: EnqueueObject<ProjectStoreEvents>
 ): ProjectStoreContext => {
   const { padId, isOneShot } = event;
   const pad = findPadById(context, padId);
@@ -22,6 +32,12 @@ export const setPadIsOneShot = (
   } else {
     showSuccess(`Unset ${padId} one shot`);
   }
+
+  enqueue.emit.padIsOneShot({
+    padId,
+    url: getPadSourceUrl(pad) ?? 'unknown',
+    isOneShot: isOneShotValue
+  });
 
   return addOrReplacePad(context, newPad);
 };

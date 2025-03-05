@@ -2,7 +2,11 @@ import { useCallback, useEffect } from 'react';
 
 // import { createLog } from '@helpers/log';
 import { useEvents as useGlobalEvents } from '@hooks/events';
-import { PadIsLoopedEvent, ProjectStoreType } from '@model/store/types';
+import {
+  PadIsLoopedEvent,
+  PadIsOneShotEvent,
+  ProjectStoreType
+} from '@model/store/types';
 import { useSelector } from '@xstate/store/react';
 
 // const log = createLog('useProject/events');
@@ -67,8 +71,18 @@ export const useEvents = (project: ProjectStoreType) => {
     [events]
   );
 
+  const handlePadIsOneShot = useCallback(
+    ({ padId, isOneShot, url }: PadIsOneShotEvent) => {
+      if (!isOneShot) {
+        events.emit('video:stop', { url, padId, time: 0 });
+      }
+    },
+    [events]
+  );
+
   useEffect(() => {
     const evtPadLooped = project.on('padIsLooped', handlePadIsLooped);
+    const evtPadOneShot = project.on('padIsOneShot', handlePadIsOneShot);
 
     events.on('control:one-shot', handleToggleOneShot);
     events.on('control:loop', handleToggleLoop);
@@ -79,6 +93,7 @@ export const useEvents = (project: ProjectStoreType) => {
       events.off('control:loop', handleToggleLoop);
       events.off('control:resume', handleToggleResume);
       evtPadLooped.unsubscribe();
+      evtPadOneShot.unsubscribe();
     };
   }, [
     events,

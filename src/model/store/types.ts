@@ -431,6 +431,13 @@ export type PadIsLoopedEvent = {
   isLooped: boolean;
 };
 
+export type PadIsOneShotEvent = {
+  type: 'padIsOneShot';
+  padId: string;
+  url: string;
+  isOneShot: boolean;
+};
+
 export type ProjectStoreEvents =
   | PadUpdatedEvent
   | TimeUpdatedEvent
@@ -439,7 +446,8 @@ export type ProjectStoreEvents =
   | SequencerTimesUpdatedEvent
   | SequencerStartedEvent
   | SequencerStoppedEvent
-  | PadIsLoopedEvent;
+  | PadIsLoopedEvent
+  | PadIsOneShotEvent;
 
 export type ProjectStoreType = Store<
   ProjectStoreContextType,
