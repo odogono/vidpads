@@ -31,5 +31,5 @@ export const useVideoEvents = ({
       video.removeEventListener('playing', onPlaying);
       video.removeEventListener('pause', onPause);
     };
-  }, [video, onPlaying, onPause, onLoadedMetadata]);
+  }, [video, onPlaying, onPause, onLoadedMetadata, onSeeking]);
 };

@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState
 } from 'react';
@@ -13,7 +12,7 @@ import {
   DataSetPlayerData,
   getAllPlayerDataState
 } from '@components/Player/helpers';
-import { createLog } from '@helpers/log';
+// import { createLog } from '@helpers/log';
 import { runAfter } from '@helpers/time';
 import {
   Button,
@@ -27,13 +26,11 @@ import { useEvents } from '@hooks/events';
 import { CommonModalProps } from './CommonModal';
 import { useModalState } from './useModalState';
 
-const log = createLog('PlayerDebugModal', ['debug']);
+// const log = createLog('PlayerDebugModal', ['debug']);
 
 export const PlayerDebugModal = ({
   ref,
-  onOpen: onOpenProp,
-  onOk,
-  onClose: onCloseProp
+  onOpen: onOpenProp
 }: CommonModalProps) => {
   const events = useEvents();
   const {

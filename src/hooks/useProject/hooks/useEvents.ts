@@ -101,6 +101,7 @@ export const useEvents = (project: ProjectStoreType) => {
     handleToggleOneShot,
     handleToggleResume,
     handlePadIsLooped,
+    handlePadIsOneShot,
     project
   ]);
 

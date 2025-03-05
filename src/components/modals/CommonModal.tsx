@@ -9,7 +9,8 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  ModalProps
 } from '@heroui/react';
 import { useModalState } from './useModalState';
 
@@ -36,7 +37,7 @@ export interface CommonModalProps extends CommonModalBase {
   onClose?: () => void;
   showCancel?: boolean;
   showOk?: boolean;
-  backdrop?: 'blur' | 'transparent' | 'none';
+  backdrop?: ModalProps['backdrop'];
 }
 
 export const CommonModal = ({
@@ -93,7 +94,7 @@ export const CommonModal = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      backdrop='blur'
+      backdrop={backdrop}
       className='vo-theme bg-background text-foreground'
     >
       <ModalContent>

@@ -36,10 +36,13 @@ export const usePlayerYTState = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(intervals), mediaUrl]);
 
-  const handlePlayRequested = useCallback((player: YTPlayer) => {
-    store.send({ type: 'playRequested' });
-    log.debug('handlePlayRequested', player.odgnId);
-  }, []);
+  const handlePlayRequested = useCallback(
+    (player: YTPlayer) => {
+      store.send({ type: 'playRequested' });
+      log.debug('handlePlayRequested', player.odgnId);
+    },
+    [store]
+  );
 
   const handlePlayerStateChange = useCallback(
     (playerState: PlayerState, player: YTPlayer) => {

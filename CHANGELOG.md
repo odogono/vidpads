@@ -9,8 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 
+## v1.4.1 (2025-03-05)
+
 ### Changed
 - turning one shot off will stop the pad if it is playing
+
+### Added
+- player debug modal
+
+### Fixed
+- player ordering incorrect with one-shot/loop
+
 
 
 ## v1.4.0 (2025-03-04)
