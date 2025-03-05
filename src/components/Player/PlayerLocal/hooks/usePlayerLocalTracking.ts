@@ -1,8 +1,8 @@
 import { RefObject, useCallback, useEffect, useRef } from 'react';
 
+import { PlayerSeek } from '@components/Player/types';
 import { createLog } from '@helpers/log';
 import { useEvents } from '@hooks/events';
-import { PlayerSeek } from '../../types';
 
 const log = createLog('player/local/hooks/usePlayerLocalTracking', [
   'debug',
@@ -64,7 +64,7 @@ export const usePlayerLocalTracking = ({
             requesterId: 'local-player',
             fromId: 'timeline'
           });
-          video.play();
+          // video.play();
         } else {
           video.pause();
           // stopVideo({

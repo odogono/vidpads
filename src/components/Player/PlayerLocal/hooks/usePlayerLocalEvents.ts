@@ -1,15 +1,15 @@
 import { RefObject, useCallback, useEffect } from 'react';
 
-import { extractVideoThumbnailFromVideo } from '@helpers/canvas';
-import { createLog } from '@helpers/log';
-import { useEvents } from '@hooks/events';
 import {
   PlayerExtractThumbnail,
   PlayerPlay,
   PlayerSeek,
   PlayerStop,
   PlayerUpdate
-} from '../../types';
+} from '@components/Player/types';
+import { extractVideoThumbnailFromVideo } from '@helpers/canvas';
+import { createLog } from '@helpers/log';
+import { useEvents } from '@hooks/events';
 import { isPlaying } from '../helpers';
 
 const log = createLog('player/local/hooks/usePlayerLocalEvents', [

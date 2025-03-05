@@ -218,6 +218,8 @@ export const PlayerContainer = () => {
 
       showStackPlayer(e);
       clearRunAfter(hideLastPlayerTimeoutRef.current);
+
+      log.debug('player:playing', e);
     },
     [showStackPlayer, getChokeGroupPlayers, events]
   );
@@ -235,12 +237,15 @@ export const PlayerContainer = () => {
           }
         );
       }
+
+      log.debug('player:stopped', { playing, lastId }, e);
     },
     [hideStackPlayer, hidePlayerOnEnd]
   );
 
   const handlePlayerSeek = useCallback((e: PlayerSeek) => {
     showPlayer(e.padId);
+    log.debug('player:seek', e);
   }, []);
 
   const handlePlayerReady = useCallback(

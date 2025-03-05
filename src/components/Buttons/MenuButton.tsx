@@ -22,6 +22,7 @@ import { ImportProjectModal } from '../modals/ImportProjectModal';
 import { KeyboardModal } from '../modals/KeyboardModal';
 import { LoadProjectModal } from '../modals/LoadProjectModal';
 import { NewProjectModal } from '../modals/NewProjectModal';
+import { PlayerDebugModal } from '../modals/PlayerDebugModal';
 import { ProjectImageModal } from '../modals/ProjectImageModal';
 import { SaveProjectModal } from '../modals/SaveProjectModal';
 import { SettingsModal } from '../modals/SettingsModal';
@@ -38,7 +39,7 @@ export const MenuButton = () => {
   const aboutModalRef = useRef<CommonModalRef | null>(null);
   const projectImageModalRef = useRef<CommonModalRef | null>(null);
   const keyboardModalRef = useRef<CommonModalRef | null>(null);
-
+  const playerDebugModalRef = useRef<CommonModalRef | null>(null);
   const handleAction = useCallback(
     (key: string) => {
       if (key === 'new-project') {
@@ -65,6 +66,8 @@ export const MenuButton = () => {
         aboutModalRef.current?.open();
       } else if (key === 'keyboard') {
         keyboardModalRef.current?.open();
+      } else if (key === 'player-debug') {
+        playerDebugModalRef.current?.open();
       }
     },
     [isMidiMappingModeEnabled, enableMappingMode]
@@ -121,6 +124,10 @@ export const MenuButton = () => {
             Delete Everything
           </DropdownItem> */}
 
+          <DropdownItem key='player-debug' showDivider>
+            Player Debug
+          </DropdownItem>
+
           <DropdownSection aria-label='About'>
             <DropdownItem key='about'>About</DropdownItem>
           </DropdownSection>
@@ -136,6 +143,7 @@ export const MenuButton = () => {
       <DeleteEverythingModal ref={deleteEverythingModalRef} />
       <AboutModal ref={aboutModalRef} />
       <KeyboardModal ref={keyboardModalRef} />
+      <PlayerDebugModal ref={playerDebugModalRef} />
     </>
   );
 };

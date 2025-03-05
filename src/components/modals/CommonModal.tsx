@@ -30,12 +30,13 @@ export type OnOpenProps = (props?: unknown) => void;
 
 export interface CommonModalProps extends CommonModalBase {
   title?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode | undefined;
   onOpen?: OnOpenProps;
   onOk?: () => Promise<boolean>;
   onClose?: () => void;
   showCancel?: boolean;
   showOk?: boolean;
+  backdrop?: 'blur' | 'transparent' | 'none';
 }
 
 export const CommonModal = ({
@@ -46,7 +47,8 @@ export const CommonModal = ({
   onOk,
   onClose: onCloseProp,
   showCancel = true,
-  showOk = true
+  showOk = true,
+  backdrop = 'blur'
 }: CommonModalProps) => {
   const { isOpen, onOpen, onClose: onCloseModal } = useModalState();
 
@@ -98,7 +100,7 @@ export const CommonModal = ({
         {() => (
           <>
             <ModalHeader className='flex flex-col gap-1'>{title}</ModalHeader>
-            <ModalBody>{children}</ModalBody>
+            <ModalBody>{children ?? null}</ModalBody>
             <ModalFooter>
               {showCancel && (
                 <Button color='secondary' onPress={handleCancel}>

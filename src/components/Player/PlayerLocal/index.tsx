@@ -10,6 +10,7 @@ import {
   PlayerProps,
   PlayerReadyState,
   PlayerSeek,
+  PlayerSeeked,
   PlayerStop,
   PlayerUpdate
 } from '../types';
@@ -37,7 +38,8 @@ export const LocalPlayer = ({
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(Number.MAX_SAFE_INTEGER);
   const isLoopedRef = useRef(false);
-  // const isPlayingRef = useRef(false);
+  const hasSeekedRef = useRef(false);
+  const isPlayRequestedRef = useRef(false);
 
   const playEventRef = useRef<PlayerPlay | undefined>(undefined);
   const {
@@ -143,9 +145,11 @@ export const LocalPlayer = ({
         isResume
       });
 
+      isPlayRequestedRef.current = true;
       startTimeRef.current = startTime;
       endTimeRef.current = endTime;
       isLoopedRef.current = isLoop ?? false;
+      hasSeekedRef.current = false;
 
       video.playbackRate = playbackRate ?? 1;
       video.volume = volume ?? 1;
@@ -218,7 +222,26 @@ export const LocalPlayer = ({
     [mediaUrl, playerPadId]
   );
 
+  const handleSeeking = useCallback(() => {
+    hasSeekedRef.current = true;
+  }, []);
+
   const handlePlaying = useCallback(() => {
+    // the HTMLVideoElement will emit a playing event after a
+    // seek has occurred, so here we differentiate
+    if (hasSeekedRef.current && !isPlayRequestedRef.current) {
+      const event = {
+        ...playEventRef.current,
+        time: videoRef.current?.currentTime ?? 0
+      } as PlayerSeeked;
+      events.emit('player:seeked', event);
+      // log.debug('❤️ player:seeked', event);
+      hasSeekedRef.current = false;
+      return;
+    }
+
+    isPlayRequestedRef.current = false;
+
     const event = {
       ...playEventRef.current,
       time: videoRef.current?.currentTime ?? 0
@@ -281,6 +304,7 @@ export const LocalPlayer = ({
   useVideoEvents({
     video: videoRef.current,
     onPlaying: handlePlaying,
+    onSeeking: handleSeeking,
     onPause: handlePaused,
     onLoadedMetadata: handleLoadedMetadata
   });

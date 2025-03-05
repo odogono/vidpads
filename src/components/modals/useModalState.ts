@@ -3,19 +3,29 @@ import { useCallback } from 'react';
 import { useDisclosure } from '@heroui/react';
 import { useKeyboard } from '@hooks/useKeyboard';
 
-export const useModalState = () => {
+interface UseModalStateProps {
+  disableKeyboard?: boolean;
+}
+
+export const useModalState = ({
+  disableKeyboard = true
+}: UseModalStateProps = {}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { setIsEnabled } = useKeyboard();
 
   const handleOpen = useCallback(() => {
-    setIsEnabled(false);
+    if (disableKeyboard) {
+      setIsEnabled(false);
+    }
     onOpen();
-  }, [setIsEnabled, onOpen]);
+  }, [setIsEnabled, onOpen, disableKeyboard]);
 
   const handleClose = useCallback(() => {
-    setIsEnabled(true);
+    if (disableKeyboard) {
+      setIsEnabled(true);
+    }
     onClose();
-  }, [setIsEnabled, onClose]);
+  }, [setIsEnabled, onClose, disableKeyboard]);
 
   return { isOpen, onOpen: handleOpen, onClose: handleClose };
 };

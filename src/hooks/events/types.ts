@@ -5,6 +5,7 @@ import {
   PlayerPlaying,
   PlayerReady,
   PlayerSeek,
+  PlayerSeeked,
   PlayerStop,
   PlayerStopped,
   PlayerThumbnailExtracted,
@@ -59,6 +60,8 @@ export type EventEmitterEvents = {
   'player:stopped': PlayerStopped;
   // sent by the player when the time is updated
   'player:time-updated': PlayerTimeUpdate;
+
+  'player:seeked': PlayerSeeked;
 
   'player:update': PlayerUpdate;
   // 'player:set-volume': PlayerSetVolume;

@@ -130,9 +130,9 @@ export const usePlayingStack = ({
     (hideId: string, overrideKeepLastPlayerVisible: boolean = false) => {
       const playersPlayingCount = getPlayersPlayingCount();
 
-      log.debug('hideStackPlayer', { hideId, playersPlayingCount });
+      const el = setPlayerDataStatePlaying(hideId, false);
 
-      setPlayerDataStatePlaying(hideId, false);
+      log.debug('hideStackPlayer', { hideId, playersPlayingCount }, el);
 
       return updateStack(overrideKeepLastPlayerVisible);
     },

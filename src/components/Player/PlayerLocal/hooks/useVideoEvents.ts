@@ -5,13 +5,15 @@ interface UseVideoEventsProps {
   onPlaying: () => void;
   onPause: () => void;
   onLoadedMetadata: () => void;
+  onSeeking: () => void;
 }
 
 export const useVideoEvents = ({
   video,
   onPlaying,
   onPause,
-  onLoadedMetadata
+  onLoadedMetadata,
+  onSeeking
 }: UseVideoEventsProps) => {
   useEffect(() => {
     if (!video) return;
@@ -19,10 +21,12 @@ export const useVideoEvents = ({
     video.addEventListener('playing', onPlaying);
     video.addEventListener('pause', onPause);
     video.addEventListener('loadedmetadata', onLoadedMetadata);
+    video.addEventListener('seeking', onSeeking);
     // video.addEventListener('timeupdate', handleTimeUpdate);
     // video.addEventListener('canplay', handleIsReady);
     return () => {
       video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      video.removeEventListener('seeking', onSeeking);
       // video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('playing', onPlaying);
       video.removeEventListener('pause', onPause);

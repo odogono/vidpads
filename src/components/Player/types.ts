@@ -38,6 +38,10 @@ export interface PlayerPlaying extends PlayerPlay {
   time: number;
 }
 
+export interface PlayerSeeked extends PlayerEvent {
+  time: number;
+}
+
 export interface PlayerStopped extends PlayerEvent {
   time: number;
 }
