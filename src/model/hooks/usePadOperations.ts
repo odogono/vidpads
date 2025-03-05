@@ -23,6 +23,7 @@ import { VOKeys } from '@model/constants';
 import {
   deleteAllPadThumbnails as dbDeleteAllPadThumbnails,
   deletePadThumbnail as dbDeletePadThumbnail,
+  deleteThumbnailByUrl as dbDeleteThumbnailByUrl,
   getPadThumbnail as dbGetPadThumbnail,
   getThumbnailFromUrl as dbGetThumbnailFromUrl,
   saveMediaData as dbSaveMediaData,
@@ -62,6 +63,7 @@ export const usePadOperations = () => {
         // not safe to do this anymore since we have multiple projects
         // await dbDeleteMediaData(sourceUrl);
         queryClient.invalidateQueries({ queryKey: VOKeys.metadata(sourceUrl) });
+        await dbDeleteThumbnailByUrl(sourceUrl);
       }
 
       await dbDeletePadThumbnail(projectId, pad.id);

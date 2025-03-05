@@ -6,7 +6,7 @@ import {
   useState
 } from 'react';
 
-import { Check, Eye, Pause, Play } from 'lucide-react';
+import { Check, Eye, Play } from 'lucide-react';
 
 import {
   DataSetPlayerData,
@@ -247,7 +247,7 @@ export const PlayerDebugModal = ({
                         <th className='px-4 py-2 text-center'>Loop</th>
                         <th className='px-4 py-2 text-center'>Resume</th>
                         <th className='px-4 py-2 text-center'>Visible</th>
-                        <th className='px-4 py-2 text-center'>State</th>
+                        <th className='px-4 py-2 text-center'>Playing</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -296,11 +296,7 @@ export const PlayerDebugModal = ({
                           </td>
                           <td className='px-4 py-2'>
                             <div className='flex justify-center'>
-                              {player.isPlaying ? (
-                                <Play size={16} />
-                              ) : (
-                                <Pause size={16} />
-                              )}
+                              {player.isPlaying ? <Play size={16} /> : ''}
                             </div>
                           </td>
                         </tr>

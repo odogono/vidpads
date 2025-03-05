@@ -60,6 +60,7 @@ export const IntervalCanvas = ({
     width: 0,
     height: 0
   });
+  const isDisabled = intervalStart === 0 && intervalEnd === -1;
 
   const {
     intervalToX,
@@ -176,12 +177,15 @@ export const IntervalCanvas = ({
     );
 
     // render playhead
-    ctx.strokeStyle = getComputedColor('var(--c3)');
-    ctx.beginPath();
-    ctx.moveTo(lineX + 0.5, trackY);
-    ctx.lineTo(lineX + 0.5, trackY + trackHeight);
-    ctx.stroke();
+    if (!isDisabled) {
+      ctx.strokeStyle = getComputedColor('var(--c3)');
+      ctx.beginPath();
+      ctx.moveTo(lineX + 0.5, trackY);
+      ctx.lineTo(lineX + 0.5, trackY + trackHeight);
+      ctx.stroke();
+    }
   }, [
+    isDisabled,
     dimensions,
     trackArea,
     trackTimeWidth,
@@ -254,31 +258,38 @@ export const IntervalCanvas = ({
         }}
         {...touchHandlers}
       />
-      <Handle
-        direction='left'
-        x={intervalStartX}
-        width={HANDLE_WIDTH}
-        minX={trackArea.x}
-        maxX={intervalEndX}
-        height={dimensions.height}
-        onDrag={handleLeftDragEnd}
-        onSeek={handleLeftSeek}
-      />
-      <IntervalBorders
-        intervalStartX={intervalStartX}
-        intervalEndX={intervalEndX}
-        trackArea={trackArea}
-      />
-      <Handle
-        direction='right'
-        x={intervalEndX}
-        width={HANDLE_WIDTH}
-        minX={intervalStartX}
-        maxX={trackArea.x + trackArea.width}
-        height={dimensions.height}
-        onDrag={handleRightDragEnd}
-        onSeek={handleRightSeek}
-      />
+      {!isDisabled && (
+        <>
+          <Handle
+            direction='left'
+            x={intervalStartX}
+            width={HANDLE_WIDTH}
+            minX={trackArea.x}
+            maxX={intervalEndX}
+            height={dimensions.height}
+            onDrag={handleLeftDragEnd}
+            onSeek={handleLeftSeek}
+            isDisabled={isDisabled}
+          />
+          <IntervalBorders
+            isDisabled={isDisabled}
+            intervalStartX={intervalStartX}
+            intervalEndX={intervalEndX}
+            trackArea={trackArea}
+          />
+          <Handle
+            direction='right'
+            x={intervalEndX}
+            width={HANDLE_WIDTH}
+            minX={intervalStartX}
+            maxX={trackArea.x + trackArea.width}
+            height={dimensions.height}
+            onDrag={handleRightDragEnd}
+            onSeek={handleRightSeek}
+            isDisabled={isDisabled}
+          />
+        </>
+      )}
     </div>
   );
 };

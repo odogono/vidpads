@@ -46,8 +46,10 @@ export const useIntervalCoordinates = ({
   const trackTimeWidth = useMemo(() => {
     // default to 5 minutes
     let time = 5 * 60;
-    // if duration is less than 10 seconds, use 1 second
-    if (duration < 10) time = 1;
+    // if duration is less than 30 seconds, use 1 second
+    if (duration < 30) time = 1;
+    // if duration is less than 60 seconds, use 5 seconds
+    else if (duration < 60) time = 5;
     // if duration is less than 5 minutes, use 10 seconds
     else if (duration < 5 * 60) time = 10;
     // if duration is less than 1 hour, use 1 minute

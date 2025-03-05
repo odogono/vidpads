@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { cn } from '@helpers/tailwind';
 import { useHandleEvents } from './useHandleEvents';
 
 export interface HandleProps {
@@ -11,6 +12,7 @@ export interface HandleProps {
   onDrag?: (deltaX: number) => void;
   onSeek?: (newStart: number, inProgress: boolean) => void;
   direction: 'left' | 'right';
+  isDisabled?: boolean;
 }
 
 export const Handle = ({
@@ -21,7 +23,8 @@ export const Handle = ({
   onSeek,
   direction,
   minX = 0,
-  maxX = 0
+  maxX = 0,
+  isDisabled = false
 }: HandleProps) => {
   const [localX, setLocalX] = useState(x);
 
@@ -43,6 +46,7 @@ export const Handle = ({
   }, [x]);
 
   const { handlers } = useHandleEvents({
+    isDisabled,
     onDrag: handleDrag,
     onDragEnd: handleDragEnd
   });
@@ -56,10 +60,15 @@ export const Handle = ({
   return (
     <div
       {...handlers}
-      className='absolute pointer-events-auto cursor-ew-resize flex items-center justify-center'
+      className={cn(
+        'absolute pointer-events-auto cursor-ew-resize flex items-center justify-center',
+        {
+          'bg-c7': !isDisabled,
+          'bg-c1': isDisabled
+        }
+      )}
       style={{
         left,
-        backgroundColor: 'var(--c7)',
         width,
         height,
         borderRadius

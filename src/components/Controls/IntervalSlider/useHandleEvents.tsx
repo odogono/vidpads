@@ -7,9 +7,14 @@ import { useCallback, useRef, useState } from 'react';
 interface UseEventsProps {
   onDrag: (deltaX: number, doSeek?: boolean) => void;
   onDragEnd: () => void;
+  isDisabled?: boolean;
 }
 
-export const useHandleEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
+export const useHandleEvents = ({
+  onDrag,
+  onDragEnd,
+  isDisabled = false
+}: UseEventsProps) => {
   const [isTouching, setIsTouching] = useState(false);
   const startXRef = useRef<number>(0);
   const xRef = useRef<number>(0);
@@ -89,6 +94,12 @@ export const useHandleEvents = ({ onDrag, onDragEnd }: UseEventsProps) => {
   //   },
   //   [isShiftKeyDown, onDrag, onDragEnd]
   // );
+
+  if (isDisabled) {
+    return {
+      handlers: {}
+    };
+  }
 
   return {
     handlers: {

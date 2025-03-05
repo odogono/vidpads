@@ -821,7 +821,11 @@ export const savePadThumbnail = async (
     };
 
     transaction.oncomplete = () => {
-      log.debug('[savePadThumbnail] complete', { projectId, padId });
+      log.debug('[savePadThumbnail] complete', {
+        id: thumbnailId,
+        projectId,
+        padId
+      });
       closeDB(db);
       resolve(padId);
     };
@@ -907,6 +911,7 @@ export const saveMediaThumbnail = async (
     };
 
     transaction.oncomplete = () => {
+      log.debug('[saveMediaThumbnail] complete', { id: media.url });
       closeDB(db);
       resolve(media.url);
     };
@@ -948,6 +953,7 @@ export const deleteAllPadThumbnails = async (
     };
 
     transaction.oncomplete = () => {
+      log.debug('[deleteAllPadThumbnails] complete', { count });
       closeDB(db);
       resolve(count);
     };
@@ -988,8 +994,39 @@ export const deletePadThumbnail = async (
     };
 
     transaction.oncomplete = () => {
+      log.debug('[deletePadThumbnail] complete', {
+        id: thumbnailId,
+        projectId,
+        padId
+      });
       closeDB(db);
       resolve(padId);
+    };
+  });
+};
+
+export const deleteThumbnailByUrl = async (url: string): Promise<string> => {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const { thumbnails, transaction } = idbOpenTransaction(
+      db,
+      ['thumbnails'],
+      'readwrite'
+    );
+    const request = thumbnails.delete(url);
+
+    request.onerror = () => {
+      log.error('Error deleting pad thumbnail:', request.error);
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      log.debug('[deleteThumbnailByUrl] complete', {
+        url
+      });
+      closeDB(db);
+      resolve(url);
     };
   });
 };
