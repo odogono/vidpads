@@ -1,14 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Viewport } from 'next';
 
-// import { I18nProvider } from '@i18n/I18nProvider';
-// import { generateMetadata } from '@page/metadata';
-// import { initTranslation } from '../i18n/initTranslation';
-
 import './styles/globals.css';
 import './styles/crt.css';
-
-// export { generateMetadata };
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -46,6 +40,11 @@ const RootLayout = ({ children }: RootLayoutProps) => {
       </head>
 
       {children}
+      <script
+        data-goatcounter='https://vo-odgn.goatcounter.com/count'
+        async
+        src='//gc.zgo.at/count.js'
+      ></script>
     </html>
   );
 };
