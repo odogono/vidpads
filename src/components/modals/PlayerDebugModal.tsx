@@ -7,8 +7,10 @@ import {
   useState
 } from 'react';
 
+import { Check, Eye, Pause, Play } from 'lucide-react';
+
 import {
-  PlayerDataState,
+  DataSetPlayerData,
   getAllPlayerDataState
 } from '@components/Player/helpers';
 import { createLog } from '@helpers/log';
@@ -25,7 +27,7 @@ import { useEvents } from '@hooks/events';
 import { CommonModalProps } from './CommonModal';
 import { useModalState } from './useModalState';
 
-const log = createLog('PlayerDebugModal', ['']);
+const log = createLog('PlayerDebugModal', ['debug']);
 
 export const PlayerDebugModal = ({
   ref,
@@ -47,8 +49,9 @@ export const PlayerDebugModal = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
 
-  const [playing, setPlaying] = useState<PlayerDataState>([]);
-  const [stopped, setStopped] = useState<PlayerDataState>([]);
+  const [playerDataStates, setPlayerDataStates] = useState<DataSetPlayerData[]>(
+    []
+  );
 
   useImperativeHandle(ref, () => ({
     open: (props: unknown) => {
@@ -101,15 +104,8 @@ export const PlayerDebugModal = ({
   const refreshPlayerDataState = useCallback(() => {
     // log.debug('player event');
     const states = getAllPlayerDataState();
-    const playing = states.filter(
-      ({ id, isPlaying }) => isPlaying && id !== 'title'
-    );
-    const stopped = states.filter(
-      ({ id, isPlaying }) => !isPlaying && id !== 'title'
-    );
 
-    setPlaying(playing);
-    setStopped(stopped);
+    setPlayerDataStates(states.filter(({ id }) => id !== 'title'));
 
     runAfter(500, () => {
       if (animationRef.current !== null) {
@@ -222,7 +218,7 @@ export const PlayerDebugModal = ({
         backdrop='transparent'
         isDismissable={false}
         isKeyboardDismissDisabled={true}
-        size='xl'
+        size='2xl'
         className='vo-theme bg-black/70 text-foreground'
         style={{
           position: 'fixed',
@@ -238,50 +234,77 @@ export const PlayerDebugModal = ({
                 className='modal-header cursor-move'
                 onMouseDown={handleMouseDown}
               >
-                <span className='pointer-events-none'>Player Stack Debug</span>
+                <span className='pointer-events-none'>Player Stack</span>
               </ModalHeader>
               <ModalBody>
                 <div className='overflow-auto'>
                   <table className='w-full text-white text-xs'>
                     <thead>
                       <tr className='border-b border-white/20'>
-                        <th className='px-4 py-2 text-left'>ID</th>
-                        <th className='px-4 py-2 text-left'>State</th>
-                        <th className='px-4 py-2 text-left'>Choke Group</th>
-                        <th className='px-4 py-2 text-left'>Priority</th>
-                        <th className='px-4 py-2 text-left'>Started At</th>
-                        <th className='px-4 py-2 text-left'>Stopped At</th>
-                        <th className='px-4 py-2 text-left'>Visible</th>
+                        <th className='px-4 py-2 text-center'>Pad</th>
+                        <th className='px-4 py-2 text-center'>Choke</th>
+                        <th className='px-4 py-2 text-center'>Priority</th>
+                        {/* <th className='px-4 py-2 text-left'>Started</th>
+                        <th className='px-4 py-2 text-left'>Stopped</th> */}
+                        <th className='px-4 py-2 text-center'>OneShot</th>
+                        <th className='px-4 py-2 text-center'>Loop</th>
+                        <th className='px-4 py-2 text-center'>Resume</th>
+                        <th className='px-4 py-2 text-center'>Visible</th>
+                        <th className='px-4 py-2 text-center'>State</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {[...playing, ...stopped].map((player) => (
+                      {playerDataStates.map((player) => (
                         <tr
                           key={player.id}
                           className='border-b border-white/10'
                         >
-                          <td className='px-4 py-2'>{player.id}</td>
-                          <td className='px-4 py-2'>
-                            {player.isPlaying ? 'Playing' : 'Stopped'}
-                          </td>
-                          <td className='px-4 py-2'>
+                          <td className='px-4 py-2 text-center'>{player.id}</td>
+
+                          <td className='px-4 py-2 text-center'>
                             {player.chokeGroup ?? '-'}
                           </td>
-                          <td className='px-4 py-2'>
+                          <td className='px-4 py-2 text-center'>
                             {player.playPriority ?? '-'}
                           </td>
-                          <td className='px-4 py-2'>
+                          {/* <td className='px-4 py-2'>
                             {player.startedAt
-                              ? new Date(player.startedAt).toLocaleTimeString()
+                              ? (player.startedAt / 1000).toFixed(2)
                               : '-'}
                           </td>
                           <td className='px-4 py-2'>
                             {player.stoppedAt
-                              ? new Date(player.stoppedAt).toLocaleTimeString()
+                              ? (player.stoppedAt / 1000).toFixed(2)
                               : '-'}
+                          </td> */}
+                          <td className='px-4 py-2'>
+                            <div className='flex justify-center'>
+                              {player.isOneShot ? <Check size={16} /> : ''}
+                            </div>
                           </td>
                           <td className='px-4 py-2'>
-                            {player.isVisible ? 'Yes' : 'No'}
+                            <div className='flex justify-center'>
+                              {player.isLoop ? <Check size={16} /> : ''}
+                            </div>
+                          </td>
+                          <td className='px-4 py-2'>
+                            <div className='flex justify-center'>
+                              {player.isResume ? <Check size={16} /> : ''}
+                            </div>
+                          </td>
+                          <td className='px-4 py-2'>
+                            <div className='flex justify-center'>
+                              {player.isVisible ? <Eye size={16} /> : ''}
+                            </div>
+                          </td>
+                          <td className='px-4 py-2'>
+                            <div className='flex justify-center'>
+                              {player.isPlaying ? (
+                                <Play size={16} />
+                              ) : (
+                                <Pause size={16} />
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}

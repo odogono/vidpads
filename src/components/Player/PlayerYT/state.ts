@@ -7,6 +7,8 @@ import { PlayerState, PlayerYTState } from './types';
 
 const log = createLog('player/yt/state', ['debug', 'error']);
 
+type PlayRequestedAction = { type: 'playRequested' };
+
 type PlayerStateChangeAction = {
   type: 'playerStateChange';
   state: PlayerState;
@@ -14,7 +16,10 @@ type PlayerStateChangeAction = {
 };
 type UpdateIntervalsAction = { type: 'updateIntervals'; intervals: Interval[] };
 
-type YTStoreActions = PlayerStateChangeAction | UpdateIntervalsAction;
+type YTStoreActions =
+  | PlayerStateChangeAction
+  | UpdateIntervalsAction
+  | PlayRequestedAction;
 
 export type StartQueuingEvent = { type: 'startQueuing'; interval: Interval };
 export type ReadyEvent = { type: 'ready'; state: PlayerYTState };
@@ -28,10 +33,15 @@ type YTStoreContext = {
   playerId: string;
   intervalIndex: number;
   playerState: PlayerState;
+  playRequested: boolean;
 };
 
 export const createStore = () => {
   const on = {
+    playRequested: (context: YTStoreContext): YTStoreContext => {
+      return { ...context, playRequested: true };
+    },
+
     playerStateChange: (
       context: YTStoreContext,
       event: PlayerStateChangeAction,
@@ -46,6 +56,7 @@ export const createStore = () => {
           ...context,
           state: PlayerYTState.UNINITIALIZED,
           intervalIndex: -1,
+          playRequested: false,
           playerState
         };
       }
@@ -57,7 +68,8 @@ export const createStore = () => {
             ...context,
             intervalIndex: -1,
             state: PlayerYTState.READY_FOR_CUE,
-            playerState
+            playerState,
+            playRequested: false
           };
         }
       }
@@ -86,7 +98,8 @@ export const createStore = () => {
             ...context,
             state: PlayerYTState.CUEING,
             intervalIndex: newIntervalIndex,
-            playerState
+            playerState,
+            playRequested: false
           };
         } else {
           // no intervals to cue, so wait for them
@@ -106,7 +119,8 @@ export const createStore = () => {
               ...context,
               state: PlayerYTState.CUEING,
               playerState,
-              intervalIndex: newIntervalIndex
+              intervalIndex: newIntervalIndex,
+              playRequested: false
             };
           } else {
             // no more intervals to cue, we can declare the player ready
@@ -114,13 +128,14 @@ export const createStore = () => {
             return {
               ...context,
               state: PlayerYTState.READY,
-              playerState
+              playerState,
+              playRequested: false
             };
           }
         }
       }
 
-      return { ...context, playerState };
+      return { ...context, playerState, playRequested: false };
     },
     updateIntervals: (
       context: YTStoreContext,
@@ -153,7 +168,8 @@ export const createStore = () => {
       intervals: [] as Interval[],
       playerId: '',
       intervalIndex: -1,
-      playerState: PlayerState.UNSTARTED
+      playerState: PlayerState.UNSTARTED,
+      playRequested: false
     } as YTStoreContext,
     on
   };

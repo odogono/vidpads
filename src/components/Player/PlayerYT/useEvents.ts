@@ -69,7 +69,7 @@ export const usePlayerYTEvents = ({
     onPlayerDestroyed: cOnPlayerDestroyed
   } = usePlayerState(playerPadId, mediaUrl);
 
-  const { handlePlayerStateChange } = usePlayerYTState({
+  const { handlePlayerStateChange, handlePlayRequested } = usePlayerYTState({
     playEventRef,
     intervals: interval ? [interval] : [],
     mediaUrl,
@@ -369,7 +369,8 @@ export const usePlayerYTEvents = ({
     onPlayerDestroyed,
     onPlayerReady,
     onPlayerStateChange,
-    onPlayerError
+    onPlayerError,
+    onPlayerPlayRequested: handlePlayRequested
   };
 };
 

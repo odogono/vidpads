@@ -147,7 +147,10 @@ export const usePlayingStack = ({
         chokeGroup: player.chokeGroup,
         playPriority: player.playPriority,
         startedAt: performance.now(),
-        stoppedAt: undefined
+        stoppedAt: undefined,
+        isOneShot: player.isOneShot,
+        isLoop: player.isLoop,
+        isResume: player.isResume
       });
 
       return updateStack();

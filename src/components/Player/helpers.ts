@@ -1,12 +1,20 @@
 import { safeParseInt } from '@helpers/number';
 
-interface DataSetPlayerData {
+export interface DataSetPlayerData {
+  id: string;
   isPlaying: boolean;
   url: string;
   chokeGroup?: number;
   playPriority?: number;
   startedAt?: number;
   stoppedAt?: number | undefined;
+  isOneShot?: boolean;
+  isLoop?: boolean;
+  isResume?: boolean;
+  isVisible?: boolean;
+  zIndex?: number;
+  opacity?: number;
+  pointerEvents?: string;
 }
 
 export const hidePlayer = (padId: string) => {
@@ -54,6 +62,9 @@ export const setPlayerData = (
   playerElement.dataset.stoppedAt = data.stoppedAt
     ? data.stoppedAt.toString()
     : undefined;
+  playerElement.dataset.isOneShot = data.isOneShot ? 'true' : 'false';
+  playerElement.dataset.isLoop = data.isLoop ? 'true' : 'false';
+  playerElement.dataset.isResume = data.isResume ? 'true' : 'false';
 
   return playerElement;
 };
@@ -79,9 +90,7 @@ export const setPlayerDataStatePlaying = (
   return playerElement;
 };
 
-export type PlayerDataState = ReturnType<typeof getAllPlayerDataState>;
-
-export const getAllPlayerDataState = () => {
+export const getAllPlayerDataState = (): DataSetPlayerData[] => {
   const elements = document.querySelectorAll(
     '[data-player-id]'
   ) as NodeListOf<HTMLElement>;
@@ -102,6 +111,9 @@ export const getAllPlayerDataState = () => {
     isVisible: parseFloat(element.style.opacity) > 0,
     zIndex: parseInt(element.style.zIndex),
     opacity: parseFloat(element.style.opacity),
-    pointerEvents: element.style.pointerEvents
+    pointerEvents: element.style.pointerEvents,
+    isOneShot: element.dataset.isOneShot === 'true',
+    isLoop: element.dataset.isLoop === 'true',
+    isResume: element.dataset.isResume === 'true'
   }));
 };

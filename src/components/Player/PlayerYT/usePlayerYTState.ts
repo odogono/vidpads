@@ -36,11 +36,16 @@ export const usePlayerYTState = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(intervals), mediaUrl]);
 
+  const handlePlayRequested = useCallback((player: YTPlayer) => {
+    store.send({ type: 'playRequested' });
+    log.debug('handlePlayRequested', player.odgnId);
+  }, []);
+
   const handlePlayerStateChange = useCallback(
     (playerState: PlayerState, player: YTPlayer) => {
-      const contextState = store.getSnapshot().context.state as PlayerYTState;
-      const contextPlayerState = store.getSnapshot().context
-        .playerState as PlayerState;
+      const snapshot = store.getSnapshot().context;
+      const contextState = snapshot.state as PlayerYTState;
+      const contextPlayerState = snapshot.playerState as PlayerState;
       log.debug(
         'handlePlayerStateChange',
         player.odgnId,
@@ -55,17 +60,27 @@ export const usePlayerYTState = ({
       });
 
       if (contextState === PlayerYTState.READY) {
+        // log.debug(
+        //   'playerState',
+        //   PlayerStateToString(playerState),
+        //   'contextPlayerState',
+        //   PlayerStateToString(contextPlayerState),
+        //   'playRequested',
+        //   snapshot.playRequested
+        // );
+
         if (
-          playerState === PlayerState.BUFFERING &&
-          contextPlayerState !== PlayerState.BUFFERING &&
-          contextPlayerState !== PlayerState.PLAYING
+          snapshot.playRequested ||
+          (playerState === PlayerState.BUFFERING &&
+            contextPlayerState !== PlayerState.BUFFERING &&
+            contextPlayerState !== PlayerState.PLAYING)
         ) {
-          // log.debug(
-          //   'player state changed from',
-          //   PlayerStateToString(contextPlayerState),
-          //   'to',
-          //   PlayerStateToString(playerState)
-          // );
+          log.debug(
+            'player state changed from',
+            PlayerStateToString(contextPlayerState),
+            'to',
+            PlayerStateToString(playerState)
+          );
           const event = {
             ...playEventRef.current,
             time: player.getCurrentTime()
@@ -155,7 +170,8 @@ export const usePlayerYTState = ({
   // }, [state]);
 
   return {
-    handlePlayerStateChange
+    handlePlayerStateChange,
+    handlePlayRequested
   };
 };
 

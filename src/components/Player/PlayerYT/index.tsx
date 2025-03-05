@@ -68,6 +68,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
         isResume
       });
 
+      onPlayerPlayRequested(player);
+
       if (setVolume === 0) {
         player.mute();
       } else {
@@ -205,7 +207,8 @@ export const PlayerYT = ({ media, padId: playerPadId }: PlayerProps) => {
     onPlayerDestroyed,
     onPlayerReady,
     onPlayerStateChange,
-    onPlayerError
+    onPlayerError,
+    onPlayerPlayRequested
   } = usePlayerYTEvents({
     mediaUrl,
     padId: playerPadId,
