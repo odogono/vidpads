@@ -70,25 +70,25 @@ export const LandingPage = () => {
               name='Interactive Drum Machine'
               description='the classic forerunner of VO pads, from 13 years ago'
               image='https://i.imgur.com/9RPOq6m.mp4'
-              link='https://is.gd/wyNj4n'
+              link='https://vo.odgn.net/player?p=ea0ae7c925&d=4%7CeJyV0MtOwkAUBuBXcdmEOMyZa%2BckLEQtYtIFl6Kkq%2BlQbbFFAhWpaXx203gjsRu3k%2FP955%2BTWmpT7QyTzXhTpTvrqvyQnl3tXsqz0Los36RNVlXbPfb7OcnLx5cdcc9lf701N2rIyWP%2B0IDmxlfMKNOAFlQY42vWWIgTnJTBm6ujOrye1qs7WoTri2Nvj%2B81r6fH89VK37p9r0KGjBime1sEpIieZXGCEZOZK6MiXA%2Bv3WZR3c7Hr%2BFkMOjwAiWRTHx5hp7l%2FwtQqAlo%2BVtAtOXZ8eDY4ql1s9FTmzNe3k%2B6vE8oSDSEi%2B8SgJ6VcYJzPiySvL1Atv0MCmhHAFAEIELxE67iBGejYmMvozoMpoekuzswBE64PjmfbhePDG8XLkam6lICQRJh1K%2Fy2z%2FzolqWwb5LaKIBwRBFf1DTGBpb8ARXhqJlnq%2B5j1Z8P0iPgS9k73QEpGB%2FRz4AXGW%2FAQ%3D%3D'
             />
             <ProjectCard
               name='Everything Stays'
               description={`Rebecca Sugar's timeless song`}
               image='https://i.imgur.com/uQ7ieo5.mp4'
-              link='https://is.gd/skpxeZ'
+              link='https://vo.odgn.net/player?p=accfc80890&d=4%7CeJyt1Mtu2kAUBuBX6dIS0jD3y5G6aKNgSgtSIIDjrMaYWzMYFC6tEeqzd8aEikbuiq5sWeg7%2F%2FnN2E4ms4nG2uDT%2FWH6Wu4Wy2L%2BYbCz5fa02O02W2g2l2i5mu9f0WS9ai52X6f0Pkbz5exEFMeUc81odcuN4ZicLHnO4DEe4Q7ruu73z0VWDstu7Padxy8%2F8njhwjWlrTKNR%2FvGFn6VWa%2BY7Q935JsbNnZAFVKSAaNICNbYAAEMQCJLPTtcucK2HwKLbTwq04Gn2%2Fk6TToVOx0bEq5ZPFrld9VYXDPibAPTiGlyNYL5ESO6cNkysO6QBz5ON9mqtc3aL2Hsyo7FSxhhk4ePdbRG0hDgDGmmrmge6Lflc0%2F4xEc77rszVRW1teN8nfutaljOgZsrTtzWseBISgHChLAXlkZW%2Fr%2BOvW0YAcmRFupqhLq9YymQMAoURpLrK1rf1rEioMQ70niyn6RuUjhfhtunoed2Dz8l7lhHCKSUBqMQ5%2FKKIdg7D4V%2FX%2BetQpRjHrttVhXYWz%2BNRZEm3bptNUbaaNAV7U18McklW9Vk7xDsCf25SekC%2ByZrrbd8BBH%2BlxUO12DMzxUlfZzFw3DP%2FrGnB%2Fy5ByPfZwonaFC90f4hW%2BbVvjlt7as%2FSrt%2FyejS5FNdPoOoNEA5IvRPfacTe7YkYlRJDVZGRDLNwbJIE0PBmohQ%2F1xHHBsJVkQU%2B2SWRsR%2Fm8CqSBD%2FKx5RIX8DgwaDbg%3D%3D'
             />
             <ProjectCard
               name='Time... to die'
               description={`I've seen things you people wouldn't believe...`}
               image='https://i.imgur.com/P4P2kZ1.mp4'
-              link='https://is.gd/5WHu0U'
+              link='https://vo.odgn.net/player?p=b4df7802a9&d=4%7CeJx1Uttu4jAQ%2FZU%2BRkIyHtshsaU%2BdFvVgAoSlyQlPNnJFlI5JSp3FPXbVzagBSl9mvHlzDlnZjTLP4IQE8XraVH%2BRQg9TFcPL4XN6uVmU61Fu12golxsv1G2KtvPJ77p5Qotio8aAoYZUKDknPKQhVArmGsxmeQknUTHQXdo0oSZwecfrKTZpnRgc1%2FTyMZ9mvC9li6nmsbrVLKv%2FDk6DmTfaGlMXkaPrbX4OQ5XT6dKwSH4jFobAZijoCMAAsQxeIrMtRi9j%2FEsGX73p719RJZV1nVUO13YcmmVlY5ml5azixx3PinJQcuxydw%2FXlq8pv1KE9ZIfeYUQBgKcegpemc3X%2BZyuEqTka398pb0zSyBk62ZkkOVd688Zmvvcrk07k2%2BHtXR3vtm9t671RfNEn87ka%2BQkfjYpOesQwAFFIDvKWZ7kRzWl%2Fq7jLg6G03A6K%2Bx05ITs9aXNju%2Fkp%2Fyp8dGv9RHhPkCfIYIEE%2F5cy1iaTbphG3frJfueHf2YEwT3u8gTEMBHYw4ZZ7i136Nmvmuo8WI%2BWGrEiCwEMRTgOdaRCQ2etEMBECMMBc5vUOCk7ysdJmfGpEEYRa62OncAu1eJQmHX0AcAgFAEWXkFmU3IpLxLpOHxo6cEQKAIYyDW6SdXUzcPm77dNRskyFMAhepf8drJzMq47VK4l%2B7CwyxjuX2EaX%2Fuev6H96KOU0%3D'
             />
             <ProjectCard
               name='Get Away - De La Soul'
               description='Explore the sample sources from this Wu flavoured track'
               image='https://i.imgur.com/djOiEQt.mp4'
-              link='https://is.gd/Tp2zsV'
+              link='https://vo.odgn.net/player?p=eeb3a4d99b&d=4%7CeJxtzN2KE0EQBeBXmcuGxkqf7qr%2BqbusrisYxSAO6FxIR8cYzJo1OzEuDD67ZBSikrtTdT5O369C5Y%2BlrMYnfbOozevdYds8am76oZkf68P4eRju7nU229Dmdn3Y04fd7Sw8Xi%2F3Ny2tN59GpFAyfGE%2FInEWccgyVnT3%2BvOhrPyLtkX4Mf9iBxUKgBYq2W7V2TuFOlVT%2FWRbXh6eve%2BfvuG3dlAQmJXJhfgvlgnL9feX26t5vWpPwxDnKUU5BaEgcubxEufCFDmcQiInOPN0eT2TD1EhcBTTXzxf5HBUCk6BCems4Sa%2BmC%2FX27RLZcETp%2BKhXsgLTAX%2BN6YiTL93u%2F3x%2Bfz47dXXaztocMSKlKd5qGKMrkPnuui66k2hjKyecvG2wgDKFGOxNRsE8qKBkIqt8uf0JMXWZMDqiYPYGg3kd8Muj6mrYgJnRK3ReIhjrclkFK81G4H%2FBUJanEQ%3D'
             />
           </div>
         </section>
