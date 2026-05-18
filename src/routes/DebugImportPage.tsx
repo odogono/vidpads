@@ -1,23 +1,13 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 
-// Import Prism core
 import Prism from 'prismjs';
-
-// Import theme CSS (this includes the core styles)
 import 'prismjs/themes/prism-okaidia.css';
-// Import language support
 import 'prismjs/components/prism-json';
 
 import { safeParseUrl } from '@helpers/url';
-// import { createLog } from '@helpers/log';
 import { urlStringToProject } from '@model/serialise/project';
 import { importStepSequencerPatternFromURLString } from '@model/serialise/stepSequencer';
 
-// const log = createLog('debug_import');
-
-// Simplify the styles
 const styles = {
   jsonContainer: `
     pre {
@@ -29,16 +19,10 @@ const styles = {
   `
 };
 
-export default function DebugImportPage() {
+export const DebugImportPage = () => {
   const [url, setUrl] = useState('');
   const [debugInfo, setDebugInfo] = useState<unknown>({});
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Add new useEffect to re-highlight when url changes
   useEffect(() => {
     parseUrl(url).then(setDebugInfo);
   }, [url]);
@@ -60,7 +44,7 @@ export default function DebugImportPage() {
           id='urlInput'
           type='text'
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(event) => setUrl(event.target.value)}
           className='w-full p-2 border rounded-md text-black'
           placeholder='Paste URL here...'
         />
@@ -68,19 +52,16 @@ export default function DebugImportPage() {
 
       <div className='rounded-md overflow-hidden text-xs'>
         <pre>
-          {isMounted && (
-            <code className='language-json'>
-              {JSON.stringify(debugInfo, null, 2)}
-            </code>
-          )}
+          <code className='language-json'>
+            {JSON.stringify(debugInfo, null, 2)}
+          </code>
         </pre>
       </div>
     </div>
   );
-}
+};
 
 const parseUrl = async (url: string) => {
-  // const project = await parseProjectUrl(url);
   const pattern = parseStepSequencerPatternUrl(url);
 
   if (pattern) {
@@ -106,7 +87,6 @@ const parseProjectUrl = async (urlString: string) => {
     return undefined;
   }
 
-  // Fix TypeScript type safety for URLSearchParams
   const projectId = parsed.searchParams.get('p');
   const importData = parsed.searchParams.get('d');
 

@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --font-inter: 'Inter', sans-serif;
+  --font-kode-mono: 'Kode Mono', monospace;
+  --font-suse: 'SUSE', sans-serif;
   --background: #5A7175;
   --foreground: #FEFEFE;
 

@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // import { createLog } from '@helpers/log';
 import {
@@ -73,7 +73,7 @@ describe('exportToURLString', () => {
     expect(imported.name).toBe('');
   });
 
-  http: it('should handle pads with operations', async () => {
+  it('should handle pads with operations', async () => {
     const storeWithPads = {
       getSnapshot: () => ({
         context: {
@@ -161,11 +161,11 @@ describe('exportPadToURLString', () => {
 
 describe('importPadFromURLString', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   const project: ProjectExport = {
@@ -230,7 +230,7 @@ describe('importPadFromURLString', () => {
     '1|08978bb8|REolMjBQcmVtaWVyJTIwb24lMjB0aGUlMjBXaGVlbHMlMjBvZiUyMFN0ZWVs|1736858554|1737221082|a1[s:Sff7Kc77QAY+t:178.7:207.7(a2[s:WeoCOdbAy3s+t:166.6:208(a3[s:TgelVkHEKdw+t:214:264.4(a4[s:xnI8JEW7Ty4+t:176:191.2(a5[s:FNj-m_s0ngA+t:13.3:24.3(a9[s:RDhkRQ2jY9Q(a10[s:Sff7Kc77QAY+t:33.3:35.9|60[0[30[';
 
   it('should export project to URL string', async () => {
-    jest.setSystemTime(isoStringToDate('2025-01-18T17:24:42Z'));
+    vi.setSystemTime(isoStringToDate('2025-01-18T17:24:42Z'));
     const context = importProjectExport(project);
     const mockStore = {
       getSnapshot: () => ({

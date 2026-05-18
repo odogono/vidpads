@@ -1,6 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-'use client';
-
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { HeartCrack, Music2, VolumeOff } from 'lucide-react';

@@ -1,49 +1,32 @@
-# Use Node.js as base image
-FROM node:23-alpine AS base
-# Install pnpm
+FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-# Install dependencies
 FROM base AS deps
-# Copy package configs
 COPY package.json pnpm-lock.yaml* .npmrc ./
-# Install production dependencies
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-  pnpm install --frozen-lockfile --prod
-# Install all dependencies for build
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
   pnpm install --frozen-lockfile
 
-# Builder stage
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Set production environment
 ENV NODE_ENV=production
 ENV SERVER_PORT=3000
-ENV NEXT_TELEMETRY_DISABLED=1
-# Build the application
 RUN pnpm run build
 
-# Production stage
-FROM base AS runner
+FROM node:24-alpine AS runner
 ENV NODE_ENV=production
 ENV SERVER_PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 
-# Copy only the necessary files from builder
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist-server ./dist-server
 
-# Use non-root user
 RUN addgroup --system --gid 1001 nodejs && \
-  adduser --system --uid 1001 nextjs && \
-  chown -R nextjs:nodejs /app
-USER nextjs
+  adduser --system --uid 1001 vopads && \
+  chown -R vopads:nodejs /app
+USER vopads
 
 EXPOSE ${SERVER_PORT}
-CMD ["node", "server.js"]
+CMD ["node", "dist-server/index.js"]

@@ -1,6 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-'use client';
-
 import { useRef, useState } from 'react';
 
 import { createLog } from '@helpers/log';

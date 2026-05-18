@@ -1,5 +1,3 @@
-'use client';
-
 import { useCallback, useEffect, useState } from 'react';
 
 import { createLog } from '@helpers/log';
@@ -53,8 +51,8 @@ export const SaveProjectModal = ({ ref }: CommonModalBase) => {
         color='primary'
         variant='bordered'
         value={name}
-        onChange={(e) => {
-          setName(e.target.value);
+        onValueChange={(value) => {
+          setName(value);
           setNameError(null);
         }}
         onClear={() => setName('')}

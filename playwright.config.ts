@@ -12,10 +12,10 @@ export default defineConfig({
     trace: 'on-first-retry'
   },
   webServer: {
-    command: `pnpm exec next dev --turbopack --hostname 127.0.0.1 --port ${port}`,
+    command: `pnpm run build && SERVER_PORT=${port} HOSTNAME=127.0.0.1 pnpm start`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000
+    timeout: 180_000
   },
   projects: [
     {

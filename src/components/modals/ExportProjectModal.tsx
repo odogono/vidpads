@@ -1,11 +1,7 @@
-'use client';
-
 import { QRCodeCanvas } from 'qrcode.react';
 
 import { Input } from '@heroui/react';
 import { useProjectJsonString } from '@model/hooks/useProjectJsonString';
-// import { createLog } from '@helpers/log';
-
 import { useProjectUrl } from '@model/hooks/useProjectUrl';
 import { CommonModal, CommonModalBase } from './CommonModal';
 import { CopyButton } from './CopyButton';
@@ -23,7 +19,7 @@ export const ExportProjectModal = ({ ref }: CommonModalBase) => {
           className='w-full'
           label='URL'
           variant='bordered'
-          defaultValue={url}
+          value={url}
         />
         <CopyButton text={url} />
       </div>
@@ -35,7 +31,7 @@ export const ExportProjectModal = ({ ref }: CommonModalBase) => {
           className='w-full'
           label='JSON'
           variant='bordered'
-          defaultValue={json}
+          value={json}
         />
         <CopyButton text={json} />
       </div>

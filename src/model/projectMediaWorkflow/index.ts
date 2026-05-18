@@ -1,6 +1,11 @@
+import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { extractVideoThumbnail as extractVideoThumbnailCanvas } from '@helpers/canvas';
 import { readFromClipboard, writeToClipboard } from '@helpers/clipboard';
-import { dateToISOString, formatShortDate } from '@helpers/datetime';
+import {
+  dateToISOString,
+  formatShortDate,
+  isoStringToDate
+} from '@helpers/datetime';
 import { isObjectEqual } from '@helpers/diff';
 import { idbIsSupported } from '@helpers/idb';
 import { createImageThumbnail } from '@helpers/image';
@@ -71,16 +76,7 @@ export type ProjectMediaInvalidation =
 
 export type AttachMediaInput = File | string | Media;
 
-export const SUPPORTED_MEDIA_SOURCE_FILE_TYPES = [
-  'image/png',
-  'image/jpeg',
-  'image/jpg',
-  'image/webp',
-  'video/mp4',
-  'video/webm',
-  'video/quicktime',
-  'video/mov'
-] as const;
+export const SUPPORTED_MEDIA_SOURCE_FILE_TYPES = ACCEPTED_FILE_TYPES;
 
 export type MediaSourceFailureCode =
   | 'empty-source'
@@ -114,6 +110,7 @@ export interface ProjectMediaWorkflow {
   openProject(input: OpenProjectInput): Promise<ProjectMediaSession>;
   createProject(): Promise<ProjectMediaSession>;
   loadProject(projectId: string): Promise<ProjectMediaSession>;
+  importProjectFromExport(data: ProjectExport): Promise<ProjectMediaSession>;
   importProjectFromJSONString(data: string): Promise<ProjectMediaSession>;
   importProjectFromURLString(data: string): Promise<ProjectMediaSession>;
   exportProjectToURLString(
@@ -261,7 +258,7 @@ export const createProjectMediaWorkflow = (
     return session;
   };
 
-  return {
+  const workflow: ProjectMediaWorkflow = {
     createProject: async () => {
       const store = deps.projectStore.create();
       const session = createProjectMediaSession({
@@ -276,9 +273,8 @@ export const createProjectMediaWorkflow = (
 
       return session;
     },
-    loadProject: (projectId) => {
-      return createProjectMediaWorkflow(deps).openProject({ projectId });
-    },
+    loadProject: (projectId) => workflow.openProject({ projectId }),
+    importProjectFromExport: (data) => openImportedProject(data),
     importProjectFromJSONString: async (data) => {
       const exported = JSON.parse(data) as ProjectExport;
       return openImportedProject(exported);
@@ -293,10 +289,16 @@ export const createProjectMediaWorkflow = (
     renameProject: async ({ session, projectName = '' }) => {
       const name = projectName || `Untitled ${formatShortDate()}`;
       const project = session.store.getSnapshot().context;
+      const createdAt = project.createdAt
+        ? isoStringToDate(project.createdAt)
+        : new Date();
+      const updatedAt = new Date(
+        Math.max(Date.now(), createdAt.getTime() + 1000)
+      );
       const nextProject: ProjectStoreContextType = {
         ...project,
         projectName: name,
-        updatedAt: dateToISOString()
+        updatedAt: dateToISOString(updatedAt)
       };
 
       session.store.send({ type: 'updateProject', project: nextProject });
@@ -309,7 +311,7 @@ export const createProjectMediaWorkflow = (
     deleteEverything: async () => {
       await deps.projectRepository.deleteAll();
       await invalidate(['projectDetails', 'allPads', 'allMetadata', 'players']);
-      return createProjectMediaWorkflow(deps).createProject();
+      return workflow.createProject();
     },
     openProject: async ({ projectId, importData, hydratePadMedia = true }) => {
       if (!deps.projectRepository.isSupported()) {
@@ -365,6 +367,8 @@ export const createProjectMediaWorkflow = (
       return session;
     }
   };
+
+  return workflow;
 };
 
 export const createProjectMediaSession = ({
@@ -696,12 +700,11 @@ export const createBrowserProjectMediaWorkflowDeps = ({
 const hydrateSessionPadMedia = async (session: ProjectMediaSession) => {
   const pads = session.store.getSnapshot().context.pads;
 
-  for (const pad of pads) {
-    const url = getPadSourceUrl(pad);
-    if (url) {
-      await session.attachMedia({ padId: pad.id, input: url });
-    }
-  }
+  await Promise.all(
+    pads
+      .filter((pad) => getPadSourceUrl(pad))
+      .map((pad) => session.attachMedia({ padId: pad.id, input: getPadSourceUrl(pad)! }))
+  );
 };
 
 const attachUrlMedia = async ({
@@ -869,9 +872,7 @@ const acceptMediaSource = async (
 
   if (isFile(input)) {
     if (
-      !SUPPORTED_MEDIA_SOURCE_FILE_TYPES.includes(
-        input.type as (typeof SUPPORTED_MEDIA_SOURCE_FILE_TYPES)[number]
-      )
+      !SUPPORTED_MEDIA_SOURCE_FILE_TYPES.includes(input.type)
     ) {
       return {
         ok: false,

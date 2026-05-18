@@ -1,21 +1,17 @@
 import { useCallback } from 'react';
 
 import {
-  useRouter as useNextRouter,
-  usePathname,
+  useLocation,
+  useNavigate,
   useSearchParams
-} from 'next/navigation';
-
-// import { createLog } from '@helpers/log';
-
-// const log = createLog('useProject/useRouter');
+} from 'react-router';
 
 export const useRouter = () => {
-  const router = useNextRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
 
-  const projectId = searchParams.get('p') ?? 'new'; // generateShortUUID();
+  const projectId = searchParams.get('p') ?? 'new';
   const importData = searchParams.get('d');
 
   const setProjectId = useCallback(
@@ -23,12 +19,10 @@ export const useRouter = () => {
       const params = new URLSearchParams(searchParams);
       params.set('p', projectId);
       params.delete('d');
-      router.push(`?${params.toString()}`);
+      navigate({ pathname, search: `?${params.toString()}` });
     },
-    [router, searchParams]
+    [navigate, pathname, searchParams]
   );
-
-  // log.debug({ projectId });
 
   return {
     pathname,

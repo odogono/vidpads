@@ -1,6 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-'use client';
-
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 import { CircleX } from 'lucide-react';

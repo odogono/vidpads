@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- added a tiny Node preview server for serving the Vite build and generating shared Project link metadata
+- added ADR documentation for replacing Next.js with a Vite SPA plus preview server
+- added Playwright coverage for Project-specific Open Graph metadata on shared URLs
+
+### Changed
+- replaced Next.js with Vite and React Router while preserving `/`, `/player`, `/debug_import`, and existing shared Project URL query parameters
+- migrated unit tests from Jest to Vitest
+- replaced `next/font` with self-hosted font packages
+- updated Docker and deploy outputs to use `dist` and `dist-server`
+
+### Fixed
+- fixed exported Project JSON/URL fields using stale modal values after Project changes
+- fixed fast Project saves being hidden from the load list when created and updated within the same second
+
 ## v1.15.0 (2026-05-18)
 
 ### Added

@@ -2,7 +2,7 @@ import { BUILT_AT } from '@/buildTime.config';
 import { dateToLocaleString, getCurrentYear } from '@helpers/datetime';
 import { CommonModal, CommonModalBase } from './CommonModal';
 
-const VERSION = process.env.VERSION;
+const VERSION = import.meta.env.VITE_APP_VERSION;
 
 export const AboutModal = ({ ref }: CommonModalBase) => {
   return (

@@ -256,6 +256,9 @@ describe('ProjectMediaWorkflow', () => {
     await workflow.deleteEverything();
 
     expect(created.store.getSnapshot().context.projectName).toBe('Live set');
+    expect(
+      Date.parse(created.store.getSnapshot().context.updatedAt)
+    ).toBeGreaterThan(Date.parse(created.store.getSnapshot().context.createdAt));
     expect(details).toContainEqual(
       expect.objectContaining({
         projectId: created.projectId,

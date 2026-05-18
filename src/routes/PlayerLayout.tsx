@@ -1,5 +1,4 @@
-'use client';
-
+import { cn } from '@helpers/tailwind';
 import { Tooltip } from '@components/Tooltip';
 import { Toast } from '@helpers/toast';
 import { EventsProvider } from '@hooks/events/provider';
@@ -7,7 +6,7 @@ import { useFullscreen } from '@hooks/useFullScreen';
 import { FullscreenContextProvider } from '@hooks/useFullScreen/provider';
 import { Body } from '@page/body';
 
-const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
+export const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Body preventYScroll>
       <EventsProvider>
@@ -19,8 +18,6 @@ const PlayerLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default PlayerLayout;
-
 const Container = ({ children }: { children: React.ReactNode }) => {
   const { isFullscreen, areScreenDimsVisible } = useFullscreen();
   return (
@@ -28,39 +25,24 @@ const Container = ({ children }: { children: React.ReactNode }) => {
       <Tooltip />
       <Toast />
       <div
-        className={`
-          vo-root-a
-          overflow-y-hidden
-          ${
-            isFullscreen
-              ? `
-            fixed inset-0 
-            w-screen h-screen 
-            bg-black`
-              : `flex 
-          w-screen 
-          h-[100dvh] 
-          bg-page 
-          justify-center items-center`
-          }
-          
-          overflow-hidden
-        `}
+        className={cn(
+          'vo-root-a overflow-hidden',
+          isFullscreen
+            ? 'fixed inset-0 w-screen h-screen bg-black'
+            : 'flex w-screen h-[100dvh] bg-page justify-center items-center'
+        )}
         style={{
           backgroundImage: 'linear-gradient(#212d31, #091011), url(/noise.svg)'
         }}
       >
         <div
-          className={`
-            vo-root-b
-            relative
-            ${
-              isFullscreen
-                ? 'w-screen h-screen bg-black'
-                : `w-full h-full bg-c0
-                oh-blimey-this-is-a-mess
-            portrait:lg:rounded-2xl 
-            landscape:lg:rounded-2xl 
+          className={cn(
+            'vo-root-b relative',
+            isFullscreen
+              ? 'w-screen h-screen bg-black'
+              : `w-full h-full bg-c0
+            portrait:lg:rounded-2xl
+            landscape:lg:rounded-2xl
             portrait:sm:w-full
             portrait:sm:h-full
             portrait:md:w-[min(calc(100vw-40px),calc((100vh-40px)*0.707))]
@@ -70,10 +52,8 @@ const Container = ({ children }: { children: React.ReactNode }) => {
             portrait:lg:w-[min(calc(100vw-40px),calc((100vh-40px)*0.707))]
             portrait:lg:aspect-[724/1024]
             landscape:lg:h-[min(calc(100vh-40px),calc((100vw-40px)*0.707))]
-            landscape:lg:aspect-[1024/724]
-            `
-            }
-          `}
+            landscape:lg:aspect-[1024/724]`
+          )}
         >
           {children}
         </div>

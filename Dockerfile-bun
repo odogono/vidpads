@@ -37,11 +37,10 @@ ENV HOSTNAME="0.0.0.0"
 WORKDIR /app
 
 # Copy only the necessary files from builder
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist-server ./dist-server
 
 # Use non-root user
 USER bun
 EXPOSE ${SERVER_PORT}
-CMD ["bun", "server.js"]
+CMD ["bun", "dist-server/index.js"]

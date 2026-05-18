@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 import { cn } from '@helpers/tailwind';
 
 export const ThankyouSection = () => {
@@ -58,9 +56,8 @@ const ThankyouItem = ({
       className='mb-4 block opacity-60 hover:opacity-100 transition-opacity'
     >
       <div
-        className={cn('flex gap-4 items-center', {
-          'flex-row-reverse': reverse,
-          'flex-row': !reverse
+        className={cn('flex flex-row gap-4 items-center', {
+          'flex-row-reverse': reverse
         })}
       >
         <img

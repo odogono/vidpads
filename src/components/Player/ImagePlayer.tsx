@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from 'react';
 
 import { createLog } from '@helpers/log';
@@ -23,15 +22,12 @@ export const ImagePlayer = ({ media }: ImagePlayerProps) => {
           const { blob } = await loadImageData(mediaUrl);
           const url = URL.createObjectURL(blob);
           setImageUrl(url);
-
-          // log.debug('Image loaded successfully');
         } catch (error) {
           log.error('Failed to load image:', error);
         }
       })();
     }
 
-    // Cleanup function to revoke the object URL
     return () => {
       if (imageUrl) {
         URL.revokeObjectURL(imageUrl);
@@ -43,15 +39,11 @@ export const ImagePlayer = ({ media }: ImagePlayerProps) => {
     return <div>Loading...</div>;
   }
 
-  // log.debug('render', media.url, isVisible);
-
   return (
-    <div className={`w-full h-full`}>
-      <img
-        src={imageUrl}
-        alt={media.name}
-        className={`w-full h-full object-contain`}
-      />
-    </div>
+    <img
+      src={imageUrl}
+      alt={media.name}
+      className='w-full h-full object-contain'
+    />
   );
 };

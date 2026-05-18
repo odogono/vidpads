@@ -26,7 +26,7 @@ VO Pads is a pad based video player with editing and sequencing abilities.
 - **Step Sequencing** Create multiple step patterns
 - **Time Sequencing** Add/Edit play pad events on a timeline
 - **Shareable Links:** Share your projects by sending a custom link.
-- **Serverless** All data is kept locally in your browser.
+- **Browser-local** Project and Media data is kept locally in your browser.
 - **Export** Export your project as a URL, JSON, or as a QR code
 
 
@@ -65,6 +65,15 @@ pnpm dev
 ```shell
 open http://localhost:3000
 ```
+
+### Production build
+
+```shell
+pnpm build
+pnpm start
+```
+
+The production server is intentionally small: it serves the Vite build and renders dynamic link-preview metadata for shared Project URLs.
 
 
 ## 📝 License

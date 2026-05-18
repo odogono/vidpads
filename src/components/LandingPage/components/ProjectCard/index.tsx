@@ -1,9 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-'use client';
-
 import { useRef } from 'react';
 
-import Link from 'next/link';
+import { Link } from 'react-router';
 
 import { Card, CardBody, CardFooter } from '@heroui/react';
 
@@ -43,7 +40,7 @@ export const ProjectCard = ({
 
   return (
     <Link
-      href={link}
+      to={link}
       className='block opacity-70 hover:opacity-100 transition-opacity'
     >
       <Card

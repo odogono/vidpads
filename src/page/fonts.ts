@@ -1,19 +1,6 @@
-import { Inter, Kode_Mono, SUSE } from 'next/font/google';
+import '@fontsource/inter/400.css';
+import '@fontsource/kode-mono/400.css';
+import '@fontsource/suse/400.css';
+import '@fontsource/suse/700.css';
 
-export const kodeMono = Kode_Mono({
-  variable: '--font-kode-mono',
-  subsets: ['latin']
-});
-
-export const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin']
-});
-
-export const suse = SUSE({
-  variable: '--font-suse',
-  subsets: ['latin'],
-  weight: ['400', '700']
-});
-
-export const fontVariables = `${kodeMono.variable} ${suse.variable} ${inter.variable}`;
+export const fontVariables = '';

@@ -1,27 +1,29 @@
 ## VO Pads - Architectural Overview
 
-This document provides an overview of the VO Pads application architecture. VO Pads is a single-page web application designed for video playback, editing, and sequencing, primarily using in-browser technologies.  It uses a component-based structure, leveraging React, Next.js, and XState for state management. The application emphasizes client-side processing with optional data persistence using IndexedDB.
+This document provides an overview of the VO Pads application architecture. VO Pads is a single-page web application designed for video playback, editing, and sequencing, primarily using in-browser technologies. It uses a component-based structure, leveraging React, Vite, React Router, and XState for state management. The application emphasizes client-side processing with optional data persistence using IndexedDB.
 
 ### 1. Core Technologies
 
-*   **Frontend Framework:** React (with Next.js). Next.js is used for routing (although currently single-page), serverless functions (primarily for Open Graph metadata generation), and potentially for server-side rendering (SSR) or static site generation (SSG) benefits in the future.
+*   **Frontend Framework:** React with Vite and React Router. Vite builds the browser app, and React Router handles `/`, `/player`, and `/debug_import` while preserving shared Project URL query parameters.
 *   **State Management:** XState.  XState provides a robust, finite state machine-based approach to managing complex application and UI state. This allows for predictable state transitions and easier debugging.
 *   **UI Components:** HeroUI. A React component library is used for pre-built, accessible UI elements. This facilitates rapid development and ensures a consistent look and feel.
 *   **Styling:** Tailwind CSS. A utility-first CSS framework is used, enabling rapid styling with pre-defined classes. `tailwind-merge` is used to intelligently merge Tailwind classes, avoiding conflicts. `clsx` (and `classnames`) are used for conditional class application.
-*   **Data Persistence:** IndexedDB.  A browser-based database is used for storing project data, allowing users to save and load their work locally. The application avoids the need for a traditional backend server.
+*   **Data Persistence:** IndexedDB.  A browser-based database is used for storing project data, allowing users to save and load their work locally. The preview server does not store Project or Media data.
 *   **Asynchronous Operations:** React Query (TanStack Query). Used to manage asynchronous data fetching (like fetching video metadata) and caching.
-*   **Build Tool:** Bun (primary), Node.js (Dockerfile fallback). Bun is a fast JavaScript runtime and bundler.  The Dockerfile provides a Node.js-based build for environments where Bun is not available.
+*   **Build Tool:** Vite. Vite builds the browser app and bundles the tiny Node preview server.
+*   **Preview Server:** Node.js. The production server serves static assets and injects Open Graph/Twitter metadata for shared Project URLs.
 *   **Package Manager:** pnpm. This is used for dependency management.
-*   **Linting/Formatting:** ESLint with Next.js, Prettier, and various plugins (eslint-plugin-react-hooks, eslint-plugin-prefer-arrow-functions, etc).
+*   **Linting/Formatting:** ESLint, Prettier, and various plugins (eslint-plugin-react-hooks, eslint-plugin-prefer-arrow-functions, etc).
 *   **Type Checking:** TypeScript.  TypeScript is used throughout the application for static typing.
 * **Internationalization**: `@lingui/macro`, `@lingui/cli`, `@lingui/swc-plugin` used for message localization and generation.
-* **Testing:** Jest + @testing-library/react
+* **Testing:** Vitest + @testing-library/react, with Playwright for browser flows.
 
 ### 2. Application Structure
 
 The application is structured into the following key directories:
 
-*   **`/src/app`**: This directory contains the core application logic, leveraging Next.js's app router. It contains the root layout (`layout.tsx`) and page components.
+*   **`/src/routes`**: Route-level components and layouts used by React Router.
+*   **`/server`**: The production preview server that serves the Vite build and injects shared Project metadata.
 *   **`/src/components`**: Reusable React components. This includes UI elements (buttons, sliders, modals), custom components for video playback (Player), and layout-related components.  These are organized into subfolders for clarity.
 *   **`/src/helpers`**: Utility functions for common tasks, such as:
     *   `clipboard.ts`: Clipboard interaction (copy/paste).

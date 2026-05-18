@@ -20,11 +20,16 @@ _Avoid_: Source, clip
 Resolved metadata and stored data derived from a Media Source.
 _Avoid_: Source
 
+**Share Preview**:
+Request-time metadata for a shared Project URL, used by link unfurlers before the browser-local app loads.
+_Avoid_: Backend project state
+
 ## Relationships
 
 - A **Project** contains multiple **Pads**.
 - A **Pad** may have zero or one active **Media Source**.
 - A **Media Source** resolves to **Media** before playback, thumbnailing, or persistence.
+- A **Share Preview** may describe a **Project**, but it does not persist Project or Media data outside the browser.
 
 ## Example dialogue
 

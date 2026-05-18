@@ -1,5 +1,4 @@
 import { dateToISOString, formatShortDate } from '@helpers/datetime';
-// import { createLog } from '@helpers/log';
 import { generateShortUUID } from '@helpers/uuid';
 import { exportPadToJSON, importPadFromJSON } from '@model/serialise/pad';
 import {
@@ -19,10 +18,8 @@ import { exportToURLStringV2, importFromURLStringV2 } from './versions/2';
 import { exportToURLStringV3, importFromURLStringV3 } from './versions/3';
 import { exportToURLStringV4, importFromURLStringV4 } from './versions/4';
 
-// const log = createLog('serialise/project');
-
 const EXPORT_JSON_VERSION = '2025-02-18';
-const EXPORT_APP_VERSION = process.env.VERSION;
+const EXPORT_APP_VERSION = import.meta.env.VITE_APP_VERSION;
 
 const EXPORT_URL_VERSION = 4;
 
@@ -128,8 +125,6 @@ export const importProjectExport = (
 
   const stepSequencer = importStepSequencerFromJSON(data.stepSequencer);
 
-  // log.debug('importProjectExport', { stepSequencer }, data.stepSequencer);
-
   const contextWithStepSequencer = stepSequencer
     ? {
         ...contextWithSequencer,
@@ -152,8 +147,6 @@ export const urlStringToProject = async (urlString: string) => {
   }
   const version = urlString.slice(0, firstPipe);
   const data = urlString.slice(firstPipe + 1);
-
-  // log.debug('urlStringToProject', urlString, version, data);
 
   if (version === '1') {
     return importFromURLStringV1(data);

@@ -6,10 +6,10 @@ import { VOKeys } from '@model/constants';
 import {
   createBrowserProjectMediaWorkflowDeps,
   createProjectMediaSession,
-  createProjectMediaWorkflow
+  createProjectMediaWorkflow,
+  ProjectMediaSession
 } from '@model/projectMediaWorkflow';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
-import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const log = createLog('model/useProjects', ['debug']);
@@ -38,30 +38,20 @@ export const useProjects = () => {
     [deps, project, projectId]
   );
 
-  const loadProjectFromJSON = useCallback(
-    async (data: ProjectExport) => {
-      const imported = await workflow.importProjectFromJSONString(
-        JSON.stringify(data)
-      );
-      project.send({
-        type: 'updateProject',
-        project: imported.store.getSnapshot().context
-      });
+  const afterImport = useCallback(
+    (imported: ProjectMediaSession) => {
+      const importedProject = imported.store.getSnapshot().context;
+      queryClient.setQueryData(VOKeys.project(importedProject.projectId), imported);
+      project.send({ type: 'updateProject', project: importedProject });
       return true;
     },
-    [project, workflow]
+    [project, queryClient]
   );
 
   const importFromURLString = useCallback(
-    async (urlString: string) => {
-      const imported = await workflow.importProjectFromURLString(urlString);
-      project.send({
-        type: 'updateProject',
-        project: imported.store.getSnapshot().context
-      });
-      return true;
-    },
-    [project, workflow]
+    (urlString: string) =>
+      workflow.importProjectFromURLString(urlString).then(afterImport),
+    [afterImport, workflow]
   );
 
   const exportProjectToURLString = useCallback(async () => {
@@ -69,13 +59,9 @@ export const useProjects = () => {
   }, [session, workflow]);
 
   const importFromJSONString = useCallback(
-    async (json: string) => {
-      const jsonObject = JSON.parse(json) as ProjectExport;
-      log.debug('Importing project:', jsonObject);
-
-      await loadProjectFromJSON(jsonObject);
-    },
-    [loadProjectFromJSON]
+    (json: string) =>
+      workflow.importProjectFromJSONString(json).then(afterImport),
+    [afterImport, workflow]
   );
 
   const loadProject = useCallback(
@@ -114,7 +100,6 @@ export const useProjects = () => {
           try {
             return await workflow.listProjectDetails();
           } catch {
-            // log.warn('[usePadThumbnail] Error getting thumbnail:', error);
             return null;
           }
         }

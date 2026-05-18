@@ -1,5 +1,5 @@
 import { SquarePlay } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from 'react-router';
 
 import { Logo } from '@components/Icons/Logo';
 import { getCurrentYear } from '@helpers/datetime';
@@ -42,7 +42,7 @@ export const LandingPage = () => {
           </div>
 
           <Link
-            href='/player'
+            to='/player'
             className='group flex items-center gap-2 bg-c7 hover:bg-c7/80 text-c0 px-8 py-3 rounded-full text-lg font-semibold transition-all'
           >
             {`Let's Play`}

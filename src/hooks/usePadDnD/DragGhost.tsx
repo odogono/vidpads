@@ -29,7 +29,6 @@ export const DragGhost = ({ id, position, element }: DragGhostProps) => {
       }}
     >
       {thumbnail && (
-        // eslint-disable-next-line @next/next/no-img-element
         <img
           className='w-full h-full object-cover rounded-md opacity-70'
           src={thumbnail.src}

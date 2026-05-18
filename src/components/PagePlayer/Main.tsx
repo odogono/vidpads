@@ -1,6 +1,4 @@
-'use client';
-
-import Link from 'next/link';
+import { Link } from 'react-router';
 
 import { BinComponent } from '@components/Bin';
 import { MenuButton } from '@components/Buttons/MenuButton';
@@ -49,7 +47,7 @@ export const Main = () => {
             )}
           >
             <div className='text-white font-mono text-xl font-bold'>
-              <Link href='/'>VO.PADS</Link>
+              <Link to='/'>VO.PADS</Link>
             </div>
             <span className='flex items-center gap-2'>
               <PlayButton />
