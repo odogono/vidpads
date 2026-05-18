@@ -11,17 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - added a tiny Node preview server for serving the Vite build and generating shared Project link metadata
 - added ADR documentation for replacing Next.js with a Vite SPA plus preview server
+- added a documented Playback Engine boundary with unit coverage for Pad input commands and playback stack decisions
 - added Playwright coverage for Project-specific Open Graph metadata on shared URLs
 
 ### Changed
 - replaced Next.js with Vite and React Router while preserving `/`, `/player`, `/debug_import`, and existing shared Project URL query parameters
 - migrated unit tests from Jest to Vitest
+- moved PlayerContainer playback command and stack rules behind tested browser-local Playback Engine helpers
 - replaced `next/font` with self-hosted font packages
 - updated Docker and deploy outputs to use `dist` and `dist-server`
 
 ### Fixed
 - fixed exported Project JSON/URL fields using stale modal values after Project changes
 - fixed fast Project saves being hidden from the load list when created and updated within the same second
+- fixed readiness-only player state updates being able to persist undefined duration metadata
 
 ## v1.15.0 (2026-05-18)
 

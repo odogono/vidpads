@@ -11,24 +11,15 @@ import { useMidiMappingMode } from '@hooks/useMidi/selectors';
 import { useSelectedPadId } from '@hooks/useProject/selectors';
 import { useIsPlayEnabled } from '@hooks/useSettings';
 import { usePlayersState } from '@model/hooks/usePlayersState';
-import {
-  getPadChokeGroup,
-  getPadInterval,
-  getPadIsOneShot,
-  getPadLoopStart,
-  getPadPlayPriority,
-  getPadPlaybackRate,
-  getPadPlaybackResume,
-  getPadSourceUrl,
-  getPadVolume,
-  isPadLooped
-} from '@model/pad';
-import { Interval } from '@model/types';
 import { Player } from './Player';
 import { TitlePlayer } from './TitlePlayer';
 import { showPlayer } from './helpers';
 import { usePlayers } from './hooks/usePlayers';
 import { usePlayingStack } from './hooks/usePlayingStack';
+import {
+  PlaybackCommand,
+  resolvePlaybackInput
+} from './playbackEngine/commands';
 import {
   PlayerNotReady,
   PlayerPlaying,
@@ -62,8 +53,30 @@ export const PlayerContainer = () => {
 
   const { pads, players } = usePlayers();
 
-  const { hideStackPlayer, showStackPlayer, getChokeGroupPlayers } =
-    usePlayingStack({ hidePlayerOnEnd: hidePlayerOnEnd ?? false });
+  const buildPlaybackSettings = useCallback(
+    () => ({
+      arePlayersEnabled,
+      isKeyboardPlayEnabled: isKeyboardPlayEnabled ?? false,
+      isPadPlayEnabled: isPadPlayEnabled ?? false,
+      isSelectPadFromKeyboardEnabled: isSelectPadFromKeyboardEnabled ?? false,
+      isSelectPadFromPadEnabled: isSelectPadFromPadEnabled ?? false,
+      isMidiMappingModeEnabled,
+      isMetaKeyDown: isMetaKeyDown()
+    }),
+    [
+      arePlayersEnabled,
+      isKeyboardPlayEnabled,
+      isPadPlayEnabled,
+      isSelectPadFromKeyboardEnabled,
+      isSelectPadFromPadEnabled,
+      isMidiMappingModeEnabled,
+      isMetaKeyDown
+    ]
+  );
+
+  const { hideStackPlayer, showStackPlayer } = usePlayingStack({
+    hidePlayerOnEnd: hidePlayerOnEnd ?? false
+  });
 
   const { updatePlayer: updatePlayerState, playerReadyCount } =
     usePlayersState();
@@ -71,97 +84,22 @@ export const PlayerContainer = () => {
   const handlePadTouchdown = useCallback(
     ({ padId, source }: { padId: string; source: EventInputSource }) => {
       const pad = pads.find((pad) => pad.id === padId);
-      if (!pad) return;
 
-      // log.debug('[handlePadTouchdown]', {
-      //   padId,
-      //   source,
-      //   // isMidiMappingModeEnabled,
-      //   // isSelectPadFromPadEnabled,
-      //   // isSelectPadFromKeyboardEnabled,
-      //   // isKeyboardPlayEnabled,
-      //   isPadPlayEnabled,
-      //   arePlayersEnabled
-      // });
-
-      if (isMidiMappingModeEnabled && source !== 'midi') {
-        setSelectedPadId(padId);
-        return;
-      }
-
-      if (source === 'keyboard') {
-        if (!isKeyboardPlayEnabled) return;
-        if (isSelectPadFromKeyboardEnabled) {
-          setSelectedPadId(padId);
-        }
-        // prevent page reload key-combo from triggering pad
-        if (isMetaKeyDown()) return;
-      } else if (source === 'pad') {
-        if (!isPadPlayEnabled) return;
-        if (isSelectPadFromPadEnabled) {
-          setSelectedPadId(padId);
-        }
-        // if (isPadSelectSourceDisabled) return;
-      }
-
-      if (!arePlayersEnabled) return;
-
-      const mediaUrl = getPadSourceUrl(pad);
-      if (!mediaUrl) {
-        log.debug('no media url for pad', padId, pad);
-        return;
-      }
-
-      const isOneShot = getPadIsOneShot(pad);
-      const isLoop = isPadLooped(pad);
-      const loopStart = getPadLoopStart(pad);
-      const isResume = getPadPlaybackResume(pad);
-      const chokeGroup = getPadChokeGroup(pad);
-      const playPriority = getPadPlayPriority(pad);
-
-      const { start, end } = getPadInterval(pad, {
-        start: 0,
-        end: Number.MAX_SAFE_INTEGER
-      }) as Interval;
-      const volume = getPadVolume(pad, 1);
-      const playbackRate = getPadPlaybackRate(pad, 1);
-
-      log.debug('❤️ video:start', {
-        url: mediaUrl,
-        padId: pad.id,
-        isOneShot,
-        isLoop,
-        start,
-        end
+      const decision = resolvePlaybackInput({
+        event: { type: 'pad:touchdown', padId, source },
+        pad,
+        settings: buildPlaybackSettings()
       });
 
-      events.emit('video:start', {
-        url: mediaUrl,
-        padId: pad.id,
-        isOneShot,
-        isLoop,
-        loopStart,
-        start,
-        end,
-        volume,
-        playbackRate,
-        isResume,
-        chokeGroup,
-        playPriority
-      });
+      if (decision.selectPadId) {
+        setSelectedPadId(decision.selectPadId);
+      }
+      if (decision.command) {
+        log.debug('❤️ playback command', decision.command);
+        emitPlaybackCommand(events.emit, decision.command);
+      }
     },
-    [
-      pads,
-      isMidiMappingModeEnabled,
-      arePlayersEnabled,
-      events,
-      setSelectedPadId,
-      isKeyboardPlayEnabled,
-      isSelectPadFromKeyboardEnabled,
-      isMetaKeyDown,
-      isPadPlayEnabled,
-      isSelectPadFromPadEnabled
-    ]
+    [pads, events, setSelectedPadId, buildPlaybackSettings]
   );
 
   const handlePadTouchup = useCallback(
@@ -174,54 +112,32 @@ export const PlayerContainer = () => {
       source: string;
       forceStop?: boolean;
     }) => {
-      if (!arePlayersEnabled) return;
       const pad = pads.find((pad) => pad.id === padId);
-      if (!pad) return;
-      if (source === 'keyboard' && !isKeyboardPlayEnabled) return;
 
-      const url = getPadSourceUrl(pad);
-      if (!url) return;
+      const decision = resolvePlaybackInput({
+        event: { type: 'pad:touchup', padId, source, forceStop },
+        pad,
+        settings: buildPlaybackSettings()
+      });
 
-      const isOneShot = getPadIsOneShot(pad);
-
-      if (!isOneShot || forceStop) {
-        events.emit('video:stop', {
-          url,
-          padId,
-          time: 0,
-          requestId: 'players-!isOneShot||forceStop'
-        });
+      if (decision.command) {
+        emitPlaybackCommand(events.emit, decision.command);
       }
     },
-    [events, pads, arePlayersEnabled, isKeyboardPlayEnabled]
+    [events.emit, pads, buildPlaybackSettings]
   );
 
   const handlePlayerPlaying = useCallback(
     (e: PlayerPlaying) => {
-      const { chokeGroup } = e;
-
-      if (chokeGroup !== undefined) {
-        // stop all players in the same choke group
-        const cgPlayers = getChokeGroupPlayers(chokeGroup);
-        cgPlayers.forEach((player) => {
-          const { url, id } = player;
-          if (id === e.padId) return;
-          log.debug('ChokeGroupPlayers: stopping player', player);
-          events.emit('video:stop', {
-            url,
-            padId: id,
-            time: 0,
-            requestId: 'players-chokeGroup'
-          });
-        });
-      }
-
-      showStackPlayer(e);
+      const { stopCommands } = showStackPlayer(e);
+      stopCommands.forEach((command) => {
+        emitPlaybackCommand(events.emit, command);
+      });
       clearRunAfter(hideLastPlayerTimeoutRef.current);
 
       log.debug('player:playing', e);
     },
-    [showStackPlayer, getChokeGroupPlayers, events]
+    [showStackPlayer, events.emit]
   );
 
   const handlePlayerStopped = useCallback(
@@ -268,8 +184,6 @@ export const PlayerContainer = () => {
   useEffect(() => {
     showPlayer('title');
 
-    // window.getPlayerElements = () => getPlayerElements();
-
     events.on('pad:touchdown', handlePadTouchdown);
     events.on('pad:touchup', handlePadTouchup);
     events.on('player:playing', handlePlayerPlaying);
@@ -310,4 +224,16 @@ export const PlayerContainer = () => {
       ))}
     </>
   );
+};
+
+const emitPlaybackCommand = (
+  emit: ReturnType<typeof useEvents>['emit'],
+  command: PlaybackCommand
+) => {
+  if (command.type === 'video:start') {
+    emit('video:start', command.payload);
+    return;
+  }
+
+  emit('video:stop', command.payload);
 };

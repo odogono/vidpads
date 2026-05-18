@@ -5,9 +5,15 @@ import {
   getAllPlayerDataState,
   hidePlayer,
   setPlayerData,
-  setPlayerDataStatePlaying,
   showPlayer
 } from '../helpers';
+import {
+  PlaybackRuntimeState,
+  PlaybackStackDecision,
+  forceHidePlayer,
+  handlePlaybackStarted,
+  handlePlaybackStopped
+} from '../playbackEngine/stack';
 import { PlayerPlaying } from '../types';
 
 const log = createLog('usePlayingStack', ['debug']);
@@ -17,159 +23,90 @@ export const usePlayingStack = ({
 }: {
   hidePlayerOnEnd: boolean;
 }) => {
-  const updateStack = useCallback(
-    (overrideKeepLastPlayerVisible: boolean = false) => {
-      const states = getAllPlayerDataState();
+  const hideStackPlayer = useCallback(
+    (hideId: string, overrideKeepLastPlayerVisible: boolean = false) => {
+      const state = readPlaybackRuntimeState();
+      const player = state.players.find(({ id }) => id === hideId);
+      const result = overrideKeepLastPlayerVisible
+        ? forceHidePlayer(state, hideId)
+        : handlePlaybackStopped(
+            state,
+            { url: player?.url ?? '', padId: hideId, time: 0 },
+            { hidePlayerOnEnd, overrideKeepLastPlayerVisible }
+          );
 
-      const playing = states.filter(
-        ({ id, isPlaying }) => isPlaying && id !== 'title'
-      );
+      syncPlaybackRuntimeState(state, result.state);
+      applyStackDecision(result.decision);
 
-      const stopped = states.filter(
-        ({ id, isPlaying }) => !isPlaying && id !== 'title'
-      );
-
-      // sort the stopped players by stoppedAt - newest first
-      const sortedStopped = stopped.sort(
-        (a, b) => (b.stoppedAt ?? 0) - (a.stoppedAt ?? 0)
-      );
-
-      log.debug('[updateStack] playing', playing.map(({ id }) => id).join(','));
-      log.debug(
-        '[updateStack] stopped',
-        sortedStopped.map(({ id }) => id).join(',')
-      );
-
-      if (playing.length === 0) {
-        if (sortedStopped.length > 0) {
-          const lastStopped = sortedStopped[0];
-          if (lastStopped.isVisible) {
-            log.debug('[updateStack] lastStopped', lastStopped.id, {
-              hidePlayerOnEnd
-            });
-            if (hidePlayerOnEnd || overrideKeepLastPlayerVisible) {
-              hidePlayer(lastStopped.id);
-            } else {
-              // keep the last player visible
-              log.debug(
-                '[updateStack] keeping last player visible',
-                lastStopped.id
-              );
-              return {
-                playing: playing.length,
-                stopped: stopped.length,
-                lastId: lastStopped.id
-              };
-            }
-          }
-        }
-      }
-
-      // hide all the stopped players
-      stopped.forEach(({ id }) => {
-        hidePlayer(id);
+      log.debug('hideStackPlayer', {
+        hideId,
+        playersPlayingCount: result.decision.playingCount
       });
-
-      // remove the title from the playing stack
-      // const playingWithoutTitle = playing.filter(({ id }) => id !== 'title');
-
-      // if there are no playing players, show the title
-      if (playing.length === 0) {
-        showPlayer('title');
-        setPlayerDataStatePlaying('title', true);
-        return {
-          playing: playing.length,
-          stopped: stopped.length,
-          lastId: undefined
-        };
-      }
-
-      // sort the playing players by startedAt - oldest first
-      const sortedPlaying = playing.sort(
-        (a, b) => (a.startedAt ?? 0) - (b.startedAt ?? 0)
-      );
-
-      // sort the playing players by priority
-      const sortedPlayingByPriority = sortedPlaying.sort(
-        (a, b) => (a.playPriority ?? 0) - (b.playPriority ?? 0)
-      );
-
-      // hide all the playing players apart from the last one
-      sortedPlayingByPriority.slice(0, -1).forEach(({ id }) => {
-        hidePlayer(id);
-      });
-
-      // show the last playing player
-      const lastId =
-        sortedPlayingByPriority[sortedPlayingByPriority.length - 1].id;
-      showPlayer(lastId);
-
-      log.debug('updateStack: states', sortedPlayingByPriority);
 
       return {
-        playing: playing.length,
-        stopped: stopped.length,
-        lastId: lastId
+        playing: result.decision.playingCount,
+        stopped: result.decision.stoppedCount,
+        lastId: result.decision.lastPlayerId,
+        stopCommands: result.decision.stopCommands
       };
-      // console.debug('[usePlayingStack]', playing.length, stopped.length);
     },
     [hidePlayerOnEnd]
   );
 
-  const getPlayersPlayingCount = useCallback(() => {
-    const states = getAllPlayerDataState();
-
-    const playing = states.filter(
-      ({ id, isPlaying }) => isPlaying && id !== 'title'
-    );
-
-    return playing.length;
-  }, []);
-
-  const hideStackPlayer = useCallback(
-    (hideId: string, overrideKeepLastPlayerVisible: boolean = false) => {
-      const playersPlayingCount = getPlayersPlayingCount();
-
-      const el = setPlayerDataStatePlaying(hideId, false);
-
-      log.debug('hideStackPlayer', { hideId, playersPlayingCount }, el);
-
-      return updateStack(overrideKeepLastPlayerVisible);
-    },
-    [updateStack, getPlayersPlayingCount]
-  );
-
   const showStackPlayer = useCallback(
     (player: PlayerPlaying) => {
-      setPlayerData(player.padId, {
-        url: player.url,
-        isPlaying: true,
-        chokeGroup: player.chokeGroup,
-        playPriority: player.playPriority,
-        startedAt: performance.now(),
-        stoppedAt: undefined,
-        isOneShot: player.isOneShot,
-        isLoop: player.isLoop,
-        isResume: player.isResume
-      });
+      const before = readPlaybackRuntimeState();
+      const result = handlePlaybackStarted(before, player);
 
-      return updateStack();
+      syncPlaybackRuntimeState(before, result.state);
+      applyStackDecision(result.decision);
+
+      return {
+        playing: result.decision.playingCount,
+        stopped: result.decision.stoppedCount,
+        lastId: result.decision.lastPlayerId,
+        stopCommands: result.decision.stopCommands
+      };
     },
-    [updateStack]
+    []
   );
-
-  const getChokeGroupPlayers = useCallback((chokeGroup: number) => {
-    const states = getAllPlayerDataState();
-    const playing = states.filter(
-      ({ id, isPlaying }) => isPlaying && id !== 'title'
-    );
-
-    return playing.filter(({ chokeGroup: group }) => group === chokeGroup);
-  }, []);
 
   return {
     hideStackPlayer,
-    showStackPlayer,
-    getChokeGroupPlayers
+    showStackPlayer
   };
+};
+
+const readPlaybackRuntimeState = (): PlaybackRuntimeState => ({
+  players: getAllPlayerDataState()
+});
+
+const syncPlaybackRuntimeState = (
+  before: PlaybackRuntimeState,
+  after: PlaybackRuntimeState
+) => {
+  const beforeById = new Map(before.players.map((p) => [p.id, p]));
+  after.players.forEach((player) => {
+    if (beforeById.get(player.id) === player) return;
+    setPlayerData(player.id, {
+      url: player.url ?? '',
+      isPlaying: player.isPlaying,
+      chokeGroup: player.chokeGroup,
+      playPriority: player.playPriority,
+      startedAt: player.startedAt,
+      stoppedAt: player.stoppedAt,
+      isOneShot: player.isOneShot,
+      isLoop: player.isLoop,
+      isResume: player.isResume
+    });
+  });
+};
+
+const applyStackDecision = (decision: PlaybackStackDecision) => {
+  decision.hidePlayerIds.forEach((id) => {
+    hidePlayer(id);
+  });
+  decision.showPlayerIds.forEach((id) => {
+    showPlayer(id);
+  });
 };

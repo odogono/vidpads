@@ -1,15 +1,12 @@
 import { useCallback } from 'react';
 
-import { isObjectEqual } from '@helpers/diff';
 import { createLog } from '@helpers/log';
 import { isYouTubeMetadata } from '@helpers/metadata';
 import { VOKeys } from '@model/constants';
-import {
-  getMediaData as dbGetMediaData,
-  updateMetadataProperty as dbUpdateMetadataProperty
-} from '@model/db/api';
+import { getMediaData as dbGetMediaData } from '@model/db/api';
 import { MediaYouTube, PlayerHandler, PlayerMap } from '@model/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { applyPlayerUpdate } from './playerStateUpdate';
 
 const defaultPlayer: PlayerHandler = {
   padId: '',
@@ -104,49 +101,4 @@ export const usePlayerState = (padId: string, mediaUrl?: string) => {
     onPlayerUpdate,
     onPlayerDestroyed: destroyPlayer
   };
-};
-
-const applyPlayerUpdate = async (
-  player: PlayerHandler | undefined,
-  updatedPlayer: Partial<PlayerHandler>
-): Promise<PlayerHandler> => {
-  if (!player) throw new Error('Player not found');
-  const { mediaUrl, padId } = { ...player, ...updatedPlayer };
-
-  if (!mediaUrl)
-    log.debug('[mutatePlayer]', 'no mediaUrl', { ...player, ...updatedPlayer });
-  if (!padId)
-    log.debug('[mutatePlayer]', 'no padId', { ...player, ...updatedPlayer });
-
-  if (player?.duration === -1 && updatedPlayer.duration !== -1) {
-    log.debug('[mutatePlayer]', 'updated duration', updatedPlayer.duration);
-    await dbUpdateMetadataProperty(
-      mediaUrl,
-      'duration',
-      updatedPlayer.duration
-    );
-  }
-  if (
-    player?.playbackRates &&
-    updatedPlayer.playbackRates &&
-    !isObjectEqual(player?.playbackRates, updatedPlayer.playbackRates)
-  ) {
-    log.debug(
-      '[mutatePlayer]',
-      'updated playbackRates',
-      updatedPlayer.playbackRates
-    );
-    await dbUpdateMetadataProperty(
-      mediaUrl,
-      'playbackRates',
-      updatedPlayer.playbackRates
-    );
-  }
-
-  const newPlayer: PlayerHandler = {
-    ...player,
-    ...updatedPlayer
-  } as PlayerHandler;
-  // log.debug('mutatePlayer', newPlayer);
-  return Promise.resolve(newPlayer);
 };

@@ -7,7 +7,7 @@ export interface DataSetPlayerData {
   chokeGroup?: number;
   playPriority?: number;
   startedAt?: number;
-  stoppedAt?: number | undefined;
+  stoppedAt?: number;
   isOneShot?: boolean;
   isLoop?: boolean;
   isResume?: boolean;

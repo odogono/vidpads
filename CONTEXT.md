@@ -24,11 +24,16 @@ _Avoid_: Source
 Request-time metadata for a shared Project URL, used by link unfurlers before the browser-local app loads.
 _Avoid_: Backend project state
 
+**Playback Engine**:
+The browser-local runtime boundary that turns Pad triggers into playback commands, readiness state, choke-group stops, priority ordering, and visible playback state.
+_Avoid_: Player, backend playback
+
 ## Relationships
 
 - A **Project** contains multiple **Pads**.
 - A **Pad** may have zero or one active **Media Source**.
 - A **Media Source** resolves to **Media** before playback, thumbnailing, or persistence.
+- The **Playback Engine** interprets **Pad** triggers and coordinates playback through Player adapters.
 - A **Share Preview** may describe a **Project**, but it does not persist Project or Media data outside the browser.
 
 ## Example dialogue
@@ -39,3 +44,4 @@ _Avoid_: Backend project state
 ## Flagged ambiguities
 
 - "source" was used to mean both the assignable **Media Source** and the resolved **Media**. Resolved: use **Media Source** for the input assigned to a pad, and **Media** for resolved metadata/stored data.
+- "player" is overloaded in code between React components, adapter instances, DOM surfaces, and runtime state. Use **Playback Engine** for the domain/runtime boundary and reserve Player for adapter or component names.
