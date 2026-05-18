@@ -8,12 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v1.15.0 (2026-05-18)
+
+### Added
+- added project domain context and an ADR for the canonical project media workflow
+- added Playwright E2E coverage for player loading and project media import/export flows
+- added a typed media source acceptance contract for supported local files and browser-local or YouTube media sources
+
 ### Changed
 - refactored project loading and pad media operations behind a project media workflow boundary
+- made the project media workflow the canonical path for project lifecycle, pad media operations, thumbnail repair, and cache invalidation
+- retired the old direct file-to-pad model entrypoint
 
 
 ### Fixed
 - interval editor disabled when pad is empty
+- loading or creating a project now replaces the full current project context instead of only project metadata
 
 
 ## v1.4.1 (2025-03-05)

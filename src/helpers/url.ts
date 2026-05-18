@@ -112,11 +112,6 @@ export const isValidSourceUrl = (url?: string): boolean => {
 
   if (url.trim() === '') return false;
 
-  // return true if the url starts with http or https and ends with mp4
-  if (url.startsWith('http') && url.endsWith('.mp4')) {
-    return true;
-  }
-
   if (isYouTubeVideoId(url)) {
     return true;
   }

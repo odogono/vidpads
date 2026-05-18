@@ -71,6 +71,7 @@ export const Main = () => {
             }`}
           >
             <div
+              data-testid='player-surface'
               className={`vo-player-wrapper relative w-full h-full min-h-[20vh] overflow-hidden ${isFullscreen ? 'bg-black' : 'bg-video-off'} rounded-lg`}
             >
               <PlayerContainer />

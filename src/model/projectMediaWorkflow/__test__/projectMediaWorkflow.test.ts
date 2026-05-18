@@ -7,7 +7,7 @@ import { ProjectMediaWorkflowDeps, createProjectMediaWorkflow } from '../index';
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const youtubeMedia: Media = {
-  url: 'https://youtube.com/watch?v=abc123&t=12',
+  url: 'https://youtube.com/watch?v=abc123abc12&t=12',
   name: 'YouTube clip',
   sizeInBytes: 0,
   mimeType: 'video/youtube',
@@ -67,6 +67,7 @@ const makeDeps = (overrides: Partial<ProjectMediaWorkflowDeps> = {}) => {
   const deletedMediaThumbnails: string[] = [];
   const invalidations: string[] = [];
   const notifications: string[] = [];
+  let deletedEverything = false;
 
   const projectById = new Map<string, ProjectStoreContextType>();
   const padClipboard = { value: '' };
@@ -82,7 +83,19 @@ const makeDeps = (overrides: Partial<ProjectMediaWorkflowDeps> = {}) => {
         savedProjects.push(project);
         projectById.set(project.projectId, project);
       },
-      listDetails: async () => []
+      listDetails: async () =>
+        Array.from(projectById.values()).map(
+          ({ projectId, projectName, createdAt, updatedAt }) => ({
+            projectId,
+            projectName,
+            createdAt,
+            updatedAt
+          })
+        ),
+      deleteAll: async () => {
+        deletedEverything = true;
+        projectById.clear();
+      }
     },
     mediaRepository: {
       getMetadata: async () => null,
@@ -174,6 +187,9 @@ const makeDeps = (overrides: Partial<ProjectMediaWorkflowDeps> = {}) => {
     savedPadThumbnails,
     deletedPadThumbnails,
     deletedMediaThumbnails,
+    get deletedEverything() {
+      return deletedEverything;
+    },
     invalidations,
     notifications,
     padClipboard
@@ -181,6 +197,83 @@ const makeDeps = (overrides: Partial<ProjectMediaWorkflowDeps> = {}) => {
 };
 
 describe('ProjectMediaWorkflow', () => {
+  it('accepts supported media sources and rejects unsupported sources with typed failures', async () => {
+    const test = makeDeps();
+    const workflow = createProjectMediaWorkflow(test.deps);
+    const session = await workflow.openProject({ projectId: 'new' });
+    const imageFile = new File(['image'], 'image.png', { type: 'image/png' });
+    const unsupportedFile = new File(['text'], 'notes.txt', {
+      type: 'text/plain'
+    });
+
+    await expect(
+      session.acceptMediaSource(youtubeMedia.url)
+    ).resolves.toMatchObject({ ok: true, kind: 'url' });
+    await expect(session.acceptMediaSource(imageFile)).resolves.toMatchObject({
+      ok: true,
+      kind: 'file'
+    });
+    await expect(session.acceptMediaSource(imageMedia)).resolves.toMatchObject({
+      ok: true,
+      kind: 'media'
+    });
+    await expect(
+      session.acceptMediaSource('https://vimeo.com/123')
+    ).resolves.toMatchObject({
+      ok: false,
+      code: 'unsupported-url'
+    });
+    await expect(
+      session.acceptMediaSource(unsupportedFile)
+    ).resolves.toMatchObject({
+      ok: false,
+      code: 'unsupported-file-type'
+    });
+  });
+
+  it('creates, renames, lists, loads, exports, imports, and deletes projects through the workflow', async () => {
+    const test = makeDeps();
+    const routedProjectIds: string[] = [];
+    test.deps.routing = {
+      setProjectId: (projectId) => routedProjectIds.push(projectId)
+    };
+
+    const workflow = createProjectMediaWorkflow(test.deps);
+
+    const created = await workflow.createProject();
+    await workflow.renameProject({
+      session: created,
+      projectName: 'Live set'
+    });
+
+    const details = await workflow.listProjectDetails();
+    const exported = await workflow.exportProjectToURLString(created);
+    const imported = await workflow.importProjectFromJSONString(
+      JSON.stringify(makeProjectExport('json-project', youtubeMedia.url))
+    );
+    const loaded = await workflow.loadProject(imported.projectId);
+
+    await workflow.deleteEverything();
+
+    expect(created.store.getSnapshot().context.projectName).toBe('Live set');
+    expect(details).toContainEqual(
+      expect.objectContaining({
+        projectId: created.projectId,
+        projectName: 'Live set'
+      })
+    );
+    expect(exported).toBe('project-url');
+    expect(imported.projectId).toBe('json-project');
+    expect(loaded.projectId).toBe('json-project');
+    expect(test.deletedEverything).toBe(true);
+    expect(routedProjectIds).toEqual(
+      expect.arrayContaining([created.projectId, 'json-project'])
+    );
+    expect(test.invalidations).toEqual(
+      expect.arrayContaining(['allPads', 'allMetadata', 'players'])
+    );
+  });
+
   it('opens an imported project, persists it, routes to the imported id, and hydrates pad media', async () => {
     const test = makeDeps();
     const routedProjectIds: string[] = [];
@@ -263,6 +356,23 @@ describe('ProjectMediaWorkflow', () => {
       projectId: session.projectId,
       padId: 'a2',
       thumbnail: 'image.png-thumb'
+    });
+  });
+
+  it('resolves and saves missing pad thumbnails through the workflow', async () => {
+    const test = makeDeps();
+    const workflow = createProjectMediaWorkflow(test.deps);
+    const session = await workflow.openProject({ projectId: 'new' });
+
+    await session.attachMedia({ padId: 'a1', input: youtubeMedia });
+
+    const thumbnail = await session.getPadThumbnail({ padId: 'a1' });
+
+    expect(thumbnail).toBe('remote-thumb');
+    expect(test.savedPadThumbnails).toContainEqual({
+      projectId: session.projectId,
+      padId: 'a1',
+      thumbnail: 'remote-thumb'
     });
   });
 

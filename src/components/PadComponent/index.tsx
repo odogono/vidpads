@@ -283,6 +283,7 @@ export const PadComponent = ({
   return (
     <div
       id={`pad-${pad.id}`}
+      data-testid={`pad-${pad.id}`}
       ref={elementRef}
       className={cn(
         `
@@ -326,6 +327,7 @@ export const PadComponent = ({
       {thumbnail && (
         <div className='w-full h-full absolute inset-0 rounded-lg'>
           <img
+            data-testid={`pad-${pad.id}-thumbnail`}
             src={thumbnail}
             alt={`Thumbnail for pad ${pad.id}`}
             title={playerError ? playerError : `Thumbnail for pad ${pad.id}`}

@@ -131,6 +131,7 @@ export const SelectSourceModal = ({ ref }: CommonModalBase) => {
     >
       <input
         type='file'
+        data-testid='media-source-file-input'
         ref={fileInputRef}
         className='hidden'
         accept={ACCEPTED_FILE_TYPES.join(',')}

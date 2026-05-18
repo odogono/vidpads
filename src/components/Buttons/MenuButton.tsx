@@ -82,7 +82,7 @@ export const MenuButton = () => {
         }}
       >
         <DropdownTrigger>
-          <Button color='primary' isIconOnly>
+          <Button aria-label='Open menu' color='primary' isIconOnly>
             <Menu />
           </Button>
         </DropdownTrigger>

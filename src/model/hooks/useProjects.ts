@@ -1,23 +1,14 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import {
-  exportToURLString,
-  urlStringToProject
-} from '@/model/serialise/project';
-import { dateToISOString, formatShortDate } from '@helpers/datetime';
 import { createLog } from '@helpers/log';
-import { invalidateQueryKeys, resetAllQueries } from '@helpers/query';
 import { useProject } from '@hooks/useProject';
 import { VOKeys } from '@model/constants';
 import {
-  deleteDB as dbDeleteDB,
-  getAllProjectDetails as dbGetAllProjectDetails,
-  saveProject as dbSaveProject,
-  saveProjectState as dbSaveProjectState
-} from '@model/db/api';
+  createBrowserProjectMediaWorkflowDeps,
+  createProjectMediaSession,
+  createProjectMediaWorkflow
+} from '@model/projectMediaWorkflow';
 import { useCurrentProject } from '@model/hooks/useCurrentProject';
-import { createStore } from '@model/store/store';
-import { ProjectStoreContextType } from '@model/store/types';
 import { ProjectExport } from '@model/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -27,49 +18,55 @@ export const useProjects = () => {
   const { project, setProjectId } = useProject();
   const queryClient = useQueryClient();
   const { projectId, projectName } = useCurrentProject();
+  const deps = useMemo(
+    () =>
+      createBrowserProjectMediaWorkflowDeps({
+        queryClient,
+        routing: { setProjectId }
+      }),
+    [queryClient, setProjectId]
+  );
+  const workflow = useMemo(() => createProjectMediaWorkflow(deps), [deps]);
+  const session = useMemo(
+    () =>
+      createProjectMediaSession({
+        deps,
+        projectId,
+        store: project,
+        autosave: false
+      }),
+    [deps, project, projectId]
+  );
 
   const loadProjectFromJSON = useCallback(
     async (data: ProjectExport) => {
-      // await deleteAllPadThumbnails();
-      const newStore = createStore();
-      newStore.send({ type: 'importProject', data });
-      const snapshot = newStore.getSnapshot();
-
-      await dbSaveProjectState(snapshot.context);
-
-      log.debug('[loadProjectFromJSON] project', snapshot.context.projectId);
-
-      setProjectId(snapshot.context.projectId);
-
-      // invalidateAllQueries(queryClient);
+      const imported = await workflow.importProjectFromJSONString(
+        JSON.stringify(data)
+      );
+      project.send({
+        type: 'updateProject',
+        project: imported.store.getSnapshot().context
+      });
       return true;
     },
-    [setProjectId]
+    [project, workflow]
   );
 
   const importFromURLString = useCallback(
     async (urlString: string) => {
-      const data = await urlStringToProject(urlString);
-
-      const newStore = createStore();
-      newStore.send({ type: 'importProject', data });
-      const snapshot = newStore.getSnapshot();
-
-      await dbSaveProjectState(snapshot.context);
-
-      log.debug('[loadProjectFromJSON] project', snapshot.context.projectId);
-
-      setProjectId(snapshot.context.projectId);
-
+      const imported = await workflow.importProjectFromURLString(urlString);
+      project.send({
+        type: 'updateProject',
+        project: imported.store.getSnapshot().context
+      });
       return true;
     },
-    [setProjectId]
+    [project, workflow]
   );
 
   const exportProjectToURLString = useCallback(async () => {
-    const urlString = await exportToURLString(project);
-    return urlString;
-  }, [project]);
+    return workflow.exportProjectToURLString(session);
+  }, [session, workflow]);
 
   const importFromJSONString = useCallback(
     async (json: string) => {
@@ -83,51 +80,29 @@ export const useProjects = () => {
 
   const loadProject = useCallback(
     async (projectId: string) => {
-      queryClient.invalidateQueries({ queryKey: VOKeys.project(projectId) });
-      setProjectId(projectId);
+      const loaded = await workflow.loadProject(projectId);
+      project.send({
+        type: 'updateProject',
+        project: loaded.store.getSnapshot().context
+      });
       return true;
     },
-    [queryClient, setProjectId]
+    [project, workflow]
   );
 
   const createNewProject = useCallback(async () => {
-    const newStore = createStore();
-    const snapshot = newStore.getSnapshot();
-    const newProjectId = snapshot.context.projectId;
-    await dbSaveProjectState(snapshot.context);
-
-    log.debug('createNewProject', newProjectId);
-
-    setProjectId(newProjectId);
-
+    const created = await workflow.createProject();
+    project.send({
+      type: 'updateProject',
+      project: created.store.getSnapshot().context
+    });
     return true;
-  }, [setProjectId]);
+  }, [project, workflow]);
 
   const { mutateAsync: saveProject } = useMutation({
     mutationFn: async (projectName: string = '') => {
-      if (!projectName) {
-        projectName = `Untitled ${formatShortDate()}`;
-      }
       log.debug('Saving project:', projectName);
-
-      const data = project.getSnapshot().context;
-      const saveData: ProjectStoreContextType = {
-        ...data,
-        projectName,
-        updatedAt: dateToISOString()
-      };
-
-      log.debug('Saving project:', data);
-
-      await dbSaveProject(saveData);
-
-      // update the project id and name
-      project.send({ type: 'updateProject', project: saveData });
-
-      return saveData;
-    },
-    onSuccess: () => {
-      invalidateQueryKeys(queryClient, [[...VOKeys.projectDetails()]]);
+      return workflow.renameProject({ session, projectName });
     }
   });
 
@@ -137,8 +112,7 @@ export const useProjects = () => {
         queryKey: [...VOKeys.projectDetails()],
         queryFn: async () => {
           try {
-            const projectDetails = await dbGetAllProjectDetails();
-            return projectDetails;
+            return await workflow.listProjectDetails();
           } catch {
             // log.warn('[usePadThumbnail] Error getting thumbnail:', error);
             return null;
@@ -149,13 +123,15 @@ export const useProjects = () => {
       log.error('Failed to get all project details:', err);
       return [];
     }
-  }, [queryClient]);
+  }, [queryClient, workflow]);
 
   const deleteEverything = useCallback(async () => {
-    await dbDeleteDB();
-    await resetAllQueries(queryClient);
-    await createNewProject();
-  }, [createNewProject, queryClient]);
+    const created = await workflow.deleteEverything();
+    project.send({
+      type: 'updateProject',
+      project: created.store.getSnapshot().context
+    });
+  }, [project, workflow]);
 
   return {
     projectId,
